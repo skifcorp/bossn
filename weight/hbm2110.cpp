@@ -1,0 +1,59 @@
+#include "hbm2110.h"
+#include <QString>
+#include <QByteArray>
+#include <QDebug>
+
+bool Hbm2110::registered = Hbm2110::registerInFact();
+
+void Hbm2110::readWeight(WeightDevice * io, float & ret, uint & err)
+{
+    QByteArray req = weightRequestFrame();
+    io->write(req);
+
+    const uchar frame_size = 17;
+    while ( io->bytesAvailable() < frame_size ) {
+        Coroutine::yield();
+    }
+
+    QByteArray answ = io->read(frame_size);
+
+    ret = parseWeightFrameAnswer(answ, err);
+}
+
+void Hbm2110::zero(WeightDevice *, uint &)
+{
+
+}
+
+QByteArray Hbm2110::weightRequestFrame() const
+{
+    QByteArray ba;
+    ba += "S";
+    ba += QByteArray::number(address);
+    ba += ";MSV?;";
+
+    return ba;
+}
+
+float Hbm2110::parseWeightFrameAnswer(const QByteArray& ba, uint & err) const
+{
+    if (parseAddress(ba) != address) {
+        //throw WeightFrameExceptionBadAddress();
+        err = WeightFrameBadAddress; return NAN;
+    }
+
+    QByteArray ret = ba.left(8);
+
+    bool ok = false;
+    float fret = ret.toFloat(&ok);
+
+    if (!ok) {
+        //throw WeightFrameExceptionCorrupted();
+        err = WeightFrameCorrupted; return NAN;
+    }
+
+    return fret;
+}
+
+
+
