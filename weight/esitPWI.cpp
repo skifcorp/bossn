@@ -5,7 +5,7 @@
 
 bool EsitPWI::registered = EsitPWI::registerInFact();
 
-void EsitPWI::readWeight(WeightDevice * io, float & ret, uint & err)
+void EsitPWI::readWeight(IoDeviceWrapper * io, float & ret, uint & err)
 {
     QByteArray req = weightRequestFrame(err);
     if (err) return;
@@ -14,7 +14,7 @@ void EsitPWI::readWeight(WeightDevice * io, float & ret, uint & err)
 
     const uchar frame_size = 8;
     while ( io->bytesAvailable() < frame_size ) {
-        Coroutine::yield();
+        yield();
     }
 
     QByteArray answ = io->read(frame_size);
@@ -22,7 +22,7 @@ void EsitPWI::readWeight(WeightDevice * io, float & ret, uint & err)
     ret = parseWeightFrameAnswer(answ, err);
 }
 
-void EsitPWI::zero(WeightDevice *, uint &)
+void EsitPWI::zero(IoDeviceWrapper *, uint &)
 {
 
 }

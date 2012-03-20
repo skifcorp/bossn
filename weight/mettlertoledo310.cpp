@@ -6,14 +6,14 @@
 bool MettlerToledo310::registered = MettlerToledo310::registerInFact();
 
 
-void MettlerToledo310::readWeight(WeightDevice * io, float & ret, uint & err)
+void MettlerToledo310::readWeight(IoDeviceWrapper * io, float & ret, uint & err)
 {
     QByteArray req = weightRequestFrame();
     io->write(req);
 
     const uchar frame_size = 8;
     while ( io->bytesAvailable() < frame_size ) {
-        Coroutine::yield();
+        yield();
     }
 
     QByteArray answ = io->read(frame_size);
@@ -21,7 +21,7 @@ void MettlerToledo310::readWeight(WeightDevice * io, float & ret, uint & err)
     ret = parseWeightFrameAnswer(answ, err);
 }
 
-void MettlerToledo310::zero(WeightDevice *, uint &)
+void MettlerToledo310::zero(IoDeviceWrapper *, uint &)
 {
 
 }

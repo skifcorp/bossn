@@ -2,17 +2,19 @@
 #include <QString>
 #include <QByteArray>
 #include <QDebug>
+#include <typeinfo>
+
 
 bool Hbm2110::registered = Hbm2110::registerInFact();
 
-void Hbm2110::readWeight(WeightDevice * io, float & ret, uint & err)
+void Hbm2110::readWeight(IoDeviceWrapper * io, float & ret, uint & err)
 {
     QByteArray req = weightRequestFrame();
     io->write(req);
 
     const uchar frame_size = 17;
     while ( io->bytesAvailable() < frame_size ) {
-        Coroutine::yield();
+        yield();
     }
 
     QByteArray answ = io->read(frame_size);
@@ -20,7 +22,7 @@ void Hbm2110::readWeight(WeightDevice * io, float & ret, uint & err)
     ret = parseWeightFrameAnswer(answ, err);
 }
 
-void Hbm2110::zero(WeightDevice *, uint &)
+void Hbm2110::zero(IoDeviceWrapper *, uint &)
 {
 
 }
@@ -51,6 +53,8 @@ float Hbm2110::parseWeightFrameAnswer(const QByteArray& ba, uint & err) const
         //throw WeightFrameExceptionCorrupted();
         err = WeightFrameCorrupted; return NAN;
     }
+
+    qDebug () << "getWeight: " << fret;
 
     return fret;
 }

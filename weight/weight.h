@@ -12,7 +12,7 @@ using std::function;
 
 
 #include "coroutine.h"
-#include "weightdevice.h"
+#include "iodevicewrapper.h"
 
 /*
 class WeightFrameException
@@ -52,17 +52,21 @@ public:
     typedef QSharedPointer<WeightDriver> Pointer;
 
     enum WeightError {
-        WeightFrameOk = 0, WeightFrameCorrupted, WeightFrameBadConf, WeightFrameBadAddress
+        WeightFrameOk = 0, WeightFrameCorrupted, WeightFrameBadConf, WeightFrameBadAddress, WeightFrameNotAnswer
     };
 
     virtual ~WeightDriver(){}
 
-    virtual void readWeight(WeightDevice *, float &, uint & ) {}
-    virtual void zero(WeightDevice *, uint &) {}
+    virtual void readWeight(IoDeviceWrapper *, float &, uint & ) {}
+    virtual void zero(IoDeviceWrapper *, uint &) {}
 
     static Pointer create(const QString& n, const QMap<QString, QVariant>& drv_conf )
     {
-        return Pointer(factory_map()[n](drv_conf));
+        if (factory_map().contains(n))
+            return Pointer(factory_map()[n](drv_conf));
+
+        qWarning() << "WeightDriver factory dont contains: "<<n<< " class";
+        return Pointer();
     }
 
 protected:
@@ -74,6 +78,10 @@ protected:
     {
         static FactoryMap map;
         return map;
+    }
+    void yield()
+    {
+        Coroutine::yield();
     }
 
 };

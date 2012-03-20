@@ -5,7 +5,7 @@
 #include "tools.h"
 #include "mrwsettings.h"
 #include "weighter.h"
-
+#include "qextserialport.h"
 
 bool initMrw();
 int work();
@@ -29,24 +29,24 @@ void initWeighters(QVector<Weighter::Pointer>& weighters)
     settings["timeout"]     = 100;
 
     {
-        Weighter::Pointer w = Weighter::Pointer(new Weighter);
+        Weighter::Pointer w = Weighter::Pointer(new Weighter(true));
 
         settings["portName"] = MrwSettings::instance()->platformaWeightPort[0];
-
         QMap<QString, QVariant> opts; opts["address"] = MrwSettings::instance()->platformaWeightAddress[0];
-        w->setWeightDevice("WeightDeviceSerial", settings);
+
+        w->setWeightDevice("IoDeviceSerial", settings);
         w->addDriver(MrwSettings::instance()->platformaWeightType[0], opts);
 
         weighters.push_back(w);
     }
 
     {
-        Weighter::Pointer w = Weighter::Pointer(new Weighter);
+        Weighter::Pointer w = Weighter::Pointer(new Weighter(true));
 
         settings["portName"] = MrwSettings::instance()->platformaWeightPort[1];
         QMap<QString, QVariant> opts; opts["address"] = MrwSettings::instance()->platformaWeightAddress[1];
 
-        w->setWeightDevice("WeightDeviceSerial", settings);
+        w->setWeightDevice("IoDeviceSerial", settings);
         w->addDriver(MrwSettings::instance()->platformaWeightType[1], opts);
 
         weighters.push_back(w);

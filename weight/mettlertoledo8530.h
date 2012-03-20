@@ -7,8 +7,8 @@ class MettlerToledo8530 : public WeightDriver
 {
 public:
     //~MettlerToledo8530 () {}
-    virtual void readWeight(WeightDevice *, float & ret, uint &);
-    virtual void zero(WeightDevice *, uint &);
+    virtual void readWeight(IoDeviceWrapper *, float & ret, uint &);
+    virtual void zero(IoDeviceWrapper *, uint &);
 
 
     static MettlerToledo8530 * create (const QMap<QString, QVariant>& drv_conf)

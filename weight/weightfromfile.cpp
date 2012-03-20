@@ -4,14 +4,14 @@
 #include <QFile>
 
 
-void WeightFromFile::readWeight(WeightDevice * io, float & ret, uint & err)
+void WeightFromFile::readWeight(IoDeviceWrapper * io, float & ret, uint & err)
 {
     QByteArray ba = io->readAll();
 
     ret = parseWeightFrameAnswer(ba, err);
 }
 
-void WeightFromFile::zero(WeightDevice *, uint &)
+void WeightFromFile::zero(IoDeviceWrapper *, uint &)
 {
 
 }

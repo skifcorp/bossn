@@ -6,8 +6,8 @@
 class EsitPWI : public WeightDriver
 {
 public:
-    virtual void readWeight(WeightDevice *, float & ret, uint &);
-    virtual void zero(WeightDevice *, uint &);
+    virtual void readWeight(IoDeviceWrapper *, float & ret, uint &);
+    virtual void zero(IoDeviceWrapper *, uint &);
 
     static EsitPWI * create (const QMap<QString, QVariant>& drv_conf)
     {

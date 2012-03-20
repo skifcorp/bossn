@@ -13,7 +13,7 @@ CONFIG   += console
 CONFIG   -= app_bundle
 
 TEMPLATE = app
-INCLUDEPATH  += ../qextserialport/src/ serial weight generic ../coroutine/src/
+INCLUDEPATH  += ../qextserialport/src/ serial weight generic iodevicewrapper scheduler ../coroutine/src/
 QMAKE_CXXFLAGS += -std=gnu++0x
 LIBS         += -L../qextserialport_build/src/build/ -lqextserialport -L../coroutine_build/src/release/ -lcoroutine
 
@@ -26,9 +26,12 @@ SOURCES += main.cpp \
     weight/hbm2110.cpp \
     weight/esitPWI.cpp \
     weight/weightfromfile.cpp \
-    weight/weightdevice.cpp \
-    weight/weightdeviceserial.cpp \
-    weight/weightdevicefile.cpp
+    dido/didoer.cpp \
+    scheduler/scheduler.cpp \
+    iodevicewrapper/iodevicewrapper.cpp \
+    iodevicewrapper/iodeviceserial.cpp \
+    iodevicewrapper/iodevicefile.cpp \ 
+    iodevicewrapper/iodevicediscrete.cpp
 
 HEADERS += \    
     func.h \
@@ -41,6 +44,10 @@ HEADERS += \
     weight/esitPWI.h \
     weight/weightfromfile.h \
     weight/weight.h \
-    weight/weightdevice.h \
-    weight/weightdeviceserial.h \
-    weight/weightdevicefile.h
+    dido/didoer.h \
+    dido/didodriver.h \
+    scheduler/scheduler.h \
+    iodevicewrapper/iodevicewrapper.h \
+    iodevicewrapper/iodeviceserial.h \
+    iodevicewrapper/iodevicefile.h \  
+    iodevicewrapper/iodevicediscrete.h
