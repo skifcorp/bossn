@@ -16,53 +16,93 @@ using std::function;
 
 class IoDeviceWrapper;
 
-class Scheduler : public QObject
+struct Schedul
+{
+    typedef QSharedPointer<QTimer> TimerPointer;
+
+    function<void ()> schedule_func;
+    function<void ()> timeout_func;
+    TimerPointer schedule_timer;
+    TimerPointer timeout_timer;
+
+    Schedul( function<void ()> schf, function<void ()> tmf, int schedul_msec, int timeout_msec)
+        :schedule_func(schf), timeout_func(tmf), schedule_timer(new QTimer), timeout_timer(new QTimer)
+    {
+        schedule_timer->setSingleShot(true);
+        schedule_timer->setInterval(schedul_msec);
+
+        timeout_timer->setSingleShot(true);
+        timeout_timer->setInterval(timeout_msec);
+    }
+    int num;
+};
+
+class connect_helper : public QObject
 {
     Q_OBJECT
 public:
+    connect_helper(QObjectList& l, function<void ()> f):func(f)
+    {
+        l.push_back(this);
+    }
+public slots:
+    void signaled() {func();}
+private:
+    function<void ()> func;
+};
+
+template <class R, class T>
+void connect_callable(QObject * sender, const char * signal, R*receiver , const T& slot,  Qt::ConnectionType t = Qt::AutoConnection)
+{
+    QObject::connect(sender, signal, new connect_helper(receiver->conn_obj,slot), SLOT(signaled()));
+}
+
+struct CoroContext
+{
+    typedef QSharedPointer<Coroutine> CoroPointer;
+    CoroPointer coro;
+    Schedul * schedul;
+    CoroContext(const CoroPointer & c, Schedul *s):coro(c), schedul(s) {}
+    CoroContext():schedul(nullptr) {}
+    void clear()
+    {
+        schedul = nullptr;
+        coro.clear();
+    }
+    bool empty() const {return schedul == nullptr && !coro.data();}
+};
+
+class Scheduler : public QObject
+{
+    Q_OBJECT
+public:    
     typedef QWeakPointer<IoDeviceWrapper> IoDevPointer;
 
     Scheduler ();
     ~Scheduler(){}
 
-    void setErrorPeriod(int msec)
-    {
-        error_timer.setInterval(msec);
-    }
-    void setSchedulePeriod(int msec)
-    {
-        schedule_timer.setInterval(msec);
-    }
-
-    void addFunction( function<void ()>, function<void ()>  );
+    void addFunction( function<void ()>, function<void ()>, int schedul_msec, int timeout_msec );
     void setDevice(IoDevPointer d);
     void clear();
+    bool busy() const {return !current_coro.empty();}
 private slots:
-    void onErrorTimer();
-    void onScheduleTimer();
+    void onTimeoutTimer();
+    void onScheduleTimer(Schedul & s);
     void onReadyRead();
-private:
-    typedef QSharedPointer<Coroutine> CoroPointer;
-    typedef QList<function<void ()> > Functions;
+private:    
+    template <class R, class T>
+    friend void connect_callable(QObject * sender, const char * signal, R*receiver , const T& slot,  Qt::ConnectionType t = Qt::AutoConnection);
 
-    Functions schedule_functions;
-    Functions timeout_functions;
-    Functions::size_type current_func;
+    typedef QList<Schedul> Scheduls;
 
-    CoroPointer        current_coro;
+    CoroContext        current_coro;
     IoDevPointer       device;
+    QObjectList        conn_obj;
 
-    QTimer             error_timer;
-    QTimer             schedule_timer;
+    Scheduls scheduls;
 
-    void incCurrent()
-    {
-        ++current_func;
-        if (current_func >=schedule_functions.size() )
-            current_func = 0;
-    }
+
     void execute();
-
 };
 
 #endif // SCHEDULER_H

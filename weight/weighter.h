@@ -43,6 +43,16 @@ public:
     void addDriver(const QString&, const QMap<QString, QVariant>& drv_conf );
 
     float weight(QList<DriverContext>::size_type idx) const;
+    QVariant value(const QString& n) const
+    {
+#if 0
+        if (scheduled) {
+            return value_map[n];
+        }
+
+        return
+#endif
+    }
 protected:
 
 private:    

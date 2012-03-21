@@ -36,10 +36,12 @@ void initWeighters(QVector<Weighter::Pointer>& weighters)
 
         w->setWeightDevice("IoDeviceSerial", settings);
         w->addDriver(MrwSettings::instance()->platformaWeightType[0], opts);
+        w->addDriver(MrwSettings::instance()->platformaWeightType[0], opts);
+        w->addDriver(MrwSettings::instance()->platformaWeightType[0], opts);
 
         weighters.push_back(w);
     }
-
+    return;
     {
         Weighter::Pointer w = Weighter::Pointer(new Weighter(true));
 
@@ -53,14 +55,20 @@ void initWeighters(QVector<Weighter::Pointer>& weighters)
     }
 }
 
+#include <coroutine.h>
+
 int main(int argc, char *argv[])
-{
+{  
     QCoreApplication app(argc, argv);
     QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));
 
     printOnDisplay("Hello");
 
 
+    //QTimer timer;
+    //timer.setInterval(500);
+    //timer.setSingleShot(true);
+    //QObject::connect(timer, SIGNAL(timeout()), []{qDebug() << "URAAAAA!";});
 
     MrwSettings::instance()->load("mrwsettings.xml");
 //    MrwSettings::instance()->print();

@@ -15,6 +15,13 @@ public:
         return new Hbm2110(drv_conf);
     }
 
+    Q_INVOKABLE void readWeight1(IoDeviceWrapper * io, QVariant & ret, uint & err)
+    {
+        float fret;
+        readWeight(io, fret, err);
+        ret.setValue(fret);
+    }
+
 protected:
     Hbm2110(const QMap<QString, QVariant>& conf):address(0)
     {

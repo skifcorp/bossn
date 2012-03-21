@@ -14,7 +14,7 @@ CONFIG   -= app_bundle
 
 TEMPLATE = app
 INCLUDEPATH  += ../qextserialport/src/ serial weight generic iodevicewrapper scheduler ../coroutine/src/
-QMAKE_CXXFLAGS += -std=gnu++0x
+QMAKE_CXXFLAGS += -std=c++0x
 LIBS         += -L../qextserialport_build/src/build/ -lqextserialport -L../coroutine_build/src/release/ -lcoroutine
 
 SOURCES += main.cpp \

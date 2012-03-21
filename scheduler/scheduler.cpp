@@ -3,18 +3,11 @@
 #include "scheduler.h"
 #include "iodevicewrapper.h"
 #include "coroutine.h"
+#include <QCoreApplication>
 
-
-Scheduler::Scheduler () : current_func(0)
+Scheduler::Scheduler ()
 {
-    error_timer.setInterval(500);
-    error_timer.setSingleShot(true);
 
-    schedule_timer.setInterval(500);
-    schedule_timer.setSingleShot(true);
-
-    connect(&error_timer   , SIGNAL(timeout()), this, SLOT(onErrorTimer()));
-    connect(&schedule_timer, SIGNAL(timeout()), this, SLOT(onScheduleTimer()));
 }
 
 void Scheduler::setDevice(IoDevPointer d)
@@ -31,57 +24,58 @@ void Scheduler::clear()
 {
     device.toStrongRef().data()->disconnect(SIGNAL(readyRead()), this, SLOT(onReadyRead()));
     current_coro.clear();
-    schedule_functions.clear();
-    timeout_functions.clear();
-    current_func = 0;
-
-    schedule_timer.stop();
-    error_timer.stop();
+    scheduls.clear();
+    conn_obj.clear();
 }
 
-void Scheduler::addFunction(function<void ()>schedule_func, function<void ()> timeout_func)
+void Scheduler::addFunction(function<void ()>schf, function<void ()> tmf, int sch_msec, int tm_msec)
 {
-    if (schedule_functions.empty()) {
-        schedule_timer.start();
+    scheduls.push_back(Schedul(schf, tmf, sch_msec, tm_msec));
+    Schedul & s = scheduls.back();
+    s.num = scheduls.count() - 1;
+    connect_callable(s.schedule_timer.data(), SIGNAL(timeout()), this, bind(&Scheduler::onScheduleTimer, this, std::ref(s) ));
+    connect(s.timeout_timer.data(), SIGNAL(timeout()), this, SLOT(onTimeoutTimer()));
+
+    s.schedule_timer->start();
+}
+
+void Scheduler::onTimeoutTimer()
+{    
+    current_coro.schedul->timeout_func();
+    current_coro.schedul->schedule_timer->start();
+
+    current_coro.clear();
+}
+
+void Scheduler::onScheduleTimer(Schedul & s)
+{   
+    while (busy()) {
+        qApp->processEvents();
     }
 
-    schedule_functions.append(schedule_func);
-    timeout_functions.append(timeout_func);
-}
+    qDebug() << "coro: "<<s.num;
 
-void Scheduler::onErrorTimer()
-{
-    current_coro.clear();
-    timeout_functions[current_func]();
-    incCurrent();
-    schedule_timer.start();
-}
-
-void Scheduler::onScheduleTimer()
-{
-    if (schedule_functions.empty()) return;
-
-    error_timer.start();
-    current_coro = QSharedPointer<Coroutine>(  Coroutine::build( schedule_functions[current_func] ) );
+    current_coro = CoroContext(QSharedPointer<Coroutine>(  Coroutine::build( s.schedule_func ) ), &s);
 
     execute();
 }
 
 void Scheduler::onReadyRead()
 {
-    error_timer.start();
     execute();
 }
 
 void Scheduler::execute()
 {
-    current_coro->cont();
-    Coroutine::Status s = current_coro->status();
+    current_coro.schedul->timeout_timer->start();
+
+    current_coro.coro->cont();
+
+    Coroutine::Status s = current_coro.coro->status();
 
     if (s == Coroutine::NotStarted || s == Coroutine::Terminated ) {
+        current_coro.schedul->timeout_timer->stop();
+        current_coro.schedul->schedule_timer->start();
         current_coro.clear();
-        incCurrent();
-        error_timer.stop();
-        schedule_timer.start();
     }
 }

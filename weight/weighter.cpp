@@ -55,7 +55,7 @@ void Weighter::addDriverToSchedule(QList<DriverContext>::size_type driver_index)
             [&weight_device, &drivers, driver_index] {
                 drivers[driver_index].value = NAN; drivers[driver_index].error = WeightDriver::WeightFrameNotAnswer;
                 qDebug () << weight_device->deviceName() << " dont answered!";
-            });
+            }, 500, 500);
 }
 
 float Weighter::weight(QList<DriverContext>::size_type idx) const
@@ -63,8 +63,8 @@ float Weighter::weight(QList<DriverContext>::size_type idx) const
     if (scheduled)
         return drivers[idx].value;
 
-    float ret;
-    uint error;
+    float ret = 0.0f;
+    uint error=0;
 
     drivers[idx].driver->readWeight(weight_device.data(), ret, error);
     if (error) return NAN;
