@@ -28,6 +28,11 @@ void initWeighters(QVector<Weighter::Pointer>& weighters)
     settings["stopBits"]    = STOP_1;
     settings["timeout"]     = 100;
 
+    QList<TagMethod> tag_method;
+    tag_method.append(TagMethod("weight1_1", "readWeight"));
+    tag_method.append(TagMethod("weight1_2", "readWeight"));
+    tag_method.append(TagMethod("weight1_3", "readWeight"));
+
     {
         Weighter::Pointer w = Weighter::Pointer(new Weighter(true));
 
@@ -35,11 +40,12 @@ void initWeighters(QVector<Weighter::Pointer>& weighters)
         QMap<QString, QVariant> opts; opts["address"] = MrwSettings::instance()->platformaWeightAddress[0];
 
         w->setWeightDevice("IoDeviceSerial", settings);
-        w->addDriver(MrwSettings::instance()->platformaWeightType[0], opts);
-        w->addDriver(MrwSettings::instance()->platformaWeightType[0], opts);
-        w->addDriver(MrwSettings::instance()->platformaWeightType[0], opts);
+        w->addDriver(MrwSettings::instance()->platformaWeightType[0], opts, tag_method);
+        w->addDriver(MrwSettings::instance()->platformaWeightType[0], opts, tag_method);
+        w->addDriver(MrwSettings::instance()->platformaWeightType[0], opts, tag_method);
 
         weighters.push_back(w);
+        //w->value("ttt", 2, "treokjs");
     }
     return;
     {
@@ -49,7 +55,7 @@ void initWeighters(QVector<Weighter::Pointer>& weighters)
         QMap<QString, QVariant> opts; opts["address"] = MrwSettings::instance()->platformaWeightAddress[1];
 
         w->setWeightDevice("IoDeviceSerial", settings);
-        w->addDriver(MrwSettings::instance()->platformaWeightType[1], opts);
+        w->addDriver(MrwSettings::instance()->platformaWeightType[1], opts, tag_method);
 
         weighters.push_back(w);
     }

@@ -5,6 +5,7 @@
 
 class EsitPWI : public WeightDriver
 {
+    Q_OBJECT
 public:
     virtual void readWeight(IoDeviceWrapper *, float & ret, uint &);
     virtual void zero(IoDeviceWrapper *, uint &);

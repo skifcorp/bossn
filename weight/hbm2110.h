@@ -6,20 +6,14 @@
 
 class Hbm2110 : public WeightDriver
 {
+    Q_OBJECT
 public:
-    virtual void readWeight(IoDeviceWrapper *, float & ret, uint &);
+    Q_INVOKABLE virtual void readWeight(IoDeviceWrapper::Pointer::Type *, QVariant & ret, uint &);
     virtual void zero(IoDeviceWrapper *, uint &);
 
     static Hbm2110 * create (const QMap<QString, QVariant>& drv_conf)
     {
         return new Hbm2110(drv_conf);
-    }
-
-    Q_INVOKABLE void readWeight1(IoDeviceWrapper * io, QVariant & ret, uint & err)
-    {
-        float fret;
-        readWeight(io, fret, err);
-        ret.setValue(fret);
     }
 
 protected:

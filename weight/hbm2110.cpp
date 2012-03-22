@@ -7,7 +7,7 @@
 
 bool Hbm2110::registered = Hbm2110::registerInFact();
 
-void Hbm2110::readWeight(IoDeviceWrapper * io, float & ret, uint & err)
+void Hbm2110::readWeight(IoDeviceWrapper * io, QVariant & ret, uint & err)
 {
     QByteArray req = weightRequestFrame();
     io->write(req);

@@ -9,14 +9,25 @@
 
 using std::bind;
 
-void Weighter::addDriver(const QString & n, const QMap<QString, QVariant>& drv_conf)
-{    
-    WeightDriver::Pointer d = WeightDriver::create(n, drv_conf); Q_ASSERT(!d.isNull());
+Q_DECLARE_METATYPE(IoDeviceWrapper::Pointer::Type*)
+int __id = qRegisterMetaType<IoDeviceWrapper::Pointer::Type*>("IoDeviceWrapper::Pointer::Type *");
 
-    drivers.append( DriverContext(d) );
-    if ( scheduled ) {
-        addDriverToSchedule( drivers.count() - 1 );
+void Weighter::addDriver(const QString & n, const QMap<QString, QVariant>& drv_conf, const QList<TagMethod> &tags_methods)
+{    
+    WeightDriver::Pointer d = WeightDriver::create(n, drv_conf); Q_ASSERT(!d.isNull());    
+
+    drivers.append( d );
+    auto idx = drivers.size() - 1;
+
+
+    for (QList<TagMethod>::const_iterator iter = tags_methods.begin(); iter != tags_methods.end(); ++iter) {
+        methods.insert(iter->tag_name, MethodInfo(iter->method_name, idx));
+        if ( scheduled ) {
+            addTagToSchedule( idx, iter->tag_name );
+        }
     }
+
+
 }
 
 void Weighter::setWeightDevice(const QString& n, const QMap<QString, QVariant> & settings)
@@ -36,7 +47,7 @@ void Weighter::setScheduled(bool s)
 {
     if (s && !scheduled) {
         for (auto i = 0; i<drivers.size(); ++i) {
-            addDriverToSchedule(i);
+            //addTagToSchedule(i); !!!!
         }
     }
     else if (scheduled && !s) {
@@ -46,19 +57,24 @@ void Weighter::setScheduled(bool s)
     scheduled = s;
 }
 
-void Weighter::addDriverToSchedule(QList<DriverContext>::size_type driver_index)
+void Weighter::addTagToSchedule(Drivers::size_type driver_index, const QString& tag_name)
 {
     scheduler.addFunction(
-            [&weight_device, &drivers, driver_index] {
-                drivers[driver_index].driver->readWeight(weight_device.data(), drivers[driver_index].value,  drivers[driver_index].error);
+            [&weight_device, &drivers, driver_index, &methods, tag_name] {
+                MethodInfo & mi = methods[tag_name];
+
+                QMetaObject::invokeMethod(drivers[driver_index].data(), mi.method.toAscii().data(),
+                                          Q_ARG(IoDeviceWrapper::Pointer::Type*, weight_device.data()),
+                                          Q_ARG(QVariant&, mi.value), Q_ARG(uint&, mi.error));
             },
-            [&weight_device, &drivers, driver_index] {
-                drivers[driver_index].value = NAN; drivers[driver_index].error = WeightDriver::WeightFrameNotAnswer;
+            [&weight_device, &drivers, driver_index, &methods, tag_name] {
+                MethodInfo & mi = methods[tag_name];
+                mi.value  = NAN; mi.error = WeightDriver::WeightFrameNotAnswer;
                 qDebug () << weight_device->deviceName() << " dont answered!";
             }, 500, 500);
 }
 
-float Weighter::weight(QList<DriverContext>::size_type idx) const
+/*float Weighter::weight(QList<DriverContext>::size_type idx) const
 {
     if (scheduled)
         return drivers[idx].value;
@@ -70,5 +86,5 @@ float Weighter::weight(QList<DriverContext>::size_type idx) const
     if (error) return NAN;
 
     return ret;
-}
+}*/
 

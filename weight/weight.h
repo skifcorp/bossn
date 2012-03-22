@@ -5,7 +5,7 @@
 
 using std::function;
 
-
+#include <QObject>
 #include <QMap>
 #include <QSharedPointer>
 #include <QVariant>
@@ -46,8 +46,9 @@ public:
     WeightFrameExceptionBadAddress(){}
 };*/
 
-class WeightDriver
+class WeightDriver : public QObject
 {    
+    Q_OBJECT
 public:		
     typedef QSharedPointer<WeightDriver> Pointer;
 
@@ -57,8 +58,8 @@ public:
 
     virtual ~WeightDriver(){}
 
-    virtual void readWeight(IoDeviceWrapper *, float &, uint & ) {}
-    virtual void zero(IoDeviceWrapper *, uint &) {}
+   // virtual void readWeight(IoDeviceWrapper *, float &, uint & ) {}
+   // virtual void zero(IoDeviceWrapper *, uint &) {}
 
     static Pointer create(const QString& n, const QMap<QString, QVariant>& drv_conf )
     {

@@ -5,6 +5,7 @@
 
 class MettlerToledo8530 : public WeightDriver
 {
+    Q_OBJECT
 public:
     //~MettlerToledo8530 () {}
     virtual void readWeight(IoDeviceWrapper *, float & ret, uint &);
