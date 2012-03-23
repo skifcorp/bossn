@@ -1,11 +1,11 @@
 #ifndef __METTLER_TOLEDO_310_H__
 #define __METTLER_TOLEDO_310_H__
 
-#include "weight.h"
+#include "porterdriver.h"
 
 
 
-class MettlerToledo310 : public WeightDriver
+class MettlerToledo310 : public PorterDriver
 {
     Q_OBJECT
 public:

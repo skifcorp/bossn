@@ -1,9 +1,9 @@
 #ifndef __METTLER_TOLEDO_8530_H__
 #define __METTLER_TOLEDO_8530_H__
 
-#include "weight.h"
+#include "porterdriver.h"
 
-class MettlerToledo8530 : public WeightDriver
+class MettlerToledo8530 : public PorterDriver
 {
     Q_OBJECT
 public:

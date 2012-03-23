@@ -1,10 +1,10 @@
 #ifndef __QT_HBM_2110_H__
 #define __QT_HBM_2110_H__
 
-#include "weight.h"
+#include "porterdriver.h"
 #include <QDebug>
 
-class Hbm2110 : public WeightDriver
+class Hbm2110 : public PorterDriver
 {
     Q_OBJECT
 public:

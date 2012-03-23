@@ -22,7 +22,9 @@ void Scheduler::setDevice(IoDevPointer d)
 
 void Scheduler::clear()
 {
-    device.toStrongRef().data()->disconnect(SIGNAL(readyRead()), this, SLOT(onReadyRead()));
+    if (!device.isNull())
+        device.toStrongRef().data()->disconnect(SIGNAL(readyRead()), this, SLOT(onReadyRead()));
+
     current_coro.clear();
     scheduls.clear();
     conn_obj.clear();

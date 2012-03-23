@@ -4,38 +4,36 @@
 #include <QSharedPointer>
 #include <QMap>
 
-#include <functional>
+#include "porterdriver.h"
+#include "iodevicewrapper.h"
 
-using std::function;
-
-class DidoDriver
+class DidoDriver : public PorterDriver
 {
+    Q_OBJECT
 public:
     typedef QSharedPointer<DidoDriver> Pointer;
 
-    virtual ~DidoDriver();
+    ~DidoDriver() {}
 
-    virtual bool getDi(int num);
-    virtual void setDo(int num, bool);
+    Q_INVOKABLE QVariant getDi(IoDeviceWrapper::Pointer::Type* io, int num);
+    Q_INVOKABLE void setDo(IoDeviceWrapper::Pointer::Type* io, int num, bool);
 
-    Pointer create(const QString& n)
+    static PorterDriver* create(const QMap<QString, QVariant>& )
     {
-        return Pointer(factory_map()[n]());
+        return new DidoDriver();
     }
-
-
-
 protected:
-    typedef QMap<QString, function<DidoDriver * (const QMap<QString, QVariant>)> > FactoryMap;
     DidoDriver()
     {
 
     }
 
-    static FactoryMap & factory_map()
+private:
+    static bool registered;
+    static bool registerInFact()
     {
-        static FactoryMap map;
-        return map;
+        factory_map().insert("DidoDriver", &DidoDriver::create);
+        return true;
     }
 
 };

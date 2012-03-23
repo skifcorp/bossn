@@ -1,9 +1,9 @@
 #ifndef __WEIGHT_FROM_FILE_H__
 #define __WEIGHT_FROM_FILE_H__
 
-#include "weight.h"
+#include "porterdriver.h"
 
-class WeightFromFile : public WeightDriver
+class WeightFromFile : public PorterDriver
 {
     Q_OBJECT
 public:

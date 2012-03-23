@@ -1,9 +1,9 @@
 #ifndef __QT_ESIT_PWI_H__
 #define __QT_ESIT_PWI_H__
 
-#include "weight.h"
+#include "porterdriver.h"
 
-class EsitPWI : public WeightDriver
+class EsitPWI : public PorterDriver
 {
     Q_OBJECT
 public:
@@ -16,7 +16,7 @@ public:
     }
 
 protected:
-    EsitPWI(const QMap<QString, QVariant>& conf) : WeightDriver()
+    EsitPWI(const QMap<QString, QVariant>& conf) : PorterDriver()
     {
         bool ok = false;
         mode    = conf["mode"].toInt(&ok); Q_ASSERT(ok);

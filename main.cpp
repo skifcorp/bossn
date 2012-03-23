@@ -4,13 +4,13 @@
 #include "func.h"
 #include "tools.h"
 #include "mrwsettings.h"
-#include "weighter.h"
+#include "porter.h"
 #include "qextserialport.h"
 
 bool initMrw();
 int work();
 
-void initWeighters(QVector<Weighter::Pointer>& weighters)
+void initPorters(QVector<Porter::Pointer>& porters)
 {
     /*PortSettings s;
     s.BaudRate = BAUD9600;
@@ -19,45 +19,67 @@ void initWeighters(QVector<Weighter::Pointer>& weighters)
     s.Parity = PAR_NONE;
     s.StopBits = STOP_1;
     s.Timeout_Millisec = 100;*/
-    QMap <QString, QVariant> settings;
+    QMap <QString, QVariant> serial_settings;
 
-    settings["baudRate"]    = BAUD9600;
-    settings["dataBits"]    = DATA_8;
-    settings["flowControl"] = FLOW_OFF;
-    settings["parity"]      = PAR_NONE;
-    settings["stopBits"]    = STOP_1;
-    settings["timeout"]     = 100;
+    serial_settings["baudRate"]    = BAUD9600;
+    serial_settings["dataBits"]    = DATA_8;
+    serial_settings["flowControl"] = FLOW_OFF;
+    serial_settings["parity"]      = PAR_NONE;
+    serial_settings["stopBits"]    = STOP_1;
+    serial_settings["timeout"]     = 100;
 
-    QList<TagMethod> tag_method;
-    tag_method.append(TagMethod("weight1_1", "readWeight"));
-    tag_method.append(TagMethod("weight1_2", "readWeight"));
-    tag_method.append(TagMethod("weight1_3", "readWeight"));
+    QList<TagMethod> tag_method_weight;
+    tag_method_weight.append(TagMethod("weight1_1", "readWeight"));
+    tag_method_weight.append(TagMethod("weight1_2", "readWeight"));
+    tag_method_weight.append(TagMethod("weight1_3", "readWeight"));
 
     {
-        Weighter::Pointer w = Weighter::Pointer(new Weighter(true));
+        Porter::Pointer w = Porter::Pointer(new Porter(true));
 
-        settings["portName"] = MrwSettings::instance()->platformaWeightPort[0];
+        serial_settings["portName"] = MrwSettings::instance()->platformaWeightPort[0];
         QMap<QString, QVariant> opts; opts["address"] = MrwSettings::instance()->platformaWeightAddress[0];
 
-        w->setWeightDevice("IoDeviceSerial", settings);
-        w->addDriver(MrwSettings::instance()->platformaWeightType[0], opts, tag_method);
-        w->addDriver(MrwSettings::instance()->platformaWeightType[0], opts, tag_method);
-        w->addDriver(MrwSettings::instance()->platformaWeightType[0], opts, tag_method);
+        w->setDevice("IoDeviceSerial", serial_settings);
+        w->addDriver(MrwSettings::instance()->platformaWeightType[0], opts, tag_method_weight);
+        w->addDriver(MrwSettings::instance()->platformaWeightType[0], opts, tag_method_weight);
+        w->addDriver(MrwSettings::instance()->platformaWeightType[0], opts, tag_method_weight);
 
-        weighters.push_back(w);
-        //w->value("ttt", 2, "treokjs");
+        porters.push_back(w);
     }
-    return;
-    {
-        Weighter::Pointer w = Weighter::Pointer(new Weighter(true));
 
-        settings["portName"] = MrwSettings::instance()->platformaWeightPort[1];
+
+
+    {
+        Porter::Pointer w = Porter::Pointer(new Porter(true));
+
+        serial_settings["portName"] = MrwSettings::instance()->platformaWeightPort[1];
         QMap<QString, QVariant> opts; opts["address"] = MrwSettings::instance()->platformaWeightAddress[1];
 
-        w->setWeightDevice("IoDeviceSerial", settings);
-        w->addDriver(MrwSettings::instance()->platformaWeightType[1], opts, tag_method);
+        w->setDevice("IoDeviceSerial", serial_settings);
+        w->addDriver(MrwSettings::instance()->platformaWeightType[1], opts, tag_method_weight);
 
-        weighters.push_back(w);
+        porters.push_back(w);
+    }
+
+    {
+        QList<TagMethod> tag_method_dido;
+        tag_method_dido.append(TagMethod("di", "getDi"));
+        tag_method_dido.append(TagMethod("do", "setDo"));
+
+        QMap<QString, QVariant> dido_port_settings;
+        dido_port_settings["deviceName"] = "\\\\.\\WDT_DEVICE";
+
+        Porter::Pointer p = Porter::Pointer(new Porter(true));
+
+        p->setScheduled(false);
+
+
+        p->setDevice("IoDeviceDiscrete", dido_port_settings);
+        p->addDriver("DidoDriver", QMap<QString, QVariant>(), tag_method_dido);
+
+        qDebug() << " di: "<<p->value("di", Q_ARG(int, 0));
+
+        porters.push_back(p);
     }
 }
 
@@ -79,8 +101,8 @@ int main(int argc, char *argv[])
     MrwSettings::instance()->load("mrwsettings.xml");
 //    MrwSettings::instance()->print();
 
-    QVector<Weighter::Pointer> weighters;
-    initWeighters(weighters);
+    QVector<Porter::Pointer> porters;
+    initPorters(porters);
     //if (!initMrw()) return 1;
 
     work();
