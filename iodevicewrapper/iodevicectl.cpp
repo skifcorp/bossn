@@ -1,21 +1,23 @@
-#include "iodevicediscrete.h"
+#include "iodevicectl.h"
 
-bool IoDeviceDiscrete::registered = IoDeviceDiscrete::registerInFact();
+bool IoDeviceCtl::registered = IoDeviceCtl::registerInFact();
 
 #ifdef Q_OS_WIN32
 
-#include "wdt.h"
+//bool DioDeviceIt8718f::registered = DioDeviceIt8718f::registerInFact();
 
-DioDevice::DioDevice()
+//#include "wdt.h"
+
+/*DioDeviceIt8718f::DioDeviceIt8718f()
 {
 }
 
-DioDevice::~DioDevice()
+DioDeviceIt8718f::~DioDeviceIt8718f()
 {
     close();
 }
 
-bool DioDevice::open(QIODevice::OpenModeFlag )
+bool DioDeviceIt8718f::open(QIODevice::OpenModeFlag )
 {
     wchar_t s[device_name.length() + 1];
     int len = device_name.toWCharArray(s);
@@ -23,15 +25,15 @@ bool DioDevice::open(QIODevice::OpenModeFlag )
 
     handle = CreateFile(s, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL);
     return handle!=INVALID_HANDLE_VALUE;
-}
-
-void DioDevice::close()
+}*/
+/*
+void DioDeviceIt8718f::close()
 {
     CloseHandle(handle);
-}
+}*/
 
-
-qint64 DioDevice::readData ( char * data, qint64 maxSize )
+/*
+qint64 DioDeviceIt8718f::readData ( char * data, qint64 maxSize )
 {
     if  (maxSize < 1) return 0ul;
 
@@ -47,9 +49,9 @@ qint64 DioDevice::readData ( char * data, qint64 maxSize )
     data[0]=cParam.timeout;
 
     return 1ul;
-}
-
-qint64	DioDevice::writeData ( const char * data, qint64 maxSize )
+}*/
+/*
+qint64	DioDeviceIt8718f::writeData ( const char * data, qint64 maxSize )
 {
     if (maxSize < 1) return 0;
 
@@ -63,6 +65,6 @@ qint64	DioDevice::writeData ( const char * data, qint64 maxSize )
     }
 
     return 1ul;
-}
+}*/
 
 #endif

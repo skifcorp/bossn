@@ -13,7 +13,7 @@ CONFIG   += console
 CONFIG   -= app_bundle
 
 TEMPLATE = app
-INCLUDEPATH  += ../qextserialport/src/ serial weight generic iodevicewrapper scheduler porter  dido ../coroutine/src/
+INCLUDEPATH  += ../qextserialport/src/ serial weight generic iodevicewrapper scheduler porter  dido perimeter ../coroutine/src/
 QMAKE_CXXFLAGS += -std=c++0x
 LIBS         += -L../qextserialport_build/src/build/ -lqextserialport -L../coroutine_build/src/release/ -lcoroutine
 
@@ -29,9 +29,10 @@ SOURCES += main.cpp \
     iodevicewrapper/iodevicewrapper.cpp \
     iodevicewrapper/iodeviceserial.cpp \
     iodevicewrapper/iodevicefile.cpp \ 
-    iodevicewrapper/iodevicediscrete.cpp \
     porter/porter.cpp \
-    dido/didodriver.cpp
+    dido/didodriver.cpp \
+    iodevicewrapper/iodevicectl.cpp \
+    perimeter/perimeter.cpp
 
 HEADERS += \    
     func.h \
@@ -48,6 +49,7 @@ HEADERS += \
     iodevicewrapper/iodevicewrapper.h \
     iodevicewrapper/iodeviceserial.h \
     iodevicewrapper/iodevicefile.h \  
-    iodevicewrapper/iodevicediscrete.h \
     porter/porter.h \   
-    porter/porterdriver.h
+    porter/porterdriver.h \
+    iodevicewrapper/iodevicectl.h \
+    perimeter/perimeter.h

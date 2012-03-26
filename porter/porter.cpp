@@ -32,22 +32,22 @@ void Porter::addDriver(const QString & n, const QMap<QString, QVariant>& drv_con
 
 void Porter::setDevice(const QString& n, const QMap<QString, QVariant> & settings)
 {
-    weight_device = IoDeviceWrapper::create(n);
+    device = IoDeviceWrapper::create(n);
 
-    weight_device->setSettings(settings);
-    qDebug () << "openening port: " << weight_device->deviceName();
-    if  (!weight_device->open(QIODevice::ReadWrite) ) {
-        qWarning() << "cant open device!!!!: " <<weight_device->deviceName();
+    device->setSettings(settings);
+    qDebug () << "openening port: " << device->deviceName();
+    if  (!device->open(QIODevice::ReadWrite) ) {
+        qWarning() << "cant open device!!!!: " <<device->deviceName();
     }
 
     if (scheduled)
-        scheduler.setDevice(weight_device);
+        scheduler.setDevice(device);
 }
 
 void Porter::setScheduled(bool s)
 {
     if (s && !scheduled) {
-        scheduler.setDevice(weight_device);
+        scheduler.setDevice(device);
         for (auto i = 0; i<drivers.size(); ++i) {
             //addTagToSchedule(i); !!!!
         }
@@ -62,18 +62,18 @@ void Porter::setScheduled(bool s)
 void Porter::addTagToSchedule(Drivers::size_type driver_index, const QString& tag_name)
 {
     scheduler.addFunction(
-            [&weight_device, &drivers, driver_index, &methods, tag_name] {
+            [&device, &drivers, driver_index, &methods, tag_name] {
                 MethodInfo & mi = methods[tag_name];
 
                 QMetaObject::invokeMethod(drivers[driver_index].data(), mi.method.toAscii().data(),
-                                          Q_ARG(IoDeviceWrapper::Pointer::Type*, weight_device.data()),
+                                          Q_ARG(IoDeviceWrapper::Pointer::Type*, device.data()),
                                           Q_ARG(QVariant&, mi.value), Q_ARG(uint&, mi.error));
             },
-            [&weight_device, &drivers, driver_index, &methods, tag_name] {
+            [&device, &drivers, driver_index, &methods, tag_name] {
                 MethodInfo & mi = methods[tag_name];
                 mi.value  = NAN; mi.error = PorterDriver::WeightFrameNotAnswer;
-                qDebug () << weight_device->deviceName() << " dont answered!";
-            }, 2000, 2000);
+                qDebug () << device->deviceName() << " dont answered!";
+            }, 500, 500);
 }
 
 QVariant Porter::value(const QString& n, QGenericArgument val0, QGenericArgument val1 ) const
@@ -86,7 +86,7 @@ QVariant Porter::value(const QString& n, QGenericArgument val0, QGenericArgument
 
     QVariant ret(true);
     bool res = QMetaObject::invokeMethod( drivers[mi.driver_idx].data(), mi.method.toAscii().data(), Q_RETURN_ARG(QVariant, ret),
-                                    Q_ARG(IoDeviceWrapper::Pointer::Type*, weight_device.data()) ,val0, val1 );
+                                    Q_ARG(IoDeviceWrapper::Pointer::Type*, device.data()) ,val0, val1 );
 
     if (!res) {
         qWarning()<<"cant invoke "<<mi.method;

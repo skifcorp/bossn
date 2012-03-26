@@ -1,5 +1,5 @@
-#ifndef WEIGHTER_H
-#define WEIGHTER_H
+#ifndef PORTER_H
+#define PORTER_H
 
 #include <QObject>
 #include <QString>
@@ -39,7 +39,7 @@ public:
     void setScheduled(bool s);
     bool isScheduled() const {return scheduled;}
 
-    void setDevice(const QString& n, const QMap<QString, QVariant> & settings);
+    void setDevice(const QString& n, const QMap<QString, QVariant> & settings );
     void addDriver(const QString&, const QMap<QString, QVariant>& drv_conf, const QList<TagMethod>& );
 
 
@@ -63,7 +63,7 @@ private:
     Drivers                        drivers;
     QMap<QString, MethodInfo>      methods;
 
-    IoDeviceWrapper::Pointer weight_device;
+    IoDeviceWrapper::Pointer device;
     Scheduler scheduler;
     bool scheduled;
 
@@ -72,4 +72,4 @@ private:
 
 
 
-#endif // WEIGHTER_H
+#endif // PORTER_H

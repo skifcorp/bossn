@@ -12,13 +12,6 @@ int work();
 
 void initPorters(QVector<Porter::Pointer>& porters)
 {
-    /*PortSettings s;
-    s.BaudRate = BAUD9600;
-    s.DataBits = DATA_8;
-    s.FlowControl = FLOW_OFF;
-    s.Parity = PAR_NONE;
-    s.StopBits = STOP_1;
-    s.Timeout_Millisec = 100;*/
     QMap <QString, QVariant> serial_settings;
 
     serial_settings["baudRate"]    = BAUD9600;
@@ -61,6 +54,7 @@ void initPorters(QVector<Porter::Pointer>& porters)
         porters.push_back(w);
     }
 
+    //return;
     {
         QList<TagMethod> tag_method_dido;
         tag_method_dido.append(TagMethod("di", "getDi"));
@@ -73,9 +67,9 @@ void initPorters(QVector<Porter::Pointer>& porters)
 
         p->setScheduled(false);
 
+        p->setDevice("IoDeviceCtl", dido_port_settings);
 
-        p->setDevice("IoDeviceDiscrete", dido_port_settings);
-        p->addDriver("DidoDriver", QMap<QString, QVariant>(), tag_method_dido);
+        p->addDriver("DidoIt8718f", QMap<QString, QVariant>(), tag_method_dido);
 
         qDebug() << " di: "<<p->value("di", Q_ARG(int, 0));
 
@@ -83,7 +77,7 @@ void initPorters(QVector<Porter::Pointer>& porters)
     }
 }
 
-#include <coroutine.h>
+//#include <coroutine.h>
 
 int main(int argc, char *argv[])
 {  

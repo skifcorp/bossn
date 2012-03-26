@@ -1,24 +1,41 @@
 
 #include "didodriver.h"
+#include "wdt.h"
 
-bool DidoDriver::registered = DidoDriver::registerInFact();
+bool DidoIt8718f::registered = DidoIt8718f::registerInFact();
 
-QVariant DidoDriver::getDi(IoDeviceWrapper::Pointer::Type* io, int num)
+uchar DidoIt8718f::readAll(IoDeviceWrapper::Pointer::Type* io)
 {
-    QByteArray data = io->read(1);
+    WDTPARAM cParam;
+    DWORD nReturn;
 
-    //qDebug () << "getDI: "<<data[0];
+    BOOL ret = io->DeviceIoControl(IOCTL_SYS_DIO_READ, &cParam, sizeof(WDTPARAM), &cParam, sizeof(WDTPARAM), &nReturn, NULL);
 
-    return data[0] & ( 0x01 << num );
+    if (!ret) {
+        qWarning("Cant read dido!!!!"); return 0;
+    }
+
+    return cParam.timeout;
 }
 
-void DidoDriver::setDo(IoDeviceWrapper::Pointer::Type* io, int num, bool b)
+QVariant DidoIt8718f::getDi(IoDeviceWrapper::Pointer::Type* io, int num)
 {
-    QByteArray data = io->read(1);
-    data[0] = data[0] >> 4;
+    return readAll(io) & ( 0x01 << num );
+}
 
-    if (b) { data[0] = data[0] | (1<<num);    }
-    else   { data[0] = data[0] & (~(1<<num)); }
+void DidoIt8718f::setDo(IoDeviceWrapper::Pointer::Type* io, int num, bool b)
+{
+    uchar data = readAll(io);
+    data = data >> 4;
+    if (b) { data = data | (1<<num);    }
+    else   { data = data & (~(1<<num)); }
 
-    io->write(data);
+    WDTPARAM cParam;
+    DWORD nReturn;
+
+    cParam.data_b = data;
+    BOOL ret = io->DeviceIoControl(IOCTL_SYS_DIO_WRITE, &cParam, sizeof(WDTPARAM), 0, 0, &nReturn, NULL);
+    if (!ret) {
+        qWarning("Cant write dido!!!!");
+    }
 }

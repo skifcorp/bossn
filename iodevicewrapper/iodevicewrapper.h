@@ -11,6 +11,10 @@
 
 using std::function;
 
+#if defined (Q_OS_WIN)
+#include <windows.h>
+#endif
+
 class IoDeviceWrapper : public QObject
 {
     Q_OBJECT
@@ -53,6 +57,12 @@ public:
     {
         return internalGetDevice()->seek(pos);
     }
+
+#if defined(Q_OS_WIN)
+    virtual BOOL DeviceIoControl(DWORD , LPVOID , DWORD , LPVOID , DWORD , LPDWORD ,  LPOVERLAPPED ) {return false; }
+#elif defined (Q_OS_LINUX)
+    virtual int ioctl(int command, void * arg) {return 0;}
+#endif
 
     static Pointer create(const QString& n)
     {

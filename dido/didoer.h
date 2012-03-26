@@ -27,7 +27,7 @@ private slots:
 
     }
     QTimer anti_jitter_timer;
-    DidoDriver::Pointer dido;
+    DidoIt8718f::Pointer dido;
 };
 
 #endif // DIDOER_H
