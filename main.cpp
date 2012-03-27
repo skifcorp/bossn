@@ -2,15 +2,18 @@
 #include <QVector>
 
 #include "func.h"
-#include "tools.h"
 #include "mrwsettings.h"
 #include "porter.h"
 #include "qextserialport.h"
+#include "tags.h"
+#include "task.h"
+#include "taskexec.h"
+#include "perimeter.h"
 
 bool initMrw();
 int work();
 
-void initPorters(QVector<Porter::Pointer>& porters)
+void initPorters(QVector<Porter::Pointer>& porters, Tags& tags)
 {
     QMap <QString, QVariant> serial_settings;
 
@@ -22,22 +25,30 @@ void initPorters(QVector<Porter::Pointer>& porters)
     serial_settings["timeout"]     = 100;
 
     QList<TagMethod> tag_method_weight;
-    tag_method_weight.append(TagMethod("weight1_1", "readWeight"));
-    tag_method_weight.append(TagMethod("weight1_2", "readWeight"));
-    tag_method_weight.append(TagMethod("weight1_3", "readWeight"));
+    tag_method_weight.append( TagMethod("weight1_1", "readWeight") );
+
+    //tag_method_weight.append(TagMethod("weight1_2", "readWeight"));
+    //tag_method_weight.append(TagMethod("weight1_3", "readWeight"));
 
     {
         Porter::Pointer w = Porter::Pointer(new Porter(true));
 
         serial_settings["portName"] = MrwSettings::instance()->platformaWeightPort[0];
-        QMap<QString, QVariant> opts; opts["address"] = MrwSettings::instance()->platformaWeightAddress[0];
+        QMap<QString, QVariant> opts;
+        opts["address"] = MrwSettings::instance()->platformaWeightAddress[0];
 
         w->setDevice("IoDeviceSerial", serial_settings);
         w->addDriver(MrwSettings::instance()->platformaWeightType[0], opts, tag_method_weight);
-        w->addDriver(MrwSettings::instance()->platformaWeightType[0], opts, tag_method_weight);
-        w->addDriver(MrwSettings::instance()->platformaWeightType[0], opts, tag_method_weight);
+        //w->addDriver(MrwSettings::instance()->platformaWeightType[0], opts, tag_method_weight);
+       // w->addDriver(MrwSettings::instance()->platformaWeightType[0], opts, tag_method_weight);
 
         porters.push_back(w);
+        tags["weight1_1"]->setReadMethod("value");
+        tags["weight1_1"]->setReadObject(w.data());
+
+        //tags.insert("weight1_1", TagReadWrite::Pointer(new TagReadWrite(w.data(),)))
+
+        //tags.insert("weight1_1", &Porter::value, w.data(), QString("weight1_1"));
     }
 
 
@@ -54,7 +65,7 @@ void initPorters(QVector<Porter::Pointer>& porters)
         porters.push_back(w);
     }
 
-    //return;
+
     {
         QList<TagMethod> tag_method_dido;
         tag_method_dido.append(TagMethod("di", "getDi"));
@@ -71,9 +82,12 @@ void initPorters(QVector<Porter::Pointer>& porters)
 
         p->addDriver("DidoIt8718f", QMap<QString, QVariant>(), tag_method_dido);
 
-        qDebug() << " di: "<<p->value("di", Q_ARG(int, 0));
+        //qDebug() << " di: "<<p->value("di", Q_ARG(int, 0));
 
         porters.push_back(p);
+
+        //tags["di"]->setReadMethod("value");
+        //tags["di"]->setReadObject(p.data());
     }
 }
 
@@ -87,17 +101,24 @@ int main(int argc, char *argv[])
     printOnDisplay("Hello");
 
 
-    //QTimer timer;
-    //timer.setInterval(500);
-    //timer.setSingleShot(true);
-    //QObject::connect(timer, SIGNAL(timeout()), []{qDebug() << "URAAAAA!";});
 
     MrwSettings::instance()->load("mrwsettings.xml");
 //    MrwSettings::instance()->print();
 
+    Tags tags;
+
+    tags["weight1_1"] = Tag::Pointer(new Tag());
+    tags["di"]        = Tag::Pointer(new Tag());
+    tags["do"]        = Tag::Pointer(new Tag());       
+
     QVector<Porter::Pointer> porters;
-    initPorters(porters);
+
+    initPorters(porters, tags);
     //if (!initMrw()) return 1;
+
+    TaskExec task_exec;
+
+    task_exec.addTask(1000, Task::Pointer(new PerimeterTask(tags)));
 
     work();
 

@@ -22,17 +22,17 @@ protected:
     {       
     }
 
-    static bool registerInFact()
+/*    static bool registerInFact()
     {
         factory_map().insert("MettlerToledo310", &MettlerToledo310::create);
         return true;
-    }
+    }*/
 private:
-    static bool registered;
+    //static bool registered;
 
     QByteArray weightRequestFrame() const;
     float parseWeightFrameAnswer(const QByteArray& ba, uint &) const;
-
+    static BossnFactoryRegistrator<MettlerToledo310> registraror;
 };
 
 #endif

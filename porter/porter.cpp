@@ -19,15 +19,12 @@ void Porter::addDriver(const QString & n, const QMap<QString, QVariant>& drv_con
     drivers.append( d );
     auto idx = drivers.size() - 1;
 
-
     for (QList<TagMethod>::const_iterator iter = tags_methods.begin(); iter != tags_methods.end(); ++iter) {
-        methods.insert(iter->tag_name, MethodInfo(iter->method_name, idx));
+        methods.insert(iter->tag_name, MethodInfo(iter->read_method_name, idx));
         if ( scheduled ) {
             addTagToSchedule( idx, iter->tag_name );
         }
     }
-
-
 }
 
 void Porter::setDevice(const QString& n, const QMap<QString, QVariant> & settings)

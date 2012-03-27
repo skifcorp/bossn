@@ -18,16 +18,17 @@ protected:
     WeightFromFile(const QMap<QString, QVariant>& )
     {
     }
-    static bool registerInFact()
+    /*static bool registerInFact()
     {
         factory_map().insert("WeightFromFile", &WeightFromFile::create);
         return true;
-    }
+    }*/
 
     virtual QByteArray weightRequestFrame() const;
     virtual float parseWeightFrameAnswer(const QByteArray& ba, uint &) const;
 
-    static bool registered;
+    //static bool registered;
+    static BossnFactoryRegistrator<WeightFromFile> registrator;
 };
 
 #endif

@@ -5,15 +5,18 @@
 #include <typeinfo>
 
 
-bool Hbm2110::registered = Hbm2110::registerInFact();
+//bool Hbm2110::registered = Hbm2110::registerInFact();
+BossnFactoryRegistrator<Hbm2110> Hbm2110::registrator("Hbm2110");
 
 void Hbm2110::readWeight(IoDeviceWrapper * io, QVariant & ret, uint & err)
 {
     QByteArray req = weightRequestFrame();
+
     io->write(req);
 
     const uchar frame_size = 17;
-    while ( io->bytesAvailable() < frame_size ) {
+    //qDebug()<<"bytes: "<<io->bytesAvailable();
+    while ( io->bytesAvailable() < frame_size ) {        
         yield();
     }
 
@@ -54,7 +57,7 @@ float Hbm2110::parseWeightFrameAnswer(const QByteArray& ba, uint & err) const
         err = WeightFrameCorrupted; return NAN;
     }
 
-    qDebug () << "getWeight: " << fret;
+    //qDebug () << "getWeight: " << fret;
 
     return fret;
 }

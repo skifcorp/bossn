@@ -3,7 +3,9 @@
 
 #include "coroutine.h"
 
-bool EsitPWI::registered = EsitPWI::registerInFact();
+//bool EsitPWI::registered = EsitPWI::registerInFact();
+
+BossnFactoryRegistrator<EsitPWI> EsitPWI::registrator("EsitPWI");
 
 void EsitPWI::readWeight(IoDeviceWrapper * io, float & ret, uint & err)
 {

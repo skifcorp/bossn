@@ -23,11 +23,11 @@ protected:
         address = static_cast<uchar> ( conf["address"].toUInt(&ok) ); Q_ASSERT(ok) ;
     }
 
-    static bool registerInFact()
+    /*static bool registerInFact()
     {
         factory_map().insert("MettlerToledo8530", &MettlerToledo8530::create);
         return true;
-    }
+    }*/
 
     virtual QByteArray weightRequestFrame() const;
     virtual float parseWeightFrameAnswer(const QByteArray& ba, uint &) const;
@@ -36,7 +36,8 @@ protected:
     virtual void  parseZeroFrameAnswer(const QByteArray&, uint & ) const;
 
     uchar address;
-    static bool registered;
+    //static bool registered;
+    static BossnFactoryRegistrator<MettlerToledo8530> registrator;
 };
 
 #endif

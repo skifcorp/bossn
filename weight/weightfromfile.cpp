@@ -3,6 +3,7 @@
 #include <QString>
 #include <QFile>
 
+BossnFactoryRegistrator<WeightFromFile> WeightFromFile::registrator("WeightFromFile");
 
 void WeightFromFile::readWeight(IoDeviceWrapper * io, float & ret, uint & err)
 {

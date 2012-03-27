@@ -17,8 +17,9 @@
 struct TagMethod
 {
     QString tag_name;
-    QString method_name;
-    TagMethod(const QString& tn, const QString & mn):tag_name(tn), method_name(mn){}
+    QString read_method_name;
+    QString write_method_name;
+    TagMethod(const QString& tn, const QString & mn, const QString& wmn=QString()):tag_name(tn), read_method_name(mn), write_method_name(wmn){}
     TagMethod(){}
 };
 
@@ -44,7 +45,7 @@ public:
 
 
     //template <class... Args>
-    QVariant value(const QString& n, QGenericArgument val0 = QGenericArgument( 0 ), QGenericArgument val1 = QGenericArgument( 0 )) const;
+    Q_INVOKABLE QVariant value(const QString& n, QGenericArgument val0 = QGenericArgument( 0 ), QGenericArgument val1 = QGenericArgument( 0 )) const;
 protected:
 
 private:    

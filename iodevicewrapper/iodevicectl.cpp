@@ -1,6 +1,8 @@
 #include "iodevicectl.h"
 
-bool IoDeviceCtl::registered = IoDeviceCtl::registerInFact();
+//bool IoDeviceCtl::registered = IoDeviceCtl::registerInFact();
+
+BossnFactoryRegistrator<IoDeviceCtl> IoDeviceCtl::registrator("IoDeviceCtl");
 
 #ifdef Q_OS_WIN32
 

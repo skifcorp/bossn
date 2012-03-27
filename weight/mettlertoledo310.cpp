@@ -3,8 +3,8 @@
 #include <QByteArray>
 
 
-bool MettlerToledo310::registered = MettlerToledo310::registerInFact();
-
+//bool MettlerToledo310::registered = MettlerToledo310::registerInFact();
+BossnFactoryRegistrator<MettlerToledo310> MettlerToledo310::registraror("MettlerToledo310");
 
 void MettlerToledo310::readWeight(IoDeviceWrapper * io, float & ret, uint & err)
 {

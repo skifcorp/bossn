@@ -13,6 +13,7 @@ using std::function;
 
 #include "coroutine.h"
 #include "iodevicewrapper.h"
+#include "factory.h"
 
 /*
 class WeightFrameException
@@ -46,7 +47,8 @@ public:
     WeightFrameExceptionBadAddress(){}
 };*/
 
-class PorterDriver : public QObject
+class PorterDriver : public QObject,
+                     public BossnFactory<PorterDriver, const QMap<QString, QVariant> >
 {    
     Q_OBJECT
 public:		
@@ -59,25 +61,25 @@ public:
     virtual ~PorterDriver(){}
 
 
-    static Pointer create(const QString& n, const QMap<QString, QVariant>& drv_conf )
+    /*static Pointer create(const QString& n, const QMap<QString, QVariant>& drv_conf )
     {
         if (factory_map().contains(n))
             return Pointer(factory_map()[n](drv_conf));
 
         qWarning() << "WeightDriver factory dont contains: "<<n<< " class";
         return Pointer();
-    }
+    }*/
 
 protected:
     PorterDriver(){}
 
-    typedef QMap<QString, function<PorterDriver * (const QMap<QString, QVariant>)> > FactoryMap;
+/*    typedef QMap<QString, function<PorterDriver * (const QMap<QString, QVariant>)> > FactoryMap;
 
     static FactoryMap & factory_map()
     {
         static FactoryMap map;
         return map;
-    }
+    }*/
     void yield()
     {
         Coroutine::yield();

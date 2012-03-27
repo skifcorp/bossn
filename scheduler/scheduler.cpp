@@ -17,14 +17,16 @@ void Scheduler::setDevice(IoDevPointer d)
     }
     device = d;
     connect(device.toStrongRef().data(), SIGNAL(readyRead()), this, SLOT(onReadyRead()));
+    //qDebug() << "connect!!!";
 }
 
 
 void Scheduler::clear()
 {
-    if (!device.isNull())
+    if (!device.isNull()) {
         device.toStrongRef().data()->disconnect(SIGNAL(readyRead()), this, SLOT(onReadyRead()));
-
+        //qDebug() << "disconnect!!!";
+    }
     current_coro.clear();
     scheduls.clear();
     conn_obj.clear();
@@ -43,6 +45,7 @@ void Scheduler::addFunction(function<void ()>schf, function<void ()> tmf, int sc
 
 void Scheduler::onTimeoutTimer()
 {    
+    //qDebug() << "timerout!!!!";
     current_coro.schedul->timeout_func();
     current_coro.schedul->schedule_timer->start();
 
@@ -64,6 +67,7 @@ void Scheduler::onScheduleTimer(Schedul & s)
 
 void Scheduler::onReadyRead()
 {
+    //qDebug() << "onReadY read!!!";
     execute();
 }
 

@@ -33,15 +33,17 @@ protected:
     IoDeviceFile(){}
 private:
     QFile file;
-    static bool registered;
+    static BossnFactoryRegistrator<IoDeviceFile> registrator;
+    /*static bool registered;
     static bool registerInFact()
     {
         factory_map().insert("IoDeviceFile", &IoDeviceFile::create);
         return true;
-    }
+    }*/
 
     virtual QIODevice * internalGetDevice() { return &file; }
     virtual const QIODevice * internalGetDevice() const { return &file; }
+
 };
 
 

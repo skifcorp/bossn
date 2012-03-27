@@ -13,7 +13,7 @@ CONFIG   += console
 CONFIG   -= app_bundle
 
 TEMPLATE = app
-INCLUDEPATH  += ../qextserialport/src/ serial weight generic iodevicewrapper scheduler porter  dido perimeter ../coroutine/src/
+INCLUDEPATH  += ../qextserialport/src/ serial weight generic iodevicewrapper scheduler porter task dido perimeter tools ../coroutine/src/
 QMAKE_CXXFLAGS += -std=c++0x
 LIBS         += -L../qextserialport_build/src/build/ -lqextserialport -L../coroutine_build/src/release/ -lcoroutine
 
@@ -35,7 +35,7 @@ SOURCES += main.cpp \
     perimeter/perimeter.cpp
 
 HEADERS += \    
-    func.h \
+    tools/func.h \
     mrwsettings.h \
     tools.h \
     weight/mettlertoledo8530.h \
@@ -52,4 +52,8 @@ HEADERS += \
     porter/porter.h \   
     porter/porterdriver.h \
     iodevicewrapper/iodevicectl.h \
-    perimeter/perimeter.h
+    perimeter/perimeter.h \
+    tools/factory.h \
+    task/task.h \
+    tags.h \
+    task/taskexec.h

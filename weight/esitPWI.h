@@ -32,11 +32,11 @@ private:
 
     uchar address;
 
-    static bool registerInFact()
+    /*static bool registerInFact()
     {
         factory_map().insert("EsitPWI", &EsitPWI::create);
         return true;
-    }
+    }*/
 
     QByteArray weightRequestFrame(uint & err) const
     {
@@ -59,7 +59,8 @@ private:
         return NAN;
     }
 
-    static bool registered;
+    //static bool registered;
+    static BossnFactoryRegistrator<EsitPWI> registrator;
 };
 
 #endif

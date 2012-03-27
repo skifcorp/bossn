@@ -12,6 +12,7 @@
 using std::function;
 
 #include "iodevicewrapper.h"
+#include "factory.h"
 
 /*
 class DioLocalDriver : public QIODevice
@@ -144,12 +145,13 @@ private:
     QFile file;
 
 
-    static bool registered;
+    /*static bool registered;
     static bool registerInFact()
     {
         factory_map().insert("IoDeviceCtl", &IoDeviceCtl::create);
         return true;
-    }
+    }*/
+    static BossnFactoryRegistrator<IoDeviceCtl> registrator;
 };
 
 #endif

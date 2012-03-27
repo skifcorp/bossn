@@ -1,3 +1,3 @@
 #include "iodevicefile.h"
 
-bool IoDeviceFile::registered = IoDeviceFile::registerInFact();
+BossnFactoryRegistrator<IoDeviceFile> IoDeviceFile::registrator("IoDeviceFile");

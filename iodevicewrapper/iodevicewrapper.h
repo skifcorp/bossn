@@ -11,11 +11,15 @@
 
 using std::function;
 
+#include "factory.h"
+
 #if defined (Q_OS_WIN)
 #include <windows.h>
 #endif
 
-class IoDeviceWrapper : public QObject
+
+class IoDeviceWrapper : public QObject,
+                        public BossnFactory<IoDeviceWrapper>
 {
     Q_OBJECT
 public:
@@ -76,13 +80,13 @@ public:
     }
 
 protected:
-    typedef QMap<QString, function<IoDeviceWrapper * ()> > FactoryMap;
+    //typedef QMap<QString, function<IoDeviceWrapper * ()> > FactoryMap;
     IoDeviceWrapper() {}
-    static FactoryMap & factory_map()
+    /*static FactoryMap & factory_map()
     {
         static FactoryMap map;
         return map;
-    }
+    }*/
 private:
     virtual QIODevice * internalGetDevice() = 0;
     virtual const QIODevice * internalGetDevice() const = 0;

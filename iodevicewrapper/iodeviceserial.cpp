@@ -1,6 +1,6 @@
 #include "iodeviceserial.h"
 
-bool IoDeviceSerial::registered = IoDeviceSerial::registerInFact();
+BossnFactoryRegistrator<IoDeviceSerial> IoDeviceSerial::registrator("IoDeviceSerial");
 
 
 void IoDeviceSerial::setSettings(const QMap<QString, QVariant>& s)

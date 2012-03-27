@@ -25,14 +25,14 @@ protected:
         qDebug () << "Hbm2110 CREATED!";
     }
 
-    static bool registerInFact()
+/*    static bool registerInFact()
     {
         factory_map().insert("Hbm2110", &Hbm2110::create);
         return true;
-    }
+    }*/
  private:
     uchar address;
-    static bool registered;
+    //static bool registered;
 
     uchar parseAddress(const QByteArray& ba) const
     {
@@ -44,6 +44,7 @@ protected:
 
     QByteArray weightRequestFrame() const;
     float parseWeightFrameAnswer(const QByteArray& ba, uint &) const;
+    static BossnFactoryRegistrator<Hbm2110> registrator;
 };
 
 #endif

@@ -3,6 +3,7 @@
 
 #include "iodevicewrapper.h"
 #include "qextserialport.h"
+#include "factory.h"
 
 class IoDeviceSerial : public IoDeviceWrapper
 {
@@ -28,15 +29,17 @@ protected:
     IoDeviceSerial(){}
 private:
     QextSerialPort serial_port;
-    static bool registered;
+/*    static bool registered;
     static bool registerInFact()
     {
         factory_map().insert("IoDeviceSerial", &IoDeviceSerial::create);
         return true;
-    }
+    }*/
 
     virtual QIODevice * internalGetDevice() { return &serial_port; }
     virtual const QIODevice * internalGetDevice() const { return &serial_port; }
+
+    static BossnFactoryRegistrator<IoDeviceSerial> registrator;
 };
 
 #endif // WEIGHTDEVICESERIAL_H
