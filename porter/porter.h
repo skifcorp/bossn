@@ -45,7 +45,16 @@ public:
 
 
     //template <class... Args>
-    Q_INVOKABLE QVariant value(const QString& n, QGenericArgument val0 = QGenericArgument( 0 ), QGenericArgument val1 = QGenericArgument( 0 )) const;
+    //Q_INVOKABLE QVariant value(const QString& n, QGenericArgument val0 = QGenericArgument( 0 ), QGenericArgument val1 = QGenericArgument( 0 )) const;
+    Q_INVOKABLE QVariant value (const QString& n,
+                   QGenericArgument val0 = QGenericArgument(),
+                   QGenericArgument val1 = QGenericArgument(),
+                   QGenericArgument val2 = QGenericArgument(),
+                   QGenericArgument val3 = QGenericArgument(),
+                   QGenericArgument val4 = QGenericArgument(),
+                   QGenericArgument val5 = QGenericArgument(),
+                   QGenericArgument val6 = QGenericArgument(),
+                   QGenericArgument val7 = QGenericArgument() ) const;
 protected:
 
 private:    

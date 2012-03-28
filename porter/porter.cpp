@@ -73,7 +73,10 @@ void Porter::addTagToSchedule(Drivers::size_type driver_index, const QString& ta
             }, 500, 500);
 }
 
-QVariant Porter::value(const QString& n, QGenericArgument val0, QGenericArgument val1 ) const
+QVariant Porter::value (const QString& n,  QGenericArgument val0, QGenericArgument val1, QGenericArgument val2,
+                        QGenericArgument val3, QGenericArgument val4, QGenericArgument val5, QGenericArgument val6, QGenericArgument val7 ) const
+
+//QVariant Porter::value(const QString& n, QGenericArgument val0, QGenericArgument val1 ) const
 {
     if (scheduled) {
         return methods[n].value;
@@ -83,7 +86,7 @@ QVariant Porter::value(const QString& n, QGenericArgument val0, QGenericArgument
 
     QVariant ret(true);
     bool res = QMetaObject::invokeMethod( drivers[mi.driver_idx].data(), mi.method.toAscii().data(), Q_RETURN_ARG(QVariant, ret),
-                                    Q_ARG(IoDeviceWrapper::Pointer::Type*, device.data()) ,val0, val1 );
+                                    Q_ARG(IoDeviceWrapper::Pointer::Type*, device.data()) ,val0, val1, val2, val3, val4, val5, val6, val7 );
 
     if (!res) {
         qWarning()<<"cant invoke "<<mi.method;

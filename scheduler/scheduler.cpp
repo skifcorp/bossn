@@ -58,7 +58,7 @@ void Scheduler::onScheduleTimer(Schedul & s)
         qApp->processEvents();
     }
 
-    qDebug() << "coro: "<<s.num;
+    //qDebug() << "coro: "<<s.num;
 
     current_coro = CoroContext(QSharedPointer<Coroutine>(  Coroutine::build( s.schedule_func ) ), &s);
 

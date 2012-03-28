@@ -12,12 +12,12 @@ class Tag
 public:
     typedef QSharedPointer<Tag> Pointer;
 
-    Tag(QObject * o, const QString& rm, const QString& wm ):object(o), read_method(rm), write_method(wm)
+    Tag(const QString& n, QObject * o=nullptr, const QString& rm=QString(), const QString& wm=QString() ):tag_name(n), object(o), read_method(rm), write_method(wm)
     {
 
     }
 
-    Tag():object(nullptr){}
+    //Tag():object(nullptr){}
 
     Tag(const Tag& ) = delete;
 
@@ -28,42 +28,24 @@ public:
                    QGenericArgument val4 = QGenericArgument(),
                    QGenericArgument val5 = QGenericArgument(),
                    QGenericArgument val6 = QGenericArgument(),
-                   QGenericArgument val7 = QGenericArgument(),
-                   QGenericArgument val8 = QGenericArgument(),
-                   QGenericArgument val9 = QGenericArgument() )
-    {
-        QVariant ret;
+                   QGenericArgument val7 = QGenericArgument() );
 
-        QMetaObject::invokeMethod( object, read_method.toAscii().data(), val0, val1, val2, val3, val4, val5, val6, val7, val8, val9 );
 
-        return ret;
-    }
-/*
-    template <class... Args>
-    QVariant write (Args... args)
-    {
-        QVariant ret;
-
-        invoke(write_method.toAscii().data(), Q_RETURN_ARG(QVariant, ret), Q_ARG(decltype(args), args)... );
-
-        return ret;
-    } */
-
-    /*template <class ... Ars>
-    QVariant value(Args ... args)
-    {
-        QVariant v;
-
-        return v;
-    }*/
     void setReadMethod(const QString& n) {read_method = n;}
     void setReadObject(QObject * o) {object = o;}
+    void setName(const QString& n) {tag_name = n;}
+    void addArgument(const QVariant& arg)
+    {
+        args.append(arg);
+    }
+
 private:
 
     QString tag_name;
     QObject * object;
     QString read_method;
     QString write_method;
+    QList<QVariant> args;
 };
 
 typedef QMap<QString, Tag::Pointer> Tags;

@@ -15,8 +15,8 @@ public:
 
     ~DidoIt8718f() {}
 
-    Q_INVOKABLE QVariant getDi(IoDeviceWrapper::Pointer::Type* io, int num);
-    Q_INVOKABLE void setDo(IoDeviceWrapper::Pointer::Type* io, int num, bool);
+    Q_INVOKABLE QVariant getDi(IoDeviceWrapper::Pointer::Type* io, const QVariant& num);
+    Q_INVOKABLE void setDo(IoDeviceWrapper::Pointer::Type* io, const QVariant& num, bool);
 
     static PorterDriver* create(const QMap<QString, QVariant>& )
     {

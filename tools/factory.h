@@ -4,7 +4,8 @@
 #include <QSharedPointer>
 #include <QMap>
 #include <QDebug>
-
+#include "functional"
+using std::function;
 
 template <class T>
 class BossnFactoryRegistrator

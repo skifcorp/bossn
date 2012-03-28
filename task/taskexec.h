@@ -9,7 +9,7 @@
 #include <QDebug>
 
 
-#include "task.h"
+#include "basetask.h"
 
 
 class TaskClass : public QObject
@@ -28,7 +28,7 @@ public:
     TaskClass(const TaskClass& ) = delete;
 
     ~TaskClass() {}
-    void addTask(Task::Pointer t)
+    void addTask(BaseTask::Pointer t)
     {
         tasks.append(t);
     }
@@ -36,15 +36,13 @@ public:
 private slots:
     void onTimer()
     {
-        qDebug () << "!!!!!!!!!!!!!!!!!!!!!!!";
-
-        for (QList<Task::Pointer>::iterator iter = tasks.begin(); iter != tasks.end(); ++iter) {
+        for (QList<BaseTask::Pointer>::iterator iter = tasks.begin(); iter != tasks.end(); ++iter) {
             (*iter)->exec();
         }
     }
 private:
     QSharedPointer<QTimer> timer;
-    QList<Task::Pointer> tasks;
+    QList<BaseTask::Pointer> tasks;
 };
 
 class TaskExec
@@ -55,7 +53,7 @@ public:
 
     }
     ~TaskExec() {}
-    void addTask(int period, Task::Pointer t)
+    void addTask(int period, BaseTask::Pointer t)
     {
         auto iter = task_classes.find(period);
         if (iter == task_classes.end()) {

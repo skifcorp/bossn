@@ -18,17 +18,17 @@ uchar DidoIt8718f::readAll(IoDeviceWrapper::Pointer::Type* io)
     return cParam.timeout;
 }
 
-QVariant DidoIt8718f::getDi(IoDeviceWrapper::Pointer::Type* io, int num)
+QVariant DidoIt8718f::getDi(IoDeviceWrapper::Pointer::Type* io, const QVariant& num)
 {
-    return readAll(io) & ( 0x01 << num );
+    return readAll(io) & ( 0x01 << num.toUInt() );
 }
 
-void DidoIt8718f::setDo(IoDeviceWrapper::Pointer::Type* io, int num, bool b)
+void DidoIt8718f::setDo(IoDeviceWrapper::Pointer::Type* io, const QVariant& num, bool b)
 {
     uchar data = readAll(io);
     data = data >> 4;
-    if (b) { data = data | (1<<num);    }
-    else   { data = data & (~(1<<num)); }
+    if (b) { data = data | (1<<num.toUInt());    }
+    else   { data = data & (~(1<<num.toUInt())); }
 
     WDTPARAM cParam;
     DWORD nReturn;

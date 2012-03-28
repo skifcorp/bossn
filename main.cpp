@@ -6,9 +6,10 @@
 #include "porter.h"
 #include "qextserialport.h"
 #include "tags.h"
-#include "task.h"
+#include "basetask.h"
 #include "taskexec.h"
 #include "perimeter.h"
+#include "mainsequence.h"
 
 bool initMrw();
 int work();
@@ -82,16 +83,43 @@ void initPorters(QVector<Porter::Pointer>& porters, Tags& tags)
 
         p->addDriver("DidoIt8718f", QMap<QString, QVariant>(), tag_method_dido);
 
-        //qDebug() << " di: "<<p->value("di", Q_ARG(int, 0));
 
         porters.push_back(p);
 
-        //tags["di"]->setReadMethod("value");
-        //tags["di"]->setReadObject(p.data());
+        tags["di1"]->setReadMethod("value");
+        tags["di1"]->addArgument(0);
+        tags["di1"]->setReadObject(p.data());
+
+        tags["di2"]->setReadMethod("value");
+        tags["di2"]->addArgument(1);
+        tags["di2"]->setReadObject(p.data());
+
+        tags["di3"]->setReadMethod("value");
+        tags["di3"]->addArgument(2);
+        tags["di3"]->setReadObject(p.data());
+
+        tags["di4"]->setReadMethod("value");
+        tags["di4"]->addArgument(3);
+        tags["di4"]->setReadObject(p.data());
+
     }
 }
 
-//#include <coroutine.h>
+void initTasks(TaskExec & tasks, Tags & tags, MainSequence & seq )
+{
+    PerimeterTask::Pointer perim (new PerimeterTask(tags));
+    QMap<QString, QVariant> perim_settings;
+    perim_settings["PerimeterType"] = "PerimeterControlByWeight";
+    perim_settings["weightName"]    = "weight1_1";
+    perim_settings["minWeight"]     = 50.0;
+
+    QObject::connect(perim.data(), SIGNAL(appeared()), &seq, SLOT(onAppearOnWeight()));
+    QObject::connect(perim.data(), SIGNAL(disappeared()), &seq, SLOT(onDisappearOnWeight()));
+
+    perim->setSettings(perim_settings);
+
+    tasks.addTask(500, perim.staticCast<BaseTask::Pointer::Type>());
+}
 
 int main(int argc, char *argv[])
 {  
@@ -107,18 +135,28 @@ int main(int argc, char *argv[])
 
     Tags tags;
 
-    tags["weight1_1"] = Tag::Pointer(new Tag());
-    tags["di"]        = Tag::Pointer(new Tag());
-    tags["do"]        = Tag::Pointer(new Tag());       
+    tags["weight1_1"]  = Tag::Pointer(new Tag("weight1_1"));
+
+    tags["di1"]        = Tag::Pointer(new Tag("di"));
+    tags["di2"]        = Tag::Pointer(new Tag("di"));
+    tags["di3"]        = Tag::Pointer(new Tag("di"));
+    tags["di4"]        = Tag::Pointer(new Tag("di"));
+
+    tags["do1"]        = Tag::Pointer(new Tag("do"));
+    tags["do2"]        = Tag::Pointer(new Tag("do"));
+    tags["do3"]        = Tag::Pointer(new Tag("do"));
+    tags["do4"]        = Tag::Pointer(new Tag("do"));
 
     QVector<Porter::Pointer> porters;
 
-    initPorters(porters, tags);
-    //if (!initMrw()) return 1;
+    initPorters(porters, tags);        
+
+    MainSequence seq1(tags);
 
     TaskExec task_exec;
+    initTasks(task_exec, tags, seq1);
 
-    task_exec.addTask(1000, Task::Pointer(new PerimeterTask(tags)));
+
 
     work();
 

@@ -19,7 +19,6 @@ LIBS         += -L../qextserialport_build/src/build/ -lqextserialport -L../corou
 
 SOURCES += main.cpp \
     mrwsettings.cpp \
-    tools.cpp \
     weight/mettlertoledo8530.cpp \
     weight/mettlertoledo310.cpp \
     weight/hbm2110.cpp \
@@ -32,12 +31,13 @@ SOURCES += main.cpp \
     porter/porter.cpp \
     dido/didodriver.cpp \
     iodevicewrapper/iodevicectl.cpp \
-    perimeter/perimeter.cpp
+    perimeter/perimeter.cpp \
+    tags.cpp \
+    perimeter/perimeteralhos.cpp
 
 HEADERS += \    
     tools/func.h \
-    mrwsettings.h \
-    tools.h \
+    mrwsettings.h \   
     weight/mettlertoledo8530.h \
     weight/mettlertoledo310.h \
     weight/hbm2110.h \
@@ -54,6 +54,10 @@ HEADERS += \
     iodevicewrapper/iodevicectl.h \
     perimeter/perimeter.h \
     tools/factory.h \
-    task/task.h \
     tags.h \
-    task/taskexec.h
+    task/taskexec.h \
+    task/basetask.h \
+    perimeter/perimeteralhos.h \
+    tools/settingstool.h \
+    perimeter/perimtercontrol.h \
+    mainsequence.h
