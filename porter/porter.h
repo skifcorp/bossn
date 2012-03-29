@@ -43,9 +43,6 @@ public:
     void setDevice(const QString& n, const QMap<QString, QVariant> & settings );
     void addDriver(const QString&, const QMap<QString, QVariant>& drv_conf, const QList<TagMethod>& );
 
-
-    //template <class... Args>
-    //Q_INVOKABLE QVariant value(const QString& n, QGenericArgument val0 = QGenericArgument( 0 ), QGenericArgument val1 = QGenericArgument( 0 )) const;
     Q_INVOKABLE QVariant value (const QString& n,
                    QGenericArgument val0 = QGenericArgument(),
                    QGenericArgument val1 = QGenericArgument(),
@@ -54,7 +51,8 @@ public:
                    QGenericArgument val4 = QGenericArgument(),
                    QGenericArgument val5 = QGenericArgument(),
                    QGenericArgument val6 = QGenericArgument(),
-                   QGenericArgument val7 = QGenericArgument() ) const;
+                   QGenericArgument val7 = QGenericArgument(),
+                   QGenericArgument val8 = QGenericArgument() ) const;
 protected:
 
 private:    

@@ -7,25 +7,25 @@
 
 BossnFactoryRegistrator<MettlerToledo8530> MettlerToledo8530::registrator("MettlerToledo8530");
 
-void MettlerToledo8530::readWeight(IoDeviceWrapper * io, float & ret, uint & err)
+void MettlerToledo8530::readWeight(float & ret, uint & err)
 {
     QByteArray req = weightRequestFrame();
-    io->write(req);
+    io_device()->write(req);
 
     const uchar frame_size = 13;
-    while ( io->bytesAvailable() < frame_size ) {
+    while ( io_device()->bytesAvailable() < frame_size ) {
         yield();
     }
 
-    QByteArray answ = io->read(frame_size);
+    QByteArray answ = io_device()->read(frame_size);
 
     ret = parseWeightFrameAnswer(answ, err);
 }
 
-void MettlerToledo8530::zero(IoDeviceWrapper * io, uint &)
+void MettlerToledo8530::zero(uint &)
 {
     QByteArray req = zeroRequestFrame(0);
-    io->write(req);
+    io_device()->write(req);
 }
 
 QByteArray MettlerToledo8530::weightRequestFrame() const

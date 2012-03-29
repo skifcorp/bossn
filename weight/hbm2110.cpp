@@ -8,24 +8,24 @@
 //bool Hbm2110::registered = Hbm2110::registerInFact();
 BossnFactoryRegistrator<Hbm2110> Hbm2110::registrator("Hbm2110");
 
-void Hbm2110::readWeight(IoDeviceWrapper * io, QVariant & ret, uint & err)
+void Hbm2110::readWeight(QVariant & ret, uint & err)
 {
     QByteArray req = weightRequestFrame();
 
-    io->write(req);
+    io_device()->write(req);
 
     const uchar frame_size = 17;
     //qDebug()<<"bytes: "<<io->bytesAvailable();
-    while ( io->bytesAvailable() < frame_size ) {        
+    while ( io_device()->bytesAvailable() < frame_size ) {
         yield();
     }
 
-    QByteArray answ = io->read(frame_size);
+    QByteArray answ = io_device()->read(frame_size);
 
     ret = parseWeightFrameAnswer(answ, err);
 }
 
-void Hbm2110::zero(IoDeviceWrapper *, uint &)
+void Hbm2110::zero(uint &)
 {
 
 }

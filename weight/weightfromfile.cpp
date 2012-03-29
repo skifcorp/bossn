@@ -5,14 +5,14 @@
 
 BossnFactoryRegistrator<WeightFromFile> WeightFromFile::registrator("WeightFromFile");
 
-void WeightFromFile::readWeight(IoDeviceWrapper * io, float & ret, uint & err)
+void WeightFromFile::readWeight(float & ret, uint & err)
 {
-    QByteArray ba = io->readAll();
+    QByteArray ba = io_device()->readAll();
 
     ret = parseWeightFrameAnswer(ba, err);
 }
 
-void WeightFromFile::zero(IoDeviceWrapper *, uint &)
+void WeightFromFile::zero(uint &)
 {
 
 }

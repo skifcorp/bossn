@@ -15,8 +15,11 @@ public:
 
     ~DidoIt8718f() {}
 
-    Q_INVOKABLE QVariant getDi(IoDeviceWrapper::Pointer::Type* io, const QVariant& num);
-    Q_INVOKABLE void setDo(IoDeviceWrapper::Pointer::Type* io, const QVariant& num, bool);
+    Q_INVOKABLE QVariant getDi();
+    Q_INVOKABLE void setDo(const QVariant& );
+
+    Q_INVOKABLE QVariant getDiBit(const QVariant& full_byte, const QVariant& num);
+    Q_INVOKABLE QVariant setDoBit(const QVariant& full_byte, const QVariant& num, const QVariant& );
 
     static PorterDriver* create(const QMap<QString, QVariant>& )
     {
@@ -29,13 +32,14 @@ protected:
     }
 
 private:
-    static bool registered;
+    /*static bool registered;
     static bool registerInFact()
     {
         factory_map().insert("DidoIt8718f", &DidoIt8718f::create);
         return true;
-    }
-    uchar readAll(IoDeviceWrapper::Pointer::Type* );
+    }*/
+    static BossnFactoryRegistrator<DidoIt8718f> registator;
+    uchar readAll( );
 
 };
 

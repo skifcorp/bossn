@@ -39,27 +39,22 @@ public:
         return internalGetDevice()->open(f);
     }
 
-    qint64	write ( const char * data )
+    qint64 virtual write ( const char * data )
     {
         return internalGetDevice()->write(data);
     }
 
-    qint64	bytesAvailable () const
+    qint64 virtual bytesAvailable () const
     {
         return internalGetDevice()->bytesAvailable();
     }
-    QByteArray	read ( qint64 maxSize )
+    QByteArray virtual read ( qint64 maxSize )
     {
         return internalGetDevice()->read(maxSize);
     }
-    QByteArray readAll ()
+    QByteArray virtual readAll ()
     {
         return internalGetDevice()->readAll();
-    }
-
-    bool seek ( qint64 pos )
-    {
-        return internalGetDevice()->seek(pos);
     }
 
 #if defined(Q_OS_WIN)

@@ -29,17 +29,27 @@ public:
         return new IoDeviceFile();
     }
 
+    qint64 virtual write ( const char * data )
+    {
+       file.seek(0);
+       return IoDeviceWrapper::write(data);
+    }
+
+    QByteArray virtual read ( qint64 maxSize )
+    {
+        file.seek(0);
+        return IoDeviceWrapper::read(maxSize);
+    }
+    QByteArray virtual readAll ()
+    {
+        file.seek(0);
+        return IoDeviceWrapper::readAll();
+    }
 protected:
     IoDeviceFile(){}
 private:
     QFile file;
     static BossnFactoryRegistrator<IoDeviceFile> registrator;
-    /*static bool registered;
-    static bool registerInFact()
-    {
-        factory_map().insert("IoDeviceFile", &IoDeviceFile::create);
-        return true;
-    }*/
 
     virtual QIODevice * internalGetDevice() { return &file; }
     virtual const QIODevice * internalGetDevice() const { return &file; }

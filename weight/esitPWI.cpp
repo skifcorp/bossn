@@ -7,24 +7,24 @@
 
 BossnFactoryRegistrator<EsitPWI> EsitPWI::registrator("EsitPWI");
 
-void EsitPWI::readWeight(IoDeviceWrapper * io, float & ret, uint & err)
+void EsitPWI::readWeight(float & ret, uint & err)
 {
     QByteArray req = weightRequestFrame(err);
     if (err) return;
 
-    io->write(req);
+    io_device()->write(req);
 
     const uchar frame_size = 8;
-    while ( io->bytesAvailable() < frame_size ) {
+    while ( io_device()->bytesAvailable() < frame_size ) {
         yield();
     }
 
-    QByteArray answ = io->read(frame_size);
+    QByteArray answ = io_device()->read(frame_size);
 
     ret = parseWeightFrameAnswer(answ, err);
 }
 
-void EsitPWI::zero(IoDeviceWrapper *, uint &)
+void EsitPWI::zero(uint &)
 {
 
 }

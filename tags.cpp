@@ -1,5 +1,17 @@
 #include "tags.h"
+#include <QDebug>
 
+int __id = qRegisterMetaType<Tag::WeakPointer>("Tag::WeakPointer");
+
+QVariant Tag::arg(int n)
+{
+    if (args[n].userType() == __id) {
+        //need get tag value
+        QVariant ret = args[n].value<Tag::WeakPointer>().data()->value();
+        return ret;
+    }
+    return args[n];
+}
 
 QVariant Tag::value (QGenericArgument val0, QGenericArgument val1, QGenericArgument val2,
                QGenericArgument val3, QGenericArgument val4, QGenericArgument val5,
@@ -10,7 +22,8 @@ QVariant Tag::value (QGenericArgument val0, QGenericArgument val1, QGenericArgum
     switch (args.count()) {
     case 0:
         QMetaObject::invokeMethod( object, read_method.toAscii().data(), Q_RETURN_ARG(QVariant,ret),
-                               Q_ARG(QString, tag_name), Q_ARG(QGenericArgument, val0),
+                                   Q_ARG(QString, tag_name),
+                                   Q_ARG(QGenericArgument, val0),
                                    Q_ARG(QGenericArgument, val1),
                                    Q_ARG(QGenericArgument, val2),
                                    Q_ARG(QGenericArgument, val3),
@@ -22,7 +35,7 @@ QVariant Tag::value (QGenericArgument val0, QGenericArgument val1, QGenericArgum
     case 1:
         QMetaObject::invokeMethod( object, read_method.toAscii().data(), Q_RETURN_ARG(QVariant,ret),
                                    Q_ARG(QString, tag_name),
-                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, args[0])) ,
+                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, arg(0))) ,
                                    Q_ARG(QGenericArgument, val0),
                                    Q_ARG(QGenericArgument, val1),
                                    Q_ARG(QGenericArgument, val2),
@@ -35,8 +48,8 @@ QVariant Tag::value (QGenericArgument val0, QGenericArgument val1, QGenericArgum
     case 2:
         QMetaObject::invokeMethod( object, read_method.toAscii().data(), Q_RETURN_ARG(QVariant,ret),
                                    Q_ARG(QString, tag_name),
-                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, args[0])),
-                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, args[1])),
+                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, arg(0))),
+                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, arg(1))),
                                    Q_ARG(QGenericArgument, val0),
                                    Q_ARG(QGenericArgument, val1),
                                    Q_ARG(QGenericArgument, val2),
@@ -48,9 +61,9 @@ QVariant Tag::value (QGenericArgument val0, QGenericArgument val1, QGenericArgum
     case 3:
         QMetaObject::invokeMethod( object, read_method.toAscii().data(), Q_RETURN_ARG(QVariant,ret),
                                    Q_ARG(QString, tag_name),
-                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, args[0])),
-                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, args[1])),
-                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, args[2])),
+                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, arg(0))),
+                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, arg(1))),
+                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, arg(2))),
                                    Q_ARG(QGenericArgument, val0),
                                    Q_ARG(QGenericArgument, val1),
                                    Q_ARG(QGenericArgument, val2),
@@ -61,10 +74,10 @@ QVariant Tag::value (QGenericArgument val0, QGenericArgument val1, QGenericArgum
     case 4:
         QMetaObject::invokeMethod( object, read_method.toAscii().data(), Q_RETURN_ARG(QVariant,ret),
                                    Q_ARG(QString, tag_name),
-                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, args[0])),
-                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, args[1])),
-                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, args[2])),
-                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, args[3])),
+                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, arg(0))),
+                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, arg(1))),
+                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, arg(2))),
+                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, arg(3))),
                                    Q_ARG(QGenericArgument, val0),
                                    Q_ARG(QGenericArgument, val1),
                                    Q_ARG(QGenericArgument, val2),
@@ -74,11 +87,11 @@ QVariant Tag::value (QGenericArgument val0, QGenericArgument val1, QGenericArgum
     case 5:
         QMetaObject::invokeMethod( object, read_method.toAscii().data(), Q_RETURN_ARG(QVariant,ret),
                                    Q_ARG(QString, tag_name),
-                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, args[0])),
-                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, args[1])),
-                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, args[2])),
-                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, args[3])),
-                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, args[4])),
+                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, arg(0))),
+                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, arg(1))),
+                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, arg(2))),
+                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, arg(3))),
+                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, arg(4))),
                                    Q_ARG(QGenericArgument, val0),
                                    Q_ARG(QGenericArgument, val1),
                                    Q_ARG(QGenericArgument, val2));
@@ -87,12 +100,12 @@ QVariant Tag::value (QGenericArgument val0, QGenericArgument val1, QGenericArgum
     case 6:
         QMetaObject::invokeMethod( object, read_method.toAscii().data(), Q_RETURN_ARG(QVariant,ret),
                                    Q_ARG(QString, tag_name),
-                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, args[0])),
-                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, args[1])),
-                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, args[2])),
-                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, args[3])),
-                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, args[4])),
-                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, args[5])),
+                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, arg(0))),
+                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, arg(1))),
+                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, arg(2))),
+                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, arg(3))),
+                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, arg(4))),
+                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, arg(5))),
                                    Q_ARG(QGenericArgument, val0),
                                    Q_ARG(QGenericArgument, val1));
         break;
@@ -100,27 +113,27 @@ QVariant Tag::value (QGenericArgument val0, QGenericArgument val1, QGenericArgum
     case 7:
         QMetaObject::invokeMethod( object, read_method.toAscii().data(), Q_RETURN_ARG(QVariant,ret),
                                    Q_ARG(QString, tag_name),
-                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, args[0])),
-                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, args[1])),
-                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, args[2])),
-                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, args[3])),
-                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, args[4])),
-                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, args[5])),
-                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, args[6])),
+                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, arg(0))),
+                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, arg(1))),
+                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, arg(2))),
+                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, arg(3))),
+                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, arg(4))),
+                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, arg(5))),
+                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, arg(6))),
                                    Q_ARG(QGenericArgument, val0));
         break;
 
     case 8:
         QMetaObject::invokeMethod( object, read_method.toAscii().data(), Q_RETURN_ARG(QVariant,ret),
                                    Q_ARG(QString, tag_name),
-                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, args[0])),
-                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, args[1])),
-                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, args[2])),
-                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, args[3])),
-                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, args[4])),
-                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, args[5])),
-                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, args[6])),
-                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, args[7])));
+                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, arg(0))),
+                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, arg(1))),
+                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, arg(2))),
+                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, arg(3))),
+                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, arg(4))),
+                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, arg(5))),
+                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, arg(6))),
+                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, arg(7))));
         break;
 
     };

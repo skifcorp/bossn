@@ -9,8 +9,8 @@ class MettlerToledo310 : public PorterDriver
 {
     Q_OBJECT
 public:
-    virtual void readWeight(IoDeviceWrapper *, float & ret, uint &);
-    virtual void zero(IoDeviceWrapper *, uint &);
+    void readWeight(float & ret, uint &);
+    void zero(uint &);
 
 
     static MettlerToledo310 * create (const QMap<QString, QVariant>& drv_conf)

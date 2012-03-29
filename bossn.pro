@@ -29,11 +29,12 @@ SOURCES += main.cpp \
     iodevicewrapper/iodeviceserial.cpp \
     iodevicewrapper/iodevicefile.cpp \ 
     porter/porter.cpp \
-    dido/didodriver.cpp \
     iodevicewrapper/iodevicectl.cpp \
     perimeter/perimeter.cpp \
     tags.cpp \
-    perimeter/perimeteralhos.cpp
+    perimeter/perimeteralhos.cpp \
+    dido/didoIt8718f.cpp \
+    dido/didofile.cpp
 
 HEADERS += \    
     tools/func.h \
@@ -44,7 +45,6 @@ HEADERS += \
     weight/esitPWI.h \
     weight/weightfromfile.h \
     dido/didoer.h \
-    dido/didodriver.h \
     scheduler/scheduler.h \
     iodevicewrapper/iodevicewrapper.h \
     iodevicewrapper/iodeviceserial.h \
@@ -60,4 +60,6 @@ HEADERS += \
     perimeter/perimeteralhos.h \
     tools/settingstool.h \
     perimeter/perimtercontrol.h \
-    mainsequence.h
+    mainsequence.h \
+    dido/didoIt8718f.h \
+    dido/didofile.h

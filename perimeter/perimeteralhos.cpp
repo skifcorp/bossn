@@ -21,6 +21,9 @@ void PerimeterControlByDi::setSettings( const QMap<QString, QVariant>& s)
 
 bool PerimeterControlByDi::appeared()
 {
+    //qDebug() << "1:"<<tags_[appear_di_name]->value();
+
+   // qDebug() << "appear val:"<<tags_[appear_di_name]->value();
     bool ret = tags_[appear_di_name]->value() == appear_di_value && prev_appear_di != appear_di_value;
     prev_appear_di = tags_[appear_di_name]->value().toBool();
     return ret;
@@ -28,6 +31,7 @@ bool PerimeterControlByDi::appeared()
 
 bool PerimeterControlByDi::disappeared()
 {
+    //qDebug() << "disappear val:"<<tags_[disappear_di_name]->value();
     bool ret = tags_[disappear_di_name]->value() == disappear_di_value && prev_disappear_di != disappear_di_value;
     prev_disappear_di = tags_[disappear_di_name]->value().toBool();
     return ret;

@@ -9,43 +9,12 @@ using std::function;
 #include <QMap>
 #include <QSharedPointer>
 #include <QVariant>
-
+#include <QWeakPointer>
 
 #include "coroutine.h"
 #include "iodevicewrapper.h"
 #include "factory.h"
-
-/*
-class WeightFrameException
-{
-public:
-    WeightFrameException() {}
-    virtual ~WeightFrameException() {}
-};
-
-class WeightFrameExceptionTooSmall : public WeightFrameException
-{
-public:
-    WeightFrameExceptionTooSmall(){}
-};
-
-class WeightFrameExceptionCorrupted : public WeightFrameException
-{
-public:
-    WeightFrameExceptionCorrupted(){}
-};
-
-class WeightFrameExceptionBadConf : public WeightFrameException
-{
-public:
-    WeightFrameExceptionBadConf(){}
-};
-
-class WeightFrameExceptionBadAddress : public WeightFrameException
-{
-public:
-    WeightFrameExceptionBadAddress(){}
-};*/
+#include "iodevicewrapper.h"
 
 class PorterDriver : public QObject,
                      public BossnFactory<PorterDriver, const QMap<QString, QVariant> >
@@ -53,6 +22,7 @@ class PorterDriver : public QObject,
     Q_OBJECT
 public:		
     typedef QSharedPointer<PorterDriver> Pointer;
+    typedef QWeakPointer<IoDeviceWrapper::Pointer::Type> DevPointer;
 
     enum WeightError {
         WeightFrameOk = 0, WeightFrameCorrupted, WeightFrameBadConf, WeightFrameBadAddress, WeightFrameNotAnswer
@@ -60,26 +30,12 @@ public:
 
     virtual ~PorterDriver(){}
 
-
-    /*static Pointer create(const QString& n, const QMap<QString, QVariant>& drv_conf )
-    {
-        if (factory_map().contains(n))
-            return Pointer(factory_map()[n](drv_conf));
-
-        qWarning() << "WeightDriver factory dont contains: "<<n<< " class";
-        return Pointer();
-    }*/
-
+    void setIoDevice(DevPointer io) {io_device_ = io;}
+    IoDeviceWrapper::Pointer::Type* io_device() {return io_device_.toStrongRef().data();}
 protected:
+    DevPointer io_device_;
     PorterDriver(){}
 
-/*    typedef QMap<QString, function<PorterDriver * (const QMap<QString, QVariant>)> > FactoryMap;
-
-    static FactoryMap & factory_map()
-    {
-        static FactoryMap map;
-        return map;
-    }*/
     void yield()
     {
         Coroutine::yield();

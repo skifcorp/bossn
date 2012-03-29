@@ -8,8 +8,8 @@ class Hbm2110 : public PorterDriver
 {
     Q_OBJECT
 public:
-    Q_INVOKABLE virtual void readWeight(IoDeviceWrapper::Pointer::Type *, QVariant & ret, uint &);
-    virtual void zero(IoDeviceWrapper *, uint &);
+    Q_INVOKABLE void readWeight(QVariant & ret, uint &);
+    virtual void zero(uint &);
 
     static Hbm2110 * create (const QMap<QString, QVariant>& drv_conf)
     {

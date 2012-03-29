@@ -5,19 +5,19 @@
 #include <QString>
 #include <QObject>
 #include <QSharedPointer>
+#include <QWeakPointer>
 #include <QVariant>
 
 class Tag
 {
 public:
-    typedef QSharedPointer<Tag> Pointer;
+    typedef QSharedPointer<Tag> Pointer;    
+    typedef QWeakPointer<Tag>   WeakPointer;
 
     Tag(const QString& n, QObject * o=nullptr, const QString& rm=QString(), const QString& wm=QString() ):tag_name(n), object(o), read_method(rm), write_method(wm)
     {
 
     }
-
-    //Tag():object(nullptr){}
 
     Tag(const Tag& ) = delete;
 
@@ -38,9 +38,9 @@ public:
     {
         args.append(arg);
     }
+    QVariant arg(int );
 
 private:
-
     QString tag_name;
     QObject * object;
     QString read_method;
@@ -50,4 +50,6 @@ private:
 
 typedef QMap<QString, Tag::Pointer> Tags;
 
-#endif // TAGS_H
+Q_DECLARE_METATYPE(Tag::WeakPointer)
+
+#endif
