@@ -52,7 +52,7 @@ public:
                    QGenericArgument val5 = QGenericArgument(),
                    QGenericArgument val6 = QGenericArgument(),
                    QGenericArgument val7 = QGenericArgument(),
-                   QGenericArgument val8 = QGenericArgument() ) const;
+                   QGenericArgument val8 = QGenericArgument() );
 protected:
 
 private:    

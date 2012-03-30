@@ -13,6 +13,7 @@ Scheduler::Scheduler ()
 void Scheduler::setDevice(IoDevPointer d)
 {
     if (!device.isNull()) {
+        device.toStrongRef().data()->disconnect(SIGNAL(readyRead()), this, SLOT(onReadyRead()));
         clear();
     }
     device = d;
@@ -23,10 +24,10 @@ void Scheduler::setDevice(IoDevPointer d)
 
 void Scheduler::clear()
 {
-    if (!device.isNull()) {
-        device.toStrongRef().data()->disconnect(SIGNAL(readyRead()), this, SLOT(onReadyRead()));
+    //if (!device.isNull()) {
+        //device.toStrongRef().data()->disconnect(SIGNAL(readyRead()), this, SLOT(onReadyRead()));
         //qDebug() << "disconnect!!!";
-    }
+    //}
     current_coro.clear();
     scheduls.clear();
     conn_obj.clear();
@@ -43,26 +44,35 @@ void Scheduler::addFunction(function<void ()>schf, function<void ()> tmf, int sc
     s.schedule_timer->start();
 }
 
+void Scheduler::execFunction(function<void ()>schf, function<void ()> tmf, int tm_msec)
+{
+    waitForFree();
+    Schedul s(schf, tmf, 0, tm_msec);
+    connect(s.timeout_timer.data(), SIGNAL(timeout()), this, SLOT(onTimeoutTimer()));
+    startNewCoro(s);
+    waitForFree();
+}
+
 void Scheduler::onTimeoutTimer()
 {    
-    //qDebug() << "timerout!!!!";
     current_coro.schedul->timeout_func();
     current_coro.schedul->schedule_timer->start();
 
     current_coro.clear();
 }
 
-void Scheduler::onScheduleTimer(Schedul & s)
-{   
-    while (busy()) {
-        qApp->processEvents();
-    }
-
-    //qDebug() << "coro: "<<s.num;
-
+void Scheduler::startNewCoro(Schedul & s)
+{
     current_coro = CoroContext(QSharedPointer<Coroutine>(  Coroutine::build( s.schedule_func ) ), &s);
 
     execute();
+}
+
+void Scheduler::onScheduleTimer(Schedul & s)
+{   
+    waitForFree();
+
+    startNewCoro(s);
 }
 
 void Scheduler::onReadyRead()

@@ -25,9 +25,28 @@ void initPorters(QVector<Porter::Pointer>& porters, Tags& tags)
     serial_settings["stopBits"]    = STOP_1;
     serial_settings["timeout"]     = 100;
 
+
+    {
+        QList<TagMethod> tag_method_tablo;
+        tag_method_tablo.append( TagMethod("tablo", "printText") );
+
+        Porter::Pointer w = Porter::Pointer(new Porter(true));
+        w->setScheduled(false);
+        serial_settings["portName"] = "COM5";
+        QMap<QString, QVariant> opts;
+        opts["address"] = 0;
+
+        w->setDevice("IoDeviceSerial", serial_settings);
+        w->addDriver("DisplayCaptain", opts, tag_method_tablo);
+
+        porters.push_back(w);
+        tags["tablo"]->setReadMethod("value");
+        tags["tablo"]->setReadObject(w.data());
+        //tags["tablo"]->addArgument("Hello");
+    }
+
     QList<TagMethod> tag_method_weight;
     tag_method_weight.append( TagMethod("weight1_1", "readWeight") );
-
     {
         Porter::Pointer w = Porter::Pointer(new Porter(true));
 
@@ -49,7 +68,7 @@ void initPorters(QVector<Porter::Pointer>& porters, Tags& tags)
 
 
 
-    {
+/*    {
         Porter::Pointer w = Porter::Pointer(new Porter(true));
 
         serial_settings["portName"] = MrwSettings::instance()->platformaWeightPort[1];
@@ -59,7 +78,7 @@ void initPorters(QVector<Porter::Pointer>& porters, Tags& tags)
         w->addDriver(MrwSettings::instance()->platformaWeightType[1], opts, tag_method_weight);
 
         porters.push_back(w);
-    }
+    }*/
 
 
     {
@@ -149,6 +168,7 @@ int main(int argc, char *argv[])
     Tags tags;
 
     tags["weight1_1"]  = Tag::Pointer(new Tag("weight1_1"));
+    tags["tablo"]      = Tag::Pointer(new Tag("tablo"));
 
     tags["di"]         = Tag::Pointer(new Tag("di"));
     tags["di1"]        = Tag::Pointer(new Tag("di1"));

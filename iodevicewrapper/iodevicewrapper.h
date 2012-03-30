@@ -57,6 +57,11 @@ public:
         return internalGetDevice()->readAll();
     }
 
+    QByteArray peek ( qint64 maxSize )
+    {
+        return internalGetDevice()->peek(maxSize);
+    }
+
 #if defined(Q_OS_WIN)
     virtual BOOL DeviceIoControl(DWORD , LPVOID , DWORD , LPVOID , DWORD , LPDWORD ,  LPOVERLAPPED ) {return false; }
 #elif defined (Q_OS_LINUX)

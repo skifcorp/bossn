@@ -16,11 +16,13 @@ public slots:
     void onAppearOnWeight()
     {
         qDebug() << "something appeared on weight!!!!";
+        tags["tablo"]->value(Q_ARG(QVariant, "Hello"));
     }
 
     void onDisappearOnWeight()
     {
         qDebug() << "something disappeared on weight!!!!";
+        tags["tablo"]->value(Q_ARG(QVariant,"Bye"));
     }
 
 private:

@@ -13,7 +13,7 @@ CONFIG   += console
 CONFIG   -= app_bundle
 
 TEMPLATE = app
-INCLUDEPATH  += ../qextserialport/src/ serial weight generic iodevicewrapper scheduler porter task dido perimeter tools ../coroutine/src/
+INCLUDEPATH  += ../qextserialport/src/ serial weight generic iodevicewrapper scheduler porter task dido perimeter tools reader ../coroutine/src/
 QMAKE_CXXFLAGS += -std=c++0x
 LIBS         += -L../qextserialport_build/src/build/ -lqextserialport -L../coroutine_build/src/release/ -lcoroutine
 
@@ -34,7 +34,9 @@ SOURCES += main.cpp \
     tags.cpp \
     perimeter/perimeteralhos.cpp \
     dido/didoIt8718f.cpp \
-    dido/didofile.cpp
+    dido/didofile.cpp \
+    display/displaycaptain.cpp \
+    reader/mifarereader.cpp
 
 HEADERS += \    
     tools/func.h \
@@ -62,4 +64,7 @@ HEADERS += \
     perimeter/perimtercontrol.h \
     mainsequence.h \
     dido/didoIt8718f.h \
-    dido/didofile.h
+    dido/didofile.h \
+    display/displaycaptain.h \
+    reader/mifarereader.h \
+    tools/crctool.h

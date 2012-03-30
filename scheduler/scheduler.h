@@ -6,6 +6,7 @@
 #include <QSharedPointer>
 #include <QWeakPointer>
 #include <QTimer>
+#include <QCoreApplication>
 
 #include <functional>
 
@@ -26,7 +27,7 @@ struct Schedul
     TimerPointer timeout_timer;
 
     Schedul( function<void ()> schf, function<void ()> tmf, int schedul_msec, int timeout_msec)
-        :schedule_func(schf), timeout_func(tmf), schedule_timer(new QTimer), timeout_timer(new QTimer)
+        :schedule_func(schf), timeout_func(tmf), schedule_timer(new QTimer), timeout_timer(new QTimer), num(0)
     {
         schedule_timer->setSingleShot(true);
         schedule_timer->setInterval(schedul_msec);
@@ -82,9 +83,13 @@ public:
     ~Scheduler(){}
 
     void addFunction( function<void ()>, function<void ()>, int schedul_msec, int timeout_msec );
+    void execFunction( function<void ()>, function<void ()>, int timeout_msec );
+
     void setDevice(IoDevPointer d);
     void clear();
     bool busy() const {return !current_coro.empty();}
+    void waitForFree () const {   while (busy()) {qApp->processEvents();}   }
+
 private slots:
     void onTimeoutTimer();
     void onScheduleTimer(Schedul & s);
@@ -103,6 +108,7 @@ private:
 
 
     void execute();
+    void startNewCoro(Schedul &);
 };
 
 #endif // SCHEDULER_H

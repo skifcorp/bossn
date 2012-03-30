@@ -9,8 +9,7 @@
 
 using std::bind;
 
-//Q_DECLARE_METATYPE(IoDeviceWrapper::Pointer::Type*)
-//int __id = qRegisterMetaType<IoDeviceWrapper::Pointer::Type*>("IoDeviceWrapper::Pointer::Type *");
+
 
 void Porter::addDriver(const QString & n, const QMap<QString, QVariant>& drv_conf, const QList<TagMethod> &tags_methods)
 {    
@@ -60,7 +59,7 @@ void Porter::setScheduled(bool s)
 void Porter::addTagToSchedule(Drivers::size_type driver_index, const QString& tag_name)
 {
     scheduler.addFunction(
-            [&device, &drivers, driver_index, &methods, tag_name] {
+            [&drivers, driver_index, &methods, tag_name] {
                 MethodInfo & mi = methods[tag_name];
 
                 QMetaObject::invokeMethod(drivers[driver_index].data(), mi.method.toAscii().data(),
@@ -75,7 +74,8 @@ void Porter::addTagToSchedule(Drivers::size_type driver_index, const QString& ta
 }
 
 QVariant Porter::value (const QString& n,  QGenericArgument val0, QGenericArgument val1, QGenericArgument val2,
-                        QGenericArgument val3, QGenericArgument val4, QGenericArgument val5, QGenericArgument val6, QGenericArgument val7, QGenericArgument val8 ) const
+                        QGenericArgument val3, QGenericArgument val4, QGenericArgument val5, QGenericArgument val6,
+                        QGenericArgument val7, QGenericArgument val8 )
 {
     if (scheduled) {
         return methods[n].value;
@@ -83,17 +83,23 @@ QVariant Porter::value (const QString& n,  QGenericArgument val0, QGenericArgume
 
     MethodInfo mi = methods[n];
 
-    QVariant ret(true);
-    bool res = QMetaObject::invokeMethod( drivers[mi.driver_idx].data(), mi.method.toAscii().data(), Q_RETURN_ARG(QVariant, ret),
+    QVariant ret;//(true);
+
+    scheduler.execFunction(
+                [&drivers, &mi, &ret, &val0, &val1, &val2, &val3, &val4, &val5, &val6, &val7, &val8]{
+                    bool res = QMetaObject::invokeMethod( drivers[mi.driver_idx].data(),
+                                 mi.method.toAscii().data(), Q_RETURN_ARG(QVariant, ret),
                                     val0, val1, val2, val3, val4, val5, val6, val7, val8 );
+                    if (!res) {
+                        qWarning()<<"cant invoke "<<mi.method<< " "<<drivers[mi.driver_idx].data()->metaObject()->className();
+                    }
 
-    if (!res) {
-        qWarning()<<"cant invoke "<<mi.method;
-    }
-    //qDebug() << "after value: "<<ret << " m: "<< mi.method.toAscii().data()<<" res: "<<res;
+                },
+                [&device, &mi]{
+                    qWarning()<<"device: "<<device->deviceName()<<" not answered!!!!";
+                },
+                500);
 
-    //QMetaObject::invokeMethod( drivers[mi.driver_idx].data(), mi.method.toAscii().data(),
-      //                              Q_RETURN_ARG(QVariant, ret),  Q_ARG(decltype(args), args)... );
 
     return ret;
 }
