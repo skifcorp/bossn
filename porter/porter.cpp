@@ -91,7 +91,8 @@ QVariant Porter::value (const QString& n,  QGenericArgument val0, QGenericArgume
                                  mi.method.toAscii().data(), Q_RETURN_ARG(QVariant, ret),
                                     val0, val1, val2, val3, val4, val5, val6, val7, val8 );
                     if (!res) {
-                        qWarning()<<"cant invoke "<<mi.method<< " "<<drivers[mi.driver_idx].data()->metaObject()->className();
+                        qWarning()<<"cant invoke "<<mi.method<< " on "<<drivers[mi.driver_idx].data()->metaObject()->className()
+                                 <<" with args: (" <<val0.name()<<"), val1("<<val1.name()<<")\n";
                     }
 
                 },

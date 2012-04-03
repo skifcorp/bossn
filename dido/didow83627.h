@@ -7,13 +7,13 @@
 #include "porterdriver.h"
 #include "iodevicewrapper.h"
 
-class DidoIt8718f : public PorterDriver
+class DidoW83627 : public PorterDriver
 {
     Q_OBJECT
 public:
-    typedef QSharedPointer<DidoIt8718f> Pointer;
+    typedef QSharedPointer<DidoW83627> Pointer;
 
-    ~DidoIt8718f() {}
+    ~DidoW83627() {}
 
     Q_INVOKABLE QVariant getDi();
     Q_INVOKABLE void setDo(const QVariant& );
@@ -23,10 +23,10 @@ public:
 
     static PorterDriver* create(const QMap<QString, QVariant>& )
     {
-        return new DidoIt8718f();
+        return new DidoW83627();
     }
 protected:
-    DidoIt8718f()
+    DidoW83627()
     {
 
     }
@@ -38,7 +38,7 @@ private:
         factory_map().insert("DidoIt8718f", &DidoIt8718f::create);
         return true;
     }*/
-    static BossnFactoryRegistrator<DidoIt8718f> registator;
+    static BossnFactoryRegistrator<DidoW83627> registator;
     uchar readAll( );
 
 };

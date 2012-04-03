@@ -37,6 +37,8 @@ private:
     QString disappear_di_name;
     bool appear_di_value;
     bool disappear_di_value;
+
+    QString method;
 };
 
 class PerimeterControlByWeight : public PerimeterControl
@@ -60,6 +62,8 @@ private:
     float min_weight;
     bool was_appeared;
     QString weight_name;
+
+    QString method;
 };
 
 

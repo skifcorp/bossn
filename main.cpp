@@ -25,7 +25,7 @@ void initPorters(QVector<Porter::Pointer>& porters, Tags& tags)
     serial_settings["stopBits"]    = STOP_1;
     serial_settings["timeout"]     = 100;
 
-
+#if 0
     {
         QList<TagMethod> tag_method_tablo;
         tag_method_tablo.append( TagMethod("tablo", "printText") );
@@ -40,10 +40,11 @@ void initPorters(QVector<Porter::Pointer>& porters, Tags& tags)
         w->addDriver("DisplayCaptain", opts, tag_method_tablo);
 
         porters.push_back(w);
-        tags["tablo"]->setReadMethod("value");
-        tags["tablo"]->setReadObject(w.data());
-        //tags["tablo"]->addArgument("Hello");
+        //tags["tablo"]->appendFunc("value");
+        //tags["tablo"]->setReadObject(w.data());
+        tags["tablo"]->appendFunc("value", w.data() );
     }
+#endif
 
     QList<TagMethod> tag_method_weight;
     tag_method_weight.append( TagMethod("weight1_1", "readWeight") );
@@ -53,13 +54,13 @@ void initPorters(QVector<Porter::Pointer>& porters, Tags& tags)
         serial_settings["portName"] = MrwSettings::instance()->platformaWeightPort[0];
         QMap<QString, QVariant> opts;
         opts["address"] = MrwSettings::instance()->platformaWeightAddress[0];
+        opts["method"] = "readMethod";
 
         w->setDevice("IoDeviceSerial", serial_settings);
         w->addDriver(MrwSettings::instance()->platformaWeightType[0], opts, tag_method_weight);
 
         porters.push_back(w);
-        tags["weight1_1"]->setReadMethod("value");
-        tags["weight1_1"]->setReadObject(w.data());
+        tags["weight1_1"]->appendFunc("readMethod", w.data(), "value");
 
         //tags.insert("weight1_1", TagReadWrite::Pointer(new TagReadWrite(w.data(),)))
 
@@ -83,16 +84,24 @@ void initPorters(QVector<Porter::Pointer>& porters, Tags& tags)
 
     {
         QList<TagMethod> tag_method_dido;
-        tag_method_dido.append(TagMethod("di", "getDi"));
-        //tag_method_dido.append(TagMethod("do", "setDo"));
+        tag_method_dido.append(TagMethod("dido", "getDi"));
+        tag_method_dido.append(TagMethod("do", "setDo"));
+
         tag_method_dido.append(TagMethod("di1", "getDiBit"));
         tag_method_dido.append(TagMethod("di2", "getDiBit"));
         tag_method_dido.append(TagMethod("di3", "getDiBit"));
         tag_method_dido.append(TagMethod("di4", "getDiBit"));
 
+        tag_method_dido.append(TagMethod("do1_tmp", "setDoBit"));
+        tag_method_dido.append(TagMethod("do2_tmp", "setDoBit"));
+        tag_method_dido.append(TagMethod("do3_tmp", "setDoBit"));
+        tag_method_dido.append(TagMethod("do4_tmp", "setDoBit"));
+
+
         QMap<QString, QVariant> dido_port_settings;
         //dido_port_settings["deviceName"] = "\\\\.\\WDT_DEVICE";
         dido_port_settings["fileName"] = "dido.bin";
+        //dido_port_settings["method"] = "readMethod";
 
         Porter::Pointer p = Porter::Pointer(new Porter(true));
 
@@ -106,28 +115,62 @@ void initPorters(QVector<Porter::Pointer>& porters, Tags& tags)
 
         porters.push_back(p);
 
-        tags["di"]->setReadMethod("value");
-        tags["di"]->setReadObject(p.data());
 
-        tags["di1"]->setReadMethod("value");
-        tags["di1"]->addArgument(QVariant::fromValue<Tag::WeakPointer>(tags["di"]));
-        tags["di1"]->addArgument(0);
-        tags["di1"]->setReadObject(p.data());
 
-        tags["di2"]->setReadMethod("value");
-        tags["di2"]->addArgument(QVariant::fromValue<Tag::WeakPointer>(tags["di"]));
-        tags["di2"]->addArgument(1);
-        tags["di2"]->setReadObject(p.data());
+        tags["dido"]->appendFunc("readMethod" , p.data(), "value");
 
-        tags["di3"]->setReadMethod("value");
-        tags["di3"]->addArgument(QVariant::fromValue<Tag::WeakPointer>(tags["di"]));
-        tags["di3"]->addArgument(2);
-        tags["di3"]->setReadObject(p.data());
+        tags["di1"]->appendFunc("readMethod", p.data(), "value");
+        tags["di1"]->appendArgument("readMethod", QVariant::fromValue<TagBindable>(TagBindable(tags["dido"], "readMethod")));
+        tags["di1"]->appendArgument("readMethod", 0);
 
-        tags["di4"]->setReadMethod("value");
-        tags["di4"]->addArgument(QVariant::fromValue<Tag::WeakPointer>(tags["di"]));
-        tags["di4"]->addArgument(3);
-        tags["di4"]->setReadObject(p.data());
+        tags["di2"]->appendFunc("readMethod", p.data(), "value");
+        tags["di2"]->appendArgument("readMethod", QVariant::fromValue<TagBindable>(TagBindable(tags["dido"], "readMethod")));
+        tags["di2"]->appendArgument("readMethod", 1);
+
+        tags["di3"]->appendFunc("readMethod", p.data(), "value");
+        tags["di3"]->appendArgument("readMethod", QVariant::fromValue<TagBindable>(TagBindable(tags["dido"], "readMethod")));
+        tags["di3"]->appendArgument("readMethod", 2);
+
+        tags["di4"]->appendFunc("readMethod", p.data(), "value");
+        tags["di4"]->appendArgument("readMethod", QVariant::fromValue<TagBindable>(TagBindable(tags["dido"], "readMethod")));
+        tags["di4"]->appendArgument("readMethod", 3);
+
+            tags["do1_tmp"]->appendFunc("writeMethod", p.data(), "value");
+            tags["do1_tmp"]->appendArgument("writeMethod", QVariant::fromValue<TagBindable>(TagBindable(tags["dido"], "readMethod")));
+            tags["do1_tmp"]->appendArgument("writeMethod", 0);
+//qDebug () << "!!!!!!!!!!!!!!!!!!!1";
+            tags["do1_tmp"]->appendArgument("writeMethod", QVariant::fromValue<TagPlaceholder>(TagPlaceholder(0)));
+//qDebug () << "!!!!!!!!!!!!!!!!!!!2";
+            tags["do2_tmp"]->appendFunc("writeMethod", p.data(), "value");
+            tags["do2_tmp"]->appendArgument("writeMethod", QVariant::fromValue<TagBindable>(TagBindable(tags["dido"], "readMethod")));
+            tags["do2_tmp"]->appendArgument("writeMethod", 1);
+            tags["do2_tmp"]->appendArgument("writeMethod", QVariant::fromValue<TagPlaceholder>(TagPlaceholder(0)));
+
+            tags["do3_tmp"]->appendFunc("writeMethod", p.data(), "value");
+            tags["do3_tmp"]->appendArgument("writeMethod", QVariant::fromValue<TagBindable>(TagBindable(tags["dido"], "readMethod")));
+            tags["do3_tmp"]->appendArgument("writeMethod", 2);
+            tags["do3_tmp"]->appendArgument("writeMethod", QVariant::fromValue<TagPlaceholder>(TagPlaceholder(0)));
+
+            tags["do4_tmp"]->appendFunc("writeMethod", p.data(), "value");
+            tags["do4_tmp"]->appendArgument("writeMethod", QVariant::fromValue<TagBindable>(TagBindable(tags["dido"], "readMethod")));
+            tags["do4_tmp"]->appendArgument("writeMethod", 3);
+            tags["do4_tmp"]->appendArgument("writeMethod", QVariant::fromValue<TagPlaceholder>(TagPlaceholder(0)));
+//qDebug () << "!!!!!!!!!!!!!!!!!!!1";
+        tags["do1"]->appendFunc("writeMethod", p.data(), "value");
+        tags["do1"]->appendArgument("writeMethod", QVariant::fromValue<TagBindable>(TagBindable(tags["do1_tmp"], "writeMethod")));
+        //tags["do1"]->appendArgument("writeMethod", QVariant::fromValue<TagPlaceholder>(TagPlaceholder(tags["do1_tmp"])));
+
+        tags["do2"]->appendFunc("writeMethod", p.data(), "value");
+        tags["do2"]->appendArgument("writeMethod", QVariant::fromValue<TagBindable>(TagBindable(tags["do2_tmp"], "writeMethod")));
+        //tags["do2"]->appendArgument("writeMethod", QVariant::fromValue<TagPlaceholder>(TagPlaceholder(tags["do2_tmp"])));
+
+        tags["do3"]->appendFunc("writeMethod", p.data(), "value");
+        tags["do3"]->appendArgument("writeMethod", QVariant::fromValue<TagBindable>(TagBindable(tags["do3_tmp"], "writeMethod")));
+        //tags["do3"]->appendArgument("writeMethod", QVariant::fromValue<TagPlaceholder>(TagPlaceholder(tags["do3_tmp"])));
+
+        tags["do4"]->appendFunc("writeMethod", p.data(), "value");
+        tags["do4"]->appendArgument("writeMethod", QVariant::fromValue<TagBindable>(TagBindable(tags["do4_tmp"], "writeMethod")));
+        //tags["do4"]->appendArgument("writeMethod", QVariant::fromValue<TagPlaceholder>(TagPlaceholder(tags["do4_tmp"])));
 
     }
 }
@@ -136,14 +179,16 @@ void initTasks(TaskExec & tasks, Tags & tags, MainSequence & seq )
 {
     PerimeterTask::Pointer perim (new PerimeterTask(tags));
     QMap<QString, QVariant> perim_settings;
-/*    perim_settings["PerimeterType"] = "PerimeterControlByWeight";
+    perim_settings["PerimeterType"] = "PerimeterControlByWeight";
     perim_settings["weightName"]    = "weight1_1";
-    perim_settings["minWeight"]     = 50.0; */
+    perim_settings["minWeight"]     = 50.0;
+    perim_settings["method"]        = "readMethod";
 
-    perim_settings["PerimeterType"] = "PerimeterControlByDi";
+
+    /*perim_settings["PerimeterType"] = "PerimeterControlByDi";
     perim_settings["AppearDi"]      = "di1";
     perim_settings["DisappearDi"]   = "di2";
-
+    perim_settings["method"]        = "readMethod"; */
 
     QObject::connect(perim.data(), SIGNAL(appeared()), &seq, SLOT(onAppearOnWeight()));
     QObject::connect(perim.data(), SIGNAL(disappeared()), &seq, SLOT(onDisappearOnWeight()));
@@ -170,28 +215,41 @@ int main(int argc, char *argv[])
     tags["weight1_1"]  = Tag::Pointer(new Tag("weight1_1"));
     tags["tablo"]      = Tag::Pointer(new Tag("tablo"));
 
-    tags["di"]         = Tag::Pointer(new Tag("di"));
+    tags["dido"]       = Tag::Pointer(new Tag("dido"));
     tags["di1"]        = Tag::Pointer(new Tag("di1"));
     tags["di2"]        = Tag::Pointer(new Tag("di2"));
     tags["di3"]        = Tag::Pointer(new Tag("di3"));
     tags["di4"]        = Tag::Pointer(new Tag("di4"));
 
-    tags["do"]         = Tag::Pointer(new Tag("do"));
-    tags["do1"]        = Tag::Pointer(new Tag("do1"));
-    tags["do2"]        = Tag::Pointer(new Tag("do2"));
-    tags["do3"]        = Tag::Pointer(new Tag("do3"));
-    tags["do4"]        = Tag::Pointer(new Tag("do4"));
+    tags["do1"]        = Tag::Pointer(new Tag("do"));
+    tags["do2"]        = Tag::Pointer(new Tag("do"));
+    tags["do3"]        = Tag::Pointer(new Tag("do"));
+    tags["do4"]        = Tag::Pointer(new Tag("do"));
+
+    tags["do1_tmp"]        = Tag::Pointer(new Tag("do1_tmp"));
+    tags["do2_tmp"]        = Tag::Pointer(new Tag("do2_tmp"));
+    tags["do3_tmp"]        = Tag::Pointer(new Tag("do3_tmp"));
+    tags["do4_tmp"]        = Tag::Pointer(new Tag("do4_tmp"));
+
 
     QVector<Porter::Pointer> porters;
+
 
     initPorters(porters, tags);        
 
     MainSequence seq1(tags);
 
     TaskExec task_exec;
+
     initTasks(task_exec, tags, seq1);
 
 
+
+    tags["di2"]->func("readMethod");
+    tags["do1"]->func("writeMethod", Q_ARG(QVariant, true));
+    //tags["di2"]->func("readMethod");
+
+    //return 0;
 
     work();
 

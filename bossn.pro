@@ -33,10 +33,11 @@ SOURCES += main.cpp \
     perimeter/perimeter.cpp \
     tags.cpp \
     perimeter/perimeteralhos.cpp \
-    dido/didoIt8718f.cpp \
     dido/didofile.cpp \
     display/displaycaptain.cpp \
-    reader/mifarereader.cpp
+    reader/mifarereader.cpp \
+    dido/didow83627.cpp \
+    mainsequence.cpp
 
 HEADERS += \    
     tools/func.h \
@@ -63,8 +64,9 @@ HEADERS += \
     tools/settingstool.h \
     perimeter/perimtercontrol.h \
     mainsequence.h \
-    dido/didoIt8718f.h \
     dido/didofile.h \
     display/displaycaptain.h \
     reader/mifarereader.h \
-    tools/crctool.h
+    tools/crctool.h \
+    dido/didow83627.h \
+    tools/sharedfromthis.h
