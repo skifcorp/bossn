@@ -19,7 +19,8 @@ public slots:
         //tags["tablo"]->func("value", Q_ARG(QVariant, "Hello"));
         //need turn on red and off green and yellow
 
-        tags["do3"]->func("writeMethod", Q_ARG(QVariant, true));
+        //tags["do3"]->func("writeMethod", Q_ARG(QVariant, true));
+        tags["reader1"]->func("doOn");
     }
 
     void onDisappearOnWeight()
@@ -29,6 +30,7 @@ public slots:
         //tags["tablo"]->func("value", Q_ARG(QVariant, "Hello"));
         //need turn on red and off green and yellow
         //tags["do1"]->func("writeValue", Q_ARG(QVariant, true));
+        tags["reader1"]->func("doOff");
     }
 
 private:

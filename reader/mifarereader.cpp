@@ -210,3 +210,92 @@ QByteArray MifareResponseFrame::unstaffBytes(const QByteArray & arr)
 
     return ret;
 }
+
+
+BossnFactoryRegistrator<MifareReader> MifareReader::registator("MifareReader");
+
+uchar MifareReader::frame_ident = 0;
+
+
+MifareReader::MifareReader(const QVariantMap& conf)
+{
+    bool ok = false;
+    address = static_cast<uchar> ( conf["address"].toUInt(&ok) ); Q_ASSERT(ok) ;
+
+    qDebug () << "MifareReader CREATED!";
+}
+
+MifareReader::~MifareReader()
+{
+
+}
+
+
+QVariant MifareReader::doOn()
+{
+    qDebug() << "doOn!!!";
+
+    MifareRequestFrame req_frame;
+
+    req_frame.address  = address;
+    req_frame.ident    = frame_ident++;
+    req_frame.cmdCode  = 0x10;
+
+
+    //req_frame.prepareFrame();
+    io_device()->write( req_frame.packFrame() );
+    const uchar ret_frame_length = 8;
+
+    while (true) {
+        QByteArray tmp = io_device()->peek(MifareRequestFrame::paramsBuffLen);
+        qDebug() << "len: " << tmp.length();
+
+        if (static_cast<uchar>(tmp[tmp.length() - 1]) == MifareRequestFrame::finishCondition ) break;
+
+        yield();
+    }
+
+    QByteArray answ = io_device()->read(ret_frame_length);
+
+    MifareResponseFrame resp_frame;
+
+    resp_frame.unpackFrame(answ);
+
+    if (!resp_frame.checkResponce(req_frame)) {
+        qWarning()<<"GOT ERROR IN MifareReader DO ON!!!!!";
+        return QVariant(false);
+    }
+    return QVariant(true);
+}
+
+QVariant MifareReader::doOff()
+{
+    MifareRequestFrame req_frame;
+
+    req_frame.address  = address;
+    req_frame.ident    = frame_ident++;
+    req_frame.cmdCode  = 0x04;
+    req_frame.params.append(0x80);
+    req_frame.params.append(0x01);
+
+    const uchar ret_frame_length = 8;
+    while (true) {
+        QByteArray tmp = io_device()->peek(MifareRequestFrame::paramsBuffLen);
+        if (static_cast<uchar>(tmp[tmp.length() - 1]) == MifareRequestFrame::finishCondition ) break;
+
+        yield();
+    }
+
+    QByteArray answ = io_device()->read(ret_frame_length);
+
+    MifareResponseFrame resp_frame;
+
+    resp_frame.unpackFrame(answ);
+
+    if (!resp_frame.checkResponce(req_frame)) {
+        qWarning()<<"GOT ERROR IN MifareReader DO OFF!!!!!";
+        return QVariant(false);
+    }
+
+    return QVariant(true);
+}

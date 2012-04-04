@@ -44,6 +44,33 @@ void initPorters(QVector<Porter::Pointer>& porters, Tags& tags)
         //tags["tablo"]->setReadObject(w.data());
         tags["tablo"]->appendFunc("value", w.data() );
     }
+#else
+    {
+        QList<TagMethod> tag_method_reader;
+        tag_method_reader.append(TagMethod("reader1"));
+
+        //tag_method_reader.append( TagMethod("reader1", "doOn") );
+        //tag_method_reader.append( TagMethod("reader1", "doOff") );
+
+        Porter::Pointer w = Porter::Pointer(new Porter(true));
+        w->setScheduled(false);
+        serial_settings["portName"] = "COM5";
+        QMap<QString, QVariant> opts;
+        opts["address"] = 2;
+
+        w->setDevice("IoDeviceSerial", serial_settings);
+        w->addDriver("MifareReader", opts, tag_method_reader);
+
+        porters.push_back(w);
+
+
+        tags["reader1"]->appendFunc("doOn", w.data(), "exec");
+        tags["reader1"]->appendArgument("doOn", "doOn");
+
+        tags["reader1"]->appendFunc("doOff", w.data(), "exec");
+        tags["reader1"]->appendArgument("doOff", "doOff");
+
+    }
 #endif
 
     QList<TagMethod> tag_method_weight;
@@ -138,9 +165,8 @@ void initPorters(QVector<Porter::Pointer>& porters, Tags& tags)
             tags["do1_tmp"]->appendFunc("writeMethod", p.data(), "value");
             tags["do1_tmp"]->appendArgument("writeMethod", QVariant::fromValue<TagBindable>(TagBindable(tags["dido"], "readMethod")));
             tags["do1_tmp"]->appendArgument("writeMethod", 0);
-//qDebug () << "!!!!!!!!!!!!!!!!!!!1";
             tags["do1_tmp"]->appendArgument("writeMethod", QVariant::fromValue<TagPlaceholder>(TagPlaceholder(0)));
-//qDebug () << "!!!!!!!!!!!!!!!!!!!2";
+
             tags["do2_tmp"]->appendFunc("writeMethod", p.data(), "value");
             tags["do2_tmp"]->appendArgument("writeMethod", QVariant::fromValue<TagBindable>(TagBindable(tags["dido"], "readMethod")));
             tags["do2_tmp"]->appendArgument("writeMethod", 1);
@@ -179,16 +205,16 @@ void initTasks(TaskExec & tasks, Tags & tags, MainSequence & seq )
 {
     PerimeterTask::Pointer perim (new PerimeterTask(tags));
     QMap<QString, QVariant> perim_settings;
-    perim_settings["PerimeterType"] = "PerimeterControlByWeight";
+/*    perim_settings["PerimeterType"] = "PerimeterControlByWeight";
     perim_settings["weightName"]    = "weight1_1";
     perim_settings["minWeight"]     = 50.0;
-    perim_settings["method"]        = "readMethod";
+    perim_settings["method"]        = "readMethod"; */
 
 
-    /*perim_settings["PerimeterType"] = "PerimeterControlByDi";
+    perim_settings["PerimeterType"] = "PerimeterControlByDi";
     perim_settings["AppearDi"]      = "di1";
     perim_settings["DisappearDi"]   = "di2";
-    perim_settings["method"]        = "readMethod"; */
+    perim_settings["method"]        = "readMethod";
 
     QObject::connect(perim.data(), SIGNAL(appeared()), &seq, SLOT(onAppearOnWeight()));
     QObject::connect(perim.data(), SIGNAL(disappeared()), &seq, SLOT(onDisappearOnWeight()));
@@ -231,6 +257,7 @@ int main(int argc, char *argv[])
     tags["do3_tmp"]        = Tag::Pointer(new Tag("do3_tmp"));
     tags["do4_tmp"]        = Tag::Pointer(new Tag("do4_tmp"));
 
+    tags["reader1"]        = Tag::Pointer(new Tag("reader1"));
 
     QVector<Porter::Pointer> porters;
 
