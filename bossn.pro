@@ -36,6 +36,7 @@ SOURCES += main.cpp \
     dido/didofile.cpp \
     display/displaycaptain.cpp \
     reader/mifarereader.cpp \
+    display/displayfutaba.cpp \
     dido/didow83627.cpp \
     mainsequence.cpp
 
@@ -68,5 +69,7 @@ HEADERS += \
     display/displaycaptain.h \
     reader/mifarereader.h \
     tools/crctool.h \
+    display/displayfutaba.h \
     dido/didow83627.h \
     tools/sharedfromthis.h
+
