@@ -113,7 +113,8 @@ bool MifareResponseFrame::checkCrc() const
     arr.append(params);
 
     ushort calc_crc = doCrc16(arr);
-    return crc16 == (uchar)~calc_crc;
+
+    return crc16 == (ushort)~calc_crc;
 }
 
 void MifareResponseFrame::print() const
@@ -143,14 +144,21 @@ bool MifareResponseFrame::unpackFrame(const QByteArray & frame)
 {
     QByteArray arr = unstaffBytes(frame);
 
+/*    cout << std::hex;
+    for (int i = 0 ;i < arr.length(); ++i) {
+        cout << (ushort)(uchar)arr[i]<<" ";
+    }
+    cout << std::dec; */
+
     startCondition   = arr[0];
     address          = arr[1];
     ident            = arr[2];
     cmdCode          = arr[3];
     cmdStatus        = arr[4];
-    //crc16            = *static_cast<ushort*>(&arr[ arr.length() - 3 ]);
-    crc16            = *reinterpret_cast<ushort*>(&arr.data()[arr.length() - 3]);
-    finishCondition  = arr[7];
+    QByteArray crcba = arr.right(3).left(2);
+    crc16            = *reinterpret_cast<ushort*> (crcba.data());
+
+    finishCondition  = arr.right(1)[0];
 
     params = arr.mid(5, arr.length() - 8);
 
@@ -160,26 +168,32 @@ bool MifareResponseFrame::unpackFrame(const QByteArray & frame)
 bool MifareResponseFrame::checkResponce(const MifareRequestFrame & req)
 {
     if (req.startCondition != startCondition) {
+        qWarning() << "Check mifare responce: req.startCondition: "<<req.startCondition<<" != resp.startCondition: "<<startCondition;
         return false;
     }
 
     if (req.address != address) {
+        qWarning() << "Check mifare responce: req.address: "<<req.address<<" != resp.address: "<<address;
         return false;
     }
 
     if (req.ident != ident) {
+        qWarning() << "Check mifare responce: req.ident: "<<req.ident<<" != resp.ident: "<<ident;
         return false;
     }
 
     if (req.cmdCode != cmdCode) {
+        qWarning() << "Check mifare responce: req.cmdCode: "<<req.cmdCode<<" != resp.address: "<<cmdCode;
         return false;
     }
 
     if (req.finishCondition !=  finishCondition) {
+        qWarning() << "Check mifare responce: req.finishCondition: "<<req.finishCondition<<" != resp.finishCondition: "<<finishCondition;
         return false;
     }
 
     if (!checkCrc()) {
+        qWarning() << "Check mifare responce: crcCheck failed!";
         return false;
     }
 
@@ -241,10 +255,16 @@ QVariant MifareReader::doOn()
     req_frame.ident    = frame_ident++;
     req_frame.cmdCode  = 0x10;
 
+    auto arr = req_frame.packFrame();
+    cout<<std::hex;
+    for ( int i = 0; i<arr.size(); ++i ) {
+        cout << (ushort)(uchar)arr[i]<<" ";
+    }
+    cout << "\n"<<std::dec;
 
-    //req_frame.prepareFrame();
-    io_device()->write( req_frame.packFrame() );
-    const uchar ret_frame_length = 8;
+    io_device()->write( arr );
+
+    //const uchar ret_frame_length = 8;
 
     while (true) {
         QByteArray tmp = io_device()->peek(MifareRequestFrame::paramsBuffLen);
@@ -255,7 +275,7 @@ QVariant MifareReader::doOn()
         yield();
     }
 
-    QByteArray answ = io_device()->read(ret_frame_length);
+    QByteArray answ = io_device()->readAll();
 
     MifareResponseFrame resp_frame;
 
@@ -278,7 +298,9 @@ QVariant MifareReader::doOff()
     req_frame.params.append(0x80);
     req_frame.params.append(0x01);
 
-    const uchar ret_frame_length = 8;
+    io_device()->write( req_frame.packFrame() );
+
+    //const uchar ret_frame_length = 8;
     while (true) {
         QByteArray tmp = io_device()->peek(MifareRequestFrame::paramsBuffLen);
         if (static_cast<uchar>(tmp[tmp.length() - 1]) == MifareRequestFrame::finishCondition ) break;
@@ -286,7 +308,7 @@ QVariant MifareReader::doOff()
         yield();
     }
 
-    QByteArray answ = io_device()->read(ret_frame_length);
+    QByteArray answ = io_device()->readAll();
 
     MifareResponseFrame resp_frame;
 
@@ -294,6 +316,44 @@ QVariant MifareReader::doOff()
 
     if (!resp_frame.checkResponce(req_frame)) {
         qWarning()<<"GOT ERROR IN MifareReader DO OFF!!!!!";
+        return QVariant(false);
+    }
+
+    return QVariant(true);
+}
+
+
+QVariant MifareReader::doSound(const QVariant& cnt)
+{
+    uchar count = static_cast<uchar>(cnt.toUInt());
+
+    MifareRequestFrame req_frame;
+
+    req_frame.address  = address;
+    req_frame.ident    = frame_ident++;
+    req_frame.cmdCode  = 0x05;
+    req_frame.params.append(count);
+
+
+    auto arr = req_frame.packFrame();
+
+    io_device()->write( arr );
+
+    while (true) {
+        QByteArray tmp = io_device()->peek(MifareRequestFrame::paramsBuffLen);
+        if (static_cast<uchar>(tmp[tmp.length() - 1]) == MifareRequestFrame::finishCondition ) break;
+
+        yield();
+    }
+
+    QByteArray answ = io_device()->readAll();
+
+    MifareResponseFrame resp_frame;
+
+    resp_frame.unpackFrame(answ);
+
+    if (!resp_frame.checkResponce(req_frame)) {
+        qWarning()<<"GOT ERROR IN MifareReader DO SOUND!!!!!";
         return QVariant(false);
     }
 

@@ -70,6 +70,10 @@ void initPorters(QVector<Porter::Pointer>& porters, Tags& tags)
         tags["reader1"]->appendFunc("doOff", w.data(), "exec");
         tags["reader1"]->appendArgument("doOff", "doOff");
 
+        tags["reader1"]->appendFunc("doSound", w.data(), "exec");
+        tags["reader1"]->appendArgument("doSound", "doSound");
+        tags["reader1"]->appendArgument("doSound", QVariant::fromValue<TagPlaceholder>(TagPlaceholder(0)));
+
     }
 #endif
 
@@ -270,10 +274,10 @@ int main(int argc, char *argv[])
 
     initTasks(task_exec, tags, seq1);
 
+    tags["reader1"]->func("doSound", Q_ARG(QVariant, 1));
 
-
-    tags["di2"]->func("readMethod");
-    tags["do1"]->func("writeMethod", Q_ARG(QVariant, true));
+    //tags["di2"]->func("readMethod");
+    //tags["do1"]->func("writeMethod", Q_ARG(QVariant, true));
     //tags["di2"]->func("readMethod");
 
     //return 0;

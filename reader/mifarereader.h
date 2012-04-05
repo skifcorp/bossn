@@ -51,6 +51,8 @@ struct MifareResponseFrame
     static QByteArray unstaffBytes(const QByteArray& );
 };
 
+
+
 class MifareReader : public PorterDriver
 {
     Q_OBJECT
@@ -65,6 +67,9 @@ public:
 
     Q_INVOKABLE QVariant doOn();
     Q_INVOKABLE QVariant doOff();
+    Q_INVOKABLE QVariant doSound( const QVariant& );
+    Q_INVOKABLE QVariant activateIdleA();
+    Q_INVOKABLE QVariant auth();
 protected:
     MifareReader(const QVariantMap& );
 private:
@@ -73,6 +78,16 @@ private:
     uchar address;
     static uchar frame_ident;
 };
+/*
+class Card
+{
+public:
+    Card(MifareReader& r):reader(r){}
+    ~Card() {}
+
+    void readSector();
+private:
+};*/
 
 #endif
 

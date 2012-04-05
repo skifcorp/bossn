@@ -37,7 +37,7 @@ void Porter::setDevice(const QString& n, const QMap<QString, QVariant> & setting
         qWarning() << "cant open device!!!!: " <<device->deviceName();
     }
 
-    if (scheduled)
+    //if (scheduled)
         scheduler.setDevice(device);
 }
 
