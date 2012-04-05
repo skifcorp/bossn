@@ -11,6 +11,7 @@
 #include "perimeter.h"
 #include "mainsequence.h"
 
+
 bool initMrw();
 int work();
 
@@ -18,13 +19,12 @@ void initPorters(QVector<Porter::Pointer>& porters, Tags& tags)
 {
     QMap <QString, QVariant> serial_settings;
 
-    serial_settings["baudRate"]    = BAUD9600;
+    serial_settings["baudRate"]    = BAUD19200;
     serial_settings["dataBits"]    = DATA_8;
     serial_settings["flowControl"] = FLOW_OFF;
-    serial_settings["parity"]      = PAR_NONE;
+    serial_settings["parity"]      = PAR_ODD;//PAR_NONE;
     serial_settings["stopBits"]    = STOP_1;
     serial_settings["timeout"]     = 100;
-
 
     {
         QList<TagMethod> tag_method_tablo;
@@ -32,17 +32,18 @@ void initPorters(QVector<Porter::Pointer>& porters, Tags& tags)
 
         Porter::Pointer w = Porter::Pointer(new Porter(true));
         w->setScheduled(false);
-        serial_settings["portName"] = "COM5";
+        serial_settings["portName"] = "COM4";
         QMap<QString, QVariant> opts;
         opts["address"] = 0;
-
         w->setDevice("IoDeviceSerial", serial_settings);
-        w->addDriver("DisplayCaptain", opts, tag_method_tablo);
+       // w->addDriver("DisplayCaptain", opts, tag_method_tablo);
+        w->addDriver("DisplayFutaba", opts, tag_method_tablo);
 
         porters.push_back(w);
         tags["tablo"]->setReadMethod("value");
         tags["tablo"]->setReadObject(w.data());
         //tags["tablo"]->addArgument("Hello");
+
     }
 
     QList<TagMethod> tag_method_weight;
@@ -130,6 +131,7 @@ void initPorters(QVector<Porter::Pointer>& porters, Tags& tags)
         tags["di4"]->setReadObject(p.data());
 
     }
+
 }
 
 void initTasks(TaskExec & tasks, Tags & tags, MainSequence & seq )
@@ -154,14 +156,11 @@ void initTasks(TaskExec & tasks, Tags & tags, MainSequence & seq )
 }
 
 int main(int argc, char *argv[])
-{  
+{
     QCoreApplication app(argc, argv);
     QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));
 
     printOnDisplay("Hello");
-
-
-
     MrwSettings::instance()->load("mrwsettings.xml");
 //    MrwSettings::instance()->print();
 
@@ -184,7 +183,7 @@ int main(int argc, char *argv[])
 
     QVector<Porter::Pointer> porters;
 
-    initPorters(porters, tags);        
+    initPorters(porters, tags);
 
     MainSequence seq1(tags);
 
@@ -192,9 +191,7 @@ int main(int argc, char *argv[])
     initTasks(task_exec, tags, seq1);
 
 
-
     work();
-
     /*    if ( testArg == "-makedatabase_c") makeDataBaseC();
         if ( testArg == "-makedatabase_s") makeDataBaseS();
         if ( testArg == "-formatcard") formatCard(); */

@@ -36,7 +36,8 @@ SOURCES += main.cpp \
     dido/didoIt8718f.cpp \
     dido/didofile.cpp \
     display/displaycaptain.cpp \
-    reader/mifarereader.cpp
+    reader/mifarereader.cpp \
+    display/displayfutaba.cpp
 
 HEADERS += \    
     tools/func.h \
@@ -67,4 +68,5 @@ HEADERS += \
     dido/didofile.h \
     display/displaycaptain.h \
     reader/mifarereader.h \
-    tools/crctool.h
+    tools/crctool.h \
+    display/displayfutaba.h
