@@ -3,6 +3,8 @@
 
 #include <QByteArray>
 
+#include "porterdriver.h"
+
 struct MifareRequestFrame
 {
     static const int paramsBuffLen = 300;
@@ -47,6 +49,29 @@ struct MifareResponseFrame
 
     bool unpackFrame(const QByteArray& );
     static QByteArray unstaffBytes(const QByteArray& );
+};
+
+class MifareReader : public PorterDriver
+{
+    Q_OBJECT
+public:
+
+    ~MifareReader();
+
+    static PorterDriver * create(const QVariantMap& conf )
+    {
+        return new MifareReader(conf);
+    }
+
+    Q_INVOKABLE QVariant doOn();
+    Q_INVOKABLE QVariant doOff();
+protected:
+    MifareReader(const QVariantMap& );
+private:
+    static BossnFactoryRegistrator<MifareReader>  registator;
+
+    uchar address;
+    static uchar frame_ident;
 };
 
 #endif

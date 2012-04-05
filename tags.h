@@ -7,30 +7,28 @@
 #include <QSharedPointer>
 #include <QWeakPointer>
 #include <QVariant>
+#include <QDebug>
+
+#include "sharedfromthis.h"
+
+
+class FuncContext;
 
 class Tag
 {
 public:
-    typedef QSharedPointer<Tag> Pointer;    
+    typedef QSharedPointer<Tag> Pointer;
     typedef QWeakPointer<Tag>   WeakPointer;
 
-    Tag(const QString& n, QObject * o=nullptr, const QString& rm=QString(), const QString& wm=QString() ):tag_name(n), read_object(o), read_method(rm), write_method(wm)
+    Tag(const QString& n ):tag_name(n)
     {
 
     }
 
     Tag(const Tag& ) = delete;
 
-  /*  QVariant setValue (QGenericArgument val0 = QGenericArgument(),
-                   QGenericArgument val1 = QGenericArgument(),
-                   QGenericArgument val2 = QGenericArgument(),
-                   QGenericArgument val3 = QGenericArgument(),
-                   QGenericArgument val4 = QGenericArgument(),
-                   QGenericArgument val5 = QGenericArgument(),
-                   QGenericArgument val6 = QGenericArgument(),
-                   QGenericArgument val7 = QGenericArgument() );*/
-
-    QVariant value (QGenericArgument val0 = QGenericArgument(),
+    QVariant func (const QString& fn,
+                   QGenericArgument val0 = QGenericArgument(),
                    QGenericArgument val1 = QGenericArgument(),
                    QGenericArgument val2 = QGenericArgument(),
                    QGenericArgument val3 = QGenericArgument(),
@@ -40,30 +38,71 @@ public:
                    QGenericArgument val7 = QGenericArgument() );
 
 
-    void setReadMethod(const QString& n) {read_method = n;}
-    void setReadObject(QObject * o)      {read_object = o;}
 
-/*    void setWriteMethod(const QString& n) {write_method = n;}
-    void setWriteObject(QObject * o) {write_object = o;}*/
+    void setTagName(const QString& n) {tag_name = n;}
+    QString tagName() const {return tag_name;}
 
-    void setName(const QString& n) {tag_name = n;}
-    void addArgument(const QVariant& arg)
+    void appendFunc(const QString& fn, QObject * obj, const QString& method)
     {
-        args.append(arg);
-    }
-    QVariant arg(int );
+        if (funcs.contains(fn)) {
+            qWarning() << "function "<<fn<<" already exists!!!!"; return;
+        }
 
-private:
+        funcs.insert(fn, FuncContext(obj, method));
+    }
+
+
+    void appendArgument (const QString& fn, const QVariant& arg);
+private:    
+
+    struct FuncContext {
+        QObject        * object;
+        QString         method;
+        QVariantList    args;
+
+        FuncContext (QObject * o , const QString& m ) :  object(o), method(m)
+        {   }
+
+        FuncContext () : object(nullptr)
+        {   }
+        //int placeholdersCount() const;
+    };
+
+    QVariant execObject(FuncContext & fn, const QList<QGenericArgument>& passed_args);
+
+    QVariant func (const QString& fn, const QList<QGenericArgument>& );
+
+    typedef QMap<QString, FuncContext> Funcs;
+    Funcs funcs;
+
     QString tag_name;
-    QObject * read_object;
-    QObject * write_object;
-    QString read_method;
-    QString write_method;
-    QList<QVariant> args;
+
 };
 
 typedef QMap<QString, Tag::Pointer> Tags;
 
-Q_DECLARE_METATYPE(Tag::WeakPointer)
+struct TagBindable
+{
+    Tag::WeakPointer tag;
+    QString method;
+
+    TagBindable(Tag::WeakPointer t, const QString& m) : tag(t), method(m) {}
+    TagBindable() {}
+};
+
+struct TagPlaceholder
+{
+    uint arg_num;
+    //Tag::WeakPointer tag;
+    //TagPlaceholder(uint n, Tag::WeakPointer t):arg_num(n), tag(t) {}
+    TagPlaceholder(uint n):arg_num(n) {}
+    TagPlaceholder():arg_num(0) {}
+    //TagPlaceholder(Tag::WeakPointer t):tag(t){}
+    //TagPlaceholder(){}
+};
+
+
+Q_DECLARE_METATYPE(TagBindable)
+Q_DECLARE_METATYPE(TagPlaceholder)
 
 #endif

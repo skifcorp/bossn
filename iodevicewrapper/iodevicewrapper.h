@@ -39,8 +39,10 @@ public:
         return internalGetDevice()->open(f);
     }
 
-    qint64 virtual write ( const char * data )
+    qint64 virtual write ( const QByteArray& data )
     {
+        //qDebug() << "write !!!!";
+
         return internalGetDevice()->write(data);
     }
 

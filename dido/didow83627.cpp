@@ -1,11 +1,11 @@
 
-#include "didoIt8718f.h"
+#include "didow83627.h"
 #include "wdt.h"
 
 
-BossnFactoryRegistrator<DidoIt8718f> DidoIt8718f::registator("DidoIt8718f");
+BossnFactoryRegistrator<DidoW83627> DidoW83627::registator("DidoW83627");
 
-uchar DidoIt8718f::readAll()
+uchar DidoW83627::readAll()
 {
     WDTPARAM cParam;
     DWORD nReturn;
@@ -20,7 +20,7 @@ uchar DidoIt8718f::readAll()
 }
 
 //QVariant DidoIt8718f::getDi(IoDeviceWrapper::Pointer::Type* io, const QVariant& num)
-QVariant DidoIt8718f::getDi()
+QVariant DidoW83627::getDi()
 {
     //qDebug() << "getDI!!!!";
 
@@ -28,7 +28,7 @@ QVariant DidoIt8718f::getDi()
 }
 
 //void DidoIt8718f::setDo(IoDeviceWrapper::Pointer::Type* io, const QVariant& num, bool b)
-void DidoIt8718f::setDo(const QVariant& val)
+void DidoW83627::setDo(const QVariant& val)
 {
 /*    uchar data = readAll(io);
     data = data >> 4;
@@ -46,14 +46,14 @@ void DidoIt8718f::setDo(const QVariant& val)
     }
 }
 
-QVariant DidoIt8718f::getDiBit(const QVariant& full_byte, const QVariant& num)
+QVariant DidoW83627::getDiBit(const QVariant& full_byte, const QVariant& num)
 {
     //qDebug() << "getDiBit!!!!!!!";
 
     return (full_byte.toUInt()) & (0x01<<num.toUInt()) && true;
 }
 
-QVariant DidoIt8718f::setDoBit(const QVariant& full_byte, const QVariant& num, const QVariant& val)
+QVariant DidoW83627::setDoBit(const QVariant& full_byte, const QVariant& num, const QVariant& val)
 {
     uchar data = static_cast<uchar>(full_byte.toInt());
     bool b = val.toBool();

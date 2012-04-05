@@ -29,10 +29,13 @@ public:
         return new IoDeviceFile();
     }
 
-    qint64 virtual write ( const char * data )
-    {
+    qint64 virtual write ( const QByteArray& data )
+    {       
        file.seek(0);
-       return IoDeviceWrapper::write(data);
+       //qDebug() << "write to file!!!! "<<data[0];
+       qint64 ret = IoDeviceWrapper::write(data);
+       file.flush();
+       return ret;
     }
 
     QByteArray virtual read ( qint64 maxSize )
