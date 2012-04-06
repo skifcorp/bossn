@@ -2,6 +2,8 @@
 #include "crctool.h"
 #include "iostream"
 
+#include "mifarecard.h"
+#include "func.h"
 
 using std::cout;
 
@@ -112,9 +114,9 @@ bool MifareResponseFrame::checkCrc() const
     arr.append(cmdStatus);
     arr.append(params);
 
-    ushort calc_crc = doCrc16(arr);
+    ushort calc_crc = ~doCrc16(arr);
 
-    return crc16 == (ushort)~calc_crc;
+    return crc16 == calc_crc;//(ushort)~calc_crc;
 }
 
 void MifareResponseFrame::print() const
@@ -207,16 +209,16 @@ QByteArray MifareResponseFrame::unstaffBytes(const QByteArray & arr)
 
     ret.append(arr[0]);
     for ( int i = 1; i<arr.length()-1; ++i)  {
-      if ( (arr[i] == 0xFF) && (arr[i+1] == 0x2) ) {
+      if ( (static_cast<uchar>(arr[i]) == 0xFF) && (arr[i+1] == 0x2) ) {
         ret.append(0xFD); ++i;
       }
-      else if ( (arr[i] == 0xFF) && (arr[i+1] == 0x1) ) {
+      else if ( (static_cast<uchar>(arr[i]) == 0xFF) && (arr[i+1] == 0x1) ) {
         ret.append(0xFE); ++i;
       }
-      else if ( (arr[i] == 0xFF) && (arr[i+1] == 0x0) ) {
-        ret.append(0xFF); ++i;
+      else if ( (static_cast<uchar>(arr[i]) == 0xFF) && (arr[i+1] == 0x0) ) {
+          ret.append(0xFF); ++i;
       }
-      else {;
+      else {
         ret.append(arr[i]);
       }
     }
@@ -246,9 +248,7 @@ MifareReader::~MifareReader()
 
 
 QVariant MifareReader::doOn()
-{
-    qDebug() << "doOn!!!";
-
+{    
     MifareRequestFrame req_frame;
 
     req_frame.address  = address;
@@ -256,11 +256,11 @@ QVariant MifareReader::doOn()
     req_frame.cmdCode  = 0x10;
 
     auto arr = req_frame.packFrame();
-    cout<<std::hex;
+/*    cout<<std::hex;
     for ( int i = 0; i<arr.size(); ++i ) {
         cout << (ushort)(uchar)arr[i]<<" ";
     }
-    cout << "\n"<<std::dec;
+    cout << "\n"<<std::dec;*/
 
     io_device()->write( arr );
 
@@ -268,7 +268,6 @@ QVariant MifareReader::doOn()
 
     while (true) {
         QByteArray tmp = io_device()->peek(MifareRequestFrame::paramsBuffLen);
-        qDebug() << "len: " << tmp.length();
 
         if (static_cast<uchar>(tmp[tmp.length() - 1]) == MifareRequestFrame::finishCondition ) break;
 
@@ -285,6 +284,9 @@ QVariant MifareReader::doOn()
         qWarning()<<"GOT ERROR IN MifareReader DO ON!!!!!";
         return QVariant(false);
     }
+
+    qDebug() << "doOn finished correctrly";
+
     return QVariant(true);
 }
 
@@ -358,4 +360,194 @@ QVariant MifareReader::doSound(const QVariant& cnt)
     }
 
     return QVariant(true);
+}
+
+
+QVariant MifareReader::activateIdleA()
+{
+    MifareRequestFrame req_frame;
+    req_frame.address  = address;
+    req_frame.ident    = frame_ident++;
+    req_frame.cmdCode  = 0x43;
+
+    io_device()->write( req_frame.packFrame() );
+
+    while (true) {
+        QByteArray tmp = io_device()->peek(MifareRequestFrame::paramsBuffLen);
+        if (static_cast<uchar>(tmp[tmp.length() - 1]) == MifareRequestFrame::finishCondition ) break;
+
+        yield();
+    }
+
+    QByteArray answ = io_device()->readAll();
+
+
+    MifareResponseFrame resp_frame;
+
+
+    resp_frame.unpackFrame(answ);
+
+
+    if (!resp_frame.checkResponce(req_frame)) {
+        qWarning()<<"GOT ERROR IN MifareReader activateIdleA!!!!!";
+        //sharedFromThis();
+        return QVariant::fromValue<MifareCard>(MifareCard(this, ActivateCardISO14443A() ));
+    }
+
+    if (resp_frame.cmdStatus != 0) {
+        return QVariant::fromValue<MifareCard>(MifareCard(this, ActivateCardISO14443A() ));
+    }
+
+    ActivateCardISO14443A ac;
+    ac.ack = resp_frame.cmdStatus;
+    ac.atq = resp_frame.params.left(2);
+    ac.sak = resp_frame.params[2];
+    uchar uid_len = static_cast<uchar>(resp_frame.params[3]);
+    ac.uid = resp_frame.params.mid(4).left(uid_len);
+
+    return QVariant::fromValue<MifareCard>( MifareCard(this, ac ) );
+}
+
+bool MifareReader::waitForAnswer()
+{
+    QByteArray tmp = io_device()->peek(MifareRequestFrame::paramsBuffLen);
+
+
+
+    if (tmp.isEmpty()) return false;
+    qDebug () << "after";
+
+        qDebug() << "size: " << tmp.size();
+
+    return  static_cast<uchar>(tmp.right(1)[0]) == MifareRequestFrame::finishCondition ;
+}
+
+HostCodedKey MifareReader::getHostCodedKey(const QByteArray& key)
+{
+    MifareRequestFrame req_frame;
+
+    req_frame.address  = address;
+    req_frame.ident    = frame_ident++;
+    req_frame.cmdCode  = 0x16;
+    req_frame.params   = key;
+
+    qDebug() << "1111";
+
+    io_device()->write(req_frame.packFrame());
+
+    qDebug() << "222";
+
+    while (!waitForAnswer()) {
+        //QByteArray tmp = io_device()->peek(MifareRequestFrame::paramsBuffLen);
+        //if ( static_cast<uchar>(tmp[tmp.length() - 1]) == MifareRequestFrame::finishCondition ) break;
+        qDebug() << "111111111111";
+        yield();
+        qDebug() << "222222222222";
+    }
+qDebug() << "333";
+    QByteArray answ = io_device()->readAll();
+
+
+
+    MifareResponseFrame resp_frame;
+
+    resp_frame.unpackFrame(answ);
+
+    if (!resp_frame.checkResponce(req_frame)) {
+        qWarning()<<"GOT ERROR IN MifareReader getHostCodeKey!!!!!";
+        return HostCodedKey();
+    }
+
+    qDebug() << "status: " << resp_frame.cmdStatus;
+
+    if (resp_frame.cmdStatus != 0) {
+        return HostCodedKey();
+    }
+
+    HostCodedKey coded_key;
+    coded_key.ack   = resp_frame.cmdStatus;
+    coded_key.coded = resp_frame.params;
+
+    return coded_key;
+}
+
+
+bool MifareReader::doAuth(const AuthKey & auth)
+{
+    MifareRequestFrame req_frame;
+
+    req_frame.address  = address;
+    req_frame.ident    = frame_ident++;
+    req_frame.cmdCode  = 0x18;
+    req_frame.params.append( auth.keyType );
+    req_frame.params.append( auth.snd );
+    req_frame.params.append( auth.keys );
+    req_frame.params.append( auth.sector );
+
+    /*memcpy( &(req_frame.params[1]), &(auth->snd[0]),   4  );
+    memcpy( &(req_frame.params[5]), &(auth->keys[0]),  12 );
+    req_frame.params[17] = auth->sector;
+    req_frame.prepareFrame();*/
+
+    io_device()->write( req_frame.packFrame() );
+
+    while (true) {
+        QByteArray tmp = io_device()->peek(MifareRequestFrame::paramsBuffLen);
+        if (static_cast<uchar>(tmp[tmp.length() - 1]) == MifareRequestFrame::finishCondition ) break;
+
+        yield();
+    }
+
+    QByteArray answ = io_device()->readAll();
+
+    MifareResponseFrame resp_frame;
+
+    resp_frame.unpackFrame(answ);
+
+    if (!resp_frame.checkResponce(req_frame)) {
+        qWarning()<<"GOT ERROR IN MifareReader doAuth!!!!!";
+        return false;
+    }
+
+    qDebug() << "doAuth finished status: " << resp_frame.cmdStatus;
+
+
+    return resp_frame.cmdStatus != 0;
+}
+
+MifareRead MifareReader::readBlock(int num)
+{
+    MifareRequestFrame req_frame;
+
+    req_frame.address  = address;
+    req_frame.ident    = frame_ident++;
+    req_frame.cmdCode  = 0x19;
+    req_frame.params.append(num);
+
+    io_device()->write(req_frame.packFrame());
+
+    while (true) {
+        QByteArray tmp = io_device()->peek(MifareRequestFrame::paramsBuffLen);
+        if (static_cast<uchar>(tmp[tmp.length() - 1]) == MifareRequestFrame::finishCondition ) break;
+
+        yield();
+    }
+
+
+    QByteArray answ = io_device()->readAll();
+
+    MifareResponseFrame resp_frame;
+
+    resp_frame.unpackFrame(answ);
+
+    if (!resp_frame.checkResponce(req_frame)) {
+        qWarning()<<"GOT ERROR IN MifareReader doAuth!!!!!";
+        return MifareRead();
+    }
+
+    MifareRead ret;
+    ret.ack = resp_frame.cmdStatus;
+    ret.data = resp_frame.params;
+
+    return ret;
 }

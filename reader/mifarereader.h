@@ -3,7 +3,9 @@
 
 #include <QByteArray>
 
+
 #include "porterdriver.h"
+#include "sharedfromthis.h"
 
 struct MifareRequestFrame
 {
@@ -53,11 +55,56 @@ struct MifareResponseFrame
 
 
 
-class MifareReader : public PorterDriver
+struct ActivateCardISO14443A {
+  char ack;
+  QByteArray atq;
+  uchar sak;
+  QByteArray uid;
+  ActivateCardISO14443A () : ack(0),sak(0)
+  {}
+  bool active() const {return !uid.isEmpty();}
+
+};
+
+
+
+struct HostCodedKey {
+  signed char ack;
+  QByteArray coded;
+  HostCodedKey() : ack(0) {}
+
+  bool valid() const {return !coded.isEmpty();}
+};
+
+
+struct AuthKey {
+  unsigned char keyType;
+/*  unsigned char snd[4];
+  unsigned char keys[12]; */
+  QByteArray snd;
+  QByteArray keys;
+  unsigned char sector;
+
+  AuthKey() : snd(0), sector(0) {}
+
+};
+
+
+struct MifareRead
+{
+    MifareRead() : ack(0) {}
+    uchar ack;
+    QByteArray data;
+};
+
+class MifareReader : public PorterDriver//, public SharedFromThis<MifareReader>
 {
     Q_OBJECT
 public:
 
+
+    MifareReader(const MifareReader& ) = delete;
+    //MifareReader(){}
     ~MifareReader();
 
     static PorterDriver * create(const QVariantMap& conf )
@@ -68,8 +115,11 @@ public:
     Q_INVOKABLE QVariant doOn();
     Q_INVOKABLE QVariant doOff();
     Q_INVOKABLE QVariant doSound( const QVariant& );
-    Q_INVOKABLE QVariant activateIdleA();
-    Q_INVOKABLE QVariant auth();
+    Q_INVOKABLE QVariant activateIdleA();   
+
+    HostCodedKey getHostCodedKey(const QByteArray& key);
+    bool doAuth(const AuthKey& );
+    MifareRead readBlock(int num);
 protected:
     MifareReader(const QVariantMap& );
 private:
@@ -77,17 +127,13 @@ private:
 
     uchar address;
     static uchar frame_ident;
-};
-/*
-class Card
-{
-public:
-    Card(MifareReader& r):reader(r){}
-    ~Card() {}
 
-    void readSector();
-private:
-};*/
+
+    friend class MifareCard;
+    bool waitForAnswer();
+};
+
+
 
 #endif
 

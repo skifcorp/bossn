@@ -76,7 +76,7 @@ QVariant DisplayFutaba::printText(const QVariant & txt)
     }
   }
   io_device()->write(command);
-  Sleep(150); //пакишо такий спосіб уникнення помилки при частому записі в порт без цього помилка CommEvent overlapped write error: 170
+  //Sleep(150); //пакишо такий спосіб уникнення помилки при частому записі в порт без цього помилка CommEvent overlapped write error: 170
   return QVariant(true);
 }
 
@@ -85,6 +85,7 @@ int DisplayFutaba::RusToFutaba(QChar s)
   ushort cod;
   cod = (ushort)s.unicode();
   //unicod to Shift-JIS
+
   if ( cod == 1040 ) { //U+0410	А	d090  1040  cod  'А'
     return 64;
   }

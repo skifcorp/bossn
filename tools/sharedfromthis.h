@@ -9,16 +9,25 @@ template <class T>
 class SharedFromThis
 {
 public:
-    QSharedPointer<T> sharedFromThis()
+    typedef QSharedPointer<T> Pointer;
+    typedef QWeakPointer<T> WeakPointer;
+
+    //SharedFromThis(){}
+    //virtual ~SharedFromThis(){}
+
+    Pointer sharedFromThis()
     {
         if (weak_ptr.isNull() ) {
-            QSharedPointer<T> ptr(this);
+            Pointer ptr(static_cast<T*>(this));
+            //QSharedPointer<T> ptr(this);
             weak_ptr = ptr;
         }
         return weak_ptr.toStrongRef();
     }
+
+    //Pointer sharedFromThis() const {return Pointer();}
 private:
-    QWeakPointer<T> weak_ptr;
+    WeakPointer weak_ptr;
 };
 
 #endif // SHARED_FROM_THIS_H

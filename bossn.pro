@@ -38,7 +38,8 @@ SOURCES += main.cpp \
     reader/mifarereader.cpp \
     display/displayfutaba.cpp \
     dido/didow83627.cpp \
-    mainsequence.cpp
+    mainsequence.cpp \
+    reader/mifarecard.cpp
 
 HEADERS += \    
     tools/func.h \
@@ -71,5 +72,6 @@ HEADERS += \
     tools/crctool.h \
     display/displayfutaba.h \
     dido/didow83627.h \
-    tools/sharedfromthis.h
+    tools/sharedfromthis.h \
+    reader/mifarecard.h
 

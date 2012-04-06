@@ -74,6 +74,9 @@ void initPorters(QVector<Porter::Pointer>& porters, Tags& tags)
         tags["reader1"]->appendArgument("doSound", "doSound");
         tags["reader1"]->appendArgument("doSound", QVariant::fromValue<TagPlaceholder>(TagPlaceholder(0)));
 
+        tags["reader1"]->appendFunc("activateIdleA", w.data(), "exec");
+        tags["reader1"]->appendArgument("activateIdleA", "activateIdleA");
+
     }
 #endif
 
