@@ -1,5 +1,6 @@
 ﻿#include <QtCore/QCoreApplication>
 #include <QVector>
+#include <QSharedPointer>
 
 #include "func.h"
 #include "mrwsettings.h"
@@ -10,9 +11,9 @@
 #include "taskexec.h"
 #include "perimeter.h"
 #include "mainsequence.h"
+#include "formatersequence.h"
+#include "alhosequence.h"
 
-bool initMrw();
-int work();
 
 void initPorters(QVector<Porter::Pointer>& porters, Tags& tags)
 {
@@ -76,6 +77,23 @@ void initPorters(QVector<Porter::Pointer>& porters, Tags& tags)
 
         tags["reader1"]->appendFunc("activateIdleA", w.data(), "exec");
         tags["reader1"]->appendArgument("activateIdleA", "activateIdleA");
+
+        tags["reader1"]->appendFunc("getHostCodedKey", w.data(), "exec");
+        tags["reader1"]->appendArgument("getHostCodedKey", "getHostCodedKey");
+        tags["reader1"]->appendArgument("getHostCodedKey", QVariant::fromValue<TagPlaceholder>(TagPlaceholder(0)));
+
+        tags["reader1"]->appendFunc("doAuth", w.data(), "exec");
+        tags["reader1"]->appendArgument("doAuth", "doAuth");
+        tags["reader1"]->appendArgument("doAuth", QVariant::fromValue<TagPlaceholder>(TagPlaceholder(0)));
+
+        tags["reader1"]->appendFunc("readBlock", w.data(), "exec");
+        tags["reader1"]->appendArgument("readBlock", "readBlock");
+        tags["reader1"]->appendArgument("readBlock", QVariant::fromValue<TagPlaceholder>(TagPlaceholder(0)));
+
+        tags["reader1"]->appendFunc("writeBlock", w.data(), "exec");
+        tags["reader1"]->appendArgument("writeBlock", "writeBlock");
+        tags["reader1"]->appendArgument("writeBlock", QVariant::fromValue<TagPlaceholder>(TagPlaceholder(0)));
+        tags["reader1"]->appendArgument("writeBlock", QVariant::fromValue<TagPlaceholder>(TagPlaceholder(1)));
 
     }
 #endif
@@ -188,24 +206,37 @@ void initPorters(QVector<Porter::Pointer>& porters, Tags& tags)
             tags["do4_tmp"]->appendArgument("writeMethod", QVariant::fromValue<TagBindable>(TagBindable(tags["dido"], "readMethod")));
             tags["do4_tmp"]->appendArgument("writeMethod", 3);
             tags["do4_tmp"]->appendArgument("writeMethod", QVariant::fromValue<TagPlaceholder>(TagPlaceholder(0)));
-//qDebug () << "!!!!!!!!!!!!!!!!!!!1";
+
         tags["do1"]->appendFunc("writeMethod", p.data(), "value");
         tags["do1"]->appendArgument("writeMethod", QVariant::fromValue<TagBindable>(TagBindable(tags["do1_tmp"], "writeMethod")));
-        //tags["do1"]->appendArgument("writeMethod", QVariant::fromValue<TagPlaceholder>(TagPlaceholder(tags["do1_tmp"])));
 
         tags["do2"]->appendFunc("writeMethod", p.data(), "value");
         tags["do2"]->appendArgument("writeMethod", QVariant::fromValue<TagBindable>(TagBindable(tags["do2_tmp"], "writeMethod")));
-        //tags["do2"]->appendArgument("writeMethod", QVariant::fromValue<TagPlaceholder>(TagPlaceholder(tags["do2_tmp"])));
 
         tags["do3"]->appendFunc("writeMethod", p.data(), "value");
         tags["do3"]->appendArgument("writeMethod", QVariant::fromValue<TagBindable>(TagBindable(tags["do3_tmp"], "writeMethod")));
-        //tags["do3"]->appendArgument("writeMethod", QVariant::fromValue<TagPlaceholder>(TagPlaceholder(tags["do3_tmp"])));
 
         tags["do4"]->appendFunc("writeMethod", p.data(), "value");
         tags["do4"]->appendArgument("writeMethod", QVariant::fromValue<TagBindable>(TagBindable(tags["do4_tmp"], "writeMethod")));
-        //tags["do4"]->appendArgument("writeMethod", QVariant::fromValue<TagPlaceholder>(TagPlaceholder(tags["do4_tmp"])));
+
 
     }
+}
+
+void initProgOptions(QVariantMap & opts)
+{
+    QByteArray card_code;
+    card_code.append(0xFE);
+    card_code.append(0x86);
+    card_code.append(0x01);
+    card_code.append(0x28);
+    card_code.append(0x9F);
+    card_code.append(0x3A);
+
+    opts.insert("card_code"      , card_code);
+    opts.insert("sleepnb_timeout", 1000);
+    opts.insert("data_block"     , 0 );
+    opts.insert("run_mode"       , "prog" );
 }
 
 void initTasks(TaskExec & tasks, Tags & tags, MainSequence & seq )
@@ -259,25 +290,41 @@ int main(int argc, char *argv[])
     tags["do3"]        = Tag::Pointer(new Tag("do"));
     tags["do4"]        = Tag::Pointer(new Tag("do"));
 
-    tags["do1_tmp"]        = Tag::Pointer(new Tag("do1_tmp"));
-    tags["do2_tmp"]        = Tag::Pointer(new Tag("do2_tmp"));
-    tags["do3_tmp"]        = Tag::Pointer(new Tag("do3_tmp"));
-    tags["do4_tmp"]        = Tag::Pointer(new Tag("do4_tmp"));
+    tags["do1_tmp"]    = Tag::Pointer(new Tag("do1_tmp"));
+    tags["do2_tmp"]    = Tag::Pointer(new Tag("do2_tmp"));
+    tags["do3_tmp"]    = Tag::Pointer(new Tag("do3_tmp"));
+    tags["do4_tmp"]    = Tag::Pointer(new Tag("do4_tmp"));
 
-    tags["reader1"]        = Tag::Pointer(new Tag("reader1"));
+    tags["reader1"]    = Tag::Pointer(new Tag("reader1"));
+    tags["database"]   = Tag::Pointer(new Tag("database"));
 
     QVector<Porter::Pointer> porters;
 
 
     initPorters(porters, tags);        
 
-    MainSequence seq1(tags);
+    QMap<QString, QVariant> options;
+    initProgOptions(options);
 
-    TaskExec task_exec;
+    TaskExec task_exec;    
 
-    initTasks(task_exec, tags, seq1);
+    QSharedPointer<AlhoSequence> main_alho;
 
-    tags["reader1"]->func("doSound", Q_ARG(QVariant, 1));
+    if (options["run_mode"].toString() == "prog") {
+        qDebug() << "run prog mode";
+
+        main_alho = QSharedPointer<AlhoSequence>(new MainSequence(tags, options) ); ;
+        initTasks(task_exec, tags, *main_alho.staticCast<MainSequence>());
+    }
+    else if (options["run_mode"].toString() == "format") {
+        qDebug() << "run format mode";
+
+        main_alho = QSharedPointer<AlhoSequence>(new FormaterSequence(tags, options) );
+        main_alho.staticCast<FormaterSequence>()->start();
+    }
+
+    //MainSequence seq1(tags, options);
+    //tags["reader1"]->func("doSound", Q_ARG(QVariant, 1));
 
     //tags["di2"]->func("readMethod");
     //tags["do1"]->func("writeMethod", Q_ARG(QVariant, true));
@@ -285,53 +332,10 @@ int main(int argc, char *argv[])
 
     //return 0;
 
-    work();
-
-    /*    if ( testArg == "-makedatabase_c") makeDataBaseC();
-        if ( testArg == "-makedatabase_s") makeDataBaseS();
-        if ( testArg == "-formatcard") formatCard(); */
+    //QSharedPointer seq
 
     return app.exec();
 }
-
-bool initMrw()
-{
-    //ks.start();//поток для клавиатуры
-    //mainWorker.start();//главный поток
-    //dbW.start();//поток базы данных
-    //DioHelper::instance()->start();//поток для дискретных входов
-
-
-    //установим очередность потоков регистратора
-    if (MrwSettings::instance()->platformaOff[0])
-        printOnDisplay("Платформа №0 - отключена");
-    else {
-//        mw1.start();//поток считывателя и дисплея pl1
-//        wWorker1.start();//поток весового контроллера
-//        pW1.start();//принтер 1
-//        action[0].start();
-    }
-
-    if (MrwSettings::instance()->platformaOff[1])
-        printOnDisplay("Платформа №1 - отключена");
-    else {
-//        mw2.start();//поток считывателя и дисплея pl2
-//        wWorker2.start();//поток весового контроллера
-//        pW2.start();//принтер 2
-//        action[1].start();
-    }
-
-//    toCardReaderTask[0].add(mrTaskFactory.getWriteDispText(0, "Загрузка ПО прошла успешно!"+endOfStr, 0, true));
-//    toCardReaderTask[1].add(mrTaskFactory.getWriteDispText(1, "Загрузка ПО прошла успешно!"+endOfStr, 0, true));
-    return true;
-}
-
-
-int work ()
-{
-    return 0;
-}
-
 
 
 

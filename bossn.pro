@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core xml
+QT       += core xml sql
 
 QT       -= gui
 
@@ -13,7 +13,7 @@ CONFIG   += console
 CONFIG   -= app_bundle
 
 TEMPLATE = app
-INCLUDEPATH  += ../qextserialport/src/ serial weight generic iodevicewrapper scheduler porter task dido perimeter tools reader ../coroutine/src/
+INCLUDEPATH  += ../qextserialport/src/ db alho serial weight generic iodevicewrapper scheduler porter task dido perimeter tools reader ../coroutine/src/
 QMAKE_CXXFLAGS += -std=c++0x
 LIBS         += -L../qextserialport_build/src/build/ -lqextserialport -L../coroutine_build/src/release/ -lcoroutine
 
@@ -38,8 +38,11 @@ SOURCES += main.cpp \
     reader/mifarereader.cpp \
     display/displayfutaba.cpp \
     dido/didow83627.cpp \
-    mainsequence.cpp \
-    reader/mifarecard.cpp
+    alho/mainsequence.cpp \
+    alho/mifarecard.cpp \
+    db/customermysql.cpp \
+    alho/formatersequence.cpp \
+    alho/alhosequence.cpp
 
 HEADERS += \    
     tools/func.h \
@@ -65,7 +68,6 @@ HEADERS += \
     perimeter/perimeteralhos.h \
     tools/settingstool.h \
     perimeter/perimtercontrol.h \
-    mainsequence.h \
     dido/didofile.h \
     display/displaycaptain.h \
     reader/mifarereader.h \
@@ -73,5 +75,9 @@ HEADERS += \
     display/displayfutaba.h \
     dido/didow83627.h \
     tools/sharedfromthis.h \
-    reader/mifarecard.h
-
+    alho/mifarecard.h \
+    alho/mainsequence.h \
+    db/customermysql.h \
+    db/customerdata.h \
+    alho/formatersequence.h \
+    alho/alhosequence.h

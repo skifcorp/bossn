@@ -3,9 +3,15 @@
 
 #include <QString>
 #include <QVariant>
+#include <QMap>
 
+#include <functional>
+
+using std::function;
 
 #include "mifarereader.h"
+#include "tags.h"
+
 
 struct StructMemberConf
 {
@@ -14,26 +20,31 @@ struct StructMemberConf
     uint offset;
     uint length;
     StructMemberConf(const QString& mn, const QString& tn, uint offs, uint len):memberName(mn), typeName(tn), offset(offs), length(len) {}
+
+    typedef QMap<QString, function<QVariant (const QByteArray& )> > TypesFactory;
+    static TypesFactory typesFactory;
+
+    static bool registerTypes();
 };
 
 struct StructConf
 {
     typedef QList<StructMemberConf> MembersConf;
     MembersConf  members_conf;
-    QList<uint> sectors;
+    QList<uint> blocks;
     bool empty () const {return members_conf.empty();}
 };
 
 class MifareCard
 {
 public:
-    static const int id;
-    MifareCard():reader(nullptr){}
+    MifareCard(Tag::WeakPointer r , const ActivateCardISO14443A& );
+
     ~MifareCard(){}
 
     bool active() const {return activate_card.active();}
 
-    bool autorize( const QByteArray& , int sector );
+    bool autorize( const QByteArray& , int block );
     MifareRead readBlock(int num);
 
 
@@ -41,16 +52,17 @@ public:
     QVariantMap readStruct(const StructConf& conf);
 
 
-protected:
-    MifareCard(MifareReader* , const ActivateCardISO14443A& );
+    QByteArray uid() const {return activate_card.uid;}  
 private:
-    //MifareReader::WeakPointer reader;
-    MifareReader * reader;
+    Tag::WeakPointer reader;
     ActivateCardISO14443A activate_card;
 
-    friend class MifareReader;
+    QVariant readMember (const StructMemberConf& , const QByteArray& ) const;
+
+
+    //friend class MifareReader;
 };
 
-Q_DECLARE_METATYPE(MifareCard)
+
 
 #endif // CARD_H

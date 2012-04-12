@@ -38,7 +38,7 @@ struct MifareResponseFrame
     bool checkCrc() const;
     void print() const;
     int size() const;
-    bool checkResponce(const MifareRequestFrame& );
+    bool checkResponse(const MifareRequestFrame& );
 
     uchar   startCondition;
     uchar   address;
@@ -56,46 +56,51 @@ struct MifareResponseFrame
 
 
 struct ActivateCardISO14443A {
-  char ack;
-  QByteArray atq;
-  uchar sak;
-  QByteArray uid;
-  ActivateCardISO14443A () : ack(0),sak(0)
-  {}
-  bool active() const {return !uid.isEmpty();}
-
+    char ack;
+    QByteArray atq;
+    uchar sak;
+    QByteArray uid;
+    ActivateCardISO14443A () : ack(0),sak(0) {}
+    bool active() const {return !uid.isEmpty();}
+    static int id;
 };
 
+Q_DECLARE_METATYPE(ActivateCardISO14443A)
 
 
 struct HostCodedKey {
-  signed char ack;
-  QByteArray coded;
-  HostCodedKey() : ack(0) {}
+    char ack;
+    QByteArray coded;
+    HostCodedKey() : ack(0) {}
 
-  bool valid() const {return !coded.isEmpty();}
+    bool valid() const {return !coded.isEmpty();}
+    static int id;
 };
 
+Q_DECLARE_METATYPE(HostCodedKey)
 
 struct AuthKey {
-  unsigned char keyType;
-/*  unsigned char snd[4];
-  unsigned char keys[12]; */
-  QByteArray snd;
-  QByteArray keys;
-  unsigned char sector;
+    unsigned char keyType;
+    QByteArray snd;
+    QByteArray keys;
+    unsigned char block;
 
-  AuthKey() : snd(0), sector(0) {}
-
+    AuthKey() : snd(0), block(0) {}
+    static int id;
 };
 
+Q_DECLARE_METATYPE(AuthKey)
 
 struct MifareRead
 {
     MifareRead() : ack(0) {}
     uchar ack;
     QByteArray data;
+
+    static int id;
 };
+
+Q_DECLARE_METATYPE(MifareRead)
 
 class MifareReader : public PorterDriver//, public SharedFromThis<MifareReader>
 {
@@ -116,10 +121,10 @@ public:
     Q_INVOKABLE QVariant doOff();
     Q_INVOKABLE QVariant doSound( const QVariant& );
     Q_INVOKABLE QVariant activateIdleA();   
-
-    HostCodedKey getHostCodedKey(const QByteArray& key);
-    bool doAuth(const AuthKey& );
-    MifareRead readBlock(int num);
+    Q_INVOKABLE QVariant getHostCodedKey(const QVariant& );
+    Q_INVOKABLE QVariant doAuth( const QVariant& );
+    Q_INVOKABLE QVariant readBlock( const QVariant& );
+    Q_INVOKABLE QVariant writeBlock( const QVariant&, const QByteArray&  );
 protected:
     MifareReader(const QVariantMap& );
 private:
@@ -131,6 +136,8 @@ private:
 
     friend class MifareCard;
     bool waitForAnswer();
+
+    static QString errorMessage(uchar e);
 };
 
 

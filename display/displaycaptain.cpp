@@ -49,7 +49,7 @@ QVariant DisplayCaptain::printText(const QVariant & txt)
 
     resp_frame.unpackFrame(answ);
 
-    if (!resp_frame.checkResponce(req_frame)) {
+    if (!resp_frame.checkResponse(req_frame)) {
         qWarning()<<"GOT ERROR IN TABLO RESPONCE!!!!!";
         return QVariant(false);
     }
