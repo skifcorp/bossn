@@ -42,7 +42,8 @@ SOURCES += main.cpp \
     alho/mifarecard.cpp \
     db/customermysql.cpp \
     alho/formatersequence.cpp \
-    alho/alhosequence.cpp
+    alho/alhosequence.cpp \
+    alho/cardstructs.cpp
 
 HEADERS += \    
     tools/func.h \
@@ -80,4 +81,5 @@ HEADERS += \
     db/customermysql.h \
     db/customerdata.h \
     alho/formatersequence.h \
-    alho/alhosequence.h
+    alho/alhosequence.h \
+    alho/cardstructs.h

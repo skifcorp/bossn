@@ -11,29 +11,8 @@ using std::function;
 
 #include "mifarereader.h"
 #include "tags.h"
+#include "cardstructs.h"
 
-
-struct StructMemberConf
-{
-    QString memberName;
-    QString typeName;
-    uint offset;
-    uint length;
-    StructMemberConf(const QString& mn, const QString& tn, uint offs, uint len):memberName(mn), typeName(tn), offset(offs), length(len) {}
-
-    typedef QMap<QString, function<QVariant (const QByteArray& )> > TypesFactory;
-    static TypesFactory typesFactory;
-
-    static bool registerTypes();
-};
-
-struct StructConf
-{
-    typedef QList<StructMemberConf> MembersConf;
-    MembersConf  members_conf;
-    QList<uint> blocks;
-    bool empty () const {return members_conf.empty();}
-};
 
 class MifareCard
 {
@@ -50,17 +29,31 @@ public:
 
 
     QVariantMap readStruct(const StructConf& conf);
-
+    bool writeStruct(const StructConf& conf, const QVariantMap& s);
 
     QByteArray uid() const {return activate_card.uid;}  
+    static uchar passwordBlock(uchar block)
+    {
+        //const uint manufacturerBlocks = 2;
+        const uint blocksIn1KSector  = 4;
+        const uint blocksIn4KSector  = 16;
+        const uint blocksIn1KSectors = blocksIn1KSector * 32;
+
+        //if (block < manufacturerBlocks) return 0;
+
+        if (block < blocksIn1KSectors) {
+            return block / blocksIn1KSector * blocksIn1KSector + 3 ;
+        }
+
+        return blocksIn1KSectors + (block - blocksIn1KSectors) / blocksIn4KSector * blocksIn4KSector + 15;
+    }
 private:
     Tag::WeakPointer reader;
     ActivateCardISO14443A activate_card;
 
     QVariant readMember (const StructMemberConf& , const QByteArray& ) const;
+    bool     writeMember(const StructMemberConf& , const QVariant&, QByteArray& ) const;
 
-
-    //friend class MifareReader;
 };
 
 

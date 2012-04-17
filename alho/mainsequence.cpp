@@ -3,43 +3,6 @@
 #include "settingstool.h"
 #include "func.h"
 
-const StructConf & bill_conf(const QVariantMap& opts)
-{
-    static StructConf s;
-
-    if (!s.empty()) return s;
-
-    uint data_block = opts["data_block"].toUInt();
-
-    s.blocks.append(0 + data_block);
-    s.blocks.append(1 + data_block);
-    s.blocks.append(2 + data_block);
-
-    s.members_conf.append(StructMemberConf("billNumber"    , "uint"   , 0, 3));
-    s.members_conf.append(StructMemberConf("flags"         , "boolarr", 3, 2));
-    s.members_conf.append(StructMemberConf("numField"      , "ushort" , 5, 2));
-    s.members_conf.append(StructMemberConf("realNumField"  , "ushort" , 7, 2));
-    s.members_conf.append(StructMemberConf("numLoader"     , "uchar"  , 9, 1));
-    s.members_conf.append(StructMemberConf("dateOfLoad"    , "datetimeshit" , 10, 3));
-    s.members_conf.append(StructMemberConf("driver"        , "ushort"   , 13, 2));
-    s.members_conf.append(StructMemberConf("pointOfAnal"   , "uchar"    , 15, 2));
-
-    s.members_conf.append(StructMemberConf("bruttoWeight"  , "ushort"   , 0 + 16, 2));
-    s.members_conf.append(StructMemberConf("dateOfBrutto"  , "datetimeshit" , 2 + 16, 2));
-    s.members_conf.append(StructMemberConf("taraWeight"    , "ushort"   , 5 + 16, 2));
-    s.members_conf.append(StructMemberConf("normTaraWeight", "ushort"   , 7 + 16, 2));
-    s.members_conf.append(StructMemberConf("dateOfTara"    , "datetimeshit" , 9 + 16, 2));
-
-    s.members_conf.append(StructMemberConf("impurity"      , "ushort"   , 0 + 32, 2));
-    s.members_conf.append(StructMemberConf("shugarContent" , "ushort"   , 2 + 32, 2));
-    s.members_conf.append(StructMemberConf("greenWeight"   , "ushort"   , 4 + 32, 2));
-    s.members_conf.append(StructMemberConf("bum"           , "uchar"    , 6 + 32, 1));
-    s.members_conf.append(StructMemberConf("bumFact"       , "uchar"    , 7 + 32, 1));
-    s.members_conf.append(StructMemberConf("kagat"         , "uchar"    , 8 + 32, 1));
-    s.members_conf.append(StructMemberConf("dateOfUnload"  , "datetimeshit" , 9 + 32, 3));
-
-    return s;
-}
 
 //QByteArray MainSequence::card_code;
 

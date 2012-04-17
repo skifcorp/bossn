@@ -444,8 +444,9 @@ QVariant MifareReader::getHostCodedKey(const QVariant& key)//const QByteArray& k
 
     req_frame.address  = address;
     req_frame.ident    = frame_ident++;
-    req_frame.cmdCode  = 0x16;
+    req_frame.cmdCode  = 0x16;    
     req_frame.params   = key.toByteArray();
+
 
     io_device()->write(req_frame.packFrame());
 
@@ -492,7 +493,7 @@ QVariant MifareReader::doAuth(const QVariant& var_auth)//const AuthKey & auth)
     req_frame.params.append( auth.keys );
     req_frame.params.append( auth.block );
 
-    qDebug () << "params len: "<<req_frame.params.length();
+    //qDebug () << "params len: "<<req_frame.params.length();
 
     io_device()->write( req_frame.packFrame() );
 
@@ -541,23 +542,24 @@ QVariant MifareReader::readBlock(const QVariant& num)
     resp_frame.unpackFrame(answ);
 
     if (!resp_frame.checkResponse(req_frame)) {
-        qWarning()<<"check_responce: GOT ERROR IN MifareReader readBlock!!!!!";
+        qWarning()<<"readBlock: check_responce: GOT ERROR IN MifareReader readBlock!!!!!";
         return QVariant::fromValue<MifareRead>(MifareRead());
     }
 
     if (resp_frame.cmdStatus != 0) {
-        qWarning()<<"cmdStatus: GOT ERROR IN MifareReader readBlock!!!!! : " + errorMessage(resp_frame.cmdStatus);
+        qWarning()<<"readBlock: cmdStatus: GOT ERROR IN MifareReader readBlock!!!!! : " + errorMessage(resp_frame.cmdStatus);
         return QVariant::fromValue<MifareRead>(MifareRead());
     }
 
     MifareRead ret;
-    ret.ack = resp_frame.cmdStatus;
+    ret.result = resp_frame.cmdStatus;
     ret.data = resp_frame.params;
+    ret.result = true;
 
     return QVariant::fromValue<MifareRead>(ret);
 }
 
-QVariant MifareReader::writeBlock(const QVariant& block_num, const QByteArray& data)
+QVariant MifareReader::writeBlock(const QVariant& block_num, const QVariant& data)
 {
     MifareRequestFrame req_frame;
 
@@ -565,7 +567,7 @@ QVariant MifareReader::writeBlock(const QVariant& block_num, const QByteArray& d
     req_frame.ident   = frame_ident++;
     req_frame.cmdCode = 0x1A;
     req_frame.params.append(static_cast<uchar>(block_num.toUInt()));
-    req_frame.params.append(data);
+    req_frame.params.append(data.toByteArray());
 
     io_device()->write(req_frame.packFrame());
 
@@ -579,12 +581,12 @@ QVariant MifareReader::writeBlock(const QVariant& block_num, const QByteArray& d
     resp_frame.unpackFrame(answ);
 
     if (!resp_frame.checkResponse(req_frame)) {
-        qWarning()<<"check_responce: GOT ERROR IN MifareReader writeBlock!!!!!";
+        qWarning()<<"writeBlock: check_responce: GOT ERROR IN MifareReader writeBlock!!!!!";
         return QVariant(false);
     }
 
     if (resp_frame.cmdStatus != 0) {
-        qWarning()<<"cmdStatus: GOT ERROR IN MifareReader writeBlock!!!!! : " + errorMessage(resp_frame.cmdStatus);
+        qWarning()<<"writeBlock: cmdStatus: GOT ERROR IN MifareReader writeBlock!!!!! : " + errorMessage(resp_frame.cmdStatus);
         return QVariant(false);
     }
 

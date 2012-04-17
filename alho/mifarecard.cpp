@@ -1,72 +1,11 @@
 #include "mifarecard.h"
+#include "func.h"
 
 #include <QDate>
 #include <QDateTime>
 #include <QDataStream>
 #include <QBitArray>
 
-StructMemberConf::TypesFactory StructMemberConf::typesFactory;
-
-bool types_registered = StructMemberConf::registerTypes();
-
-
-QDateTime convertTimeShit(unsigned long timeInMinutes)
-{
-    QDate d(2000, 01, 01);
-    QDateTime dt(d);
-
-    unsigned long temp=timeInMinutes/60/24;
-    int ost=timeInMinutes-temp*60*24;
-
-    dt=dt.addDays(temp);
-
-    int hour=ost/60;
-    int minute=ost-hour*60;
-
-    QTime time(hour, minute);
-    dt.setTime(time);
-    return dt;
-}
-
-bool StructMemberConf::registerTypes()
-{
-    typesFactory.insert("uint", [](const QByteArray& arr){
-                            QDataStream st(arr);
-                            uint ret;
-                            st >> ret;
-                            return QVariant(ret);
-                        });
-
-
-    typesFactory.insert("boolarr", [](const QByteArray& arr){
-                            QDataStream st(arr);
-                            QBitArray ret;
-                            st >> ret;
-                            return QVariant(ret);
-                        });
-
-    typesFactory.insert("ushort", [](const QByteArray& arr){
-                            QDataStream st(arr);
-                            ushort ret;
-                            st >> ret;
-                            return QVariant(ret);
-                        });
-
-    typesFactory.insert("uchar", [](const QByteArray& arr){
-                            return QVariant(static_cast<uchar>(arr[0]));
-                        });
-
-
-    typesFactory.insert("datetimeshit", [](const QByteArray& arr) {
-                            QDataStream st(arr);
-                            uint ret;
-                            st >> ret;
-                            return QVariant( convertTimeShit(ret) );
-                        });
-
-
-    return true;
-}
 
 MifareCard::MifareCard(Tag::WeakPointer r, const ActivateCardISO14443A& ac):reader(r), activate_card(ac)
 {
@@ -76,6 +15,8 @@ MifareCard::MifareCard(Tag::WeakPointer r, const ActivateCardISO14443A& ac):read
 bool MifareCard::autorize(const QByteArray & key, int block)
 {
     //HostCodedKey coded_key =  reader->getHostCodedKey(key);
+    //qDebug () << "debugging autorize...";
+    //printByteArray(key);
     QVariant key_var(key);
 
     HostCodedKey coded_key =  reader.data()->func("getHostCodedKey", Q_ARG(const QVariant&, key_var)).value<HostCodedKey>();
@@ -107,14 +48,14 @@ MifareRead MifareCard::readBlock(int num)
 QVariant MifareCard::readMember(const StructMemberConf& mc, const QByteArray& arr) const
 {
     if ( mc.offset + mc.length >= static_cast<uint>(arr.length()) ) {
-        qWarning() << "Member struct with name: "<<mc.memberName<<" have offset: "<<mc.offset
+        qWarning() << "ReadMember: Member struct with name: "<<mc.memberName<<" have offset: "<<mc.offset
                    <<" and length: "<<mc.length<<" which is bigger than raw data array size: "<<arr.length();
         return QVariant();
     }
 
-    auto iter = StructMemberConf::typesFactory.find(mc.typeName);
+    auto iter = StructMemberConf::typesFactoryForRead.find(mc.typeName);
 
-    if (iter == StructMemberConf::typesFactory.end()) {
+    if (iter == StructMemberConf::typesFactoryForRead.end()) {
         qWarning() << "type: "<<mc.typeName<<" in member: "<<mc.memberName<<" not found!";
         return QVariant();
     }
@@ -122,13 +63,60 @@ QVariant MifareCard::readMember(const StructMemberConf& mc, const QByteArray& ar
     return (*iter)(arr.mid(mc.offset, mc.length));
 }
 
+bool MifareCard::writeMember(const StructMemberConf &mc, const QVariant& val, QByteArray & arr) const
+{
+    if ( mc.offset + mc.length >= static_cast<uint>(arr.length()) ) {
+        qWarning() << "WriteMember: struct with name: "<<mc.memberName<<" have offset: "<<mc.offset
+                   <<" and length: "<<mc.length<<" which is bigger than raw data array size: "<<arr.length();
+        return false;
+    }
+
+    auto iter = StructMemberConf::typesFactoryForWrite.find(mc.typeName);
+
+    if (iter == StructMemberConf::typesFactoryForWrite.end()) {
+        qWarning() << "WriteMember: type: "<<mc.typeName<<" in member: "<<mc.memberName<<" not found!";
+        return false;
+    }
+
+    qDebug() << "replacing "<<mc.length<<" bytes with "<<(*iter)(val).size()<<" bytes .. type: " << mc.typeName;
+
+    arr.replace(mc.offset, mc.length, (*iter)(val));
+
+    return true;
+}
+
+bool MifareCard::writeStruct(const StructConf &conf, const QVariantMap &s)
+{
+    QByteArray arr(conf.size(), 0);
+
+
+    for (StructConf::MembersConf::const_iterator iter = conf.members_conf.begin(); iter != conf.members_conf.end(); ++iter) {
+        writeMember(*iter, s[iter->memberName], arr);
+        //qDebug() << "sizeof: " << arr.size();
+    }
+
+    uint offset_in_data = 0;
+    for (int i = 0; i<conf.blocks.count(); ++i) {
+        QByteArray block = arr.mid(offset_in_data, conf.blocks[i].blockSize);
+
+        QVariant ret = reader.data()->func("writeBlock", Q_ARG(const QVariant&, conf.blocks[i].blockNum ), Q_ARG(const QVariant&, QVariant(block)));
+        if ( !ret.toBool() ) {
+            qWarning() << "MifareCard::writeStruct: cant write struct!!"; return false;
+        }
+
+        offset_in_data += conf.blocks[i].blockSize;
+    }
+
+    return true;
+}
+
 QVariantMap MifareCard::readStruct(const StructConf &conf)
 {
     QVariantMap ret;
     QByteArray arr;
     for (int i = 0; i<conf.blocks.count(); ++i) {
-        MifareRead mr = reader.data()->func("readBlock", Q_ARG(const QVariant&, QVariant(conf.blocks[i]))).value<MifareRead>();
-        if (mr.ack != 0) {return QVariantMap();}
+        MifareRead mr = reader.data()->func("readBlock", Q_ARG(const QVariant&, QVariant(conf.blocks[i].blockNum))).value<MifareRead>();
+        if (!mr.result) {return QVariantMap();}
 
         arr += mr.data;
     }
@@ -142,5 +130,3 @@ QVariantMap MifareCard::readStruct(const StructConf &conf)
 
     return ret;
 }
-
-

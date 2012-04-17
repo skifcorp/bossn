@@ -93,8 +93,8 @@ Q_DECLARE_METATYPE(AuthKey)
 
 struct MifareRead
 {
-    MifareRead() : ack(0) {}
-    uchar ack;
+    MifareRead() : result(false) {}
+    bool result;
     QByteArray data;
 
     static int id;
@@ -124,7 +124,10 @@ public:
     Q_INVOKABLE QVariant getHostCodedKey(const QVariant& );
     Q_INVOKABLE QVariant doAuth( const QVariant& );
     Q_INVOKABLE QVariant readBlock( const QVariant& );
-    Q_INVOKABLE QVariant writeBlock( const QVariant&, const QByteArray&  );
+    Q_INVOKABLE QVariant writeBlock( const QVariant&, const QVariant&  );
+
+
+
 protected:
     MifareReader(const QVariantMap& );
 private:

@@ -233,10 +233,20 @@ void initProgOptions(QVariantMap & opts)
     card_code.append(0x9F);
     card_code.append(0x3A);
 
-    opts.insert("card_code"      , card_code);
-    opts.insert("sleepnb_timeout", 1000);
-    opts.insert("data_block"     , 0 );
-    opts.insert("run_mode"       , "prog" );
+    QByteArray default_card_code;
+    default_card_code.append(0xFF);
+    default_card_code.append(0xFF);
+    default_card_code.append(0xFF);
+    default_card_code.append(0xFF);
+    default_card_code.append(0xFF);
+    default_card_code.append(0xFF);
+
+    opts.insert("card_code"                   , card_code);
+    opts.insert("default_card_code"           , card_code);
+    opts.insert("sleepnb_timeout"             , 1000);
+    opts.insert("data_block"                  , 4 );
+    opts.insert("run_mode"                    , "format" );
+    opts.insert("format_with_default_data"    , true );
 }
 
 void initTasks(TaskExec & tasks, Tags & tags, MainSequence & seq )
