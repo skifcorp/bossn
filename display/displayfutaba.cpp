@@ -1,6 +1,7 @@
 #include "displayfutaba.h"
 #include "settingstool.h"
 #include "mifarereader.h"
+#include "func.h"
 
 #include <QByteArray>
 #include <iostream>
@@ -10,16 +11,18 @@ using std::cout;
 BossnFactoryRegistrator<DisplayFutaba> DisplayFutaba::registator("DisplayFutaba");
 uchar DisplayFutaba::frame_ident(0);
 
-DisplayFutaba::DisplayFutaba(const QVariantMap& p):address(0)
+DisplayFutaba::DisplayFutaba(const QVariantMap& p)//:address(0)
 {
-  if (!get_setting("address", p, address) ) {
+  /*if (!get_setting("address", p, address) ) {
     qWarning()<<"address for DisplayFutaba NOT SET!!!";
-  }
+  }*/
 }
 
 QVariant DisplayFutaba::printText(const QVariant & txt)
 {
-  QString text = txt.toString();
+    //qDebug () << "futaba: "<<txt;
+
+    QString text = txt.toString();
   int kvo;
   //screen mode
   QByteArray command;
@@ -75,13 +78,21 @@ QVariant DisplayFutaba::printText(const QVariant & txt)
       command.append(0xD);
     }
   }
+
+  //printByteArray(command);
+  //qDebug() << "command: "<<command.length();
+
   io_device()->write(command);
+  //qDebug() << "writed: "<<ret<<" bytes";
+
   //Sleep(150); //пакишо такий спосіб уникнення помилки при частому записі в порт без цього помилка CommEvent overlapped write error: 170
   return QVariant(true);
 }
 
 int DisplayFutaba::RusToFutaba(QChar s)
 {
+    ///qDebug () << "qqqqqqqqqqqqq";
+
   ushort cod;
   cod = (ushort)s.unicode();
   //unicod to Shift-JIS

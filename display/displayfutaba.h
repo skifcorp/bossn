@@ -21,7 +21,7 @@ protected:
 
 private:
     static BossnFactoryRegistrator<DisplayFutaba>  registator;
-    uchar address;
+    //uchar address;
     static uchar frame_ident;
 
     int RusToFutaba(QChar s);

@@ -26,26 +26,40 @@ void initPorters(QVector<Porter::Pointer>& porters, Tags& tags)
     serial_settings["stopBits"]    = STOP_1;
     serial_settings["timeout"]     = 100;
 
-#if 0
+
     {
+
+        QMap <QString, QVariant> serial_settings_tablo;
+
+        serial_settings_tablo["baudRate"]    = BAUD19200;
+        serial_settings_tablo["dataBits"]    = DATA_8;
+        serial_settings_tablo["flowControl"] = FLOW_OFF;
+        serial_settings_tablo["parity"]      = PAR_ODD;
+        serial_settings_tablo["stopBits"]    = STOP_1;
+        serial_settings_tablo["timeout"]     = 100;
+        serial_settings_tablo["portName"]    = "COM5";
+
         QList<TagMethod> tag_method_tablo;
-        tag_method_tablo.append( TagMethod("tablo", "printText") );
+        tag_method_tablo.append( TagMethod("tablo") );
 
         Porter::Pointer w = Porter::Pointer(new Porter(true));
         w->setScheduled(false);
-        serial_settings["portName"] = "COM5";
-        QMap<QString, QVariant> opts;
-        opts["address"] = 0;
 
-        w->setDevice("IoDeviceSerial", serial_settings);
-        w->addDriver("DisplayCaptain", opts, tag_method_tablo);
+        //QMap<QString, QVariant> opts;
+        //opts["address"] = 0;
+
+        w->setDevice("IoDeviceSerial", serial_settings_tablo);
+        w->addDriver("DisplayFutaba", QVariantMap(), tag_method_tablo);
 
         porters.push_back(w);
-        //tags["tablo"]->appendFunc("value");
+        tags["tablo"]->appendFunc("print", w.data(), "exec" );
+        tags["tablo"]->appendArgument("print", "printText");
+        tags["tablo"]->appendArgument("print", QVariant::fromValue<TagPlaceholder>(TagPlaceholder(0)));
+
         //tags["tablo"]->setReadObject(w.data());
-        tags["tablo"]->appendFunc("value", w.data() );
+        //tags["tablo"]->appendFunc("value", w.data() );
+
     }
-#else
     {
         QList<TagMethod> tag_method_reader;
         tag_method_reader.append(TagMethod("reader1"));
@@ -55,7 +69,7 @@ void initPorters(QVector<Porter::Pointer>& porters, Tags& tags)
 
         Porter::Pointer w = Porter::Pointer(new Porter(true));
         w->setScheduled(false);
-        serial_settings["portName"] = "COM5";
+        serial_settings["portName"] = "COM3";
         QMap<QString, QVariant> opts;
         opts["address"] = 2;
 
@@ -96,7 +110,7 @@ void initPorters(QVector<Porter::Pointer>& porters, Tags& tags)
         tags["reader1"]->appendArgument("writeBlock", QVariant::fromValue<TagPlaceholder>(TagPlaceholder(1)));
 
     }
-#endif
+
 
     QList<TagMethod> tag_method_weight;
     tag_method_weight.append( TagMethod("weight1_1", "readWeight") );
@@ -244,8 +258,8 @@ void initProgOptions(QVariantMap & opts)
     opts.insert("card_code"                   , card_code);
     opts.insert("default_card_code"           , card_code);
     opts.insert("sleepnb_timeout"             , 1000);
-    opts.insert("data_block"                  , 4 );
-    opts.insert("run_mode"                    , "format" );
+    opts.insert("data_block"                  , 144 );
+    opts.insert("run_mode"                    , "prog" );
     opts.insert("format_with_default_data"    , true );
 }
 

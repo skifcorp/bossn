@@ -14,17 +14,8 @@ class MainSequence : public QObject,
 {
     Q_OBJECT
 public:
-    MainSequence(Tags & t, const QVariantMap& opts):tags(t), options(opts), on_weight(false)
-    {
-        /*if (card_code.isEmpty()) {
-            card_code.append(0xFE);
-            card_code.append(0x86);
-            card_code.append(0x01);
-            card_code.append(0x28);
-            card_code.append(0x9F);
-            card_code.append(0x3A);
-        }*/
-    }
+    MainSequence(Tags & t, const QVariantMap& opts);
+
     ~MainSequence() {}
 
 
@@ -49,7 +40,10 @@ private:
     bool checkMember(const QString& mn, const QVariantMap& map, const T& def_val)
     {
         auto iter = map.find(mn);
-        if (iter == map.end()) return false;
+        if (iter == map.end()) {
+            qWarning() << "checkMember: cant find"<<mn;
+            return false;
+        }
         T ret = iter->value<T>();
         return ret != def_val;
     }

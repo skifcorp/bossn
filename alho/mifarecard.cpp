@@ -60,6 +60,11 @@ QVariant MifareCard::readMember(const StructMemberConf& mc, const QByteArray& ar
         return QVariant();
     }
 
+    //qDebug() << "reading member: "<<mc.memberName;
+
+    QByteArray tmp = arr.mid(mc.offset, mc.length);
+    //printByteArray(tmp);
+
     return (*iter)(arr.mid(mc.offset, mc.length));
 }
 
@@ -78,8 +83,13 @@ bool MifareCard::writeMember(const StructMemberConf &mc, const QVariant& val, QB
         return false;
     }
 
-    qDebug() << "replacing "<<mc.length<<" bytes with "<<(*iter)(val).size()<<" bytes .. type: " << mc.typeName;
+    //qDebug() << "replacing "<<mc.length<<" bytes with "<<(*iter)(val).size()<<" bytes .. type: " << mc.typeName;
 
+
+
+    QByteArray tmp = (*iter)(val);
+    //qDebug() << "write member: "<<mc.memberName<< " val: "<<val;
+    //printByteArray(tmp);
     arr.replace(mc.offset, mc.length, (*iter)(val));
 
     return true;
@@ -123,6 +133,9 @@ QVariantMap MifareCard::readStruct(const StructConf &conf)
 
     for (int i = 0; i<conf.members_conf.count(); ++i) {
         QVariant val = readMember(conf.members_conf[i], arr);
+
+        //qDebug() << "member: "<<conf.members_conf[i].memberName<<" val: "<<val;
+
         if (!val.isValid()) {return QVariantMap();}
 
         ret.insert( conf.members_conf[i].memberName,  val);

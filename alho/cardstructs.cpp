@@ -4,6 +4,7 @@
 #include <QDataStream>
 #include <QDateTime>
 #include <QBitArray>
+#include <QDebug>
 
 StructMemberConf::TypesFactoryForRead StructMemberConf::typesFactoryForRead;
 StructMemberConf::TypesFactoryForWrite StructMemberConf::typesFactoryForWrite;
@@ -52,8 +53,8 @@ bool StructMemberConf::registerTypes()
 {
     typesFactoryForRead.insert("uint", [](const QByteArray& arr){
                             QDataStream st(arr);
-                            uint ret;
-                            st >> ret;
+                            uint ret = 0;
+                            st.readRawData(reinterpret_cast<char *>(&ret), 3);
                             return QVariant(ret);
                         });
 
@@ -113,9 +114,10 @@ bool StructMemberConf::registerTypes()
                         });
 
     typesFactoryForWrite.insert("ushort", [](const QVariant& val){
-                            QByteArray ret;
+                                //qDebug () << "ushort: "<<val;
+                                QByteArray ret;
                             QDataStream st(&ret, QIODevice::WriteOnly);
-                            st << static_cast<ushort>(ret.toUInt());
+                            st << static_cast<ushort>(val.toUInt());
                             return ret;
                         });
 

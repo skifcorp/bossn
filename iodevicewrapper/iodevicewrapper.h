@@ -42,8 +42,13 @@ public:
     qint64 virtual write ( const QByteArray& data )
     {
         //qDebug() << "write !!!!";
-
-        return internalGetDevice()->write(data);
+        quint64 ret = internalGetDevice()->write(data);
+        if (ret == 0) {
+            //qWarning() << "data did not wroted!!!: "<<internalGetDevice()->metaObject()->className();
+            //bool res = internalGetDevice()->waitForBytesWritten(10000);
+            //qDebug() << res;
+        }
+        return ret;
     }
 
     qint64 virtual bytesAvailable () const

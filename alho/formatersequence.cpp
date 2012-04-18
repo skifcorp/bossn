@@ -23,6 +23,7 @@ void FormaterSequence::start()
     get_setting("data_block", options, data_block);
 
     uint password_block = MifareCard::passwordBlock(data_block);
+    qDebug() << "password block: "<<password_block;
 
     QVector<QByteArray> formated_cards;
 

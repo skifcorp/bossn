@@ -7,10 +7,16 @@
 //QByteArray MainSequence::card_code;
 
 
+MainSequence::MainSequence(Tags & t, const QVariantMap& opts):tags(t), options(opts), on_weight(false)
+{
+    tags["tablo"]->func("print", Q_ARG(const QVariant&, QVariant("Заїдьте на вагу")));
+}
 
 void MainSequence::onAppearOnWeight()
 {
     qDebug() << "something appeared on weight!!!!";
+    tags["tablo"]->func("print", Q_ARG(const QVariant&, QVariant("Піднесіть картку")));
+
     //tags["tablo"]->func("value", Q_ARG(QVariant, "Hello"));
     //need turn on red and off green and yellow
 
