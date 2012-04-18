@@ -29,7 +29,8 @@ bool PerimeterControlByDi::appeared()
 
 bool PerimeterControlByDi::disappeared()
 {
-    //qDebug() << "disappear val:"<<tags_[disappear_di_name]->value();
+    qDebug() << "disappear val:"<<tags_[disappear_di_name]->func(method);
+
     bool ret = tags_[disappear_di_name]->func(method) == disappear_di_value && prev_disappear_di != disappear_di_value;
     prev_disappear_di = tags_[disappear_di_name]->func(method).toBool();
     return ret;
@@ -45,7 +46,7 @@ void PerimeterControlByWeight::setSettings( const QMap<QString, QVariant>& s)
 {
     if (!get_setting("weightName",s, weight_name)) return;
     if (!get_setting("minWeight" ,s, min_weight)) return;
-    if (!get_setting("method"     , s, method )) return;
+    if (!get_setting("method"    , s, method )) return;
 
     //initializing prev_weight
 

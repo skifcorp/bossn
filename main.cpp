@@ -37,7 +37,7 @@ void initPorters(QVector<Porter::Pointer>& porters, Tags& tags)
         serial_settings_tablo["parity"]      = PAR_ODD;
         serial_settings_tablo["stopBits"]    = STOP_1;
         serial_settings_tablo["timeout"]     = 100;
-        serial_settings_tablo["portName"]    = "COM5";
+        serial_settings_tablo["portName"]    = "COM4";
 
         QList<TagMethod> tag_method_tablo;
         tag_method_tablo.append( TagMethod("tablo") );
@@ -69,7 +69,7 @@ void initPorters(QVector<Porter::Pointer>& porters, Tags& tags)
 
         Porter::Pointer w = Porter::Pointer(new Porter(true));
         w->setScheduled(false);
-        serial_settings["portName"] = "COM3";
+        serial_settings["portName"] = "COM5";
         QMap<QString, QVariant> opts;
         opts["address"] = 2;
 
@@ -261,6 +261,7 @@ void initProgOptions(QVariantMap & opts)
     opts.insert("data_block"                  , 144 );
     opts.insert("run_mode"                    , "prog" );
     opts.insert("format_with_default_data"    , true );
+    opts.insert("weight_type"                 , "brutto" );
 }
 
 void initTasks(TaskExec & tasks, Tags & tags, MainSequence & seq )
@@ -278,13 +279,14 @@ void initTasks(TaskExec & tasks, Tags & tags, MainSequence & seq )
     perim_settings["DisappearDi"]   = "di2";
     perim_settings["method"]        = "readMethod";
 
-    QObject::connect(perim.data(), SIGNAL(appeared()), &seq, SLOT(onAppearOnWeight()));
-    QObject::connect(perim.data(), SIGNAL(disappeared()), &seq, SLOT(onDisappearOnWeight()));
+    QObject::connect(perim.data(), SIGNAL(appeared()), &seq, SLOT(onAppearOnWeight()), Qt::QueuedConnection );
+    QObject::connect(perim.data(), SIGNAL(disappeared()), &seq, SLOT(onDisappearOnWeight()), Qt::QueuedConnection);
 
     perim->setSettings(perim_settings);
 
     tasks.addTask(500, perim.staticCast<BaseTask::Pointer::Type>());
 }
+
 
 int main(int argc, char *argv[])
 {  
@@ -357,6 +359,8 @@ int main(int argc, char *argv[])
     //return 0;
 
     //QSharedPointer seq
+
+
 
     return app.exec();
 }

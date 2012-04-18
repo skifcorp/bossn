@@ -19,7 +19,7 @@ public:
     ~MainSequence() {}
 
 
-    void formatCards();
+
     //static QByteArray card_code;
 public slots:
     void onAppearOnWeight();
