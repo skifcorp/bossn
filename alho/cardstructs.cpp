@@ -17,8 +17,8 @@ QDateTime timeShitToDateTime(ulong timeInMinutes)
     QDate d(2000, 01, 01);
     QDateTime dt(d);
 
-    unsigned long temp=timeInMinutes/60/24;
-    int ost=timeInMinutes-temp*60*24;
+    ulong temp=timeInMinutes/60/24;
+    int   ost=timeInMinutes-temp*60*24;
 
     dt=dt.addDays(temp);
 

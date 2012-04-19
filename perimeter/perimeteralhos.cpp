@@ -8,12 +8,13 @@ BossnFactoryRegistrator<PerimeterControlByDi> PerimeterControlByDi::registator("
 
 void PerimeterControlByDi::setSettings( const QMap<QString, QVariant>& s)
 {
-    if (!get_setting("AppearDi"   , s, appear_di_name )) return;
-    if (!get_setting("DisappearDi", s, disappear_di_name )) return;
-    if (!get_setting("method"     , s, method )) return;
 
-    get_setting("AppearDiValue"     , s, appear_di_value, false);
-    get_setting("DisappearDiValue"  , s, disappear_di_value, false);
+    appear_di_name    = get_setting<QString>("AppearDi"   , s);
+    disappear_di_name = get_setting<QString>("DisappearDi", s);
+    method            = get_setting<QString>("method"     , s);
+
+    appear_di_value    = get_setting("AppearDiValue"     , s, true);
+    disappear_di_value = get_setting("DisappearDiValue"  , s, true);
 
     //initializing prev_di_values
     prev_appear_di      = tags_[appear_di_name]->func(method).toBool();
@@ -29,7 +30,7 @@ bool PerimeterControlByDi::appeared()
 
 bool PerimeterControlByDi::disappeared()
 {
-    qDebug() << "disappear val:"<<tags_[disappear_di_name]->func(method);
+    //qDebug() << "disappear val:"<<tags_[disappear_di_name]->func(method);
 
     bool ret = tags_[disappear_di_name]->func(method) == disappear_di_value && prev_disappear_di != disappear_di_value;
     prev_disappear_di = tags_[disappear_di_name]->func(method).toBool();
@@ -44,12 +45,9 @@ BossnFactoryRegistrator<PerimeterControlByWeight> PerimeterControlByWeight::regi
 
 void PerimeterControlByWeight::setSettings( const QMap<QString, QVariant>& s)
 {
-    if (!get_setting("weightName",s, weight_name)) return;
-    if (!get_setting("minWeight" ,s, min_weight)) return;
-    if (!get_setting("method"    , s, method )) return;
-
-    //initializing prev_weight
-
+    weight_name = get_setting<QString>("weightName", s);
+    min_weight  = get_setting<float>  ("minWeight" , s);
+    method      = get_setting<QString>("method"    , s);
 }
 
 bool PerimeterControlByWeight::appeared()

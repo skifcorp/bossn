@@ -5,20 +5,11 @@ BossnFactoryRegistrator<CustomerMysql> CustomerMysql::registrator("CustomerMysql
 
 CustomerMysql::CustomerMysql(const QVariantMap & m)
 {
-    QString host_name;
-    get_setting("hostName", m, host_name);
-
-    QString database_name;
-    get_setting("databaseName", m, database_name);
-
-    QString user_name;
-    get_setting("userName", m, user_name);
-
-    QString password;
-    get_setting("password", m, password);
-
-    QString connect_options;
-    get_setting("connectionOptions", m, connect_options);
+    QString host_name       = get_setting<QString>("hostName", m);
+    QString database_name   = get_setting<QString>("databaseName", m);
+    QString user_name       = get_setting<QString>("userName", m);
+    QString password        = get_setting<QString>("password", m);
+    QString connect_options = get_setting<QString>("connectionOptions", m);
 
     database = QSqlDatabase::addDatabase("QMYSQL");
     if (!database.isValid()) {

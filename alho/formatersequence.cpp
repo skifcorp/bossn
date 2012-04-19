@@ -10,19 +10,11 @@
 
 void FormaterSequence::start()
 {
-    QByteArray default_card_code;
-    QByteArray card_code;
-
-    if (!get_setting("card_code"        , options, card_code)) return ;
-    if (!get_setting("default_card_code", options, default_card_code)) return ;
-
-    uint sleepnb_timeout = 100;
-    get_setting("sleepnb_timeout", options, sleepnb_timeout);
-
-    uint data_block = 128;
-    get_setting("data_block", options, data_block);
-
-    uint password_block = MifareCard::passwordBlock(data_block);
+    QByteArray default_card_code = get_setting<QByteArray>("default_card_code", options);
+    QByteArray card_code         = get_setting<QByteArray>("card_code"        , options);
+    uint data_block              = get_setting<uint>("data_block", options);
+    uint sleepnb_timeout         = get_setting<uint>("sleepnb_timeout", options, 100);
+    uint password_block          = MifareCard::passwordBlock(data_block);
     qDebug() << "password block: "<<password_block;
 
     QVector<QByteArray> formated_cards;
@@ -63,12 +55,7 @@ void FormaterSequence::start()
             qWarning()<<"cant write data while formatting!!!"; sleepnb(sleepnb_timeout); continue;
         }
 
-
-
-
-        bool format_with_default_data;
-
-        if (get_setting("format_with_default_data", options, format_with_default_data, false) && format_with_default_data)  {
+        if (get_setting("format_with_default_data", options, false) )  {
             qDebug () << "adding default data";
 
             //bill_conf(options);

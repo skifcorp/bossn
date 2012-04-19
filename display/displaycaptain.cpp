@@ -15,9 +15,7 @@ uchar DisplayCaptain::frame_ident(0);
 
 DisplayCaptain::DisplayCaptain(const QVariantMap& p):address(0)
 {
-    if (!get_setting("address", p, address) ) {
-        qWarning()<<"address for DisplayCaptain NOT SET!!!";
-    }
+    address = get_setting<uchar>("address", p);
 }
 
 QVariant DisplayCaptain::printText(const QVariant & txt)

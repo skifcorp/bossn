@@ -8,16 +8,11 @@ PerimeterTask::PerimeterTask(Tags & t):tags(t)
 }
 
 void PerimeterTask::setSettings ( const QMap<QString, QVariant>& s )
-{
-    QString type;
+{       
+    QString pt = get_setting<QString>("PerimeterType", s);
 
-
-    if (!get_setting("PerimeterType", s, type)) return;
-
-    perim = PerimeterControl::create(type, tags);
-
+    perim = PerimeterControl::create(pt, tags);
     perim->setSettings(s);
-
 }
 
 void PerimeterTask::exec()

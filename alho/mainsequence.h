@@ -8,6 +8,8 @@
 
 #include "tags.h"
 #include "alhosequence.h"
+#include "settingstool.h"
+#include "func.h"
 
 class MainSequence : public QObject,
                      public AlhoSequence
@@ -34,18 +36,38 @@ private:
     bool on_weight;
 
 
+    QString detectPlatformType(const QVariantMap& ) const;
+    void brutto(const QVariantMap& );
+    void tara  (const QVariantMap& );
 
-    //bool checkBill (const QVariantMap& ) const;
     template <class T>
-    bool checkMember(const QString& mn, const QVariantMap& map, const T& def_val)
+    T memberValue(const QString& mn, const QVariantMap& map) const
     {
         auto iter = map.find(mn);
         if (iter == map.end()) {
-            qWarning() << "checkMember: cant find"<<mn;
-            return false;
+            qFatal(  qPrintable("memberValue: cant find" + mn) );
         }
-        T ret = iter->value<T>();
-        return ret != def_val;
+        return iter->value<T>();
+    }
+
+    template <class T>
+    bool checkMember(const QString& mn, const QVariantMap& map, const T& def_val) const
+    {  
+        return memberValue<T>(mn, map) != def_val;
+    }
+
+    //template <>
+    bool checkMember(const QString& mn, const QVariantMap& map, float def_val) const
+    {
+        return !qFuzzyCompare( memberValue<float>(mn, map) , def_val );
+    }
+
+
+
+    void sleepnbtm() const
+    {
+        static uint tm = get_setting<uint>("sleepnb_timeout", options, 100);
+        sleepnb(tm);
     }
 };
 

@@ -261,7 +261,7 @@ void initProgOptions(QVariantMap & opts)
     opts.insert("data_block"                  , 144 );
     opts.insert("run_mode"                    , "prog" );
     opts.insert("format_with_default_data"    , true );
-    opts.insert("weight_type"                 , "brutto" );
+    opts.insert("platform_type"               , "brutto" ); /*or tara or auto*/
 }
 
 void initTasks(TaskExec & tasks, Tags & tags, MainSequence & seq )

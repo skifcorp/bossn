@@ -8,14 +8,14 @@ QT       += core xml sql
 
 QT       -= gui
 
-TARGET = bossn
+TARGET   = bossn
 CONFIG   += console
 CONFIG   -= app_bundle
 
 TEMPLATE = app
-INCLUDEPATH  += ../qextserialport/src/ db alho serial weight generic iodevicewrapper scheduler porter task dido perimeter tools reader ../coroutine/src/
+INCLUDEPATH    += ../qextserialport/src/ db alho serial weight generic iodevicewrapper scheduler porter task dido perimeter tools reader ../coroutine/src/
 QMAKE_CXXFLAGS += -std=c++0x
-LIBS         += -L../qextserialport_build/src/build/ -lqextserialport -L../coroutine_build/src/release/ -lcoroutine
+LIBS           += -L../qextserialport_build/src/build/ -lqextserialport -L../coroutine_build/src/release/ -lcoroutine
 
 SOURCES += main.cpp \
     mrwsettings.cpp \
