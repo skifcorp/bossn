@@ -113,9 +113,8 @@ bool StructMemberConf::registerTypes()
                             return ret;
                         });
 
-    typesFactoryForWrite.insert("ushort", [](const QVariant& val){
-                                //qDebug () << "ushort: "<<val;
-                                QByteArray ret;
+    typesFactoryForWrite.insert("ushort", [](const QVariant& val){                                
+                            QByteArray ret;
                             QDataStream st(&ret, QIODevice::WriteOnly);
                             st << static_cast<ushort>(val.toUInt());
                             return ret;

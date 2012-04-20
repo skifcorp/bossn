@@ -1,4 +1,5 @@
-﻿#include <QtCore/QCoreApplication>
+﻿//#include <QtCore/QCoreApplication>
+#include <QCoreApplication>
 #include <QVector>
 #include <QSharedPointer>
 

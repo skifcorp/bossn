@@ -101,10 +101,18 @@ void MainSequence::onAppearOnWeight()
 
 }
 
-void MainSequence::brutto(const QVariantMap & bill)
+void MainSequence::checkFieldCorrectness(QVariantMap & bill)
+{
+    if (!checkMember("realNumField", bill , 0)  )  {
+
+    }
+}
+
+void MainSequence::brutto(QVariantMap & bill)
 {
     //preparing:
     //check for replace field
+    checkFieldCorrectness(bill);
     //check if bill presents in db
 
     //weight or reweight:
@@ -118,7 +126,7 @@ void MainSequence::brutto(const QVariantMap & bill)
     //print message for tablo
 }
 
-void MainSequence::tara(const QVariantMap & bill)
+void MainSequence::tara(QVariantMap & bill)
 {
     //check for reweight tara and time for route and print
 

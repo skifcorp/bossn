@@ -37,8 +37,10 @@ private:
 
 
     QString detectPlatformType(const QVariantMap& ) const;
-    void brutto(const QVariantMap& );
-    void tara  (const QVariantMap& );
+    void brutto(QVariantMap& );
+    void tara  (QVariantMap& );
+    void checkFieldCorrectness(QVariantMap & );
+
 
     template <class T>
     T memberValue(const QString& mn, const QVariantMap& map) const

@@ -1,11 +1,12 @@
 #include "customermysql.h"
 #include "settingstool.h"
+#include "QxOrm.h"
 
 BossnFactoryRegistrator<CustomerMysql> CustomerMysql::registrator("CustomerMysql");
 
 CustomerMysql::CustomerMysql(const QVariantMap & m)
 {
-    QString host_name       = get_setting<QString>("hostName", m);
+/*    QString host_name       = get_setting<QString>("hostName", m);
     QString database_name   = get_setting<QString>("databaseName", m);
     QString user_name       = get_setting<QString>("userName", m);
     QString password        = get_setting<QString>("password", m);
@@ -29,7 +30,13 @@ CustomerMysql::CustomerMysql(const QVariantMap & m)
                        "user_name:" << user_name <<
                        "password:" << password <<
                        "connect_options:" << connect_options;
-    }
+    }*/
+
+    qx::QxSqlDatabase::getSingleton()->setDriverName("QSQLMYSQL");
+    qx::QxSqlDatabase::getSingleton()->setDatabaseName("test");
+    qx::QxSqlDatabase::getSingleton()->setHostName("localhost");
+    qx::QxSqlDatabase::getSingleton()->setUserName("root");
+    qx::QxSqlDatabase::getSingleton()->setPassword("parabelum");
 }
 
 
