@@ -3,6 +3,8 @@
 #include "settingstool.h"
 #include "func.h"
 
+#include "dbstructs.h"
+#include "datetimehack.h"
 
 //QByteArray MainSequence::card_code;
 
@@ -10,6 +12,16 @@
 MainSequence::MainSequence(Tags & t, const QVariantMap& opts):tags(t), options(opts), on_weight(false)
 {
     tags["tablo"]->func("print", Q_ARG(const QVariant&, QVariant("Zaidjte na vagu")));
+
+    qx::QxSqlDatabase::getSingleton()->setDriverName(get_setting<QString>("database_driver", options));
+    qx::QxSqlDatabase::getSingleton()->setDatabaseName(get_setting<QString>("database_name", options));
+    qx::QxSqlDatabase::getSingleton()->setHostName(get_setting<QString>("database_host", options));
+    qx::QxSqlDatabase::getSingleton()->setUserName(get_setting<QString>("database_user", options));
+    qx::QxSqlDatabase::getSingleton()->setPassword(get_setting<QString>("database_password", options));
+
+    t_ttn ttn;
+
+    qx::dao::insert(ttn);
 }
 
 QString MainSequence::detectPlatformType(const QVariantMap & bill) const

@@ -52,11 +52,6 @@ struct StructConf
     uint size() const;
 };
 
-inline const QDateTime& zero_date_time()
-{
-    static QDateTime d( QDate (2000, 01, 01) );
-    return d;
-}
 
 inline const StructConf & bill_conf(const QVariantMap& opts)
 {

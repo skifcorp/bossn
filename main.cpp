@@ -263,6 +263,11 @@ void initProgOptions(QVariantMap & opts)
     opts.insert("run_mode"                    , "prog" );
     opts.insert("format_with_default_data"    , true );
     opts.insert("platform_type"               , "brutto" ); /*or tara or auto*/
+    opts.insert("database_driver"             , "QMYSQL");
+    opts.insert("database_host"               , "127.0.0.1");
+    opts.insert("database_name"               , "testdb");
+    opts.insert("database_user"               , "root");
+    opts.insert("database_password"           , "parabelum");
 }
 
 void initTasks(TaskExec & tasks, Tags & tags, MainSequence & seq )

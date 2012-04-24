@@ -19,7 +19,8 @@ INCLUDEPATH    += ../qextserialport/src/ db alho serial weight generic iodevicew
 QMAKE_CXXFLAGS += -std=c++0x
 LIBS           += -L../qextserialport_build/src/build/ -lqextserialport -L../coroutine_build/src/release/ \
                     -lcoroutine -L../QxOrm_build/release/ -lqxorm \
-                    -L $$(BOOST_ROOT)/stage/lib -llibboost_serialization-mgw46-mt-1_48
+                    -L $$(BOOST_ROOT)/stage/lib -llibboost_serialization-mgw46-mt-1_48 \
+                    -L $$(MYSQL_DIR)/lib -llibmysql
 
 SOURCES += main.cpp \
     mrwsettings.cpp \
@@ -47,7 +48,8 @@ SOURCES += main.cpp \
     db/customermysql.cpp \
     alho/formatersequence.cpp \
     alho/alhosequence.cpp \
-    alho/cardstructs.cpp
+    alho/cardstructs.cpp \
+    alho/dbstructs.cpp
 
 HEADERS += \    
     tools/func.h \
@@ -86,4 +88,6 @@ HEADERS += \
     db/customerdata.h \
     alho/formatersequence.h \
     alho/alhosequence.h \
-    alho/cardstructs.h
+    alho/cardstructs.h \
+    alho/dbstructs.h \
+    alho/datetimehack.h
