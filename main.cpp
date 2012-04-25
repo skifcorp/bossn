@@ -61,6 +61,9 @@ void initPorters(QVector<Porter::Pointer>& porters, Tags& tags)
         //tags["tablo"]->appendFunc("value", w.data() );
 
     }
+
+
+
     {
         QList<TagMethod> tag_method_reader;
         tag_method_reader.append(TagMethod("reader1"));
@@ -113,6 +116,7 @@ void initPorters(QVector<Porter::Pointer>& porters, Tags& tags)
     }
 
 
+
     QList<TagMethod> tag_method_weight;
     tag_method_weight.append( TagMethod("weight1_1", "readWeight") );
     {
@@ -128,10 +132,6 @@ void initPorters(QVector<Porter::Pointer>& porters, Tags& tags)
 
         porters.push_back(w);
         tags["weight1_1"]->appendFunc("readMethod", w.data(), "value");
-
-        //tags.insert("weight1_1", TagReadWrite::Pointer(new TagReadWrite(w.data(),)))
-
-        //tags.insert("weight1_1", &Porter::value, w.data(), QString("weight1_1"));
     }
 
 
@@ -236,6 +236,7 @@ void initPorters(QVector<Porter::Pointer>& porters, Tags& tags)
 
 
     }
+
 }
 
 void initProgOptions(QVariantMap & opts)
@@ -355,16 +356,6 @@ int main(int argc, char *argv[])
         main_alho.staticCast<FormaterSequence>()->start();
     }
 
-    //MainSequence seq1(tags, options);
-    //tags["reader1"]->func("doSound", Q_ARG(QVariant, 1));
-
-    //tags["di2"]->func("readMethod");
-    //tags["do1"]->func("writeMethod", Q_ARG(QVariant, true));
-    //tags["di2"]->func("readMethod");
-
-    //return 0;
-
-    //QSharedPointer seq
 
 
 

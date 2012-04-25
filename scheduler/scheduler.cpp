@@ -42,6 +42,8 @@ void Scheduler::addFunction(function<void ()>schf, function<void ()> tmf, int sc
     connect(s.timeout_timer.data(), SIGNAL(timeout()), this, SLOT(onTimeoutTimer()));
 
     s.schedule_timer->start();
+
+    //qDebug() << "timer Started!!!!";
 }
 
 void Scheduler::execFunction(function<void ()>schf, function<void ()> tmf, int tm_msec)
@@ -55,6 +57,8 @@ void Scheduler::execFunction(function<void ()>schf, function<void ()> tmf, int t
 
 void Scheduler::onTimeoutTimer()
 {    
+    //qDebug() << "onTimeout timer!";
+
     current_coro.schedul->timeout_func();
     current_coro.schedul->schedule_timer->start();
 
@@ -70,6 +74,8 @@ void Scheduler::startNewCoro(Schedul & s)
 
 void Scheduler::onScheduleTimer(Schedul & s)
 {   
+    //qDebug () << "on schedule timer";
+
     waitForFree();
 
     startNewCoro(s);

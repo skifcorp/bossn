@@ -15,6 +15,9 @@ void Hbm2110::readWeight(QVariant & ret, uint & err)
     io_device()->write(req);
 
     const uchar frame_size = 17;
+
+    //qDebug() << "readWeight by HBM";
+
     //qDebug()<<"bytes: "<<io->bytesAvailable();
     while ( io_device()->bytesAvailable() < frame_size ) {
         yield();

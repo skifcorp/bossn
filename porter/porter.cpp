@@ -22,6 +22,9 @@ void Porter::addDriver(const QString & n, const QMap<QString, QVariant>& drv_con
     for (QList<TagMethod>::const_iterator iter = tags_methods.begin(); iter != tags_methods.end(); ++iter) {
         methods.insert(iter->tag_name, MethodInfo(iter->method_name, idx));
         if ( scheduled ) {
+
+            //qDebug () << iter->tag_name;
+
             addTagToSchedule( idx, iter->tag_name );
         }
     }

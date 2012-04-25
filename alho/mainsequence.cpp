@@ -8,6 +8,38 @@
 
 //QByteArray MainSequence::card_code;
 
+#include <future>
+#include <atomic>
+
+using std::async;
+using std::future;
+//using std::lunch;
+
+template <class Callable, class... Args >
+typename std::result_of<Callable(Args...)>::type async_call(Callable c, Args ... args)
+{
+    auto f = async(std::launch::async, c, args...);
+
+    while (!f.is_ready()) {
+        qApp->processEvents();
+    }
+
+    return f.get();
+}
+
+/*
+
+template <class Callable, class... Args>
+void async_call(Callable c, Args ... args)
+{
+    auto f = async(std::launch::async, c, args...);
+
+    while (!f.is_ready()) {
+        qApp->processEvents();
+    }
+}*/
+
+
 
 MainSequence::MainSequence(Tags & t, const QVariantMap& opts):tags(t), options(opts), on_weight(false)
 {
@@ -16,12 +48,17 @@ MainSequence::MainSequence(Tags & t, const QVariantMap& opts):tags(t), options(o
     qx::QxSqlDatabase::getSingleton()->setDriverName(get_setting<QString>("database_driver", options));
     qx::QxSqlDatabase::getSingleton()->setDatabaseName(get_setting<QString>("database_name", options));
     qx::QxSqlDatabase::getSingleton()->setHostName(get_setting<QString>("database_host", options));
+    qx::QxSqlDatabase::getSingleton()->setHostName("192.168.0.231");
     qx::QxSqlDatabase::getSingleton()->setUserName(get_setting<QString>("database_user", options));
     qx::QxSqlDatabase::getSingleton()->setPassword(get_setting<QString>("database_password", options));
 
     t_ttn ttn;
 
-    qx::dao::insert(ttn);
+
+    //qDebug() << "before";
+    //qx::dao::insert(ttn);
+    //async_call([&ttn]{qx::dao::insert(ttn);});
+    //qDebug() << "after";
 }
 
 QString MainSequence::detectPlatformType(const QVariantMap & bill) const
