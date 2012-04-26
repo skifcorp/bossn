@@ -10,6 +10,7 @@
 #include "alhosequence.h"
 #include "settingstool.h"
 #include "func.h"
+#include "dbstructs.h"
 
 class MainSequence : public QObject,
                      public AlhoSequence
@@ -37,9 +38,40 @@ private:
 
 
     QString detectPlatformType(const QVariantMap& ) const;
+
+    template <class T>
+    qx::dao::ptr<T> async_fetch(long id) const
+    {
+        qx::dao::ptr<T> p = qx::dao::ptr<T>( new T(id) );
+
+        QSqlError err = async_call([&p]{return qx::dao::fetch_by_id(p);});
+
+        if  (err.isValid()) {
+            qWarning( ) << "failed fetch: "<<err.databaseText()<<" "<<err.driverText();
+            return qx::dao::ptr<T>();
+        }
+        return p;
+    }
+
+    template <class T>
+    bool async_update(const qx::dao::ptr<T>& p) const
+    {
+        QSqlError err = async_call([&p]{return qx::dao::update_optimized(p);});
+
+        if  (err.isValid()) {
+            qWarning( ) << "failed update: "<<err.databaseText()<<" "<<err.driverText();
+            return false;
+        }
+        return true;
+    }
+
+
+    void printOnTablo(const QString& );
+
     void brutto(QVariantMap& );
     void tara  (QVariantMap& );
-    void checkFieldCorrectness(QVariantMap & );
+
+    void checkBeetFieldCorrectness(QVariantMap &, qx::dao::ptr<t_ttn>  );
 
 
     template <class T>

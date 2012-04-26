@@ -66,27 +66,72 @@ namespace qx {
 
     template <> void register_class(QxClass<t_rez> & t)
     {
+        t.id  (&t_rez::num_nakl, "num_nakl");
+        t.data(&t_rez::field, "field");
+        t.data(&t_rez::bum, "bum");
+        t.data(&t_rez::kagat, "kagat");
     }
 
     template <> void register_class(QxClass<t_def_field> & t)
     {
+        t.id  (&t_def_field::id, "id");
+
+        t.data(&t_def_field::num_field , "num_field");
+        t.data(&t_def_field::num_loader , "num_loader");
+
     }
 
     template <> void register_class(QxClass<t_bum> & t)
     {
+        t.id  (&t_bum::id , "id");
+
+        t.data(&t_bum::state , "state");
+        t.data(&t_bum::queue , "queue");
     }
 
 
     template <> void register_class(QxClass<t_cars> & t)
     {
+        t.id  (&t_cars::id , "id");
+
+        t.data(&t_cars::name , "name");
+        t.data(&t_cars::dump_body_truck , "dump_body_truck");
+        t.data(&t_cars::side_board , "side_board");
+        t.data(&t_cars::back_board , "back_board");
+        t.data(&t_cars::mark , "mark");
+        t.data(&t_cars::tara , "tara");
+        t.data(&t_cars::driver1 , "driver1");
+        t.data(&t_cars::driver2 , "driver2");
+        t.data(&t_cars::atp_id , "atp_id");
+        t.data(&t_cars::atp_name , "atp_name");
+        t.data(&t_cars::num_field , "num_field");
+        t.data(&t_cars::num_loader , "num_loader");
+        t.data(&t_cars::trailer , "trailer");
+        t.data(&t_cars::speed , "speed");
+        t.data(&t_cars::brutto , "brutto");
+        t.data(&t_cars::block , "block");
+        t.data(&t_cars::start_time , "start_time");
+        t.data(&t_cars::amount_of_car_for_middle_tara , "amount_of_car_for_middle_tara");
+        t.data(&t_cars::vremja_na_hodku , "vremja_na_hodku");
     }
 
     template <> void register_class(QxClass<t_kagat> & t)
     {
+        t.id  (&t_kagat::id , "id");
+
+        t.data(&t_kagat::state , "state");
     }
 
     template <> void register_class(QxClass<t_kontr> & t)
     {
+        t.id  (&t_kontr::id , "id");
+
+        t.data(&t_kontr::name , "name");
+        t.data(&t_kontr::area , "area");
+        t.data(&t_kontr::settlement , "settlement");
+        t.data(&t_kontr::period , "period");
+        t.data(&t_kontr::car_in_period , "car_in_period");
+        t.data(&t_kontr::type , "type");
     }
 
 
@@ -94,19 +139,39 @@ namespace qx {
 
     template <> void register_class(QxClass<t_field> & t)
     {
+        t.id  (&t_field::id , "id");
+
+        t.data(&t_field::distance , "distance");
+        t.data(&t_field::info , "info");
     }
 
 
     template <> void register_class(QxClass<t_const> & t)
     {
+        t.id  (&t_const::id , "id");
+
+        t.data(&t_const::value , "value");
     }
 
     template <> void register_class(QxClass<t_bum_state_log> & t)
     {
+        t.id  (&t_bum_state_log::id , "id");
+
+        t.data(&t_bum_state_log::date_time , "date_time");
+        t.data(&t_bum_state_log::bum , "bum");
+        t.data(&t_bum_state_log::state , "state");
     }
 
     template <> void register_class(QxClass<t_action_log> & t)
     {
+        t.id  (&t_action_log::id , "id");
+
+        t.data(&t_action_log::dt , "dt");
+        t.data(&t_action_log::event , "event");
+        t.data(&t_action_log::info , "info");
+        t.data(&t_action_log::time , "time");
+        t.data(&t_action_log::type , "type");
+        t.data(&t_action_log::ind , "ind");
     }
 
 }

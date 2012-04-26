@@ -44,7 +44,11 @@ struct t_ttn
     uint field_from_car;
 
     t_ttn();
+    t_ttn(long id):num_nakl(id){}
+
     virtual ~t_ttn() {}
+
+    bool isValid () const {return num_nakl > 0;}
 };
 
 struct t_rez
@@ -55,6 +59,8 @@ struct t_rez
     uint kagat;
 
     t_rez() {}
+    t_rez(long id_):num_nakl(id_){}
+    bool isValid() const {return num_nakl > 0;}
     virtual ~t_rez() {}
 };
 
@@ -65,6 +71,10 @@ struct t_def_field
     uint num_loader;
 
     t_def_field() {}
+    t_def_field(long id_):id(id_){}
+
+    bool isValid() const {return id > 0;}
+
     virtual ~t_def_field (){}
 };
 
@@ -76,6 +86,8 @@ struct t_bum
     uint queue;
 
     t_bum() {}
+    t_bum(long id_):id(id_){}
+    bool isValid() const {return id > 0;}
     virtual ~t_bum(){}
 };
 
@@ -104,6 +116,8 @@ struct t_cars
     uint vremja_na_hodku;
 
     t_cars() {}
+    t_cars(long id_):id(id_) {}
+    bool isValid() const {return id > 0;}
     virtual ~t_cars(){}
 };
 
@@ -113,6 +127,9 @@ struct t_kagat
     bool state;
 
     t_kagat(){}
+    t_kagat(long id_):id(id_){}
+    bool isValid() const {return id > 0;}
+
     virtual ~t_kagat(){}
 };
 
@@ -129,6 +146,8 @@ struct t_kontr
     uint type;
 
     t_kontr(){}
+    t_kontr(long id_):id(id_){}
+    bool isValid() const {return id > 0;}
     virtual ~t_kontr(){}
 };
 
@@ -140,6 +159,8 @@ struct t_field
     QString info;
 
     t_field(){}
+    t_field(long id_): id(id_){}
+    bool isValid () const {return id > 0;}
     virtual ~t_field(){}
 };
 
@@ -150,6 +171,9 @@ struct t_const
     QString value;
 
     t_const(){}
+    t_const(long id_):id(id_){}
+    bool isValid() const {return id > 0;}
+
     virtual ~t_const(){}
 };
 
@@ -162,6 +186,9 @@ struct t_bum_state_log
     bool state;
 
     t_bum_state_log (){}
+    t_bum_state_log (long id_):id(id_){}
+    bool isValid() const {return id > 0;}
+
     virtual ~t_bum_state_log (){}
 };
 

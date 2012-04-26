@@ -15,6 +15,16 @@ using std::async;
 using std::future;
 //using std::lunch;
 
+const QString greeting_message            = QT_TRANSLATE_NOOP("MainSequence", "Go on the weight platfotrm");
+const QString apply_card_message          = QT_TRANSLATE_NOOP("MainSequence", "Apply card to reader");
+const QString card_autorize_error_message = QT_TRANSLATE_NOOP("MainSequence", "Card autorization error!");
+const QString card_reading_error_message  = QT_TRANSLATE_NOOP("MainSequence", "Card reading error!");
+const QString card_is_empty_error_message = QT_TRANSLATE_NOOP("MainSequence", "Card is empty error!");
+const QString car_blocked_message         = QT_TRANSLATE_NOOP("MainSequence", "You car is blocked! Contact to dispatcher!");
+const QString fetch_car_error_message     = QT_TRANSLATE_NOOP("MainSequence", "Fetch car error! Contact to dispatcher");
+const QString fetch_ttn_error_message     = QT_TRANSLATE_NOOP("MainSequence", "Fetch ttn error! Contact to dispatcher");
+//const QString car_blocked_message         = QT_TRANSLATE_NOOP("MainSequence", "Your car is blocked! Contact to dispatcher");
+
 template <class Callable, class... Args >
 typename std::result_of<Callable(Args...)>::type async_call(Callable c, Args ... args)
 {
@@ -25,6 +35,11 @@ typename std::result_of<Callable(Args...)>::type async_call(Callable c, Args ...
     }
 
     return f.get();
+}
+
+inline uint carCodeFromDriver(uint dr)
+{
+    return dr / 10;
 }
 
 /*
@@ -39,20 +54,22 @@ void async_call(Callable c, Args ... args)
     }
 }*/
 
-
+void MainSequence::printOnTablo(const QString & s)
+{
+    tags["tablo"]->func("print", Q_ARG(const QVariant&, QVariant(s)));
+}
 
 MainSequence::MainSequence(Tags & t, const QVariantMap& opts):tags(t), options(opts), on_weight(false)
 {
-    tags["tablo"]->func("print", Q_ARG(const QVariant&, QVariant("Zaidjte na vagu")));
+    printOnTablo(greeting_message);
 
     qx::QxSqlDatabase::getSingleton()->setDriverName(get_setting<QString>("database_driver", options));
     qx::QxSqlDatabase::getSingleton()->setDatabaseName(get_setting<QString>("database_name", options));
-    qx::QxSqlDatabase::getSingleton()->setHostName(get_setting<QString>("database_host", options));
-    qx::QxSqlDatabase::getSingleton()->setHostName("192.168.0.231");
+    qx::QxSqlDatabase::getSingleton()->setHostName(get_setting<QString>("database_host", options));    
     qx::QxSqlDatabase::getSingleton()->setUserName(get_setting<QString>("database_user", options));
     qx::QxSqlDatabase::getSingleton()->setPassword(get_setting<QString>("database_password", options));
 
-    t_ttn ttn;
+    //t_ttn ttn;
 
 
     //qDebug() << "before";
@@ -85,12 +102,15 @@ QString MainSequence::detectPlatformType(const QVariantMap & bill) const
     qWarning() << "something terrible happens!!! cant detect platform type. Maybe bill corrupted :( Bill: "<<bill;
     return QString();
 }
+
 void MainSequence::onAppearOnWeight()
 {
     qDebug() << "something appeared on weight!!!!";
     on_weight = true;
 
-    tags["tablo"]->func("print", Q_ARG(const QVariant&, QVariant("Pidnesith kartku")));
+    //tags["tablo"]->func("print", Q_ARG(const QVariant&, QVariant(apply_card_message)));
+    printOnTablo(apply_card_message);
+
     tags["reader1"]->func("doOn");
 
     QByteArray card_code = get_setting<QByteArray>("card_code", options);
@@ -101,8 +121,7 @@ void MainSequence::onAppearOnWeight()
         MifareCard card(tags["reader1"], act);
 
         if ( !card.active() ) {
-            qDebug() << "card not active!!!";
-
+            qDebug() << "card not active!!!";            
             sleepnbtm(); continue;
         }
 
@@ -110,7 +129,7 @@ void MainSequence::onAppearOnWeight()
 
         if ( !card.autorize(card_code, data_block) ) {
             qDebug() << "fail to autorize!!!!";
-
+            printOnTablo(card_autorize_error_message);
             sleepnbtm(); continue;
         }
 
@@ -118,20 +137,34 @@ void MainSequence::onAppearOnWeight()
         QVariantMap bill = card.readStruct(bill_conf(options));
         if ( bill.isEmpty() ) {
             qDebug() << "cant read bill!!!!";
-
+            printOnTablo( card_reading_error_message );
             sleepnbtm(); continue;
         }
 
         if (!checkMember("billNumber", bill, 0) || !checkMember("driver", bill, 0)) {
             qDebug() << "bill is empty!!!";
-
+            printOnTablo( card_is_empty_error_message );
             sleepnbtm(); continue;
         }
 
-        /*
-            if (isBlockedCar() ) {
-            }
-        */
+        auto car = async_fetch<t_cars>( carCodeFromDriver( bill["car"].toUInt() ) );
+        if (!car) {
+            qWarning() << "fetching car failed!!!";
+            printOnTablo(fetch_ttn_error_message); sleepnbtm(); continue;
+        }
+
+        if (car->block) {
+            qWarning() << "car is blocked!!!";
+            printOnTablo(car_blocked_message); sleepnbtm(); continue;
+        }
+
+/*      t_ttn ttn = fetch<t_ttn>(bill["billNumber"].toUInt());
+        if (!ttn.isValid()) {
+            qWarning() << "fetching ttn failed!!!";
+            printOnTablo(fetch_ttn_error_message); sleepnbtm(); continue;
+        } */
+
+
 
         QString platform_type = detectPlatformType(bill);
 
@@ -149,19 +182,40 @@ void MainSequence::onAppearOnWeight()
     }
 
 }
-
-void MainSequence::checkFieldCorrectness(QVariantMap & bill)
+/*
+t_ttn MainSequence::fetchTtn(const QVariantMap & bill) const
 {
-    if (!checkMember("realNumField", bill , 0)  )  {
+    t_ttn ttn( card["billNumber"].toUint() );
 
+    QSqlError err = async_call([&ttn]{return qx::dao::fetch_by_id(ttn);});
+
+    if  (err.isValid()) {
+        qWarning( ) << "failed fetchTtn: "<<err.databaseText()<<" "<<err.driverText();
+        return t_ttn(0);
+    }
+    return t_ttn;
+}*/
+
+void MainSequence::checkBeetFieldCorrectness(QVariantMap & bill, qx::dao::ptr<t_ttn>)
+{
+    uint real_num_field = bill["realNumField"].toUInt();
+
+    if ( real_num_field == 0 || !async_fetch<t_field>(real_num_field) )  {
+
+        //async_update
     }
 }
 
 void MainSequence::brutto(QVariantMap & bill)
 {
     //preparing:
+    uint real_num_field = bill["realNumField"].toUInt();
+    auto ttn = async_fetch<t_ttn>(bill["billNumber"].toUInt());
+
+    //if ()
+
     //check for replace field
-    checkFieldCorrectness(bill);
+    //checkBeetFieldCorrectness(bill);
     //check if bill presents in db
 
     //weight or reweight:
@@ -203,7 +257,8 @@ void MainSequence::onDisappearOnWeight()
     on_weight = false;
 
     tags["reader1"]->func("doOff");
-    tags["tablo"]->func("print", Q_ARG(const QVariant&, QVariant("Zaidkte na vagu")));
+    //tags["tablo"]->func("print", Q_ARG(const QVariant&, QVariant("Zaidkte na vagu")));
+    printOnTablo(greeting_message);
 }
 
 
