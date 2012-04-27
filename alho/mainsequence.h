@@ -11,6 +11,16 @@
 #include "settingstool.h"
 #include "func.h"
 #include "dbstructs.h"
+/*
+class MainSequenceException
+{
+public:
+    MainSequenceException(const QString& msg):message_(msg){}
+    virtual ~MainSequenceException();
+    virtual QString message() const {return message_;}
+private:
+    QString message_;
+};*/
 
 class MainSequence : public QObject,
                      public AlhoSequence
@@ -54,9 +64,9 @@ private:
     }
 
     template <class T>
-    bool async_update(const qx::dao::ptr<T>& p) const
+    bool async_update(qx::dao::ptr<T> p) const
     {
-        QSqlError err = async_call([&p]{return qx::dao::update_optimized(p);});
+        QSqlError err = async_call([&p]{return qx::dao::update_optimized<T>(p);});
 
         if  (err.isValid()) {
             qWarning( ) << "failed update: "<<err.databaseText()<<" "<<err.driverText();
@@ -67,12 +77,28 @@ private:
 
 
     void printOnTablo(const QString& );
+    int getWeight() const;
 
-    void brutto(QVariantMap& );
-    void tara  (QVariantMap& );
 
-    void checkBeetFieldCorrectness(QVariantMap &, qx::dao::ptr<t_ttn>  );
+    bool brutto(QVariantMap&, qx::dao::ptr<t_ttn> );
+    bool tara  (QVariantMap&, qx::dao::ptr<t_ttn> );
 
+    void repairBeetFieldCorrectnessIfNeeded(QVariantMap &, qx::dao::ptr<t_ttn>  );
+    bool processChemicalAnalysis(QVariantMap&, qx::dao::ptr<t_ttn> );
+    bool processFreeBum(QVariantMap&, qx::dao::ptr<t_ttn>);
+    bool updateBruttoValues(QVariantMap&, qx::dao::ptr<t_ttn>);
+    bool updateTaraValues(QVariantMap&, qx::dao::ptr<t_ttn>);
+
+    template <class T>
+    void setMemberValue(const QString& mn, const T& v, QVariantMap& map)
+    {
+        auto iter = map.find(mn);
+        if (iter == map.end()) {
+            qFatal(  qPrintable("setMemberValue: cant find" + mn) );
+        }
+
+        *iter = QVariant::fromValue<T>(v);
+    }
 
     template <class T>
     T memberValue(const QString& mn, const QVariantMap& map) const
@@ -103,6 +129,8 @@ private:
         static uint tm = get_setting<uint>("sleepnb_timeout", options, 100);
         sleepnb(tm);
     }
+
+
 };
 
 #endif // MAINSEQUENCE_H

@@ -6,24 +6,28 @@
 #include "dbstructs.h"
 #include "datetimehack.h"
 
-//QByteArray MainSequence::card_code;
+#include <QBitArray>
+
+
 
 #include <future>
 #include <atomic>
 
 using std::async;
 using std::future;
-//using std::lunch;
 
-const QString greeting_message            = QT_TRANSLATE_NOOP("MainSequence", "Go on the weight platfotrm");
-const QString apply_card_message          = QT_TRANSLATE_NOOP("MainSequence", "Apply card to reader");
-const QString card_autorize_error_message = QT_TRANSLATE_NOOP("MainSequence", "Card autorization error!");
-const QString card_reading_error_message  = QT_TRANSLATE_NOOP("MainSequence", "Card reading error!");
-const QString card_is_empty_error_message = QT_TRANSLATE_NOOP("MainSequence", "Card is empty error!");
-const QString car_blocked_message         = QT_TRANSLATE_NOOP("MainSequence", "You car is blocked! Contact to dispatcher!");
-const QString fetch_car_error_message     = QT_TRANSLATE_NOOP("MainSequence", "Fetch car error! Contact to dispatcher");
-const QString fetch_ttn_error_message     = QT_TRANSLATE_NOOP("MainSequence", "Fetch ttn error! Contact to dispatcher");
-//const QString car_blocked_message         = QT_TRANSLATE_NOOP("MainSequence", "Your car is blocked! Contact to dispatcher");
+
+const QString greeting_message              = QT_TRANSLATE_NOOP("MainSequence", "Go on the weight platfotrm");
+const QString apply_card_message            = QT_TRANSLATE_NOOP("MainSequence", "Apply card to reader");
+const QString card_autorize_error_message   = QT_TRANSLATE_NOOP("MainSequence", "Card autorization error!");
+const QString card_reading_error_message    = QT_TRANSLATE_NOOP("MainSequence", "Card reading error!");
+const QString card_is_empty_error_message   = QT_TRANSLATE_NOOP("MainSequence", "Card is empty error!");
+const QString car_blocked_message           = QT_TRANSLATE_NOOP("MainSequence", "You car is blocked! Contact to dispatcher!");
+const QString fetch_car_error_message       = QT_TRANSLATE_NOOP("MainSequence", "Fetch car error! Contact to dispatcher");
+const QString fetch_ttn_error_message       = QT_TRANSLATE_NOOP("MainSequence", "Fetch ttn error! Contact to dispatcher");
+const QString weight_not_stable_message     = QT_TRANSLATE_NOOP("MainSequence", "Weights dont stable!");
+const QString brutto_rupture_failed_message = QT_TRANSLATE_NOOP("MainSequence", "Brutto rupture to big!");
+const QString update_ttn_error_message      = QT_TRANSLATE_NOOP("MainSequence", "Update ttn error! Contact to dispatcher");
 
 template <class Callable, class... Args >
 typename std::result_of<Callable(Args...)>::type async_call(Callable c, Args ... args)
@@ -56,8 +60,17 @@ void async_call(Callable c, Args ... args)
 
 void MainSequence::printOnTablo(const QString & s)
 {
+
     tags["tablo"]->func("print", Q_ARG(const QVariant&, QVariant(s)));
+    //qDebug () << "after";
 }
+
+int MainSequence::getWeight() const
+{
+
+    return tags["weight1_1"]->func("readWeight").toInt();
+}
+
 
 MainSequence::MainSequence(Tags & t, const QVariantMap& opts):tags(t), options(opts), on_weight(false)
 {
@@ -75,7 +88,7 @@ MainSequence::MainSequence(Tags & t, const QVariantMap& opts):tags(t), options(o
     //qDebug() << "before";
     //qx::dao::insert(ttn);
     //async_call([&ttn]{qx::dao::insert(ttn);});
-    //qDebug() << "after";
+    qDebug() << "after";
 }
 
 QString MainSequence::detectPlatformType(const QVariantMap & bill) const
@@ -147,10 +160,10 @@ void MainSequence::onAppearOnWeight()
             sleepnbtm(); continue;
         }
 
-        auto car = async_fetch<t_cars>( carCodeFromDriver( bill["car"].toUInt() ) );
+        auto car = async_fetch<t_cars>( carCodeFromDriver( memberValue<uint>("car", bill) ) );
         if (!car) {
             qWarning() << "fetching car failed!!!";
-            printOnTablo(fetch_ttn_error_message); sleepnbtm(); continue;
+            printOnTablo(fetch_car_error_message); sleepnbtm(); continue;
         }
 
         if (car->block) {
@@ -158,61 +171,105 @@ void MainSequence::onAppearOnWeight()
             printOnTablo(car_blocked_message); sleepnbtm(); continue;
         }
 
-/*      t_ttn ttn = fetch<t_ttn>(bill["billNumber"].toUInt());
-        if (!ttn.isValid()) {
+        auto ttn = async_fetch<t_ttn>(bill["billNumber"].toUInt());
+
+        if ( !ttn ) {
             qWarning() << "fetching ttn failed!!!";
             printOnTablo(fetch_ttn_error_message); sleepnbtm(); continue;
-        } */
-
+        }
 
 
         QString platform_type = detectPlatformType(bill);
 
-        if (platform_type == "brutto") {
-            brutto(bill);
+        if (platform_type == "brutto" && brutto(bill, ttn)) {
+            updateBruttoValues(bill, ttn);
         }
-        else if (platform_type == "tara") {
-            tara(bill);
+        else if (platform_type == "tara" && tara(bill, ttn)) {
+            updateTaraValues(bill, ttn);
         }
         else {
-
+            sleepnbtm(); continue;
         }
+
+        if (!async_update(ttn)) {
+            qWarning() << "cant update ttn!!!";
+            printOnTablo(update_ttn_error_message);
+        }
+
 
         sleepnbtm();
     }
 
 }
-/*
-t_ttn MainSequence::fetchTtn(const QVariantMap & bill) const
+
+void MainSequence::repairBeetFieldCorrectnessIfNeeded(QVariantMap & bill, qx::dao::ptr<t_ttn> ttn)
 {
-    t_ttn ttn( card["billNumber"].toUint() );
-
-    QSqlError err = async_call([&ttn]{return qx::dao::fetch_by_id(ttn);});
-
-    if  (err.isValid()) {
-        qWarning( ) << "failed fetchTtn: "<<err.databaseText()<<" "<<err.driverText();
-        return t_ttn(0);
-    }
-    return t_ttn;
-}*/
-
-void MainSequence::checkBeetFieldCorrectness(QVariantMap & bill, qx::dao::ptr<t_ttn>)
-{
-    uint real_num_field = bill["realNumField"].toUInt();
+    uint real_num_field = memberValue<uint>("realNumField", bill);//bill["realNumField"].toUInt();
 
     if ( real_num_field == 0 || !async_fetch<t_field>(real_num_field) )  {
-
-        //async_update
+        ttn->real_field = bill["numField"].toUInt();
+        if ( !async_update(ttn) ) {
+            qWarning() << "error updating beet field correctenss";
+        }
     }
 }
 
-void MainSequence::brutto(QVariantMap & bill)
+bool MainSequence::processChemicalAnalysis(QVariantMap &, qx::dao::ptr<t_ttn>)
 {
-    //preparing:
-    uint real_num_field = bill["realNumField"].toUInt();
-    auto ttn = async_fetch<t_ttn>(bill["billNumber"].toUInt());
+    return false;
+}
 
-    //if ()
+bool MainSequence::processFreeBum(QVariantMap &, qx::dao::ptr<t_ttn>)
+{
+    return false;
+}
+
+bool MainSequence::updateBruttoValues(QVariantMap&, qx::dao::ptr<t_ttn>)
+{
+    return false;
+}
+
+bool MainSequence::updateTaraValues(QVariantMap&, qx::dao::ptr<t_ttn>)
+{
+    return false;
+}
+
+bool MainSequence::brutto(QVariantMap & bill, qx::dao::ptr<t_ttn> ttn)
+{
+    repairBeetFieldCorrectnessIfNeeded(bill, ttn);
+
+    int weight = getWeight();
+
+    if (weight < 0) {
+        qDebug() << "brutto: weights dont stable!";
+        printOnTablo(weight_not_stable_message); return false;
+    }
+
+
+    if (memberValue<uint>("bruttoWeight", bill) == 0) {
+
+    }
+    else if (memberValue<uint>("kagat", bill) == 0 ) {
+        if ( qAbs( memberValue<uint>("bruttoWeight", bill) - weight ) >
+             get_setting<uint>("brutto_delta_between_reweights", options) ) {
+            qWarning() << "reweight: brutto rup failed!: prevWeight: "<< memberValue<uint>("bruttoWeight", bill)
+                       << " cur: "<<weight<<" max_delta: "
+                       << get_setting<uint>("brutto_delta_between_reweights", options);
+
+            printOnTablo( brutto_rupture_failed_message );
+            return false;
+        }
+
+        setMemberValue("flags", memberValue<QBitArray>("flags", bill) | QBitArray(1, true), bill );
+    }
+
+    setMemberValue("bruttoWeight", weight, bill);
+    setMemberValue("dateOfBrutto", QDateTime::currentDateTime(), bill);
+
+    return processChemicalAnalysis( bill, ttn ) && processFreeBum( bill, ttn );
+
+
+
 
     //check for replace field
     //checkBeetFieldCorrectness(bill);
@@ -229,7 +286,7 @@ void MainSequence::brutto(QVariantMap & bill)
     //print message for tablo
 }
 
-void MainSequence::tara(QVariantMap & bill)
+bool MainSequence::tara(QVariantMap & bill , qx::dao::ptr<t_ttn>)
 {
     //check for reweight tara and time for route and print
 
@@ -248,6 +305,8 @@ void MainSequence::tara(QVariantMap & bill)
     //printing
     //creating new task
     //
+
+    return false;
 }
 
 void MainSequence::onDisappearOnWeight()

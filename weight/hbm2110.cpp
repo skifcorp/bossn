@@ -53,7 +53,7 @@ float Hbm2110::parseWeightFrameAnswer(const QByteArray& ba, uint & err) const
     QByteArray ret = ba.left(8);
 
     bool ok = false;
-    float fret = ret.toFloat(&ok);
+    float fret = ret.toInt(&ok);
 
     if (!ok) {
         //throw WeightFrameExceptionCorrupted();

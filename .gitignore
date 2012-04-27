@@ -1,2 +1,6 @@
 Makefile
 bossn.pro.user
+Makefile.Debug
+Makefile.Release
+object_script.bossn.Debug
+object_script.bossn.Release

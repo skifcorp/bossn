@@ -269,10 +269,14 @@ void initProgOptions(QVariantMap & opts)
     opts.insert("database_name"               , "testdb");
     opts.insert("database_user"               , "root");
     opts.insert("database_password"           , "parabelum");
+    opts.insert("brutto_delta_between_reweights", 10000);
+    opts.insert("tara_delta_between_reweights"  , 10000);
 }
 
 void initTasks(TaskExec & tasks, Tags & tags, MainSequence & seq )
 {
+
+
     PerimeterTask::Pointer perim (new PerimeterTask(tags));
     QMap<QString, QVariant> perim_settings;
 /*    perim_settings["PerimeterType"] = "PerimeterControlByWeight";
@@ -280,14 +284,21 @@ void initTasks(TaskExec & tasks, Tags & tags, MainSequence & seq )
     perim_settings["minWeight"]     = 50.0;
     perim_settings["method"]        = "readMethod"; */
 
+//    return ;
 
     perim_settings["PerimeterType"] = "PerimeterControlByDi";
     perim_settings["AppearDi"]      = "di1";
     perim_settings["DisappearDi"]   = "di2";
     perim_settings["method"]        = "readMethod";
 
+//    return;
+
+    //qDebug() << perim; return;
+
     QObject::connect(perim.data(), SIGNAL(appeared()), &seq, SLOT(onAppearOnWeight()), Qt::QueuedConnection );
     QObject::connect(perim.data(), SIGNAL(disappeared()), &seq, SLOT(onDisappearOnWeight()), Qt::QueuedConnection);
+
+
 
     perim->setSettings(perim_settings);
 
@@ -334,7 +345,7 @@ int main(int argc, char *argv[])
     QVector<Porter::Pointer> porters;
 
 
-    initPorters(porters, tags);        
+    initPorters(porters, tags);
 
     QMap<QString, QVariant> options;
     initProgOptions(options);
@@ -346,7 +357,7 @@ int main(int argc, char *argv[])
     if (options["run_mode"].toString() == "prog") {
         qDebug() << "run prog mode";
 
-        main_alho = QSharedPointer<AlhoSequence>(new MainSequence(tags, options) ); ;
+        main_alho = QSharedPointer<AlhoSequence>(new MainSequence(tags, options) );
         initTasks(task_exec, tags, *main_alho.staticCast<MainSequence>());
     }
     else if (options["run_mode"].toString() == "format") {
@@ -357,9 +368,13 @@ int main(int argc, char *argv[])
     }
 
 
+    //qDebug() << "hello";
 
+    auto ret = app.exec();
 
-    return app.exec();
+    //qDebug () << "after exec";
+
+    return ret;
 }
 
 
