@@ -37,13 +37,22 @@ bool MifareCard::autorize(const QByteArray & key, int block)
 
     return reader.data()->func("doAuth", Q_ARG(QVariant, auth_key_var)).toBool();
 }
-
+/*
 MifareRead MifareCard::readBlock(int num)
 {
     //return reader->readBlock(num);
     QVariant num_var(num);
-    return reader.data()->func("readBlock", Q_ARG(const QVariant&, num_var)).value<MifareRead>();
-}
+
+    //printByteArray();
+
+    MifareRead r = reader.data()->func("readBlock", Q_ARG(const QVariant&, num_var)).value<MifareRead>();
+
+    qDebug() << "read_block->block_num: "<<num;
+
+    printByteArray(r.data);
+
+    return r;
+}*/
 
 QVariant MifareCard::readMember(const StructMemberConf& mc, const QByteArray& arr) const
 {
@@ -125,8 +134,19 @@ QVariantMap MifareCard::readStruct(const StructConf &conf)
     QVariantMap ret;
     QByteArray arr;
     for (int i = 0; i<conf.blocks.count(); ++i) {
+        //qDebug () << "readStruct->before readBlock!";
+
         MifareRead mr = reader.data()->func("readBlock", Q_ARG(const QVariant&, QVariant(conf.blocks[i].blockNum))).value<MifareRead>();
-        if (!mr.result) {return QVariantMap();}
+
+        //qDebug() << "readStruct: block_num: " << conf.blocks[i].blockNum;
+
+        //printByteArray(mr.data);
+
+        if (!mr.result) {
+            qWarning() << "readBlock seems failed!";
+
+            return QVariantMap();
+        }
 
         arr += mr.data;
     }

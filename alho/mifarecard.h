@@ -24,7 +24,7 @@ public:
     bool active() const {return activate_card.active();}
 
     bool autorize( const QByteArray& , int block );
-    MifareRead readBlock(int num);
+    //MifareRead readBlock(int num);
 
 
 

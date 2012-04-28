@@ -11,16 +11,28 @@ QT       -= gui
 TARGET   = bossn
 CONFIG   += console
 CONFIG   -= app_bundle
+DESTDIR  = build
 
 TEMPLATE = app
 INCLUDEPATH    += ../qextserialport/src/ db alho serial weight generic iodevicewrapper scheduler  \
                       porter task dido perimeter tools reader ../coroutine/src/ ../QxOrm/include  \
                       $$(BOOST_ROOT)
 QMAKE_CXXFLAGS += -std=c++0x
-LIBS           += -L../qextserialport_build/src/build/ -lqextserialport -L../coroutine_build/src/release/ \
-                    -lcoroutine -L../QxOrm_build/release/ -lqxorm \
-                    -L $$(BOOST_ROOT)/stage/lib -llibboost_serialization-mgw46-mt-1_48 \
+
+
+CONFIG(debug, debug|release) {
+LIBS           +=   -L../qextserialport_build/src/build/ -lqextserialportd              \
+                    -L../coroutine_build/src/build/ -lcoroutined                        \
+                    -L../QxOrm_build/build/ -lqxormd                                    \
+                    -L $$(BOOST_ROOT)/stage/lib -llibboost_serialization-mgw46-mt-d-1_48 \
                     -L $$(MYSQL_DIR)/lib -llibmysql
+} else {
+LIBS           +=   -L../qextserialport_build/src/build/ -lqextserialport               \
+                    -L../coroutine_build/src/build/ -lcoroutine                         \
+                    -L../QxOrm_build/build/ -lqxorm                                   \
+                    -L $$(BOOST_ROOT)/stage/lib -llibboost_serialization-mgw46-mt-1_48  \
+                    -L $$(MYSQL_DIR)/lib -llibmysql
+}
 
 SOURCES += main.cpp \
     mrwsettings.cpp \

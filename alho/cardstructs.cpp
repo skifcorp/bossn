@@ -52,7 +52,7 @@ uint StructConf::size() const
 bool StructMemberConf::registerTypes()
 {
     typesFactoryForRead.insert("uint", [](const QByteArray& arr){
-                            QDataStream st(arr);
+                            QDataStream st(arr); st.setByteOrder(QDataStream::LittleEndian);
                             uint ret = 0;
                             st.readRawData(reinterpret_cast<char *>(&ret), 3);
                             return QVariant(ret);
@@ -60,14 +60,14 @@ bool StructMemberConf::registerTypes()
 
 
     typesFactoryForRead.insert("boolarr", [](const QByteArray& arr){
-                            QDataStream st(arr);
+                            QDataStream st(arr); st.setByteOrder(QDataStream::LittleEndian);
                             QBitArray ret;
                             st >> ret;
                             return QVariant(ret);
                         });
 
     typesFactoryForRead.insert("ushort", [](const QByteArray& arr){
-                            QDataStream st(arr);
+                            QDataStream st(arr); st.setByteOrder(QDataStream::LittleEndian);
                             ushort ret;
                             st >> ret;
                             return QVariant(ret);
@@ -79,7 +79,7 @@ bool StructMemberConf::registerTypes()
 
 
     typesFactoryForRead.insert("datetimeshit", [](const QByteArray& arr) {
-                            QDataStream st(arr);
+                            QDataStream st(arr); st.setByteOrder(QDataStream::LittleEndian);
                             uint ret;
                             st >> ret;
                             return QVariant( timeShitToDateTime(ret) );
@@ -94,7 +94,7 @@ bool StructMemberConf::registerTypes()
 
     typesFactoryForWrite.insert("uint", [](const QVariant& val){
                             QByteArray ret;
-                            QDataStream st(&ret, QIODevice::WriteOnly);
+                            QDataStream st(&ret, QIODevice::WriteOnly); st.setByteOrder(QDataStream::LittleEndian);
                             uint tmp = val.toUInt();
                             st.writeRawData(reinterpret_cast<char *>(&tmp), 3);
                             return ret;
@@ -103,7 +103,7 @@ bool StructMemberConf::registerTypes()
 
     typesFactoryForWrite.insert("boolarr", [](const QVariant& val){
                             QByteArray ret;
-                            QDataStream st(&ret, QIODevice::WriteOnly);
+                            QDataStream st(&ret, QIODevice::WriteOnly); st.setByteOrder(QDataStream::LittleEndian);
                             QBitArray tmp = val.toBitArray();
                             ushort save_val = 0;
                             for (int i = 0; i<16; ++i) {
@@ -115,7 +115,7 @@ bool StructMemberConf::registerTypes()
 
     typesFactoryForWrite.insert("ushort", [](const QVariant& val){                                
                             QByteArray ret;
-                            QDataStream st(&ret, QIODevice::WriteOnly);
+                            QDataStream st(&ret, QIODevice::WriteOnly); st.setByteOrder(QDataStream::LittleEndian);
                             st << static_cast<ushort>(val.toUInt());
                             return ret;
                         });
@@ -126,7 +126,7 @@ bool StructMemberConf::registerTypes()
 
     typesFactoryForWrite.insert("datetimeshit", [](const QVariant& val) {
                             QByteArray ret;
-                            QDataStream st(&ret, QIODevice::WriteOnly);
+                            QDataStream st(&ret, QIODevice::WriteOnly); st.setByteOrder(QDataStream::LittleEndian);
                             ulong tmp = dateTimeToTimeShit(val.toDateTime());
                             st.writeRawData(reinterpret_cast<char *>(&tmp), 3);
                             return ret;

@@ -17,17 +17,20 @@ using std::async;
 using std::future;
 
 
-const QString greeting_message              = QT_TRANSLATE_NOOP("MainSequence", "Go on the weight platfotrm");
-const QString apply_card_message            = QT_TRANSLATE_NOOP("MainSequence", "Apply card to reader");
-const QString card_autorize_error_message   = QT_TRANSLATE_NOOP("MainSequence", "Card autorization error!");
-const QString card_reading_error_message    = QT_TRANSLATE_NOOP("MainSequence", "Card reading error!");
-const QString card_is_empty_error_message   = QT_TRANSLATE_NOOP("MainSequence", "Card is empty error!");
-const QString car_blocked_message           = QT_TRANSLATE_NOOP("MainSequence", "You car is blocked! Contact to dispatcher!");
-const QString fetch_car_error_message       = QT_TRANSLATE_NOOP("MainSequence", "Fetch car error! Contact to dispatcher");
-const QString fetch_ttn_error_message       = QT_TRANSLATE_NOOP("MainSequence", "Fetch ttn error! Contact to dispatcher");
-const QString weight_not_stable_message     = QT_TRANSLATE_NOOP("MainSequence", "Weights dont stable!");
-const QString brutto_rupture_failed_message = QT_TRANSLATE_NOOP("MainSequence", "Brutto rupture to big!");
-const QString update_ttn_error_message      = QT_TRANSLATE_NOOP("MainSequence", "Update ttn error! Contact to dispatcher");
+const QString greeting_message                       = QT_TRANSLATE_NOOP("MainSequence", "Go on the weight platfotrm");
+const QString apply_card_message                     = QT_TRANSLATE_NOOP("MainSequence", "Apply card to reader");
+const QString card_autorize_error_message            = QT_TRANSLATE_NOOP("MainSequence", "Card autorization error!");
+const QString card_reading_error_message             = QT_TRANSLATE_NOOP("MainSequence", "Card reading error!");
+const QString card_is_empty_error_message            = QT_TRANSLATE_NOOP("MainSequence", "Card is empty error!");
+const QString car_blocked_message                    = QT_TRANSLATE_NOOP("MainSequence", "You car is blocked! Contact to dispatcher!");
+const QString fetch_car_error_message                = QT_TRANSLATE_NOOP("MainSequence", "Fetch car error! Contact to dispatcher");
+const QString fetch_ttn_error_message                = QT_TRANSLATE_NOOP("MainSequence", "Fetch ttn error! Contact to dispatcher");
+const QString weight_not_stable_message              = QT_TRANSLATE_NOOP("MainSequence", "Weights dont stable!");
+const QString brutto_rupture_failed_message          = QT_TRANSLATE_NOOP("MainSequence", "Brutto rupture to big!");
+const QString update_ttn_error_message               = QT_TRANSLATE_NOOP("MainSequence", "Update ttn error! Contact to dispatcher");
+const QString autodetect_platform_type_error_message = QT_TRANSLATE_NOOP("MainSequence", "Platform autodetect failed! Contact to dispatcher");
+//const QString something_failed_in_alho               = QT_TRANSLATE_NOOP("MainSequence", "Platform autodetect failed! Contact to dispatcher");
+
 
 template <class Callable, class... Args >
 typename std::result_of<Callable(Args...)>::type async_call(Callable c, Args ... args)
@@ -68,7 +71,7 @@ void MainSequence::printOnTablo(const QString & s)
 int MainSequence::getWeight() const
 {
 
-    return tags["weight1_1"]->func("readWeight").toInt();
+    return tags["weight1_1"]->func("readMethod").toInt();
 }
 
 
@@ -121,13 +124,12 @@ void MainSequence::onAppearOnWeight()
     qDebug() << "something appeared on weight!!!!";
     on_weight = true;
 
-    //tags["tablo"]->func("print", Q_ARG(const QVariant&, QVariant(apply_card_message)));
     printOnTablo(apply_card_message);
 
     tags["reader1"]->func("doOn");
 
-    QByteArray card_code = get_setting<QByteArray>("card_code", options);
-    uint data_block      = get_setting<uint>("data_block"     , options);
+    QByteArray card_code = get_setting<QByteArray>("card_code" , options);
+    uint data_block      = get_setting<uint>      ("data_block", options);
 
     while(on_weight) {
         ActivateCardISO14443A act = tags["reader1"]->func("activateIdleA").value<ActivateCardISO14443A>();
@@ -141,45 +143,47 @@ void MainSequence::onAppearOnWeight()
         qDebug()<< "card active!";
 
         if ( !card.autorize(card_code, data_block) ) {
-            qDebug() << "fail to autorize!!!!";
-            printOnTablo(card_autorize_error_message);
-            sleepnbtm(); continue;
+            qWarning() << "fail to autorize!!!!";
+            sleepnbtmerr(card_autorize_error_message, apply_card_message); continue;
         }
 
 
         QVariantMap bill = card.readStruct(bill_conf(options));
         if ( bill.isEmpty() ) {
-            qDebug() << "cant read bill!!!!";
-            printOnTablo( card_reading_error_message );
-            sleepnbtm(); continue;
+            qWarning() << "cant read bill!!!!";
+            sleepnbtmerr(card_reading_error_message, apply_card_message); continue;
         }
 
         if (!checkMember("billNumber", bill, 0) || !checkMember("driver", bill, 0)) {
-            qDebug() << "bill is empty!!!";
-            printOnTablo( card_is_empty_error_message );
-            sleepnbtm(); continue;
+            qWarning() << "bill is empty!!!";
+            sleepnbtmerr(card_is_empty_error_message, apply_card_message); continue;
         }
 
-        auto car = async_fetch<t_cars>( carCodeFromDriver( memberValue<uint>("car", bill) ) );
+        auto car = async_fetch<t_cars>( carCodeFromDriver( memberValue<uint>("driver", bill) ) );
         if (!car) {
-            qWarning() << "fetching car failed!!!";
-            printOnTablo(fetch_car_error_message); sleepnbtm(); continue;
+            qWarning() << "fetching car failed!!!: driver: "<<memberValue<uint>("driver", bill);
+
+            sleepnbtmerr(fetch_car_error_message, apply_card_message); continue;
         }
 
         if (car->block) {
             qWarning() << "car is blocked!!!";
-            printOnTablo(car_blocked_message); sleepnbtm(); continue;
+            sleepnbtmerr(car_blocked_message, apply_card_message); continue;
         }
 
         auto ttn = async_fetch<t_ttn>(bill["billNumber"].toUInt());
 
         if ( !ttn ) {
             qWarning() << "fetching ttn failed!!!";
-            printOnTablo(fetch_ttn_error_message); sleepnbtm(); continue;
+            sleepnbtmerr(fetch_ttn_error_message, apply_card_message); continue;
         }
 
 
         QString platform_type = detectPlatformType(bill);
+
+        if ( platform_type.isEmpty() ) {
+            sleepnbtmerr(autodetect_platform_type_error_message, apply_card_message); continue;
+        }
 
         if (platform_type == "brutto" && brutto(bill, ttn)) {
             updateBruttoValues(bill, ttn);
@@ -188,12 +192,12 @@ void MainSequence::onAppearOnWeight()
             updateTaraValues(bill, ttn);
         }
         else {
-            sleepnbtm(); continue;
+            continue;
         }
 
         if (!async_update(ttn)) {
             qWarning() << "cant update ttn!!!";
-            printOnTablo(update_ttn_error_message);
+            sleepnbtmerr(update_ttn_error_message, apply_card_message); continue;
         }
 
 
@@ -242,7 +246,8 @@ bool MainSequence::brutto(QVariantMap & bill, qx::dao::ptr<t_ttn> ttn)
 
     if (weight < 0) {
         qDebug() << "brutto: weights dont stable!";
-        printOnTablo(weight_not_stable_message); return false;
+        //printOnTablo(weight_not_stable_message); return false;
+        sleepnbtmerr(weight_not_stable_message, apply_card_message); return false;
     }
 
 
@@ -256,7 +261,8 @@ bool MainSequence::brutto(QVariantMap & bill, qx::dao::ptr<t_ttn> ttn)
                        << " cur: "<<weight<<" max_delta: "
                        << get_setting<uint>("brutto_delta_between_reweights", options);
 
-            printOnTablo( brutto_rupture_failed_message );
+            //printOnTablo( brutto_rupture_failed_message );
+            sleepnbtmerr(brutto_rupture_failed_message, apply_card_message); return false;
             return false;
         }
 

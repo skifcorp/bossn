@@ -94,7 +94,7 @@ private:
     {
         auto iter = map.find(mn);
         if (iter == map.end()) {
-            qFatal(  qPrintable("setMemberValue: cant find" + mn) );
+            qFatal(  qPrintable("setMemberValue: cant find: " + mn) );
         }
 
         *iter = QVariant::fromValue<T>(v);
@@ -105,7 +105,7 @@ private:
     {
         auto iter = map.find(mn);
         if (iter == map.end()) {
-            qFatal(  qPrintable("memberValue: cant find" + mn) );
+            qFatal(  qPrintable("memberValue: cant find: " + mn) );
         }
         return iter->value<T>();
     }
@@ -130,6 +130,13 @@ private:
         sleepnb(tm);
     }
 
+    void sleepnbtmerr(const QString& msg1, const QString& msg2)
+    {
+        static uint tm = get_setting<uint>("sleepnb_on_error_timeout", options, 10000);
+        printOnTablo(msg1);
+        sleepnb(tm);
+        printOnTablo(msg2);
+    }
 
 };
 

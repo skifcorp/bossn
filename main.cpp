@@ -38,7 +38,7 @@ void initPorters(QVector<Porter::Pointer>& porters, Tags& tags)
         serial_settings_tablo["parity"]      = PAR_ODD;
         serial_settings_tablo["stopBits"]    = STOP_1;
         serial_settings_tablo["timeout"]     = 100;
-        serial_settings_tablo["portName"]    = "COM4";
+        serial_settings_tablo["portName"]    = "COM3";
 
         QList<TagMethod> tag_method_tablo;
         tag_method_tablo.append( TagMethod("tablo") );
@@ -260,7 +260,8 @@ void initProgOptions(QVariantMap & opts)
     opts.insert("card_code"                   , card_code);
     opts.insert("default_card_code"           , card_code);
     opts.insert("sleepnb_timeout"             , 1000);
-    opts.insert("data_block"                  , 144 );
+    opts.insert("sleepnb_on_error_timeout"    , 10000);
+    opts.insert("data_block"                  , 128/*144*/ );
     opts.insert("run_mode"                    , "prog" );
     opts.insert("format_with_default_data"    , true );
     opts.insert("platform_type"               , "brutto" ); /*or tara or auto*/

@@ -556,6 +556,8 @@ QVariant MifareReader::readBlock(const QVariant& num)
     ret.data = resp_frame.params;
     ret.result = true;
 
+    qDebug () << "readBlock OK!";
+
     return QVariant::fromValue<MifareRead>(ret);
 }
 
