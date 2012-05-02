@@ -49,8 +49,8 @@ private:
 
     QString detectPlatformType(const QVariantMap& ) const;
 
-    template <class T>
-    qx::dao::ptr<T> async_fetch(long id) const
+    template <class T, class ID>
+    qx::dao::ptr<T> async_fetch(ID id) const
     {
         qx::dao::ptr<T> p = qx::dao::ptr<T>( new T(id) );
 
@@ -75,6 +75,17 @@ private:
         return true;
     }
 
+    template <class T>
+    bool async_count(long & cnt, const qx_query& q) const
+    {
+        QSqlError err = async_call( [&cnt, &q]{ return qx::dao::count<T>(cnt, q); });
+
+        if  (err.isValid()) {
+            qWarning( ) << "failed async_count: "<<err.databaseText()<<" "<<err.driverText();
+            return false;
+        }
+        return true;
+    }
 
     void printOnTablo(const QString& );
     int getWeight() const;
@@ -84,10 +95,11 @@ private:
     bool tara  (QVariantMap&, qx::dao::ptr<t_ttn> );
 
     void repairBeetFieldCorrectnessIfNeeded(QVariantMap &, qx::dao::ptr<t_ttn>  );
-    bool processChemicalAnalysis(QVariantMap&, qx::dao::ptr<t_ttn> );
+    void processChemicalAnalysis(QVariantMap&, qx::dao::ptr<t_ttn> );
     bool processFreeBum(QVariantMap&, qx::dao::ptr<t_ttn>);
     bool updateBruttoValues(QVariantMap&, qx::dao::ptr<t_ttn>);
     bool updateTaraValues(QVariantMap&, qx::dao::ptr<t_ttn>);
+    //long getKvoMah(uint real_num_field);
 
     template <class T>
     void setMemberValue(const QString& mn, const T& v, QVariantMap& map)

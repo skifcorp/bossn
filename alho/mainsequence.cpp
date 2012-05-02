@@ -7,14 +7,14 @@
 #include "datetimehack.h"
 
 #include <QBitArray>
+#include <QtConcurrentRun>
 
 
-
-#include <future>
+//#include <future>
 #include <atomic>
 
-using std::async;
-using std::future;
+//using std::async;
+//using std::future;
 
 
 const QString greeting_message                       = QT_TRANSLATE_NOOP("MainSequence", "Go on the weight platfotrm");
@@ -29,19 +29,24 @@ const QString weight_not_stable_message              = QT_TRANSLATE_NOOP("MainSe
 const QString brutto_rupture_failed_message          = QT_TRANSLATE_NOOP("MainSequence", "Brutto rupture to big!");
 const QString update_ttn_error_message               = QT_TRANSLATE_NOOP("MainSequence", "Update ttn error! Contact to dispatcher");
 const QString autodetect_platform_type_error_message = QT_TRANSLATE_NOOP("MainSequence", "Platform autodetect failed! Contact to dispatcher");
+const QString kvo_mah_error_message                  = QT_TRANSLATE_NOOP("MainSequence", "KvoMah failed! Contact to dispatcher");
+const QString kontr_get_error_message                = QT_TRANSLATE_NOOP("MainSequence", "KontrGet failed! Contact to dispatcher");
 //const QString something_failed_in_alho               = QT_TRANSLATE_NOOP("MainSequence", "Platform autodetect failed! Contact to dispatcher");
+
 
 
 template <class Callable, class... Args >
 typename std::result_of<Callable(Args...)>::type async_call(Callable c, Args ... args)
 {
-    auto f = async(std::launch::async, c, args...);
+    //auto f = async(std::launch::async, c, args...);
 
-    while (!f.is_ready()) {
+    auto f = QtConcurrent::run(c, args...);
+
+    while (!f.isFinished()) {
         qApp->processEvents();
     }
 
-    return f.get();
+    return f.result();
 }
 
 inline uint carCodeFromDriver(uint dr)
@@ -210,17 +215,102 @@ void MainSequence::repairBeetFieldCorrectnessIfNeeded(QVariantMap & bill, qx::da
 {
     uint real_num_field = memberValue<uint>("realNumField", bill);//bill["realNumField"].toUInt();
 
+    //qDebug () << "real_num_field: "<< real_num_field<<" num_field: "<<memberValue<uint>("numField", bill);
+
+
     if ( real_num_field == 0 || !async_fetch<t_field>(real_num_field) )  {
         ttn->real_field = bill["numField"].toUInt();
         if ( !async_update(ttn) ) {
             qWarning() << "error updating beet field correctenss";
         }
+        setMemberValue("realNumField", ttn->real_field, bill);
     }
 }
 
-bool MainSequence::processChemicalAnalysis(QVariantMap &, qx::dao::ptr<t_ttn>)
-{
-    return false;
+
+
+void MainSequence::processChemicalAnalysis(QVariantMap & bill, qx::dao::ptr<t_ttn> ttn)
+{   
+    long count          = 0;
+    uint analysis_place = 1;
+
+    { //doing something called getkvomah
+        QDate workDate = QTime::currentTime().hour()<8 ? QDate::currentDate().addDays(-1) : QDate::currentDate();
+
+        qx_query q("where floor(real_field/100) = "  + QString::number( memberValue<uint>("realNumField", bill)/100 ) +
+                   " and dt_of_brutto>='" + workDate.toString("yyyy.MM.dd") + " 08:00:00'"                             \
+                   " and dt_of_brutto<='" + workDate.addDays(1).toString("yyyy.MM.dd") + " 08:00:00'");
+
+        if ( !async_count<t_ttn>( count, q ) ) {
+            qWarning() << "cant get count of ttns for chemical analysis!!! field: "<<memberValue<uint>("realNumField", bill)/100;
+            //sleepnbtmerr(kvo_mah_error_message, apply_card_message);
+            //return false;
+        }
+    }
+
+    QString alho = get_setting<QString>("common_algorithm_of_analysis", options);
+
+    if ( alho == "discrete" ) {
+        uint num_in_group = (count + 1) % get_setting<uint>("common_size_of_group", options);
+        if ( num_in_group != get_setting<uint>("common_number_from_group", options) ) return;
+    }
+    else if (alho == "database_const") {
+        if ( count + 1 == 1 ) {
+
+        }
+        else {
+            auto kontr = async_fetch<t_kontr>(memberValue<uint>("realNumField", bill)/100);
+            //, carInPeriod = 1;
+
+            if ( !kontr )  {
+                qWarning() << "cant get kontr of ttns for chemical analysis!!! field: "<<memberValue<uint>("realNumField", bill)/100;
+            }
+            uint period = kontr->period;
+
+            qx::dao::ptr<t_const> const_;
+
+            if ( period == 0 ) {
+                if (kontr->type == 0) {
+                    const_ = async_fetch<t_const>("ПериодичностьПроверкиМашинЮрЛиц");
+                }
+                else if ( kontr->type == 3 ) {
+                    const_ = async_fetch<t_const>("ПериодичностьПроверкиМашинФермеров");
+                }
+                else {
+                    qWarning()<< "error for kontragent type when doint chemical analysis";
+                }
+
+                if (!const_) {
+                    qWarning()<<"error for getting const for type: "<<kontr->type;
+                }
+
+                period = const_->value.toUInt();
+            }
+
+            uint carInPeriod = kontr->car_in_period;
+            if (carInPeriod == 0 ) {
+                carInPeriod = 1;
+                qWarning() << "error for getting carInPeriod. Kontragent dont have corrent chemical analisys params";
+            }
+            if ( period == 0 )  {
+                period = 1;
+                qWarning() << "error for getting period. Kontragent dont have corrent chemical analisys params";
+            }
+
+            uint num_in_group = (count + 1)%period;
+            if (num_in_group == 0) num_in_group = period;
+            if (num_in_group != carInPeriod) return;
+        }
+    }
+
+    //определим место отбора
+    analysis_place = (count+1)%3;
+    if (analysis_place==0) analysis_place=3;
+
+    QBitArray v(3);
+    v.setBit(2, true);
+    setMemberValue("flags", memberValue<QBitArray>("flags", bill) | v, bill );
+    setMemberValue("pointOfAnal", analysis_place, bill);
 }
 
 bool MainSequence::processFreeBum(QVariantMap &, qx::dao::ptr<t_ttn>)
@@ -272,7 +362,9 @@ bool MainSequence::brutto(QVariantMap & bill, qx::dao::ptr<t_ttn> ttn)
     setMemberValue("bruttoWeight", weight, bill);
     setMemberValue("dateOfBrutto", QDateTime::currentDateTime(), bill);
 
-    return processChemicalAnalysis( bill, ttn ) && processFreeBum( bill, ttn );
+    processChemicalAnalysis( bill, ttn );
+
+    return processFreeBum( bill, ttn );
 
 
 

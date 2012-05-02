@@ -272,6 +272,9 @@ void initProgOptions(QVariantMap & opts)
     opts.insert("database_password"           , "parabelum");
     opts.insert("brutto_delta_between_reweights", 10000);
     opts.insert("tara_delta_between_reweights"  , 10000);
+    opts.insert("common_algorithm_of_analysis"  , "database_const" ); /*discrete or database_const*/
+    opts.insert("common_size_of_group"          , 5);
+    opts.insert("common_number_from_group"      , 10);
 }
 
 void initTasks(TaskExec & tasks, Tags & tags, MainSequence & seq )

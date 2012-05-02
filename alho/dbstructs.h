@@ -167,16 +167,17 @@ struct t_field
 
 struct t_const
 {
-    long id;
+    QString id;
     QString value;
 
     t_const(){}
-    t_const(long id_):id(id_){}
-    bool isValid() const {return id > 0;}
+    t_const(const QString& id_):id(id_){}
+    bool isValid() const {return !id.isEmpty();}
 
     virtual ~t_const(){}
 };
 
+QX_REGISTER_PRIMARY_KEY(t_const, QString)
 
 struct t_bum_state_log
 {

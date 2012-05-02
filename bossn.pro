@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core xml sql
+QT       += core xml sql #qt-concurrent
 
 QT       -= gui
 
