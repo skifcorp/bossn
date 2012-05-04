@@ -111,6 +111,7 @@ QVariant Porter::exec(const QString& tag_name,  QGenericArgument func,
     MethodInfo mi = methods[tag_name];
 
     QVariant ret;//(true);
+    //qDebug () << "1: executing for tag_name: " << tag_name;
 
     scheduler.execFunction(
                 [&drivers, &mi, &ret, &val0, &val1, &val2, &val3, &val4, &val5, &val6, &val7, &func_name]{
@@ -143,6 +144,8 @@ QVariant Porter::value (const QString& n,  QGenericArgument val0, QGenericArgume
     MethodInfo mi = methods[n];
 
     QVariant ret;//(true);
+
+    //qDebug () << "2: executing for tag_name: " << n;
 
     scheduler.execFunction(
                 [&drivers, &mi, &ret, &val0, &val1, &val2, &val3, &val4, &val5, &val6, &val7, &val8]{

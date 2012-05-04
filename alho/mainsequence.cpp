@@ -31,23 +31,15 @@ const QString update_ttn_error_message               = QT_TRANSLATE_NOOP("MainSe
 const QString autodetect_platform_type_error_message = QT_TRANSLATE_NOOP("MainSequence", "Platform autodetect failed! Contact to dispatcher");
 const QString kvo_mah_error_message                  = QT_TRANSLATE_NOOP("MainSequence", "KvoMah failed! Contact to dispatcher");
 const QString kontr_get_error_message                = QT_TRANSLATE_NOOP("MainSequence", "KontrGet failed! Contact to dispatcher");
+const QString get_car_for_bum_error_message          = QT_TRANSLATE_NOOP("MainSequence", "Getting car for bum failed! Contact to dispatcher");
+const QString confuse_brutto_tara_error_message      = QT_TRANSLATE_NOOP("MainSequence", "You confused brutto with tara! Contact to dispatcher");
+
 //const QString something_failed_in_alho               = QT_TRANSLATE_NOOP("MainSequence", "Platform autodetect failed! Contact to dispatcher");
 
 
 
-template <class Callable, class... Args >
-typename std::result_of<Callable(Args...)>::type async_call(Callable c, Args ... args)
-{
-    //auto f = async(std::launch::async, c, args...);
 
-    auto f = QtConcurrent::run(c, args...);
 
-    while (!f.isFinished()) {
-        qApp->processEvents();
-    }
-
-    return f.result();
-}
 
 inline uint carCodeFromDriver(uint dr)
 {
@@ -99,7 +91,7 @@ MainSequence::MainSequence(Tags & t, const QVariantMap& opts):tags(t), options(o
     qDebug() << "after";
 }
 
-QString MainSequence::detectPlatformType(const QVariantMap & bill) const
+QString MainSequence::detectPlatformType(const QVariantMap & bill) const throw (MainSequenceException)
 {
     QString typ = get_setting<QString>("platform_type", options);
     if (typ != "auto") return typ;
@@ -120,8 +112,7 @@ QString MainSequence::detectPlatformType(const QVariantMap & bill) const
         return "tara";
     }
 
-    qWarning() << "something terrible happens!!! cant detect platform type. Maybe bill corrupted :( Bill: "<<bill;
-    return QString();
+    throw MainSequenceException(autodetect_platform_type_error_message ,"something terrible happens!!! cant detect platform type. Maybe bill corrupted :(" );
 }
 
 void MainSequence::onAppearOnWeight()
@@ -147,162 +138,179 @@ void MainSequence::onAppearOnWeight()
 
         qDebug()<< "card active!";
 
-        if ( !card.autorize(card_code, data_block) ) {
-            qWarning() << "fail to autorize!!!!";
-            sleepnbtmerr(card_autorize_error_message, apply_card_message); continue;
+        try {
+            card.autorize(card_code, data_block);
+
+            QVariantMap bill = card.readStruct(bill_conf(options));
+
+            if (!checkMember("billNumber", bill, 0) || !checkMember("driver", bill, 0)) {
+                throw MainSequenceException(card_is_empty_error_message, "bill is empty");
+            }
+
+            auto car = wrap_async_ex(fetch_car_error_message, "fetching car failed!!!: driver: " + memberValue<QString>("driver", bill),
+                                  [&bill, this]{return async_fetch<t_cars>( carCodeFromDriver( memberValue<uint>("driver", bill) ) );});
+
+
+            if (car->block) {
+                throw MainSequenceException(car_blocked_message, "car is blocked!!!");
+            }
+
+            auto ttn = wrap_async_ex(fetch_ttn_error_message, "fetching ttn failed!!!",
+                                  [&bill, this]{return async_fetch<t_ttn>(bill["billNumber"].toUInt());});
+
+            QString platform_type = detectPlatformType(bill);
+
+            if (platform_type == "brutto" ) {
+                brutto(bill, ttn);
+                updateBruttoValues(bill, ttn);
+            }
+            else if (platform_type == "tara" ) {
+                tara(bill, ttn);
+                updateTaraValues(bill, ttn);
+            }
         }
-
-
-        QVariantMap bill = card.readStruct(bill_conf(options));
-        if ( bill.isEmpty() ) {
-            qWarning() << "cant read bill!!!!";
-            sleepnbtmerr(card_reading_error_message, apply_card_message); continue;
-        }
-
-        if (!checkMember("billNumber", bill, 0) || !checkMember("driver", bill, 0)) {
-            qWarning() << "bill is empty!!!";
-            sleepnbtmerr(card_is_empty_error_message, apply_card_message); continue;
-        }
-
-        auto car = async_fetch<t_cars>( carCodeFromDriver( memberValue<uint>("driver", bill) ) );
-        if (!car) {
-            qWarning() << "fetching car failed!!!: driver: "<<memberValue<uint>("driver", bill);
-
-            sleepnbtmerr(fetch_car_error_message, apply_card_message); continue;
-        }
-
-        if (car->block) {
-            qWarning() << "car is blocked!!!";
-            sleepnbtmerr(car_blocked_message, apply_card_message); continue;
-        }
-
-        auto ttn = async_fetch<t_ttn>(bill["billNumber"].toUInt());
-
-        if ( !ttn ) {
-            qWarning() << "fetching ttn failed!!!";
-            sleepnbtmerr(fetch_ttn_error_message, apply_card_message); continue;
-        }
-
-
-        QString platform_type = detectPlatformType(bill);
-
-        if ( platform_type.isEmpty() ) {
-            sleepnbtmerr(autodetect_platform_type_error_message, apply_card_message); continue;
-        }
-
-        if (platform_type == "brutto" && brutto(bill, ttn)) {
-            updateBruttoValues(bill, ttn);
-        }
-        else if (platform_type == "tara" && tara(bill, ttn)) {
-            updateTaraValues(bill, ttn);
-        }
-        else {
+        catch (MifareCardAuthException& ex) {
+            qWarning() << "auth_exeption! "<<ex.message();
+            sleepnbtmerr(card_autorize_error_message, apply_card_message);
             continue;
         }
-
-        if (!async_update(ttn)) {
-            qWarning() << "cant update ttn!!!";
-            sleepnbtmerr(update_ttn_error_message, apply_card_message); continue;
+        catch (MifareCardException& ex) {
+            qWarning() << "card_exception! "<<ex.message();
+            sleepnbtmerr(ex.message(), apply_card_message);
+            continue;
         }
-
-
-        sleepnbtm();
+        catch (MainSequenceException& ex) {
+            qWarning()<< "sequence_exception! "<<ex.adminMessage();
+            sleepnbtmerr(ex.userMessage(), apply_card_message);
+            continue;
+        }
     }
 
 }
 
-void MainSequence::repairBeetFieldCorrectnessIfNeeded(QVariantMap & bill, qx::dao::ptr<t_ttn> ttn)
+void MainSequence::repairBeetFieldCorrectnessIfNeeded(QVariantMap & bill, qx::dao::ptr<t_ttn> ttn) const throw()
+{  
+    if ( memberValue<uint>("realNumField", bill) == 0 ||
+         !wrap_async( [&bill, this]{
+                                    return async_fetch<t_field>( memberValue<uint>("realNumField", bill) );
+                                 } ) )  {
+
+        setMemberValue("realNumField", memberValue<uint>("numField", bill), bill);
+        ttn->real_field = memberValue<uint>("numField", bill);
+
+        try {
+            async_update(ttn);
+        }
+        catch(MysqlException& ex) {
+            qWarning()<< ex.databaseText() + " " + ex.driverText();
+        }
+    }
+}
+
+
+uint MainSequence::countCarsFromFieldForDay(uint field_num) const throw()
 {
-    uint real_num_field = memberValue<uint>("realNumField", bill);//bill["realNumField"].toUInt();
-
-    //qDebug () << "real_num_field: "<< real_num_field<<" num_field: "<<memberValue<uint>("numField", bill);
-
-
-    if ( real_num_field == 0 || !async_fetch<t_field>(real_num_field) )  {
-        ttn->real_field = bill["numField"].toUInt();
-        if ( !async_update(ttn) ) {
-            qWarning() << "error updating beet field correctenss";
-        }
-        setMemberValue("realNumField", ttn->real_field, bill);
-    }
-}
-
-
-
-void MainSequence::processChemicalAnalysis(QVariantMap & bill, qx::dao::ptr<t_ttn> ttn)
-{   
-    long count          = 0;
-    uint analysis_place = 1;
-
-    { //doing something called getkvomah
+    try {
         QDate workDate = QTime::currentTime().hour()<8 ? QDate::currentDate().addDays(-1) : QDate::currentDate();
 
-        qx_query q("where floor(real_field/100) = "  + QString::number( memberValue<uint>("realNumField", bill)/100 ) +
-                   " and dt_of_brutto>='" + workDate.toString("yyyy.MM.dd") + " 08:00:00'"                             \
+        qx_query q("where floor(real_field/100) = "  + QString::number( field_num ) +
+                   " and dt_of_brutto>='" + workDate.toString("yyyy.MM.dd") + " 08:00:00'"                            \
                    " and dt_of_brutto<='" + workDate.addDays(1).toString("yyyy.MM.dd") + " 08:00:00'");
+        long count = 0;
+        async_count<t_ttn>( count, q );
 
-        if ( !async_count<t_ttn>( count, q ) ) {
-            qWarning() << "cant get count of ttns for chemical analysis!!! field: "<<memberValue<uint>("realNumField", bill)/100;
-            //sleepnbtmerr(kvo_mah_error_message, apply_card_message);
-            //return false;
-        }
+        return count;
     }
+    catch (MysqlException& ex) {
+        qWarning() << "cant get count of ttns for chemical analysis!!! field: "<<field_num;
+    }
+
+    return 0;
+}
+
+
+bool MainSequence::checkForNeedDiscreteAnalisys(long count) const throw()
+{
+    uint num_in_group = (count + 1) % get_setting<uint>("common_size_of_group", options);
+    return num_in_group == get_setting<uint>("common_number_from_group", options);
+}
+
+uint MainSequence::getAnalisysPeriodFromStorage(uint typ) const throw(MysqlException, MainSequenceException)
+{
+    qx::dao::ptr<t_const> const_;
+
+    if ( typ == 0 ) {
+        const_ = wrap_async_ex( "error for kontragent type when doint chemical analysis typ=0", QString(),
+                                [this]{return async_fetch<t_const>("ПериодичностьПроверкиМашинЮрЛиц");});
+    }
+    else if ( typ == 3 ) {
+        const_ = wrap_async_ex( "error for kontragent type when doint chemical analysis typ=0", QString(),
+                                [this]{return async_fetch<t_const>("ПериодичностьПроверкиМашинФермеров"); });
+    }
+    else {
+        //qWarning()<< "error for kontragent type when doint chemical analysis";
+        throw MainSequenceException("error for kontragent type when doint chemical analysis", QString());
+    }
+
+    return const_->value.toUInt();
+}
+
+bool MainSequence::checkForNeedDatabaseConstAnalisys(long count) const throw ()
+{
+    if (count + 1 == 1) return true; //first car always go for analysis
+
+    try {
+        auto kontr = wrap_async_ex( "cant get kontr of ttns for chemical analysis!!! field: " + QString::number(count),
+                                     QString(),
+                                    [&count, this]{return async_fetch<t_kontr>(count);} );
+
+        uint period = kontr->period;
+
+        if ( period == 0 ) {
+            period = wrap_async_ex("error for getting const for type:" + QString::number(kontr->type), QString(),
+                                   [&kontr, this]{return getAnalisysPeriodFromStorage(kontr->type);} );
+        }
+
+        uint carInPeriod = kontr->car_in_period;
+        if (carInPeriod == 0 ) {
+            carInPeriod = 1;
+            qWarning() << "error for getting carInPeriod. Kontragent dont have corrent chemical analisys params";
+        }
+
+        if ( period == 0 )  {
+            period = 1;
+            qWarning() << "error for getting period. Kontragent dont have corrent chemical analisys params";
+        }
+
+        uint num_in_group = (count + 1)%period;
+        if (num_in_group == 0) num_in_group = period;
+        return num_in_group == carInPeriod;
+    }
+    catch (MainSequenceException& ex) {
+        return true;
+    }
+
+}
+
+
+void MainSequence::processChemicalAnalysis(QVariantMap & bill, qx::dao::ptr<t_ttn> )const throw()
+{   
+    long count   = countCarsFromFieldForDay( memberValue<uint>("realNumField", bill)/100 );
 
     QString alho = get_setting<QString>("common_algorithm_of_analysis", options);
 
-    if ( alho == "discrete" ) {
-        uint num_in_group = (count + 1) % get_setting<uint>("common_size_of_group", options);
-        if ( num_in_group != get_setting<uint>("common_number_from_group", options) ) return;
+
+    if ( alho == "discrete"  ) {
+        if ( !checkForNeedDiscreteAnalisys(count) )
+            return;
     }
-    else if (alho == "database_const") {
-        if ( count + 1 == 1 ) {
-
-        }
-        else {
-            auto kontr = async_fetch<t_kontr>(memberValue<uint>("realNumField", bill)/100);
-            //, carInPeriod = 1;
-
-            if ( !kontr )  {
-                qWarning() << "cant get kontr of ttns for chemical analysis!!! field: "<<memberValue<uint>("realNumField", bill)/100;
-            }
-            uint period = kontr->period;
-
-            qx::dao::ptr<t_const> const_;
-
-            if ( period == 0 ) {
-                if (kontr->type == 0) {
-                    const_ = async_fetch<t_const>("ПериодичностьПроверкиМашинЮрЛиц");
-                }
-                else if ( kontr->type == 3 ) {
-                    const_ = async_fetch<t_const>("ПериодичностьПроверкиМашинФермеров");
-                }
-                else {
-                    qWarning()<< "error for kontragent type when doint chemical analysis";
-                }
-
-                if (!const_) {
-                    qWarning()<<"error for getting const for type: "<<kontr->type;
-                }
-
-                period = const_->value.toUInt();
-            }
-
-            uint carInPeriod = kontr->car_in_period;
-            if (carInPeriod == 0 ) {
-                carInPeriod = 1;
-                qWarning() << "error for getting carInPeriod. Kontragent dont have corrent chemical analisys params";
-            }
-            if ( period == 0 )  {
-                period = 1;
-                qWarning() << "error for getting period. Kontragent dont have corrent chemical analisys params";
-            }
-
-            uint num_in_group = (count + 1)%period;
-            if (num_in_group == 0) num_in_group = period;
-            if (num_in_group != carInPeriod) return;
+    else if (alho == "database_const") {        
+        if ( !checkForNeedDatabaseConstAnalisys( memberValue<uint>("realNumField", bill)/100 ) ) {
+            return;
         }
     }
 
+    uint analysis_place = 1;
     //определим место отбора
     analysis_place = (count+1)%3;
     if (analysis_place==0) analysis_place=3;
@@ -313,50 +321,55 @@ void MainSequence::processChemicalAnalysis(QVariantMap & bill, qx::dao::ptr<t_tt
     setMemberValue("pointOfAnal", analysis_place, bill);
 }
 
-bool MainSequence::processFreeBum(QVariantMap &, qx::dao::ptr<t_ttn>)
+void MainSequence::processFreeBum(QVariantMap & bill, qx::dao::ptr<t_ttn> ttn) const
+{
+    /*auto car = async_fetch<t_cars>( carCodeFromDriver( memberValue<uint>("driver", bill) ) );
+    if (!t_cars) {
+        ///qWarning()<<"cant get car for nh"
+    }*/
+
+    qDebug() << "LETS START BUM!";
+}
+
+bool MainSequence::updateBruttoValues(QVariantMap&, qx::dao::ptr<t_ttn>) const
 {
     return false;
 }
 
-bool MainSequence::updateBruttoValues(QVariantMap&, qx::dao::ptr<t_ttn>)
+bool MainSequence::updateTaraValues(QVariantMap&, qx::dao::ptr<t_ttn>) const
 {
     return false;
 }
 
-bool MainSequence::updateTaraValues(QVariantMap&, qx::dao::ptr<t_ttn>)
+bool MainSequence::isPureBruttoWeight(const QVariantMap& bill) const throw (MainSequenceException)
 {
-    return false;
+    if ( memberValue<uint>("bruttoWeight", bill) == 0 ) return true;
+    if ( memberValue<uint>("kagat", bill) == 0 ) return false;
+
+    throw MainSequenceException(confuse_brutto_tara_error_message, "confused brutto with tara");
 }
 
-bool MainSequence::brutto(QVariantMap & bill, qx::dao::ptr<t_ttn> ttn)
+bool MainSequence::checkDeltaForReweights(int prev_weight, int weight) const
+{
+    return qAbs( prev_weight - weight ) < get_setting<int>("brutto_delta_between_reweights", options);
+}
+
+void MainSequence::brutto(QVariantMap & bill, qx::dao::ptr<t_ttn> ttn) const throw(MainSequenceException)
 {
     repairBeetFieldCorrectnessIfNeeded(bill, ttn);
 
     int weight = getWeight();
 
-    if (weight < 0) {
-        qDebug() << "brutto: weights dont stable!";
-        //printOnTablo(weight_not_stable_message); return false;
-        sleepnbtmerr(weight_not_stable_message, apply_card_message); return false;
+    if ( !isWeightCorrect( weight ) ) {
+        throw MainSequenceException(weight_not_stable_message, "brutto: weights dont stable!" );
     }
 
-
-    if (memberValue<uint>("bruttoWeight", bill) == 0) {
-
-    }
-    else if (memberValue<uint>("kagat", bill) == 0 ) {
-        if ( qAbs( memberValue<uint>("bruttoWeight", bill) - weight ) >
-             get_setting<uint>("brutto_delta_between_reweights", options) ) {
-            qWarning() << "reweight: brutto rup failed!: prevWeight: "<< memberValue<uint>("bruttoWeight", bill)
-                       << " cur: "<<weight<<" max_delta: "
-                       << get_setting<uint>("brutto_delta_between_reweights", options);
-
-            //printOnTablo( brutto_rupture_failed_message );
-            sleepnbtmerr(brutto_rupture_failed_message, apply_card_message); return false;
-            return false;
-        }
-
-        setMemberValue("flags", memberValue<QBitArray>("flags", bill) | QBitArray(1, true), bill );
+    if ( !isPureBruttoWeight(bill) && !checkDeltaForReweights(memberValue<uint>("bruttoWeight", bill), weight) ) {
+        throw MainSequenceException(brutto_rupture_failed_message,
+                                    "reweight: brutto rup failed!: prevWeight: " +
+                                     memberValue<QString>("bruttoWeight", bill)  +
+                                    " cur: " + QString::number(weight)  + " max_delta: " +
+                                    get_setting<QString>("brutto_delta_between_reweights", options));
     }
 
     setMemberValue("bruttoWeight", weight, bill);
@@ -364,7 +377,7 @@ bool MainSequence::brutto(QVariantMap & bill, qx::dao::ptr<t_ttn> ttn)
 
     processChemicalAnalysis( bill, ttn );
 
-    return processFreeBum( bill, ttn );
+    processFreeBum( bill, ttn );
 
 
 
@@ -384,7 +397,7 @@ bool MainSequence::brutto(QVariantMap & bill, qx::dao::ptr<t_ttn> ttn)
     //print message for tablo
 }
 
-bool MainSequence::tara(QVariantMap & bill , qx::dao::ptr<t_ttn>)
+void MainSequence::tara(QVariantMap & bill , qx::dao::ptr<t_ttn>) const throw (MainSequenceException)
 {
     //check for reweight tara and time for route and print
 
@@ -404,7 +417,6 @@ bool MainSequence::tara(QVariantMap & bill , qx::dao::ptr<t_ttn>)
     //creating new task
     //
 
-    return false;
 }
 
 void MainSequence::onDisappearOnWeight()

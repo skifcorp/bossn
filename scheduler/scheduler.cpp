@@ -48,11 +48,16 @@ void Scheduler::addFunction(function<void ()>schf, function<void ()> tmf, int sc
 
 void Scheduler::execFunction(function<void ()>schf, function<void ()> tmf, int tm_msec)
 {
+   // qDebug () << "exec function!";
+
     waitForFree();
     Schedul s(schf, tmf, 0, tm_msec);
     connect(s.timeout_timer.data(), SIGNAL(timeout()), this, SLOT(onTimeoutTimer()));
     startNewCoro(s);
+
     waitForFree();
+
+    //qDebug() << "exit from exec function!";
 }
 
 void Scheduler::onTimeoutTimer()
@@ -89,6 +94,11 @@ void Scheduler::onReadyRead()
 
 void Scheduler::execute()
 {
+    //Q_ASSERT(current_coro.schedul);
+    if (!current_coro.schedul) {
+        qWarning() << "something terrible! "<<device.data()->deviceName();
+    }
+
     current_coro.schedul->timeout_timer->start();
 
     current_coro.coro->cont();

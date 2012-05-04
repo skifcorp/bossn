@@ -26,7 +26,7 @@ QVariant DisplayFutaba::printText(const QVariant & txt)
   int kvo;
   //screen mode
   QByteArray command;
-  //очистити екран
+  //clear display
   command.append(0x1b);
   command.append(0x5b);
   command.append(0x32);
@@ -47,20 +47,20 @@ QVariant DisplayFutaba::printText(const QVariant & txt)
   for ( int i = 0; i < text.length(); ++i ) {
     int t1 = RusToFutaba(text.at(i));
     kvo = kvo + 1;
-    if ( t1 == 127 ) { //англійський текст
+    if ( t1 == 127 ) { //english text
       //Double size on
       command.append(0x1b);
       command.append(0x23);
       command.append(0x36);
       command.append(text.at(i));
     }
-    else if ( t1 == 105 ) { // для укр букв "i"
+    else if ( t1 == 105 ) { // ukrainian letter i
       command.append(0x1b);
       command.append(0x23);
       command.append(0x35);
       command.append( t1 );
     }
-    else { //російський текст
+    else { //russian text
       //Double size off
       command.append(0x1b);
       command.append(0x23);
@@ -82,10 +82,12 @@ QVariant DisplayFutaba::printText(const QVariant & txt)
   //printByteArray(command);
   //qDebug() << "command: "<<command.length();
 
+  //qDebug () << "something wroted to futaba!!!!";
+
   io_device()->write(command);
   //qDebug() << "writed: "<<ret<<" bytes";
 
-  //Sleep(150); //пакишо такий спосіб уникнення помилки при частому записі в порт без цього помилка CommEvent overlapped write error: 170
+  //Sleep(150); //CommEvent overlapped write error: 170
   return QVariant(true);
 }
 

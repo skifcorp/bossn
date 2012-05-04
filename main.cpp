@@ -60,6 +60,7 @@ void initPorters(QVector<Porter::Pointer>& porters, Tags& tags)
         //tags["tablo"]->setReadObject(w.data());
         //tags["tablo"]->appendFunc("value", w.data() );
 
+        qDebug() <<"tablo initialized!";
     }
 
 

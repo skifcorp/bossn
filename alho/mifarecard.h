@@ -12,7 +12,29 @@ using std::function;
 #include "mifarereader.h"
 #include "tags.h"
 #include "cardstructs.h"
+#include "mainsequenceexcepion.h"
 
+class MifareCardException
+{
+public:
+    MifareCardException(const QString& msg):message_(msg){}
+
+    virtual ~MifareCardException() {}
+
+    QString message() const {return message_;}
+
+private:
+    QString message_;
+
+};
+
+class MifareCardAuthException : public MifareCardException
+{
+public:
+    MifareCardAuthException(const QString& msg) : MifareCardException(msg) {}
+    ~MifareCardAuthException () {}
+private:
+};
 
 class MifareCard
 {
@@ -23,13 +45,10 @@ public:
 
     bool active() const {return activate_card.active();}
 
-    bool autorize( const QByteArray& , int block );
-    //MifareRead readBlock(int num);
+    void autorize( const QByteArray& , int block ) throw (MifareCardException, MifareCardAuthException);
+    QVariantMap readStruct(const StructConf& conf) throw (MifareCardException);
 
-
-
-    QVariantMap readStruct(const StructConf& conf);
-    bool writeStruct(const StructConf& conf, const QVariantMap& s);
+    void writeStruct(const StructConf& conf, const QVariantMap& s) throw (MifareCardException);
 
     QByteArray uid() const {return activate_card.uid;}  
     static uchar passwordBlock(uchar block)
@@ -51,8 +70,8 @@ private:
     Tag::WeakPointer reader;
     ActivateCardISO14443A activate_card;
 
-    QVariant readMember (const StructMemberConf& , const QByteArray& ) const;
-    bool     writeMember(const StructMemberConf& , const QVariant&, QByteArray& ) const;
+    QVariant readMember (const StructMemberConf& , const QByteArray& ) const throw (MifareCardException);
+    void     writeMember(const StructMemberConf& , const QVariant&, QByteArray& ) const throw (MifareCardException);
 
 };
 

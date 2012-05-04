@@ -18,6 +18,7 @@ void FormaterSequence::start()
     qDebug() << "password block: "<<password_block;
 
     QVector<QByteArray> formated_cards;
+#if 0
 
     while (true) {       
         ActivateCardISO14443A act = tags["reader1"]->func("activateIdleA").value<ActivateCardISO14443A>();
@@ -88,4 +89,5 @@ void FormaterSequence::start()
 
         sleepnb(sleepnb_timeout);
     }
+#endif
 }

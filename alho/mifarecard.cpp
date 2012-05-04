@@ -7,12 +7,13 @@
 #include <QBitArray>
 
 
+
 MifareCard::MifareCard(Tag::WeakPointer r, const ActivateCardISO14443A& ac):reader(r), activate_card(ac)
 {
 
 }
 
-bool MifareCard::autorize(const QByteArray & key, int block)
+void MifareCard::autorize(const QByteArray & key, int block) throw (MifareCardException, MifareCardAuthException)
 {
     //HostCodedKey coded_key =  reader->getHostCodedKey(key);
     //qDebug () << "debugging autorize...";
@@ -22,8 +23,8 @@ bool MifareCard::autorize(const QByteArray & key, int block)
     HostCodedKey coded_key =  reader.data()->func("getHostCodedKey", Q_ARG(const QVariant&, key_var)).value<HostCodedKey>();
 
     if (!coded_key.valid()) {
-        qWarning()<<"host coded key not valid!";
-        return false;
+        //qWarning()<<"host coded key not valid!";
+        throw MifareCardException("host coded key not valid!");
     }
 
     AuthKey auth_key;
@@ -35,7 +36,9 @@ bool MifareCard::autorize(const QByteArray & key, int block)
     //bool status = reader->doAuth(auth_key);
     QVariant auth_key_var = QVariant::fromValue<AuthKey>(auth_key);
 
-    return reader.data()->func("doAuth", Q_ARG(QVariant, auth_key_var)).toBool();
+    if ( !reader.data()->func("doAuth", Q_ARG(QVariant, auth_key_var)).toBool() ) {
+        throw MifareCardAuthException("auth failed");
+    }
 }
 /*
 MifareRead MifareCard::readBlock(int num)
@@ -54,65 +57,62 @@ MifareRead MifareCard::readBlock(int num)
     return r;
 }*/
 
-QVariant MifareCard::readMember(const StructMemberConf& mc, const QByteArray& arr) const
+QVariant MifareCard::readMember(const StructMemberConf& mc, const QByteArray& arr) const throw (MifareCardException)
 {
     if ( mc.offset + mc.length >= static_cast<uint>(arr.length()) ) {
-        qWarning() << "ReadMember: Member struct with name: "<<mc.memberName<<" have offset: "<<mc.offset
-                   <<" and length: "<<mc.length<<" which is bigger than raw data array size: "<<arr.length();
-        return QVariant();
+        throw MifareCardException( "ReadMember: Member struct with name: " + mc.memberName + " have offset: " +
+                                   QString::number(mc.offset) + " and length: " + QString::number(mc.length) +
+                                   " which is bigger than raw data array size: " + QString::number(arr.length()) );
+
     }
 
     auto iter = StructMemberConf::typesFactoryForRead.find(mc.typeName);
 
     if (iter == StructMemberConf::typesFactoryForRead.end()) {
-        qWarning() << "type: "<<mc.typeName<<" in member: "<<mc.memberName<<" not found!";
-        return QVariant();
+        throw MifareCardException( "type: " + mc.typeName + " in member: " + mc.memberName + " not found!" );
+
     }
 
-    //qDebug() << "reading member: "<<mc.memberName;
-
-    QByteArray tmp = arr.mid(mc.offset, mc.length);
-    //printByteArray(tmp);
 
     return (*iter)(arr.mid(mc.offset, mc.length));
 }
 
-bool MifareCard::writeMember(const StructMemberConf &mc, const QVariant& val, QByteArray & arr) const
+void MifareCard::writeMember(const StructMemberConf &mc, const QVariant& val, QByteArray & arr) const throw (MifareCardException)
 {
     if ( mc.offset + mc.length >= static_cast<uint>(arr.length()) ) {
-        qWarning() << "WriteMember: struct with name: "<<mc.memberName<<" have offset: "<<mc.offset
-                   <<" and length: "<<mc.length<<" which is bigger than raw data array size: "<<arr.length();
-        return false;
+        throw MifareCardException( "WriteMember: struct with name: " + mc.memberName + " have offset: " +
+                                    QString::number(mc.offset) + " and length: " + QString::number(mc.length) +
+                                    " which is bigger than raw data array size: " + QString::number(arr.length()) );
     }
 
     auto iter = StructMemberConf::typesFactoryForWrite.find(mc.typeName);
 
     if (iter == StructMemberConf::typesFactoryForWrite.end()) {
-        qWarning() << "WriteMember: type: "<<mc.typeName<<" in member: "<<mc.memberName<<" not found!";
-        return false;
+        throw MifareCardException( "WriteMember: type: " + mc.typeName + " in member: " + mc.memberName + " not found!");
     }
 
     //qDebug() << "replacing "<<mc.length<<" bytes with "<<(*iter)(val).size()<<" bytes .. type: " << mc.typeName;
 
 
 
-    QByteArray tmp = (*iter)(val);
+    //QByteArray tmp = (*iter)(val);
     //qDebug() << "write member: "<<mc.memberName<< " val: "<<val;
     //printByteArray(tmp);
     arr.replace(mc.offset, mc.length, (*iter)(val));
-
-    return true;
 }
 
-bool MifareCard::writeStruct(const StructConf &conf, const QVariantMap &s)
+void MifareCard::writeStruct(const StructConf &conf, const QVariantMap &s) throw (MifareCardException)
 {
     QByteArray arr(conf.size(), 0);
-
-
-    for (StructConf::MembersConf::const_iterator iter = conf.members_conf.begin(); iter != conf.members_conf.end(); ++iter) {
-        writeMember(*iter, s[iter->memberName], arr);
-        //qDebug() << "sizeof: " << arr.size();
+    try {
+        for (StructConf::MembersConf::const_iterator iter = conf.members_conf.begin(); iter != conf.members_conf.end(); ++iter) {
+            writeMember(*iter, s[iter->memberName], arr);
+        }
     }
+    catch (MifareCardException& ex)  {
+        throw ex;
+    }
+
 
     uint offset_in_data = 0;
     for (int i = 0; i<conf.blocks.count(); ++i) {
@@ -120,46 +120,36 @@ bool MifareCard::writeStruct(const StructConf &conf, const QVariantMap &s)
 
         QVariant ret = reader.data()->func("writeBlock", Q_ARG(const QVariant&, conf.blocks[i].blockNum ), Q_ARG(const QVariant&, QVariant(block)));
         if ( !ret.toBool() ) {
-            qWarning() << "MifareCard::writeStruct: cant write struct!!"; return false;
+            throw MifareCardException("MifareCard::writeStruct: cant write struct!!");
         }
 
         offset_in_data += conf.blocks[i].blockSize;
     }
-
-    return true;
 }
 
-QVariantMap MifareCard::readStruct(const StructConf &conf)
-{
+QVariantMap MifareCard::readStruct(const StructConf &conf) throw (MifareCardException)
+{   
     QVariantMap ret;
     QByteArray arr;
     for (int i = 0; i<conf.blocks.count(); ++i) {
-        //qDebug () << "readStruct->before readBlock!";
-
         MifareRead mr = reader.data()->func("readBlock", Q_ARG(const QVariant&, QVariant(conf.blocks[i].blockNum))).value<MifareRead>();
 
-        //qDebug() << "readStruct: block_num: " << conf.blocks[i].blockNum;
-
-        //printByteArray(mr.data);
-
         if (!mr.result) {
-            qWarning() << "readBlock seems failed!";
-
-            return QVariantMap();
+             throw MifareCardException("readBlock seems failed!");
         }
 
         arr += mr.data;
     }
 
-    for (int i = 0; i<conf.members_conf.count(); ++i) {
-        QVariant val = readMember(conf.members_conf[i], arr);
+    try {
+        for (int i = 0; i<conf.members_conf.count(); ++i) {
+            QVariant val = readMember(conf.members_conf[i], arr);
+            ret.insert( conf.members_conf[i].memberName,  val);
+        }
 
-        //qDebug() << "member: "<<conf.members_conf[i].memberName<<" val: "<<val;
-
-        if (!val.isValid()) {return QVariantMap();}
-
-        ret.insert( conf.members_conf[i].memberName,  val);
+        return ret;
     }
-
-    return ret;
+    catch (MifareCardException & ex) {
+        throw ex;
+    }
 }
