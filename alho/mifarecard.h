@@ -12,7 +12,7 @@ using std::function;
 #include "mifarereader.h"
 #include "tags.h"
 #include "cardstructs.h"
-#include "mainsequenceexcepion.h"
+
 
 class MifareCardException
 {

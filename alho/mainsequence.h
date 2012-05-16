@@ -49,6 +49,9 @@ private:
     QString system_message;
 };
 
+
+class MifareCard;
+
 class MainSequence : public QObject,
                      public AlhoSequence
 {
@@ -123,6 +126,22 @@ private:
         }
     }
 
+    template <class T>
+    qx::dao::ptr<T> async_exec_query(const QString& qs) const throw (MysqlException)
+    {
+        qx_query q(qs);
+        qx::dao::ptr<T> t = qx::dao::ptr<T>(new T);
+        //T t;
+        QSqlError err = async_call( [&q, &t]{ return qx::dao::execute_query(q, t); });
+
+        if  (err.isValid()) {
+            throw MysqlException(err.databaseText() , err.driverText());
+        }
+
+        return t;
+    }
+
+
     template <class Func, class ... Params>
     auto wrap_async_ex (const QString& user_msg, const QString& admin_msg,
                         Func f, Params ... p) const throw (MainSequenceException) -> decltype( f(p...) )
@@ -152,14 +171,14 @@ private:
     int getWeight() const;
 
 
-    void brutto(QVariantMap&, qx::dao::ptr<t_ttn> ) const throw (MainSequenceException);
+    void brutto(QVariantMap&, qx::dao::ptr<t_ttn>, qx::dao::ptr<t_cars> ) const throw (MainSequenceException);
     void tara  (QVariantMap&, qx::dao::ptr<t_ttn> ) const throw (MainSequenceException) ;
 
     void repairBeetFieldCorrectnessIfNeeded(QVariantMap &, qx::dao::ptr<t_ttn> ) const throw();
     void processChemicalAnalysis(QVariantMap&, qx::dao::ptr<t_ttn> ) const throw();
-    void processFreeBum(QVariantMap&, qx::dao::ptr<t_ttn> ) const;
-    bool updateBruttoValues(QVariantMap&, qx::dao::ptr<t_ttn>)const;
-    bool updateTaraValues(QVariantMap&, qx::dao::ptr<t_ttn>)const;
+    void processFreeBum(QVariantMap & bill, qx::dao::ptr<t_ttn> ttn, qx::dao::ptr<t_cars> car ) const throw(MainSequenceException);
+    void updateBruttoValues(QVariantMap&, qx::dao::ptr<t_ttn>, const MifareCard& )const throw(MainSequenceException);
+    void updateTaraValues(QVariantMap&, qx::dao::ptr<t_ttn>)const throw(MainSequenceException);
 
 
     bool isWeightCorrect(int w) const {return w >= 0;}
@@ -171,6 +190,8 @@ private:
     bool checkForNeedDiscreteAnalisys(long count) const throw();
     bool checkForNeedDatabaseConstAnalisys(long count) const throw();
     uint getAnalisysPeriodFromStorage(uint typ) const throw (MysqlException, MainSequenceException);
+    QString getBumsClause(const QVariantMap & bill, qx::dao::ptr<t_cars> car) const throw(MainSequenceException);
+    QString bruttoFinishMessage(const QVariantMap & bill)  const;
 
     template <class T>
     void setMemberValue(const QString& mn, const T& v, QVariantMap& map) const

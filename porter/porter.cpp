@@ -62,7 +62,7 @@ void Porter::setScheduled(bool s)
 void Porter::addTagToSchedule(Drivers::size_type driver_index, const QString& tag_name)
 {
     scheduler.addFunction(
-            [&drivers, driver_index, &methods, tag_name] {
+            [drivers, driver_index, &methods, tag_name] {
                 MethodInfo & mi = methods[tag_name];
 
                 QMetaObject::invokeMethod(drivers[driver_index].data(), mi.method.toAscii().data(),

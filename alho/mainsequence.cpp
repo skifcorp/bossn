@@ -33,13 +33,28 @@ const QString kvo_mah_error_message                  = QT_TRANSLATE_NOOP("MainSe
 const QString kontr_get_error_message                = QT_TRANSLATE_NOOP("MainSequence", "KontrGet failed! Contact to dispatcher");
 const QString get_car_for_bum_error_message          = QT_TRANSLATE_NOOP("MainSequence", "Getting car for bum failed! Contact to dispatcher");
 const QString confuse_brutto_tara_error_message      = QT_TRANSLATE_NOOP("MainSequence", "You confused brutto with tara! Contact to dispatcher");
+const QString get_backboard_bum_weight_const_error   = QT_TRANSLATE_NOOP("MainSequence", "Getting backboard bum weight error! Contact to dispatcher");
+const QString get_free_bum_error                     = QT_TRANSLATE_NOOP("MainSequence", "Getting free bum error! Contact to dispatcher");
+const QString update_bum_queue_error                 = QT_TRANSLATE_NOOP("MainSequence", "Updating bum queue error! Contact to dispatcher");
+//const QString update_ttn_platform_error              = QT_TRANSLATE_NOOP("MainSequence", "Up! Contact to dispatcher");
 
 //const QString something_failed_in_alho               = QT_TRANSLATE_NOOP("MainSequence", "Platform autodetect failed! Contact to dispatcher");
 
+const QString brutto_finish_weight_message                  = QT_TRANSLATE_NOOP("MainSequence", "%1 kg");
+const QString brutto_finish_lab_message                     = QT_TRANSLATE_NOOP("MainSequence", "Lab(%1)");
+const QString brutto_finish_bum_message                     = QT_TRANSLATE_NOOP("MainSequence", "BUM %1");
 
+inline QString MainSequence::bruttoFinishMessage(const QVariantMap & bill) const
+{
+    QString ret;
+    ret = brutto_finish_weight_message.arg( memberValue<QString>("bruttoWeight", bill) );
+    if ( memberValue<QBitArray>("flags", bill).at(2) ) {
+        ret += brutto_finish_lab_message.arg( memberValue<QString>("pointOfAnal", bill) );
+    }
+    ret += brutto_finish_bum_message.arg( memberValue<QString>("bum", bill) );
 
-
-
+    return ret;
+}
 
 inline uint carCodeFromDriver(uint dr)
 {
@@ -155,19 +170,30 @@ void MainSequence::onAppearOnWeight()
                 throw MainSequenceException(car_blocked_message, "car is blocked!!!");
             }
 
-            auto ttn = wrap_async_ex(fetch_ttn_error_message, "fetching ttn failed!!!",
-                                  [&bill, this]{return async_fetch<t_ttn>(bill["billNumber"].toUInt());});
+
 
             QString platform_type = detectPlatformType(bill);
 
             if (platform_type == "brutto" ) {
-                brutto(bill, ttn);
-                updateBruttoValues(bill, ttn);
+                auto ttn = wrap_async_ex(fetch_ttn_error_message, "fetching ttn failed!!!",
+                                  [&bill, this]{return async_fetch<t_ttn>(bill["billNumber"].toUInt());});
+                brutto(bill, ttn, car);
+                updateBruttoValues(bill, ttn, card);
+                card.writeStruct(bill_conf(options), bill);
+
+                printOnTablo( bruttoFinishMessage(bill) );
+                sleepnb( get_setting<int>("brutto_finish_pause", bill) );
+                printOnTablo( apply_card_message );
+                continue;
             }
             else if (platform_type == "tara" ) {
-                tara(bill, ttn);
-                updateTaraValues(bill, ttn);
+                //tara(bill, ttn);
+                //updateTaraValues(bill, ttn);
             }
+
+
+
+
         }
         catch (MifareCardAuthException& ex) {
             qWarning() << "auth_exeption! "<<ex.message();
@@ -199,7 +225,7 @@ void MainSequence::repairBeetFieldCorrectnessIfNeeded(QVariantMap & bill, qx::da
         ttn->real_field = memberValue<uint>("numField", bill);
 
         try {
-            async_update(ttn);
+            //async_update(ttn);
         }
         catch(MysqlException& ex) {
             qWarning()<< ex.databaseText() + " " + ex.driverText();
@@ -240,12 +266,12 @@ uint MainSequence::getAnalisysPeriodFromStorage(uint typ) const throw(MysqlExcep
     qx::dao::ptr<t_const> const_;
 
     if ( typ == 0 ) {
-        const_ = wrap_async_ex( "error for kontragent type when doint chemical analysis typ=0", QString(),
-                                [this]{return async_fetch<t_const>("ПериодичностьПроверкиМашинЮрЛиц");});
+        const_ = wrap_async_ex( "error for kontragent type when doint chemical analysis typ=0", QString(),                                
+                                [this]{return async_fetch<t_const>(get_setting<QString>("corpotare_check_period_name", options));});
     }
     else if ( typ == 3 ) {
-        const_ = wrap_async_ex( "error for kontragent type when doint chemical analysis typ=0", QString(),
-                                [this]{return async_fetch<t_const>("ПериодичностьПроверкиМашинФермеров"); });
+        const_ = wrap_async_ex( "error for kontragent type when doint chemical analysis typ=3", QString(),
+                                [this]{return async_fetch<t_const>(get_setting<QString>("farmer_check_period_name", options)); });
     }
     else {
         //qWarning()<< "error for kontragent type when doint chemical analysis";
@@ -321,24 +347,91 @@ void MainSequence::processChemicalAnalysis(QVariantMap & bill, qx::dao::ptr<t_tt
     setMemberValue("pointOfAnal", analysis_place, bill);
 }
 
-void MainSequence::processFreeBum(QVariantMap & bill, qx::dao::ptr<t_ttn> ttn) const
+QString MainSequence::getBumsClause(const QVariantMap & bill, qx::dao::ptr<t_cars> car) const throw(MainSequenceException)
 {
-    /*auto car = async_fetch<t_cars>( carCodeFromDriver( memberValue<uint>("driver", bill) ) );
-    if (!t_cars) {
-        ///qWarning()<<"cant get car for nh"
-    }*/
+    QStringList ret;
+    if (car->dump_body_truck) {
+        ret.append("id = 99");
+    }
 
-    qDebug() << "LETS START BUM!";
+    if (car->side_board) {
+        ret.append("(id % 10) = 2");
+    }
+
+    if (car->back_board) {
+        qx::dao::ptr<t_const> const_ = wrap_async_ex(get_backboard_bum_weight_const_error, "error getting const for backboard bum",
+                        //[this]{return async_fetch<t_const>();});
+                        [this]{return async_fetch<t_const>(get_setting<QString>("bum11_name", options));});
+
+        if ( memberValue<int>("bruttoWeight", bill) < const_->value.toInt() ) {
+            ret.append("id = 11");
+        }
+        else {
+            ret.append("(id % 10) = 1");
+        }
+    }
+
+    return  ret.join(" or ");
 }
 
-bool MainSequence::updateBruttoValues(QVariantMap&, qx::dao::ptr<t_ttn>) const
+void MainSequence::processFreeBum(QVariantMap & bill, qx::dao::ptr<t_ttn> ttn, qx::dao::ptr<t_cars> car) const throw(MainSequenceException)
 {
-    return false;
+    QString bums_where_clause = getBumsClause(bill, car);
+
+    const QString q1 =  "select * from t_bum where state=1 and queue=(select min(queue) from t_bum where state=1 and ("+bums_where_clause+")) and ("+bums_where_clause +");";
+    const QString q2 =  "select * from t_bum where queue=(select min(queue) from t_bum where ("+bums_where_clause+")) and ("+bums_where_clause +");";
+
+    qx::dao::ptr<t_bum> bum = wrap_async_ex(get_free_bum_error, "Error getting free bum1",
+        [&bums_where_clause, &q1, this]{ return async_exec_query<t_bum>(q1);});
+
+    if ( !bum ) {
+        bum = wrap_async_ex(get_free_bum_error, "Error getting free bum2",
+            [&bums_where_clause, &q2, this]{ return async_exec_query<t_bum>(q2);});
+    }
+
+    bum->queue += 1;
+    wrap_async_ex( update_bum_queue_error, "Error updating bum queue", [&bum, this]{ async_update(bum); });
+
+    if ( bum->id != 99 ) {
+        ttn->bum_platforma = bum->id % 10;
+        //wrap_async_ex( update_ttn_platform_error, "Error updating ttn platform", [&ttn]{ async_update(ttn); });
+        setMemberValue("bum", ttn->bum_platforma / 10, bill);
+    }
+    else {
+        setMemberValue("bum", ttn->bum_platforma, bill);
+    }
 }
 
-bool MainSequence::updateTaraValues(QVariantMap&, qx::dao::ptr<t_ttn>) const
+void MainSequence::updateBruttoValues(QVariantMap& bill, qx::dao::ptr<t_ttn> ttn, const MifareCard& card) const throw(MainSequenceException)
+{    
+    ttn->real_field       = memberValue<int>("realNumField", bill);
+    ttn->loader           = memberValue<int>("numLoader", bill);
+    ttn->dt_of_load       = memberValue<QDateTime>("dateOfLoad", bill);
+    ttn->brutto           = memberValue<int>("bruttoWeight", bill);
+    ttn->dt_of_brutto     = memberValue<QDateTime>("dateOfBrutto", bill);
+    ttn->driver           = carCodeFromDriver( memberValue<int>("driver", bill) ) ;
+    ttn->bum              = memberValue<int>("bum", bill);
+    ttn->routed_to_lab    = memberValue<QBitArray>("flags", bill).at(2);
+    ttn->num_kart         = byteArrayToString (card.uid());
+    ttn->copy             = 0;
+    ttn->time_of_brutto   = ttn->dt_of_brutto.time().toString("hh:mm:ss");
+    ttn->brutto_platforma = 88;
+
+    wrap_async_ex( update_ttn_error_message, "Error updating ttn", [&ttn, this]{ async_update(ttn); });
+}
+
+void MainSequence::updateTaraValues(QVariantMap&, qx::dao::ptr<t_ttn>) const throw(MainSequenceException)
 {
-    return false;
+  /*("pointOfAnal"   , bill);
+    ("taraWeight"    , bill);
+    ("normTaraWeight", bill);
+    ("dateOfTara"    , bill);
+    ("impurity"      , bill);
+    ("shugarContent" , bill);
+    ("greenWeight"   , bill);
+    ("bumFact"       , bill);
+    ("kagat"         , bill);
+    ("dateOfUnload"  , bill);*/
 }
 
 bool MainSequence::isPureBruttoWeight(const QVariantMap& bill) const throw (MainSequenceException)
@@ -354,7 +447,7 @@ bool MainSequence::checkDeltaForReweights(int prev_weight, int weight) const
     return qAbs( prev_weight - weight ) < get_setting<int>("brutto_delta_between_reweights", options);
 }
 
-void MainSequence::brutto(QVariantMap & bill, qx::dao::ptr<t_ttn> ttn) const throw(MainSequenceException)
+void MainSequence::brutto(QVariantMap & bill, qx::dao::ptr<t_ttn> ttn, qx::dao::ptr<t_cars> car) const throw(MainSequenceException)
 {
     repairBeetFieldCorrectnessIfNeeded(bill, ttn);
 
@@ -377,7 +470,7 @@ void MainSequence::brutto(QVariantMap & bill, qx::dao::ptr<t_ttn> ttn) const thr
 
     processChemicalAnalysis( bill, ttn );
 
-    processFreeBum( bill, ttn );
+    processFreeBum( bill, ttn, car );
 
 
 

@@ -36,4 +36,13 @@ inline void sleepnb(int msec)
     while (tm.elapsed() < msec) qApp->processEvents();
 }
 
+inline QString byteArrayToString(const QByteArray& ba)
+{
+    QString ret;
+    for (int i = 0; i< ba.count(); ++i) {
+        ret += QString::number(static_cast<int>(ba[i]), 16);
+    }
+    return ret;
+}
+
 #endif // FUNC_H

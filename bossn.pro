@@ -17,8 +17,8 @@ TEMPLATE = app
 INCLUDEPATH    += ../qextserialport/src/ db alho serial weight generic iodevicewrapper scheduler  \
                       porter task dido perimeter tools reader ../coroutine/src/ ../QxOrm/include  \
                       $$(BOOST_ROOT)
-QMAKE_CXXFLAGS += -std=c++0x
-
+QMAKE_CXXFLAGS += -std=c++0x #-m32
+#QMAKE_LFLAGS   += -m32
 
 CONFIG(debug, debug|release) {
 LIBS           +=   -L../qextserialport_build/src/build/ -lqextserialportd              \

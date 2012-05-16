@@ -276,6 +276,12 @@ void initProgOptions(QVariantMap & opts)
     opts.insert("common_algorithm_of_analysis"  , "database_const" ); /*discrete or database_const*/
     opts.insert("common_size_of_group"          , 5);
     opts.insert("common_number_from_group"      , 10);
+    opts.insert("corpotare_check_period_name"   , "ПериодичностьПроверкиМашинЮрЛиц");
+    opts.insert("farmer_check_period_name"      , "ПериодичностьПроверкиМашинФермеров");
+    opts.insert("bum11_name"                    , "ВесДляБум11");
+    opts.insert("brutto_finish_pause"           , 10000 )  ;
+    opts.insert("tara_finish_pause"             , 10000 )  ;
+
 }
 
 void initTasks(TaskExec & tasks, Tags & tags, MainSequence & seq )
