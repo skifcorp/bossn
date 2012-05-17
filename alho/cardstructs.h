@@ -95,4 +95,7 @@ inline const StructConf & bill_conf(const QVariantMap& opts)
     return s;
 }
 
+QDateTime timeShitToDateTime(ulong timeInMinutes);
+ulong dateTimeToTimeShit(const QDateTime& dt);
+
 #endif // CARDSTRUCTS_H

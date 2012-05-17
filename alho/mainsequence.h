@@ -5,6 +5,8 @@
 #include <QDebug>
 #include <QTime>
 #include <QCoreApplication>
+#include <QBitArray>
+#include <QtConcurrentRun>
 
 #include "tags.h"
 #include "alhosequence.h"
@@ -12,7 +14,7 @@
 #include "func.h"
 #include "dbstructs.h"
 
-#include <QtConcurrentRun>
+
 
 class MysqlException
 {
@@ -107,6 +109,20 @@ private:
     }
 
     template <class T>
+    qx::dao::ptr<T> async_fetch_by_query(const qx_query& q) const throw (MysqlException)
+    {
+        qx::dao::ptr<T> p = qx::dao::ptr<T>( new T() );
+
+        QSqlError err = async_call([&p, &q]{return qx::dao::fetch_by_query(q, p);});
+
+        if  (err.isValid()) {
+            throw MysqlException(err.databaseText() , err.driverText());
+
+        }
+        return p;
+    }
+
+    template <class T>
     void async_update(qx::dao::ptr<T> p) const throw (MysqlException)
     {
         QSqlError err = async_call([&p]{return qx::dao::update_optimized<T>(p);});
@@ -141,7 +157,17 @@ private:
         return t;
     }
 
+    void async_exec_query(const QString& qs) const throw (MysqlException)
+    {
+        qx_query q(qs);
 
+
+        QSqlError err ;//= async_call( [&q]{ QVariantMap m; return qx::dao::execute_query(q, m); });
+
+        if  (err.isValid()) {
+            throw MysqlException(err.databaseText() , err.driverText());
+        }   
+    }
     template <class Func, class ... Params>
     auto wrap_async_ex (const QString& user_msg, const QString& admin_msg,
                         Func f, Params ... p) const throw (MainSequenceException) -> decltype( f(p...) )
@@ -171,15 +197,17 @@ private:
     int getWeight() const;
 
 
-    void brutto(QVariantMap&, qx::dao::ptr<t_ttn>, qx::dao::ptr<t_cars> ) const throw (MainSequenceException);
-    void tara  (QVariantMap&, qx::dao::ptr<t_ttn> ) const throw (MainSequenceException) ;
+    void brutto(QVariantMap&, qx::dao::ptr<t_cars>, const MifareCard& ) const throw (MainSequenceException);
+    void tara  (QVariantMap&, qx::dao::ptr<t_cars> ) const throw (MainSequenceException) ;
 
     void repairBeetFieldCorrectnessIfNeeded(QVariantMap &, qx::dao::ptr<t_ttn> ) const throw();
     void processChemicalAnalysis(QVariantMap&, qx::dao::ptr<t_ttn> ) const throw();
     void processFreeBum(QVariantMap & bill, qx::dao::ptr<t_ttn> ttn, qx::dao::ptr<t_cars> car ) const throw(MainSequenceException);
     void updateBruttoValues(QVariantMap&, qx::dao::ptr<t_ttn>, const MifareCard& )const throw(MainSequenceException);
-    void updateTaraValues(QVariantMap&, qx::dao::ptr<t_ttn>)const throw(MainSequenceException);
-
+    void updateTaraValues(QVariantMap&, qx::dao::ptr<t_ttn>, qx::dao::ptr<t_cars>, bool pure_weight)const throw(MainSequenceException);
+    void checkLaboratory( const QVariantMap& , qx::dao::ptr<t_cars>)const throw(MainSequenceException);
+    void checkKagat(const QVariantMap&) const throw(MainSequenceException);
+    void checkBum(QVariantMap&) const throw(MainSequenceException);
 
     bool isWeightCorrect(int w) const {return w >= 0;}
     bool isPureBruttoWeight(const QVariantMap& bill) const throw (MainSequenceException);
@@ -193,6 +221,11 @@ private:
     QString getBumsClause(const QVariantMap & bill, qx::dao::ptr<t_cars> car) const throw(MainSequenceException);
     QString bruttoFinishMessage(const QVariantMap & bill)  const;
 
+    bool isPureTaraWeight(const QVariantMap& bill)const throw (MainSequenceException);
+    qx::dao::ptr<t_ttn> ttnByDriver( int  )const throw (MainSequenceException);
+    void clearBumQueue(qx::dao::ptr<t_ttn> ttn) const throw (MainSequenceException);
+    void processDrivingTime(qx::dao::ptr<t_ttn> , qx::dao::ptr<t_cars> )const throw (MainSequenceException);
+
     template <class T>
     void setMemberValue(const QString& mn, const T& v, QVariantMap& map) const
     {
@@ -203,6 +236,22 @@ private:
 
         *iter = QVariant::fromValue<T>(v);
     }
+
+    void setMemberValue(const QString& mn, int bit_num, bool val, QVariantMap& map) const
+    {
+        auto iter = map.find(mn);
+        if (iter == map.end()) {
+            qFatal(  qPrintable("setMemberValue: cant find: " + mn) );
+        }
+
+        QBitArray arr(bit_num + 1);
+        arr.setBit(bit_num, val);
+
+        QBitArray cur_arr = iter->toBitArray();
+
+        *iter =  cur_arr | arr; //QVariant::fromValue<T>(v);
+    }
+
 
     template <class T>
     T memberValue(const QString& mn, const QVariantMap& map) const
