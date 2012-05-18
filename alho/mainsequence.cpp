@@ -6,6 +6,8 @@
 #include "dbstructs.h"
 #include "datetimehack.h"
 
+#include "reports.h"
+
 #include <QBitArray>
 #include <QtConcurrentRun>
 
@@ -144,6 +146,8 @@ QString MainSequence::detectPlatformType(const QVariantMap & bill) const throw (
 
 void MainSequence::onAppearOnWeight()
 {
+    printReport();
+
     qDebug() << "something appeared on weight!!!!";
     on_weight = true;
 
@@ -386,11 +390,11 @@ void MainSequence::processFreeBum(QVariantMap & bill, qx::dao::ptr<t_ttn> ttn, q
     const QString q2 =  "select * from t_bum where queue=(select min(queue) from t_bum where ("+bums_where_clause+")) and ("+bums_where_clause +");";
 
     qx::dao::ptr<t_bum> bum = wrap_async_ex(get_free_bum_error, "Error getting free bum1",
-        [&bums_where_clause, &q1, this]{ return async_exec_query<t_bum>(q1);});
+        [&bums_where_clause, &q1, this]{ return async_call_query<t_bum>(q1);});
 
     if ( !bum ) {
         bum = wrap_async_ex(get_free_bum_error, "Error getting free bum2",
-            [&bums_where_clause, &q2, this]{ return async_exec_query<t_bum>(q2);});
+            [&bums_where_clause, &q2, this]{ return async_call_query<t_bum>(q2);});
     }
 
     bum->queue += 1;
@@ -435,7 +439,7 @@ void MainSequence::updateTaraValues(QVariantMap& bill, qx::dao::ptr<t_ttn> ttn, 
 
     ttn->copy          = 0;
     ttn->time_of_tara  = ttn->dt_of_tara.time().toString("hh:mm:ss");
-    ttn->tara_platforma  = 999;
+    ttn->tara_platforma  = 99;
     ttn->field_from_car  = car->num_field;
 
     wrap_async_ex( update_ttn_error_message, "Error updating ttn tara", [&ttn, this]{ async_update(ttn); });
@@ -550,6 +554,8 @@ void MainSequence::tara(QVariantMap & bill, qx::dao::ptr<t_cars> car) const thro
         processDrivingTime(ttn, car);
 
         updateTaraValues(bill, ttn, car, false);
+
+        printReport();
     }
     else  {
         ttn = wrap_async_ex(fetch_ttn_error_message, "fetching ttn failed!!!",
@@ -566,6 +572,8 @@ void MainSequence::tara(QVariantMap & bill, qx::dao::ptr<t_cars> car) const thro
         processDrivingTime(ttn, car);
 
         updateTaraValues(bill, ttn, car, true);
+
+        printReport();
     }
 }
 
@@ -578,7 +586,7 @@ void MainSequence::clearBumQueue(qx::dao::ptr<t_ttn> ttn) const throw(MainSequen
     }
 
     wrap_async_ex(clear_bum_queue_error, "clear bum queue error",
-                [&ttn, this, &bum]{ async_exec_query("update t_bum set queue = queue - 1 where id=" + QString::number(bum) + ";") ;});
+                [&ttn, this, &bum]{ async_call_query("update t_bum set queue = queue - 1 where id=" + QString::number(bum) + ";") ;});
 
 }
 
@@ -662,4 +670,12 @@ void MainSequence::processDrivingTime(qx::dao::ptr<t_ttn> ttn, qx::dao::ptr<t_ca
     if ( car->vremja_na_hodku > rup ) {
         ttn->time_return = timeShitToDateTime( dateTimeToTimeShit(ttn->date_time) + car->vremja_na_hodku * 60 );
     }
+}
+
+
+void MainSequence::printReport() const
+{
+    Reports r( get_setting<QString>("report_file_name", options) );
+
+    r.print();
 }

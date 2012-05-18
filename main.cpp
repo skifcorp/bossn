@@ -1,5 +1,5 @@
 ﻿//#include <QtCore/QCoreApplication>
-#include <QCoreApplication>
+#include <QApplication>
 #include <QVector>
 #include <QSharedPointer>
 
@@ -281,6 +281,7 @@ void initProgOptions(QVariantMap & opts)
     opts.insert("bum11_name"                    , "ВесДляБум11");
     opts.insert("brutto_finish_pause"           , 10000 )  ;
     opts.insert("tara_finish_pause"             , 10000 )  ;
+    opts.insert("report_file_name"              , "tara_report.ui");
 
 }
 
@@ -319,7 +320,7 @@ void initTasks(TaskExec & tasks, Tags & tags, MainSequence & seq )
 
 int main(int argc, char *argv[])
 {  
-    QCoreApplication app(argc, argv);
+    QApplication app(argc, argv);
     QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));
 
     printOnDisplay("Hello");

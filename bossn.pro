@@ -4,9 +4,11 @@
 #
 #-------------------------------------------------
 
-QT       += core xml sql #qt-concurrent
 
-QT       -= gui
+QT       += core xml sql script gui
+CONFIG   += uitools
+
+#QT       -= gui
 
 TARGET   = bossn
 CONFIG   += console
@@ -14,8 +16,8 @@ CONFIG   -= app_bundle
 DESTDIR  = build
 
 TEMPLATE = app
-INCLUDEPATH    += ../qextserialport/src/ db alho serial weight generic iodevicewrapper scheduler  \
-                      porter task dido perimeter tools reader ../coroutine/src/ ../QxOrm/include  \
+INCLUDEPATH    += ../qextserialport/src/ db alho serial weight generic iodevicewrapper scheduler           \
+                      porter task dido perimeter tools reader  reports ../coroutine/src/ ../QxOrm/include  \
                       $$(BOOST_ROOT)
 QMAKE_CXXFLAGS += -std=c++0x #-m32
 #QMAKE_LFLAGS   += -m32
@@ -57,11 +59,11 @@ SOURCES += main.cpp \
     dido/didow83627.cpp \
     alho/mainsequence.cpp \
     alho/mifarecard.cpp \
-    db/customermysql.cpp \
     alho/formatersequence.cpp \
     alho/alhosequence.cpp \
     alho/cardstructs.cpp \
-    alho/dbstructs.cpp
+    alho/dbstructs.cpp \
+    reports/reports.cpp
 
 HEADERS += \    
     tools/func.h \
@@ -96,10 +98,9 @@ HEADERS += \
     tools/sharedfromthis.h \
     alho/mifarecard.h \
     alho/mainsequence.h \
-    db/customermysql.h \
-    db/customerdata.h \
     alho/formatersequence.h \
     alho/alhosequence.h \
     alho/cardstructs.h \
     alho/dbstructs.h \
-    alho/datetimehack.h 
+    alho/datetimehack.h \ 
+    reports/reports.h

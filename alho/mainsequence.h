@@ -143,7 +143,7 @@ private:
     }
 
     template <class T>
-    qx::dao::ptr<T> async_exec_query(const QString& qs) const throw (MysqlException)
+    qx::dao::ptr<T> async_call_query(const QString& qs) const throw (MysqlException)
     {
         qx_query q(qs);
         qx::dao::ptr<T> t = qx::dao::ptr<T>(new T);
@@ -157,12 +157,13 @@ private:
         return t;
     }
 
-    void async_exec_query(const QString& qs) const throw (MysqlException)
+    void async_call_query(const QString& qs) const throw (MysqlException)
     {
-        qx_query q(qs);
 
 
-        QSqlError err ;//= async_call( [&q]{ QVariantMap m; return qx::dao::execute_query(q, m); });
+
+        //QSqlError err = async_call( [&q]{ QVariantMap m; return qx::dao::execute_query(q, m); });
+        QSqlError err = async_call( [&qs]{ qx_query q(qs); return qx::dao::call_query( q ) ;});
 
         if  (err.isValid()) {
             throw MysqlException(err.databaseText() , err.driverText());
@@ -225,6 +226,8 @@ private:
     qx::dao::ptr<t_ttn> ttnByDriver( int  )const throw (MainSequenceException);
     void clearBumQueue(qx::dao::ptr<t_ttn> ttn) const throw (MainSequenceException);
     void processDrivingTime(qx::dao::ptr<t_ttn> , qx::dao::ptr<t_cars> )const throw (MainSequenceException);
+
+    void printReport() const;
 
     template <class T>
     void setMemberValue(const QString& mn, const T& v, QVariantMap& map) const
