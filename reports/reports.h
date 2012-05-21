@@ -2,6 +2,8 @@
 #define REPORTS_H
 
 #include <QString>
+#include <QVariant>
+//#include <QtScript>
 
 class Reports
 {
@@ -11,9 +13,11 @@ public:
 
     }
 
-    void print();
+    bool print(const QVariantMap&);
+
 private:
     QString file_name;
+
 };
 
 #endif // REPORTS_H

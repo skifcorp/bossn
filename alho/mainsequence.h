@@ -226,8 +226,10 @@ private:
     qx::dao::ptr<t_ttn> ttnByDriver( int  )const throw (MainSequenceException);
     void clearBumQueue(qx::dao::ptr<t_ttn> ttn) const throw (MainSequenceException);
     void processDrivingTime(qx::dao::ptr<t_ttn> , qx::dao::ptr<t_cars> )const throw (MainSequenceException);
+    void repairBumCorrectnessIfNeeded( qx::dao::ptr<t_ttn> )const throw (MainSequenceException);
+    bool checkBumWorks(const QDateTime& , const QDateTime&, long) const throw (MainSequenceException);
 
-    void printReport() const;
+    bool printReport( const qx::dao::ptr<t_ttn>&, const qx::dao::ptr<t_cars>& ) const throw (MainSequenceException);
 
     template <class T>
     void setMemberValue(const QString& mn, const T& v, QVariantMap& map) const
