@@ -102,5 +102,4 @@ HEADERS += \
     alho/alhosequence.h \
     alho/cardstructs.h \
     alho/dbstructs.h \
-    alho/datetimehack.h \ 
     reports/reports.h

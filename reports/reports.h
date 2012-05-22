@@ -13,8 +13,14 @@ public:
 
     }
 
-    bool print(const QVariantMap&);
+    Reports()
+    {
 
+    }
+    void setFileName(const QString& fn) {file_name = fn;}
+    QString fileName() const {return file_name;}
+
+    bool print(const QVariantMap&);
 private:
     QString file_name;
 

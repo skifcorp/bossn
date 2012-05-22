@@ -63,6 +63,9 @@ const QString cant_get_kontr_when_printing           = QT_TRANSLATE_NOOP("MainSe
 const QString cant_get_base_firm_when_printing       = QT_TRANSLATE_NOOP("MainSequence", "Cant get base firm when printing");
 const QString cant_get_bum_state_log_message         = QT_TRANSLATE_NOOP("MainSequence", "Cant get bum state log");
 const QString cant_get_bum_message                   = QT_TRANSLATE_NOOP("MainSequence", "Cant get bum!");
+const QString cant_get_const_message                 = QT_TRANSLATE_NOOP("MainSequence", "Cant get const");
+const QString error_getting_mid_tara_message         = QT_TRANSLATE_NOOP("MainSequence", "Error getting mid tara!");
+const QString error_writing_rup_tara_message         = QT_TRANSLATE_NOOP("MainSequence", "Error writing rup tara!");
 
 //const QString update_ttn_platform_error              = QT_TRANSLATE_NOOP("MainSequence", "Up! Contact to dispatcher");
 
@@ -167,10 +170,15 @@ void MainSequence::onAppearOnWeight()
 {
 
     try {
-        printReport( qx::dao::ptr<t_ttn>(new t_ttn), qx::dao::ptr<t_cars>(new t_cars) );
+        printFinishReport( qx::dao::ptr<t_ttn>(new t_ttn), qx::dao::ptr<t_cars>(new t_cars) );
     }
     catch (MainSequenceException& ex) {
-        qDebug () << "ex: "<<ex.adminMessage();
+        //QTextCodec *codec = QTextCodec::codecForName("IBM 866");
+
+        //qDebug () << "ex: "<< codec->fromUnicode( ex.adminMessage() );
+        QTextStream s(stdout);
+        s.setCodec("IBM 866");
+        s<< ex.adminMessage();
     }
 
     qDebug() << "something appeared on weight!!!!";
@@ -226,7 +234,10 @@ void MainSequence::onAppearOnWeight()
             }
             else if (platform_type == "tara" ) {
                 tara(bill, car);
-                //updateTaraValues(bill, ttn);
+                card.writeStruct(bill_conf(options), bill);
+                sleepnb( get_setting<int>("brutto_finish_pause", bill) );
+                printOnTablo( apply_card_message );
+                continue;
             }
         }
         catch (MifareCardAuthException& ex) {
@@ -240,7 +251,10 @@ void MainSequence::onAppearOnWeight()
             continue;
         }
         catch (MainSequenceException& ex) {
-            qWarning()<< "sequence_exception! "<<ex.adminMessage();
+            QTextCodec *codec = QTextCodec::codecForName("IBM 866");
+
+
+            qWarning()<< "sequence_exception! "<<codec->fromUnicode(ex.adminMessage());
             sleepnbtmerr(ex.userMessage(), apply_card_message);
             continue;
         }
@@ -415,11 +429,11 @@ void MainSequence::processFreeBum(QVariantMap & bill, qx::dao::ptr<t_ttn> ttn, q
     const QString q2 =  "select * from t_bum where queue=(select min(queue) from t_bum where ("+bums_where_clause+")) and ("+bums_where_clause +");";
 
     qx::dao::ptr<t_bum> bum = wrap_async_ex(get_free_bum_error, "Error getting free bum1",
-        [&bums_where_clause, &q1, this]{ return async_call_query<t_bum>(q1);});
+        [&bums_where_clause, &q1, this]{ return async_exec_query<t_bum>(q1);});
 
     if ( !bum ) {
         bum = wrap_async_ex(get_free_bum_error, "Error getting free bum2",
-            [&bums_where_clause, &q2, this]{ return async_call_query<t_bum>(q2);});
+            [&bums_where_clause, &q2, this]{ return async_exec_query<t_bum>(q2);});
     }
 
     bum->queue += 1;
@@ -580,9 +594,11 @@ void MainSequence::tara(QVariantMap & bill, qx::dao::ptr<t_cars> car) const thro
 
         repairBumCorrectnessIfNeeded(ttn);
 
+        processTaraRupture(ttn, car);
+
         updateTaraValues(bill, ttn, car, false);
 
-        printReport(ttn, car);
+        printFinishReport(ttn, car);
     }
     else  {
         ttn = wrap_async_ex(fetch_ttn_error_message, "fetching ttn failed!!!",
@@ -600,9 +616,21 @@ void MainSequence::tara(QVariantMap & bill, qx::dao::ptr<t_cars> car) const thro
 
         repairBumCorrectnessIfNeeded(ttn);
 
+        processTaraRupture(ttn, car);
+
         updateTaraValues(bill, ttn, car, true);
 
-        printReport(ttn, car);
+        printFinishReport(ttn, car);
+
+        cleaWorkrBillData(bill);
+
+        qx::dao::ptr<t_ttn> new_ttn = makeNewTask(car);
+        if (new_ttn) {
+            setMemberValue("billNumber", new_ttn->num_nakl);
+            setMemberValue("numField", new_ttn->field);
+            printStartReport(new_ttn, car);
+        }
+
     }
 }
 
@@ -701,15 +729,8 @@ void MainSequence::processDrivingTime(qx::dao::ptr<t_ttn> ttn, qx::dao::ptr<t_ca
     }
 }
 
-
-bool MainSequence::printReport( const qx::dao::ptr<t_ttn>& ttn, const qx::dao::ptr<t_cars>& car) const throw(MainSequenceException)
+void MainSequence::configureReportContext(const qx::dao::ptr<t_ttn>& ttn, const qx::dao::ptr<t_cars>& car, QVariantMap& ctx) const throw (MainSequenceException)
 {
-    Reports r( get_setting<QString>("report_file_name", options) );
-
-    QVariantMap ctx;
-
-    ttn->real_field = 101;
-
     qx::dao::ptr<t_field> field = wrap_async_ex(cant_get_field_when_printing, "cant get field when printing",
                             [&ttn, this]{return async_fetch<t_field>( ttn->real_field ); });
 
@@ -717,29 +738,63 @@ bool MainSequence::printReport( const qx::dao::ptr<t_ttn>& ttn, const qx::dao::p
                             [&ttn, this]{return async_fetch<t_kontr>( kontrCodeFromField( ttn->real_field  ) ); });
 
 
-    qx::dao::ptr<t_const> base_firm = wrap_async_ex(cant_get_base_firm_when_printing, "cant get base firm when printing",
-                            [&ttn, this, &options]{return async_fetch<t_const>( get_setting<QString>("base_firm", options) ); });
+    //qx::dao::ptr<t_const> base_firm = wrap_async_ex(cant_get_base_firm_when_printing, "cant get base firm when printing",
+    //                        [&ttn, this, &options]{return async_fetch<t_const>( get_setting<QString>("base_firm_name", options) ); });
 
+    qx::dao::ptr<t_const> base_firm         = getConst(get_setting<QString>("base_firm_name"   , options));
+    qx::dao::ptr<t_const> dont_check_time   = getConst(get_setting<QString>("dont_check_time_name", options));
+    qx::dao::ptr<t_const> disp_phone        = getConst(get_setting<QString>("disp_phone_name", options));
 
-    QMap<QString, void *> m;
+  struct var_instance {
+        QString var_name;
+        QString typ_name;
+        void * var;
+    };
+    QList<var_instance> vars = QList<var_instance>{
+        var_instance{"t_ttn", "t_ttn", ttn.data()},
+        var_instance{"t_cars", "t_cars", car.data()},
+        var_instance{"t_field", "t_field", field.data()},
+        var_instance{"t_kontr", "t_kontr", kontr.data()},
+        var_instance{"base_firm", "t_const", base_firm.data()},
+        var_instance{"dont_check_time", "t_const", dont_check_time.data()},
+        var_instance{"disp_phone", "t_const", disp_phone.data()}
+     };
 
-    m["t_ttn"]     = ttn.data();
-    m["t_cars"]    = car.data();
-    m["t_field"]   = field.data();
-    m["t_kontr"]   = kontr.data();
-    m["t_const"]   = base_firm.data();
-
-    for( auto iter = m.begin(); iter != m.end(); ++iter ) {
-        IxClass * c = QxClassX::getClass( iter.key() );
-        qDebug() << "name: "<<c->getName();
+    //QVariantMap ctx;
+    for( auto iter = vars.begin(); iter != vars.end(); ++iter ) {
+        IxClass * c = QxClassX::getClass( iter->typ_name );
+        //qDebug() << "name: "<<c->getName();
         IxDataMemberX * m = c->getDataMemberX();
         for ( long i = 0; i < m->count(); ++i  ) {
             IxDataMember * dm = m->get(i);
-
-            //qDebug() << "   member: "<<dm->getName() << " value: "<< dm->toVariant(*iter) ;
-            ctx[iter.key() + "_" + dm->getName()] = dm->toVariant(*iter);
+            ctx[iter->var_name + "_" + dm->getName()] = dm->toVariant(iter->var);
         }
     }
+
+}
+
+bool MainSequence::printStartReport(const qx::dao::ptr &, const qx::dao::ptr &) const throw(MainSequenceException)
+{
+    Reports r ( get_setting<QString>("start_report_file_name", options) );
+
+    ttn->real_field = 101;
+
+    QVariantMap ctx;
+
+    configureReportContext(ttn, car, ctx);
+
+    return r.print(ctx);
+}
+
+bool MainSequence::printFinishReport( const qx::dao::ptr<t_ttn>& ttn, const qx::dao::ptr<t_cars>& car) const throw(MainSequenceException)
+{
+    Reports r ( get_setting<QString>("finish_report_file_name", options) );
+
+    ttn->real_field = 101;
+
+    QVariantMap ctx;
+
+    configureReportContext(ttn, car, ctx);
 
     return r.print(ctx);
 }
@@ -771,6 +826,101 @@ bool MainSequence::checkBumWorks(const QDateTime & date_from, const QDateTime & 
 
     return static_cast<bool> (bum_ptr->state);
 }
+
+qx::dao::ptr<t_const> MainSequence::getConst(const QString & k) const throw(MainSequenceException)
+{
+    auto const_ = wrap_async_ex( cant_get_const_message + ": " + k, "cant get const " + k,
+                                [this, &k]{return async_fetch<t_const>(k);});
+    return const_;
+}
+
+void MainSequence::processTaraRupture(qx::dao::ptr<t_ttn> ttn, qx::dao::ptr<t_cars> car) const throw(MainSequenceException)
+{
+    QString percent = getConst( get_setting<QString>("tara_percent", options) )->value ;
+
+    QString count;
+    if ( car->amount_of_car_for_middle_tara < 0 ) {
+        count = getConst( get_setting<QString>("tara_cars_mid_count_name", options) )->value ;
+    }
+    else {
+        count = QString::number( car->amount_of_car_for_middle_tara );
+    }
+
+
+
+    int mid_tara = wrap_async_ex( error_getting_mid_tara_message, "error getting mid tara",
+                                [this, &ttn, &car, &count]{  return async_call_query<int>(
+                                    "select avg(tara) from (select tara from t_ttn where tara!=0 and num_nakl!="+
+                                    QString::number(ttn->num_nakl)+
+                                    " and car="+QString::number(car->id)+
+                                    " order by -dt_of_tara limit "+count+") as temp_table;");});
+
+    ttn->rup_tara           = mid_tara * percent.toUInt() / 100;
+    ttn->real_rup_tara      = qAbs(ttn->tara - mid_tara);
+}
+
+
+
+void MainSequence::clearWorkBillData(QVariantMap & bill) const
+{
+    const QDateTime zero_date_time = timeShitToDateTime(0);
+
+    setMemberValue("billNumber"    ,0, bill);
+    setMemberValue("flags"         ,QBitArray(16), bill);
+    setMemberValue("numField"      ,0, bill);
+    setMemberValue("realNumField"  ,0, bill);
+    setMemberValue("numLoader"     ,0, bill);
+    setMemberValue("dateOfLoad"    ,zero_date_time, bill);
+    //setMemberValue("driver"        ,0, bill);
+    setMemberValue("pointOfAnal"   ,0, bill);
+
+    setMemberValue("bruttoWeight"  ,0, bill);
+    setMemberValue("dateOfBrutto"  ,zero_date_time, bill);
+    setMemberValue("taraWeight"    ,0, bill);
+    //setMemberValue("normTaraWeight",0, bill);
+    setMemberValue("dateOfTara"    ,zero_date_time, bill);
+
+    setMemberValue("impurity"      ,0, bill);
+    setMemberValue("shugarContent" ,0, bill);
+    setMemberValue("greenWeight"   ,0, bill);
+    setMemberValue("bum"           ,0, bill);
+    setMemberValue("bumFact"       ,0, bill);
+    setMemberValue("kagat"         ,0, bill);
+    setMemberValue("dateOfUnload"  ,zero_date_time, bill);
+}
+
+
+qx::dao::ptr<t_ttn> MainSequence::makeNewTask(qx::dao::ptr<t_cars> car) const throw (MainSequenceException)
+{
+    if (car->num_field == 0) return qx::dao::ptr();
+
+    QDateTime end_time = timeShitToDateTime( car->vremja_na_hodku*60 + dateTimeToTimeShit(QDateTime::currentDateTime())  );
+
+    qx::dao::ptr<t_ttn> ttn = qx::dao::ptr<t_ttn>(new t_ttn);
+
+    ttn->date_time      = QDateTime::currentDateTime();
+    ttn->car            = car->id;
+    ttn->field          = car->num_field;
+    ttn->driver         = car->driver1;
+    ttn->time_return    = end_time;
+    ttn->copy           = 0;
+    ttn->time_of_return = end_time.toString("hh:mm:ss");
+    ttn->loader         = car->num_loader;
+
+    qx::dao::insert(ttn);
+
+    return ttn;
+}
+
+
+
+
+
+
+
+
+
+
 
 
 

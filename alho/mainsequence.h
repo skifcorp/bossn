@@ -143,7 +143,7 @@ private:
     }
 
     template <class T>
-    qx::dao::ptr<T> async_call_query(const QString& qs) const throw (MysqlException)
+    qx::dao::ptr<T> async_exec_query(const QString& qs) const throw (MysqlException)
     {
         qx_query q(qs);
         qx::dao::ptr<T> t = qx::dao::ptr<T>(new T);
@@ -157,18 +157,30 @@ private:
         return t;
     }
 
+
+    template <class T>
+    T async_call_query(const QString& qs) const throw (MysqlException)
+    {
+        qx_query q(qs);
+        QSqlError err = async_call( [&q]{ return qx::dao::call_query( q ) ;});
+
+        if  (err.isValid()) {
+            throw MysqlException(err.databaseText() , err.driverText());
+        }
+
+        QVariant v = q.boundValue(0);
+        return v.value<T>();
+    }
+
     void async_call_query(const QString& qs) const throw (MysqlException)
     {
-
-
-
-        //QSqlError err = async_call( [&q]{ QVariantMap m; return qx::dao::execute_query(q, m); });
         QSqlError err = async_call( [&qs]{ qx_query q(qs); return qx::dao::call_query( q ) ;});
 
         if  (err.isValid()) {
             throw MysqlException(err.databaseText() , err.driverText());
-        }   
+        }
     }
+
     template <class Func, class ... Params>
     auto wrap_async_ex (const QString& user_msg, const QString& admin_msg,
                         Func f, Params ... p) const throw (MainSequenceException) -> decltype( f(p...) )
@@ -228,8 +240,12 @@ private:
     void processDrivingTime(qx::dao::ptr<t_ttn> , qx::dao::ptr<t_cars> )const throw (MainSequenceException);
     void repairBumCorrectnessIfNeeded( qx::dao::ptr<t_ttn> )const throw (MainSequenceException);
     bool checkBumWorks(const QDateTime& , const QDateTime&, long) const throw (MainSequenceException);
-
-    bool printReport( const qx::dao::ptr<t_ttn>&, const qx::dao::ptr<t_cars>& ) const throw (MainSequenceException);
+    void processTaraRupture(qx::dao::ptr<t_ttn>, qx::dao::ptr<t_cars> ) const throw (MainSequenceException);
+    qx::dao::ptr<t_const> getConst(const QString& ) const throw(MainSequenceException);        
+    void configureReportContext(const qx::dao::ptr<t_ttn>&, const qx::dao::ptr<t_cars>&, QVariantMap& ) const throw (MainSequenceException);
+    bool printFinishReport( const qx::dao::ptr<t_ttn>&, const qx::dao::ptr<t_cars>& ) const throw (MainSequenceException);
+    void clearWorkBillData( QVariantMap& ) const;
+    qx::dao::ptr<t_ttn> makeNewTask( qx::dao::ptr<t_cars> ) const throw (MainSequenceException);
 
     template <class T>
     void setMemberValue(const QString& mn, const T& v, QVariantMap& map) const
@@ -295,6 +311,8 @@ private:
         sleepnb(tm);
         printOnTablo(msg2);
     }
+
+
 
 };
 

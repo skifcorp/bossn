@@ -279,11 +279,17 @@ void initProgOptions(QVariantMap & opts)
     opts.insert("corpotare_check_period_name"   , "ПериодичностьПроверкиМашинЮрЛиц");
     opts.insert("farmer_check_period_name"      , "ПериодичностьПроверкиМашинФермеров");
     opts.insert("bum11_name"                    , "ВесДляБум11");
-    opts.insert("base_firm"                     , "base_firm");
+    opts.insert("base_firm_name"                , "БазФирма");
 
     opts.insert("brutto_finish_pause"           , 10000 )  ;
     opts.insert("tara_finish_pause"             , 10000 )  ;
-    opts.insert("report_file_name"              , "tara_report.ui");
+    opts.insert("finish_report_file_name"       , "finish_report.ui");
+    opts.insert("small_report_file_name"        , "small_tara_report.ui");
+    opts.insert("tara_cars_mid_count_name"      , "КвоМашДляСредТары");
+    opts.insert("tara_percent_name"             , "ПроцентДляТары");
+    opts.insert("dont_check_time_name"          , "НеУчитыватьВремя");
+    opts.insert("disp_phone_name"               , "ТелДиспетчера");
+
 //  opts.insert("report_classes"                , QVariantList {"t_ttn" , "t_rez", "t_def_field", "t_bum",
 //                                                                "t_cars", "t_kagat", "t_kontr", "t_field",
 //                                                                "t_const", "t_bum_state_log"} );

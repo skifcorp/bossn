@@ -112,7 +112,7 @@ struct t_cars
     uint brutto;
     bool block;
     QDateTime start_time;
-    uint amount_of_car_for_middle_tara;
+    int amount_of_car_for_middle_tara;
     uint vremja_na_hodku;
 
     t_cars() {}

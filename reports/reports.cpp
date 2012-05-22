@@ -6,9 +6,14 @@
 #include <QWidget>
 #include <QList>
 #include <QLabel>
+#include <QPrinter>
 
 bool Reports::print(const QVariantMap & m)
 {
+    if (file_name.isEmpty()) {
+        qWarning() << "reports file_name is empty!"; return false;
+    }
+
     QScriptEngine engine;
     for ( auto iter = m.begin(); iter != m.end(); ++iter  ) {
         engine.globalObject().setProperty( iter.key(), engine.newVariant( *iter )) ;
@@ -26,7 +31,6 @@ bool Reports::print(const QVariantMap & m)
     QList<QLabel*> ll = report->findChildren<QLabel *>();
 
     for ( QLabel * l : ll ) {
-
         QString val = engine.evaluate(l->text()).toString();
 
         if ( engine.hasUncaughtException() ) {
@@ -42,6 +46,11 @@ bool Reports::print(const QVariantMap & m)
     }
 
     report->show();
+    //QPrinter printer;
+
+    //report->render(&printer);
+
+    //printer.print
 
     return true;
 }
