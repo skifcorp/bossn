@@ -589,8 +589,10 @@ QVariant MifareReader::writeBlock(const QVariant& block_num, const QVariant& dat
 
     if (resp_frame.cmdStatus != 0) {
         qWarning()<<"writeBlock: cmdStatus: GOT ERROR IN MifareReader writeBlock!!!!! : " + errorMessage(resp_frame.cmdStatus);
-        return QVariant(false);
+        return QVariant(false);    
     }
+
+    qDebug () << "writeBlock OK!";
 
     return QVariant(true);
 }

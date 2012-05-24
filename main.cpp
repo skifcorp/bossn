@@ -14,8 +14,9 @@
 #include "mainsequence.h"
 #include "formatersequence.h"
 #include "alhosequence.h"
+#include "initsettings.h"
 
-
+#if 0
 void initPorters(QVector<Porter::Pointer>& porters, Tags& tags)
 {
     QMap <QString, QVariant> serial_settings;
@@ -240,6 +241,9 @@ void initPorters(QVector<Porter::Pointer>& porters, Tags& tags)
 
 }
 
+#endif
+
+#if 0
 void initProgOptions(QVariantMap & opts)
 {
     QByteArray card_code;
@@ -265,7 +269,7 @@ void initProgOptions(QVariantMap & opts)
     opts.insert("data_block"                  , 128/*144*/ );
     opts.insert("run_mode"                    , "prog" );
     opts.insert("format_with_default_data"    , true );
-    opts.insert("platform_type"               , "brutto" ); /*or tara or auto*/
+    opts.insert("platform_type"               , "auto" ); /*brutto or tara or auto*/
     opts.insert("database_driver"             , "QMYSQL");
     opts.insert("database_host"               , "127.0.0.1");
     opts.insert("database_name"               , "testdb");
@@ -273,9 +277,9 @@ void initProgOptions(QVariantMap & opts)
     opts.insert("database_password"           , "parabelum");
     opts.insert("brutto_delta_between_reweights", 10000);
     opts.insert("tara_delta_between_reweights"  , 10000);
-    opts.insert("common_algorithm_of_analysis"  , "database_const" ); /*discrete or database_const*/
-    opts.insert("common_size_of_group"          , 5);
-    opts.insert("common_number_from_group"      , 10);
+    opts.insert("common_algorithm_of_analysis"  , "discrete" ); /*discrete or database_const*/
+    opts.insert("common_size_of_group"          , 1);
+    opts.insert("common_number_from_group"      , 0);
     opts.insert("corpotare_check_period_name"   , "ПериодичностьПроверкиМашинЮрЛиц");
     opts.insert("farmer_check_period_name"      , "ПериодичностьПроверкиМашинФермеров");
     opts.insert("bum11_name"                    , "ВесДляБум11");
@@ -295,6 +299,8 @@ void initProgOptions(QVariantMap & opts)
 //                                                                "t_const", "t_bum_state_log"} );
 
 }
+#endif
+
 
 void initTasks(TaskExec & tasks, Tags & tags, MainSequence & seq )
 {
@@ -338,37 +344,18 @@ int main(int argc, char *argv[])
 
 
 
-    MrwSettings::instance()->load("mrwsettings.xml");
+    //MrwSettings::instance()->load("mrwsettings.xml");
 //    MrwSettings::instance()->print();
 
     Tags tags;
-
-    tags["weight1_1"]  = Tag::Pointer(new Tag("weight1_1"));
-    tags["tablo"]      = Tag::Pointer(new Tag("tablo"));
-
-    tags["dido"]       = Tag::Pointer(new Tag("dido"));
-    tags["di1"]        = Tag::Pointer(new Tag("di1"));
-    tags["di2"]        = Tag::Pointer(new Tag("di2"));
-    tags["di3"]        = Tag::Pointer(new Tag("di3"));
-    tags["di4"]        = Tag::Pointer(new Tag("di4"));
-
-    tags["do1"]        = Tag::Pointer(new Tag("do"));
-    tags["do2"]        = Tag::Pointer(new Tag("do"));
-    tags["do3"]        = Tag::Pointer(new Tag("do"));
-    tags["do4"]        = Tag::Pointer(new Tag("do"));
-
-    tags["do1_tmp"]    = Tag::Pointer(new Tag("do1_tmp"));
-    tags["do2_tmp"]    = Tag::Pointer(new Tag("do2_tmp"));
-    tags["do3_tmp"]    = Tag::Pointer(new Tag("do3_tmp"));
-    tags["do4_tmp"]    = Tag::Pointer(new Tag("do4_tmp"));
-
-    tags["reader1"]    = Tag::Pointer(new Tag("reader1"));
-    tags["database"]   = Tag::Pointer(new Tag("database"));
+    initTags(tags);
 
     QVector<Porter::Pointer> porters;
 
-
-    initPorters(porters, tags);
+    initTablo(porters, tags);
+    initReader(porters, tags);
+    initWeight(porters, tags);
+    initDiDo(porters, tags);
 
     QMap<QString, QVariant> options;
     initProgOptions(options);
@@ -390,14 +377,7 @@ int main(int argc, char *argv[])
         main_alho.staticCast<FormaterSequence>()->start();
     }
 
-
-    //qDebug() << "hello";
-
-    auto ret = app.exec();
-
-    //qDebug () << "after exec";
-
-    return ret;
+    return app.exec();
 }
 
 

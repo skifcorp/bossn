@@ -1,5 +1,6 @@
 #include "dbstructs.h"
-#include "datetimehack.h"
+#include "cardstructs.h"
+//#include "datetimehack.h"
 //#include "precompiled.h"
 #include <QxOrm.h>
 #include <QxMemLeak.h>
@@ -16,10 +17,10 @@ QX_REGISTER_CPP_EXPORT_DLL(t_const)
 QX_REGISTER_CPP_EXPORT_DLL(t_bum_state_log)
 QX_REGISTER_CPP_EXPORT_DLL(t_action_log)
 
-t_ttn::t_ttn():num_nakl(0), date_time(zero_date_time()), car(0), field(0), real_field(0), loader(0), dt_of_load(zero_date_time()),
-                driver(0),  brutto(0), dt_of_brutto(zero_date_time()),
-                tara(0), dt_of_tara(zero_date_time()), bum(0), real_bum(0), kagat(0), dt_of_unload(zero_date_time()),
-    routed_to_lab(0), was_in_lab(0), copy(0), time_return(zero_date_time()),
+t_ttn::t_ttn():num_nakl(0), date_time(timeShitToDateTime(0)), car(0), field(0), real_field(0), loader(0), dt_of_load(timeShitToDateTime(0)),
+                driver(0),  brutto(0), dt_of_brutto(timeShitToDateTime(0)),
+                tara(0), dt_of_tara(timeShitToDateTime(0)), bum(0), real_bum(0), kagat(0), dt_of_unload(timeShitToDateTime(0)),
+    routed_to_lab(0), was_in_lab(0), copy(0), time_return(timeShitToDateTime(0)),
                trailer(0), real_loader(0), err(0), bum_platforma(0), rup_tara(0), real_rup_tara(0),
                 brutto_platforma(0), tara_platforma(0), field_from_car(0)
 {

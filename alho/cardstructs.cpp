@@ -61,8 +61,13 @@ bool StructMemberConf::registerTypes()
 
     typesFactoryForRead.insert("boolarr", [](const QByteArray& arr){
                             QDataStream st(arr); st.setByteOrder(QDataStream::LittleEndian);
-                            QBitArray ret;
-                            st >> ret;
+                            //QBitArray ret;
+                            ushort val;
+                            QBitArray ret(16);
+                            st >> val;
+                            for ( int i = 0; i<16; ++i ) {
+                                ret.setBit(i, val & 0x1<<i );
+                            }
                             return QVariant(ret);
                         });
 

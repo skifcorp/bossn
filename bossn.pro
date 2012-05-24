@@ -8,8 +8,6 @@
 QT       += core xml sql script gui
 CONFIG   += uitools
 
-#QT       -= gui
-
 TARGET   = bossn
 CONFIG   += console
 CONFIG   -= app_bundle
@@ -23,15 +21,15 @@ QMAKE_CXXFLAGS += -std=c++0x #-m32
 #QMAKE_LFLAGS   += -m32
 
 CONFIG(debug, debug|release) {
-LIBS           +=   -L../qextserialport_build/src/build/ -lqextserialportd              \
-                    -L../coroutine_build/src/build/ -lcoroutined                        \
-                    -L../QxOrm_build/build/ -lqxormd                                    \
+LIBS           +=   -L../qextserialport_build/src/build/ -lqextserialportd               \
+                    -L../coroutine_build/src/build/ -lcoroutined                         \
+                    -L../QxOrm_build/build/ -lqxormd                                     \
                     -L $$(BOOST_ROOT)/stage/lib -llibboost_serialization-mgw46-mt-d-1_48 \
                     -L $$(MYSQL_DIR)/lib -llibmysql
 } else {
 LIBS           +=   -L../qextserialport_build/src/build/ -lqextserialport               \
                     -L../coroutine_build/src/build/ -lcoroutine                         \
-                    -L../QxOrm_build/build/ -lqxorm                                   \
+                    -L../QxOrm_build/build/ -lqxorm                                     \
                     -L $$(BOOST_ROOT)/stage/lib -llibboost_serialization-mgw46-mt-1_48  \
                     -L $$(MYSQL_DIR)/lib -llibmysql
 }
@@ -63,7 +61,8 @@ SOURCES += main.cpp \
     alho/alhosequence.cpp \
     alho/cardstructs.cpp \
     alho/dbstructs.cpp \
-    reports/reports.cpp
+    reports/reports.cpp \
+    initsettings.cpp
 
 HEADERS += \    
     tools/func.h \
@@ -102,4 +101,5 @@ HEADERS += \
     alho/alhosequence.h \
     alho/cardstructs.h \
     alho/dbstructs.h \
-    reports/reports.h
+    reports/reports.h \
+    initsettings.h

@@ -40,7 +40,7 @@ inline QString byteArrayToString(const QByteArray& ba)
 {
     QString ret;
     for (int i = 0; i< ba.count(); ++i) {
-        ret += QString::number(static_cast<int>(ba[i]), 16);
+        ret += QString::number(static_cast<uint>(static_cast<uchar>(ba[i])), 16);
     }
     return ret;
 }

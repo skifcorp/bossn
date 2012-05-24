@@ -95,25 +95,32 @@ private:
     }
 
     template <class T, class ID>
-    qx::dao::ptr<T> async_fetch(const ID& id) const throw (MysqlException)
+    qx::dao::ptr<T> async_fetch(const ID& id, bool ex_on_no_data = true) const throw (MysqlException)
     {
         qx::dao::ptr<T> p = qx::dao::ptr<T>( new T(id) );
 
         QSqlError err = async_call([&p]{return qx::dao::fetch_by_id(p);});
 
-        if  (err.isValid()) {            
-            throw MysqlException(err.databaseText() , err.driverText());
+        if (err.isValid() && err.number() == 1111 && !ex_on_no_data) {
+            return  qx::dao::ptr<T>();
+        }
 
+        if  (err.isValid()) {                        
+            throw MysqlException(err.databaseText() , err.driverText());
         }
         return p;
     }
 
     template <class T>
-    qx::dao::ptr<T> async_fetch_by_query(const qx_query& q) const throw (MysqlException)
+    qx::dao::ptr<T> async_fetch_by_query(const qx_query& q, bool ex_on_no_data = true) const throw (MysqlException)
     {
         qx::dao::ptr<T> p = qx::dao::ptr<T>( new T() );
 
         QSqlError err = async_call([&p, &q]{return qx::dao::fetch_by_query(q, p);});
+
+        if (err.isValid() && err.number() == 1111 && !ex_on_no_data) {
+            return  qx::dao::ptr<T>();
+        }
 
         if  (err.isValid()) {
             throw MysqlException(err.databaseText() , err.driverText());
@@ -143,14 +150,19 @@ private:
     }
 
     template <class T>
-    qx::dao::ptr<T> async_exec_query(const QString& qs) const throw (MysqlException)
+    qx::dao::ptr<T> async_exec_query(const QString& qs, bool ex_on_no_data = true) const throw (MysqlException)
     {
         qx_query q(qs);
         qx::dao::ptr<T> t = qx::dao::ptr<T>(new T);
         //T t;
-        QSqlError err = async_call( [&q, &t]{ return qx::dao::execute_query(q, t); });
+        QSqlError err = async_call( [&q, &t]{ return qx::dao::execute_query(q, t); });       
+
+        if (err.isValid() && err.number() == 1111 && !ex_on_no_data) {
+            return  qx::dao::ptr<T>();
+        }
 
         if  (err.isValid()) {
+            qDebug()<<"error is valid!";
             throw MysqlException(err.databaseText() , err.driverText());
         }
 
@@ -226,13 +238,14 @@ private:
     bool isPureBruttoWeight(const QVariantMap& bill) const throw (MainSequenceException);
     bool checkDeltaForReweights(int prev_weight, int cur_weight) const;
 
-    uint countCarsFromFieldForDay(uint) const throw();
+    uint countCarsFromFieldForDayExcludeCurrent(uint, uint) const throw();
 
     bool checkForNeedDiscreteAnalisys(long count) const throw();
-    bool checkForNeedDatabaseConstAnalisys(long count) const throw();
+    bool checkForNeedDatabaseConstAnalisys(long count, long kontrag) const throw();
     uint getAnalisysPeriodFromStorage(uint typ) const throw (MysqlException, MainSequenceException);
     QString getBumsClause(const QVariantMap & bill, qx::dao::ptr<t_cars> car) const throw(MainSequenceException);
     QString bruttoFinishMessage(const QVariantMap & bill)  const;
+    QString taraFinishMessage()  const;
 
     bool isPureTaraWeight(const QVariantMap& bill)const throw (MainSequenceException);
     qx::dao::ptr<t_ttn> ttnByDriver( int  )const throw (MainSequenceException);
@@ -244,8 +257,9 @@ private:
     qx::dao::ptr<t_const> getConst(const QString& ) const throw(MainSequenceException);        
     void configureReportContext(const qx::dao::ptr<t_ttn>&, const qx::dao::ptr<t_cars>&, QVariantMap& ) const throw (MainSequenceException);
     bool printFinishReport( const qx::dao::ptr<t_ttn>&, const qx::dao::ptr<t_cars>& ) const throw (MainSequenceException);
+    bool printStartReport( const qx::dao::ptr<t_ttn>&, const qx::dao::ptr<t_cars>& ) const throw (MainSequenceException);
     void clearWorkBillData( QVariantMap& ) const;
-    qx::dao::ptr<t_ttn> makeNewTask( qx::dao::ptr<t_cars> ) const throw (MainSequenceException);
+    qx::dao::ptr<t_ttn> makeNewTask( qx::dao::ptr<t_cars>, const QVariantMap& ) const throw (MainSequenceException);
 
     template <class T>
     void setMemberValue(const QString& mn, const T& v, QVariantMap& map) const
