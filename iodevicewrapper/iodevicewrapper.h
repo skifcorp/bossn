@@ -34,7 +34,7 @@ public:
     virtual void clear() = 0;
 
 
-    bool open(QIODevice::OpenModeFlag f)
+    virtual bool open(QIODevice::OpenModeFlag f)
     {
         return internalGetDevice()->open(f);
     }
@@ -64,7 +64,7 @@ public:
         return internalGetDevice()->readAll();
     }
 
-    QByteArray peek ( qint64 maxSize )
+    QByteArray virtual peek ( qint64 maxSize )
     {
         return internalGetDevice()->peek(maxSize);
     }
@@ -100,7 +100,8 @@ private:
 
     void connectSignals()
     {
-        connect(internalGetDevice(), SIGNAL(readyRead()), this, SIGNAL(readyRead()));
+        //if ( internalGetDevice() )
+            connect(internalGetDevice(), SIGNAL(readyRead()), this, SIGNAL(readyRead()));
     }
 signals:
     void readyRead();

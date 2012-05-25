@@ -32,9 +32,12 @@ QDateTime timeShitToDateTime(ulong timeInMinutes)
 
 ulong dateTimeToTimeShit(const QDateTime& dt)
 {
-    QDate d(2000, 01, 01);
-    QDateTime startDT(d);
-    if (dt<startDT) return 0;
+    QDateTime startDT(QDate (2000, 01, 01));
+
+    if (dt<startDT) {
+//qDebug () << "smaller!";
+        return 0;
+    }
     unsigned long temp = startDT.daysTo(dt)*24*60 + dt.time().hour()*60+dt.time().minute();
     return temp;
 }
@@ -85,8 +88,9 @@ bool StructMemberConf::registerTypes()
 
     typesFactoryForRead.insert("datetimeshit", [](const QByteArray& arr) {
                             QDataStream st(arr); st.setByteOrder(QDataStream::LittleEndian);
-                            uint ret;
-                            st >> ret;
+                            uint ret = 0;
+                            st.readRawData(reinterpret_cast<char *>(&ret), 3);
+                            //qDebug () << "reading time_shit "<<ret<<" timeShitToDateTime(ret) "<<timeShitToDateTime(ret);
                             return QVariant( timeShitToDateTime(ret) );
                         });
 
@@ -112,8 +116,9 @@ bool StructMemberConf::registerTypes()
                             QBitArray tmp = val.toBitArray();
                             ushort save_val = 0;
                             for (int i = 0; i<16; ++i) {
-                                save_val &= (tmp.testBit(i)<<i);
+                                save_val = save_val | (tmp.testBit(i)<<i);
                             }
+
                             st << save_val;
                             return ret;
                         });
@@ -132,7 +137,11 @@ bool StructMemberConf::registerTypes()
     typesFactoryForWrite.insert("datetimeshit", [](const QVariant& val) {
                             QByteArray ret;
                             QDataStream st(&ret, QIODevice::WriteOnly); st.setByteOrder(QDataStream::LittleEndian);
+
                             ulong tmp = dateTimeToTimeShit(val.toDateTime());
+
+                            //qDebug () << "datetime: "<<val.toDateTime()<<" shit_date_time: "<<tmp;
+
                             st.writeRawData(reinterpret_cast<char *>(&tmp), 3);
                             return ret;
                         });

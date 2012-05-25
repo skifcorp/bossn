@@ -16,7 +16,7 @@ DESTDIR  = build
 TEMPLATE = app
 INCLUDEPATH    += ../qextserialport/src/ db alho serial weight generic iodevicewrapper scheduler           \
                       porter task dido perimeter tools reader  reports ../coroutine/src/ ../QxOrm/include  \
-                      $$(BOOST_ROOT)
+                      $$(BOOST_ROOT) ../ismm/
 QMAKE_CXXFLAGS += -std=c++0x #-m32
 #QMAKE_LFLAGS   += -m32
 
@@ -25,13 +25,15 @@ LIBS           +=   -L../qextserialport_build/src/build/ -lqextserialportd      
                     -L../coroutine_build/src/build/ -lcoroutined                         \
                     -L../QxOrm_build/build/ -lqxormd                                     \
                     -L $$(BOOST_ROOT)/stage/lib -llibboost_serialization-mgw46-mt-d-1_48 \
-                    -L $$(MYSQL_DIR)/lib -llibmysql
+                    -L $$(MYSQL_DIR)/lib -llibmysql                                      \
+                    -L ../ismm/ -lismm
 } else {
 LIBS           +=   -L../qextserialport_build/src/build/ -lqextserialport               \
                     -L../coroutine_build/src/build/ -lcoroutine                         \
                     -L../QxOrm_build/build/ -lqxorm                                     \
                     -L $$(BOOST_ROOT)/stage/lib -llibboost_serialization-mgw46-mt-1_48  \
-                    -L $$(MYSQL_DIR)/lib -llibmysql
+                    -L $$(MYSQL_DIR)/lib -llibmysql                                     \
+                    -L ../ismm/ -lismm
 }
 
 SOURCES += main.cpp \
@@ -62,7 +64,8 @@ SOURCES += main.cpp \
     alho/cardstructs.cpp \
     alho/dbstructs.cpp \
     reports/reports.cpp \
-    initsettings.cpp
+    initsettings.cpp \
+    iodevicewrapper/ismmdevice.cpp
 
 HEADERS += \    
     tools/func.h \
@@ -102,4 +105,5 @@ HEADERS += \
     alho/cardstructs.h \
     alho/dbstructs.h \
     reports/reports.h \
-    initsettings.h
+    initsettings.h \
+    iodevicewrapper/ismmdevice.h

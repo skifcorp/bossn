@@ -4,7 +4,7 @@
 #include <QTimer>
 #include <QObject>
 
-#include "didodriver.h"
+
 
 class Didoer : public QObject
 {
