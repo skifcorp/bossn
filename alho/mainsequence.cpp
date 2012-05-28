@@ -236,7 +236,7 @@ void MainSequence::onAppearOnWeight()
                 tara(bill, car);
                 card.writeStruct(bill_conf(options), bill);
                 printOnTablo( taraFinishMessage() );
-                sleepnb( get_setting<int>("brutto_finish_pause", bill) );
+                sleepnb( get_setting<int>("brutto_finish_pause", options) );
                 printOnTablo( apply_card_message );
                 continue;
             }
@@ -852,7 +852,7 @@ qx::dao::ptr<t_const> MainSequence::getConst(const QString & k) const throw(Main
 
 void MainSequence::processTaraRupture(qx::dao::ptr<t_ttn> ttn, qx::dao::ptr<t_cars> car) const throw(MainSequenceException)
 {
-    QString percent = getConst( get_setting<QString>("tara_percent", options) )->value ;
+    QString percent = getConst( get_setting<QString>("tara_percent_name", options) )->value ;
 
     QString count;
     if ( car->amount_of_car_for_middle_tara < 0 ) {

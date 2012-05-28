@@ -18,7 +18,7 @@ void initTablo(QVector<Porter::Pointer>& porters, Tags & tags)
     serial_settings_tablo["parity"]      = PAR_ODD;
     serial_settings_tablo["stopBits"]    = STOP_1;
     serial_settings_tablo["timeout"]     = 100;
-    serial_settings_tablo["portName"]    = "COM3";
+    serial_settings_tablo["portName"]    = "COM4";
 
     QList<TagMethod> tag_method_tablo;
     tag_method_tablo.append( TagMethod("tablo") );
@@ -54,7 +54,7 @@ void initReader(QVector<Porter::Pointer>& porters, Tags & tags)
     serial_settings["parity"]      = PAR_NONE;
     serial_settings["stopBits"]    = STOP_1;
     serial_settings["timeout"]     = 100;
-    serial_settings["portName"]    = "COM5";
+    serial_settings["portName"]    = "COM3";
 
     QMap<QString, QVariant> opts;
     opts["address"] = 2;
@@ -106,7 +106,7 @@ void initWeight(QVector<Porter::Pointer>& porters, Tags & tags)
     serial_settings["parity"]      = PAR_NONE;
     serial_settings["stopBits"]    = STOP_1;
     serial_settings["timeout"]     = 100;
-    serial_settings["portName"]    = "COM2" ;//MrwSettings::instance()->platformaWeightPort[0];
+    serial_settings["portName"]    = "COM1" ;//MrwSettings::instance()->platformaWeightPort[0];
 
     QList<TagMethod> tag_method_weight;
     tag_method_weight.append( TagMethod("weight1_1", "readWeight") );
@@ -232,7 +232,7 @@ void initProgOptions(QVariantMap & opts)
     opts.insert("format_with_default_data"    , true );
     opts.insert("platform_type"               , "auto" ); /*brutto or tara or auto*/
     opts.insert("database_driver"             , "QMYSQL");
-    opts.insert("database_host"               , "127.0.0.1");
+    opts.insert("database_host"               , "192.168.0.69");
     opts.insert("database_name"               , "testdb");
     opts.insert("database_user"               , "root");
     opts.insert("database_password"           , "parabelum");
@@ -249,7 +249,7 @@ void initProgOptions(QVariantMap & opts)
     opts.insert("brutto_finish_pause"           , 10000 )  ;
     opts.insert("tara_finish_pause"             , 10000 )  ;
     opts.insert("finish_report_file_name"       , "finish_report.ui");
-    opts.insert("small_report_file_name"        , "small_tara_report.ui");
+    opts.insert("start_report_file_name"        , "start_report.ui");
     opts.insert("tara_cars_mid_count_name"      , "КвоМашДляСредТары");
     opts.insert("tara_percent_name"             , "ПроцентДляТары");
     opts.insert("dont_check_time_name"          , "НеУчитыватьВремя");

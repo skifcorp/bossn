@@ -6,6 +6,7 @@
 #include <QTextCodec>
 #include <QCoreApplication>
 #include <QTime>
+#include <QTextStream>
 
 #include <iostream>
 
@@ -13,9 +14,13 @@ using std::cout;
 
 inline void printOnDisplay(const QString& str)
 {
-    QTextCodec *codec = QTextCodec::codecForName("IBM 866");
-    qDebug( codec->fromUnicode(str) );
-    //qDebug () << str;
+    //QTextCodec *codec = QTextCodec::codecForName("IBM 866");
+    //qDebug( codec->fromUnicode(str) );
+
+    ///qDebug () << str;
+    QTextStream s(stdout);
+    s.setCodec("IBM866");
+    s<<str;
 }
 
 inline void printByteArray(const QByteArray& ba)

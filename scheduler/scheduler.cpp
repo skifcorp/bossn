@@ -96,7 +96,7 @@ void Scheduler::execute()
 {
     //Q_ASSERT(current_coro.schedul);
     if (!current_coro.schedul) {
-        qWarning() << "something terrible! "<<device.data()->deviceName();
+        qWarning() << "\n\n\nsomething terrible! GOT EVENT ON PORT WHILE NOTHING WRITED!!\n\n\n"<<device.data()->deviceName(); return;
     }
 
     current_coro.schedul->timeout_timer->start();

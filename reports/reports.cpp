@@ -1,5 +1,6 @@
 
 #include "reports.h"
+#include "func.h"
 
 #include <QtUiTools>
 #include <QtScript>
@@ -34,8 +35,7 @@ bool Reports::print(const QVariantMap & m)
         QString val = engine.evaluate(l->text()).toString();
 
         if ( engine.hasUncaughtException() ) {
-            qDebug()<<"text: "<<l->text() << " has exception: "
-                    <<engine.uncaughtException().toString();
+            printOnDisplay("text: " + l->text() + " has exception: " + engine.uncaughtException().toString() );
             return false;
         }
         else {
