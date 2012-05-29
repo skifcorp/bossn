@@ -308,17 +308,17 @@ void initTasks(TaskExec & tasks, Tags & tags, MainSequence & seq )
 
     PerimeterTask::Pointer perim (new PerimeterTask(tags));
     QMap<QString, QVariant> perim_settings;
-/*    perim_settings["PerimeterType"] = "PerimeterControlByWeight";
+    perim_settings["PerimeterType"] = "PerimeterControlByWeight";
     perim_settings["weightName"]    = "weight1_1";
-    perim_settings["minWeight"]     = 50.0;
-    perim_settings["method"]        = "readMethod"; */
+    perim_settings["minWeight"]     = 50;
+    perim_settings["method"]        = "readMethod";
 
-//    return ;
 
-    perim_settings["PerimeterType"] = "PerimeterControlByDi";
+
+    /*perim_settings["PerimeterType"] = "PerimeterControlByDi";
     perim_settings["AppearDi"]      = "di1";
     perim_settings["DisappearDi"]   = "di2";
-    perim_settings["method"]        = "readMethod";
+    perim_settings["method"]        = "readMethod";*/
 
 //    return;
 

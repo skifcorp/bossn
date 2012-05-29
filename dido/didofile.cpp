@@ -18,6 +18,7 @@ QVariant DidoFile::setDo(const QVariant& val)
 {
     uchar b = static_cast<uchar>(val.toUInt());
 
+    //qDebug () << "writing_do_byte: "<<b;
 
     io_device()->write(QByteArray(1, b));
     return QVariant(true);
@@ -30,8 +31,10 @@ QVariant DidoFile::getDiBit(const QVariant& full_byte, const QVariant& num)
 
 QVariant DidoFile::setDoBit(const QVariant& full_byte, const QVariant& num, const QVariant& val)
 {
-    uchar data = static_cast<uchar>(full_byte.toInt());
+    uchar data = static_cast<uchar>(full_byte.toUInt());
     bool b = val.toBool();
+
+    //qDebug () << "writing_do_bit: "<<full_byte.toUInt();
 
     if (b) {
         return data | (1<<(num.toUInt() + 4));

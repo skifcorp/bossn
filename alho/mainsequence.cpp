@@ -118,43 +118,35 @@ void async_call(Callable c, Args ... args)
 
 void MainSequence::printOnTablo(const QString & s)
 {
-
     tags["tablo"]->func("print", Q_ARG(const QVariant&, QVariant(s)));
-    //qDebug () << "after";
 }
 
 int MainSequence::getWeight() const
 {
-
     return tags["weight1_1"]->func("readMethod").toInt();
 }
 
 
-MainSequence::MainSequence(Tags & t, const QVariantMap& opts):tags(t), options(opts), on_weight(false)
+MainSequence::MainSequence(Tags & t, const QVariantMap& s):tags(t), app_settings(s), on_weight(false)
 {
     printOnTablo(greeting_message);
+    setLightsToGreen();
 
     qx::QxSqlDatabase::getSingleton()->setTraceSqlQuery(false);
     qx::QxSqlDatabase::getSingleton()->setTraceSqlRecord(false);
 
-    qx::QxSqlDatabase::getSingleton()->setDriverName(get_setting<QString>("database_driver", options));
-    qx::QxSqlDatabase::getSingleton()->setDatabaseName(get_setting<QString>("database_name", options));
-    qx::QxSqlDatabase::getSingleton()->setHostName(get_setting<QString>("database_host", options));    
-    qx::QxSqlDatabase::getSingleton()->setUserName(get_setting<QString>("database_user", options));
-    qx::QxSqlDatabase::getSingleton()->setPassword(get_setting<QString>("database_password", options));
-
-    //t_ttn ttn;
+    qx::QxSqlDatabase::getSingleton()->setDriverName(get_setting<QString>("database_driver", app_settings));
+    qx::QxSqlDatabase::getSingleton()->setDatabaseName(get_setting<QString>("database_name", app_settings));
+    qx::QxSqlDatabase::getSingleton()->setHostName(get_setting<QString>("database_host", app_settings));
+    qx::QxSqlDatabase::getSingleton()->setUserName(get_setting<QString>("database_user", app_settings));
+    qx::QxSqlDatabase::getSingleton()->setPassword(get_setting<QString>("database_password", app_settings));
 
 
-    //qDebug() << "before";
-    //qx::dao::insert(ttn);
-    //async_call([&ttn]{qx::dao::insert(ttn);});
-    qDebug() << "after";
 }
 
 QString MainSequence::detectPlatformType(const QVariantMap & bill) const throw (MainSequenceException)
 {
-    QString typ = get_setting<QString>("platform_type", options);
+    QString typ = get_setting<QString>("platform_type", app_settings);
     if (typ != "auto") return typ;
 
     if (!checkMember("bruttoWeight", bill, 0) &&
@@ -183,10 +175,12 @@ void MainSequence::onAppearOnWeight()
 
     printOnTablo(apply_card_message);
 
+    setLightsToRed();
+
     tags["reader1"]->func("doOn");
 
-    QByteArray card_code = get_setting<QByteArray>("card_code" , options);
-    uint data_block      = get_setting<uint>      ("data_block", options);
+    QByteArray card_code = get_setting<QByteArray>("card_code" , app_settings);
+    uint data_block      = get_setting<uint>      ("data_block", app_settings);
 
     while(on_weight) {
         ActivateCardISO14443A act = tags["reader1"]->func("activateIdleA").value<ActivateCardISO14443A>();
@@ -202,7 +196,7 @@ void MainSequence::onAppearOnWeight()
         try {
             card.autorize(card_code, data_block);
 
-            QVariantMap bill = card.readStruct(bill_conf(options));
+            QVariantMap bill = card.readStruct(bill_conf(app_settings));
 
             if (!checkMember("billNumber", bill, 0) || !checkMember("driver", bill, 0)) {
                 throw MainSequenceException(card_is_empty_error_message, "bill is empty");
@@ -223,10 +217,10 @@ void MainSequence::onAppearOnWeight()
 
                 brutto(bill, car, card);
 
-                card.writeStruct(bill_conf(options), bill);
+                card.writeStruct(bill_conf(app_settings), bill);
 
                 printOnTablo( bruttoFinishMessage(bill) );                                           
-                sleepnb( get_setting<int>("brutto_finish_pause", options) );
+                sleepnb( get_setting<int>("brutto_finish_pause", app_settings) );
                 printOnTablo( apply_card_message );
                 continue;
             }
@@ -234,9 +228,9 @@ void MainSequence::onAppearOnWeight()
                 qDebug() << "tara...";
 
                 tara(bill, car);
-                card.writeStruct(bill_conf(options), bill);
+                card.writeStruct(bill_conf(app_settings), bill);
                 printOnTablo( taraFinishMessage() );
-                sleepnb( get_setting<int>("brutto_finish_pause", options) );
+                sleepnb( get_setting<int>("brutto_finish_pause", app_settings) );
                 printOnTablo( apply_card_message );
                 continue;
             }
@@ -307,8 +301,8 @@ uint MainSequence::countCarsFromFieldForDayExcludeCurrent(uint ttn_num, uint fie
 
 bool MainSequence::checkForNeedDiscreteAnalisys(long count) const throw()
 {
-    uint num_in_group = (count + 1) % get_setting<uint>("common_size_of_group", options);
-    return num_in_group == get_setting<uint>("common_number_from_group", options);
+    uint num_in_group = (count + 1) % get_setting<uint>("common_size_of_group", app_settings);
+    return num_in_group == get_setting<uint>("common_number_from_group", app_settings);
 }
 
 uint MainSequence::getAnalisysPeriodFromStorage(uint typ) const throw(MysqlException, MainSequenceException)
@@ -317,11 +311,11 @@ uint MainSequence::getAnalisysPeriodFromStorage(uint typ) const throw(MysqlExcep
 
     if ( typ == 0 ) {
         const_ = wrap_async_ex( "error for kontragent type when doint chemical analysis typ=0", QString(),                                
-                                [this]{return async_fetch<t_const>(get_setting<QString>("corpotare_check_period_name", options));});
+                                [this]{return async_fetch<t_const>(get_setting<QString>("corpotare_check_period_name", app_settings));});
     }
     else if ( typ == 3 ) {
         const_ = wrap_async_ex( "error for kontragent type when doint chemical analysis typ=3", QString(),
-                                [this]{return async_fetch<t_const>(get_setting<QString>("farmer_check_period_name", options)); });
+                                [this]{return async_fetch<t_const>(get_setting<QString>("farmer_check_period_name", app_settings)); });
     }
     else {
         //qWarning()<< "error for kontragent type when doint chemical analysis";
@@ -374,7 +368,7 @@ void MainSequence::processChemicalAnalysis(QVariantMap & bill, qx::dao::ptr<t_tt
     long count   = countCarsFromFieldForDayExcludeCurrent(ttn->num_nakl,
                                                           kontrCodeFromField( memberValue<uint>("realNumField", bill) ) );
 
-    QString alho = get_setting<QString>("common_algorithm_of_analysis", options);
+    QString alho = get_setting<QString>("common_algorithm_of_analysis", app_settings);
 
     qDebug() << "analisys alho: "<<alho<<" cars_count: "<<count;
 
@@ -415,7 +409,7 @@ QString MainSequence::getBumsClause(const QVariantMap & bill, qx::dao::ptr<t_car
 
     if (car->back_board) {
         qx::dao::ptr<t_const> const_ = wrap_async_ex(get_backboard_bum_weight_const_error, "error getting const for backboard bum",
-                        [this]{return async_fetch<t_const>(get_setting<QString>("bum11_name", options));});
+                        [this]{return async_fetch<t_const>(get_setting<QString>("bum11_name", app_settings));});
 
         if ( memberValue<int>("bruttoWeight", bill) > const_->value.toInt() ) {
             ret.append("id = 11");
@@ -507,7 +501,7 @@ bool MainSequence::isPureBruttoWeight(const QVariantMap& bill) const throw (Main
 
 bool MainSequence::checkDeltaForReweights(int prev_weight, int weight) const
 {
-    return qAbs( prev_weight - weight ) < get_setting<int>("brutto_delta_between_reweights", options);
+    return qAbs( prev_weight - weight ) < get_setting<int>("brutto_delta_between_reweights", app_settings);
 }
 
 void MainSequence::brutto(QVariantMap & bill, qx::dao::ptr<t_cars> car, const MifareCard& card) const throw(MainSequenceException)
@@ -531,7 +525,7 @@ void MainSequence::brutto(QVariantMap & bill, qx::dao::ptr<t_cars> car, const Mi
                                     "reweight: brutto rup failed!: prevWeight: " +
                                      memberValue<QString>("bruttoWeight", bill)  +
                                     " cur: " + QString::number(weight)  + " max_delta: " +
-                                    get_setting<QString>("brutto_delta_between_reweights", options));
+                                    get_setting<QString>("brutto_delta_between_reweights", app_settings));
         }
         setMemberValue("flags", 0, true, bill );
         qDebug ()<<"reweight!";
@@ -601,7 +595,7 @@ void MainSequence::tara(QVariantMap & bill, qx::dao::ptr<t_cars> car) const thro
             throw MainSequenceException(tara_rupture_failed_message,
                                     "reweight: tara rup failed!: prevWeight: " +
                                     QString::number(ttn->brutto)  + " cur: " + QString::number(weight)  + " max_delta: " +
-                                    get_setting<QString>("brutto_delta_between_reweights", options));
+                                    get_setting<QString>("brutto_delta_between_reweights", app_settings));
         }
         ttn->tara = weight;
         ttn->dt_of_tara = QDateTime::currentDateTime();
@@ -699,6 +693,7 @@ void MainSequence::onDisappearOnWeight()
     tags["reader1"]->func("doOff");
     //tags["tablo"]->func("print", Q_ARG(const QVariant&, QVariant("Zaidkte na vagu")));
     printOnTablo(greeting_message);
+    setLightsToGreen();
 }
 
 void MainSequence::checkBum( QVariantMap& bill )const throw(MainSequenceException)
@@ -757,9 +752,9 @@ void MainSequence::configureReportContext(const qx::dao::ptr<t_ttn>& ttn, const 
     //qx::dao::ptr<t_const> base_firm = wrap_async_ex(cant_get_base_firm_when_printing, "cant get base firm when printing",
     //                        [&ttn, this, &options]{return async_fetch<t_const>( get_setting<QString>("base_firm_name", options) ); });
 
-    qx::dao::ptr<t_const> base_firm         = getConst(get_setting<QString>("base_firm_name"   , options));
-    qx::dao::ptr<t_const> dont_check_time   = getConst(get_setting<QString>("dont_check_time_name", options));
-    qx::dao::ptr<t_const> disp_phone        = getConst(get_setting<QString>("disp_phone_name", options));
+    qx::dao::ptr<t_const> base_firm         = getConst(get_setting<QString>("base_firm_name"   , app_settings));
+    qx::dao::ptr<t_const> dont_check_time   = getConst(get_setting<QString>("dont_check_time_name", app_settings));
+    qx::dao::ptr<t_const> disp_phone        = getConst(get_setting<QString>("disp_phone_name", app_settings));
 
   struct var_instance {
         QString var_name;
@@ -791,7 +786,7 @@ void MainSequence::configureReportContext(const qx::dao::ptr<t_ttn>& ttn, const 
 
 bool MainSequence::printStartReport(const qx::dao::ptr<t_ttn> & ttn, const qx::dao::ptr<t_cars> & car) const throw(MainSequenceException)
 {
-    Reports r ( get_setting<QString>("start_report_file_name", options) );
+    Reports r ( get_setting<QString>("start_report_file_name", app_settings) );
 
     ttn->real_field = 101;
 
@@ -804,7 +799,7 @@ bool MainSequence::printStartReport(const qx::dao::ptr<t_ttn> & ttn, const qx::d
 
 bool MainSequence::printFinishReport( const qx::dao::ptr<t_ttn>& ttn, const qx::dao::ptr<t_cars>& car) const throw(MainSequenceException)
 {
-    Reports r ( get_setting<QString>("finish_report_file_name", options) );
+    Reports r ( get_setting<QString>("finish_report_file_name", app_settings) );
 
     ttn->real_field = 101;
 
@@ -852,11 +847,11 @@ qx::dao::ptr<t_const> MainSequence::getConst(const QString & k) const throw(Main
 
 void MainSequence::processTaraRupture(qx::dao::ptr<t_ttn> ttn, qx::dao::ptr<t_cars> car) const throw(MainSequenceException)
 {
-    QString percent = getConst( get_setting<QString>("tara_percent_name", options) )->value ;
+    QString percent = getConst( get_setting<QString>("tara_percent_name", app_settings) )->value ;
 
     QString count;
     if ( car->amount_of_car_for_middle_tara < 0 ) {
-        count = getConst( get_setting<QString>("tara_cars_mid_count_name", options) )->value ;
+        count = getConst( get_setting<QString>("tara_cars_mid_count_name", app_settings) )->value ;
     }
     else {
         count = QString::number( car->amount_of_car_for_middle_tara );
@@ -928,6 +923,17 @@ qx::dao::ptr<t_ttn> MainSequence::makeNewTask(qx::dao::ptr<t_cars> car, const QV
     return ttn;
 }
 
+void MainSequence::setLightsToRed()
+{
+    tags["do1"]->func("writeMethod", Q_ARG(QVariant, 1));
+    tags["do2"]->func("writeMethod", Q_ARG(QVariant, 0));
+}
+
+void MainSequence::setLightsToGreen()
+{
+    tags["do1"]->func("writeMethod", Q_ARG(QVariant, 0));
+    tags["do2"]->func("writeMethod", Q_ARG(QVariant, 1));
+}
 
 
 

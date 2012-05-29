@@ -27,7 +27,9 @@ public:
 
     qint64 virtual write ( const QByteArray& data )
     {
-        bool ret = DIO_SetOutput( handle, static_cast<WORD> (data.toUShort()) );
+        //qDebug () << "ismm_device: data: "<< data[0] << " to_write: " <<static_cast<ushort> (~(data[0]>>4));
+
+        bool ret = DIO_SetOutput( handle, static_cast<WORD> ( ~(data[0]>>4)) );
 
         return ret ? 1 : 0;
     }
@@ -37,8 +39,7 @@ public:
         return  handle != INVALID_HANDLE_VALUE ? 1 : 0;
     }
     QByteArray virtual read ( qint64 )
-    {
-        qDebug () << "!!!!!";
+    {        
         return readAll();
     }
     QByteArray virtual readAll ()
@@ -49,7 +50,7 @@ public:
         WORD dos = 0;
         if (!DIO_GetOutput(handle, &dos) ) return QByteArray();
 
-        uchar ret = static_cast<uchar> (((dos & 0x000F)<<4) | ( dis & 0x000F)) ;
+        uchar ret = static_cast<uchar> (~(((dos & 0x000F)<<4) | ( dis & 0x000F)));
 
         return QByteArray(1, ret);
     }

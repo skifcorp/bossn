@@ -59,23 +59,18 @@ class MainSequence : public QObject,
 {
     Q_OBJECT
 public:
-    MainSequence(Tags & t, const QVariantMap& opts);
+    MainSequence(Tags & t, const QVariantMap& );
 
     ~MainSequence() {}
 
-
-
-    //static QByteArray card_code;
 public slots:
     void onAppearOnWeight();
     void onDisappearOnWeight();
 private:
     Tags & tags;
-    const QVariantMap & options;
+    const QVariantMap & app_settings;
 
-    QString tablo_func;
-    QString red_tag;
-    QString green_tag;
+
     bool on_weight;
 
 
@@ -261,6 +256,9 @@ private:
     void clearWorkBillData( QVariantMap& ) const;
     qx::dao::ptr<t_ttn> makeNewTask( qx::dao::ptr<t_cars>, const QVariantMap& ) const throw (MainSequenceException);
 
+    void setLightsToRed();
+    void setLightsToGreen();
+
     template <class T>
     void setMemberValue(const QString& mn, const T& v, QVariantMap& map) const
     {
@@ -314,13 +312,13 @@ private:
 
     void sleepnbtm() const
     {
-        static uint tm = get_setting<uint>("sleepnb_timeout", options, 100);
+        static uint tm = get_setting<uint>("sleepnb_timeout", app_settings, 100);
         sleepnb(tm);
     }
 
     void sleepnbtmerr(const QString& msg1, const QString& msg2)
     {
-        static uint tm = get_setting<uint>("sleepnb_on_error_timeout", options, 10000);
+        static uint tm = get_setting<uint>("sleepnb_on_error_timeout", app_settings, 10000);
         printOnTablo(msg1);
         sleepnb(tm);
         printOnTablo(msg2);
