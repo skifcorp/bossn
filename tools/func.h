@@ -50,4 +50,36 @@ inline QString byteArrayToString(const QByteArray& ba)
     return ret;
 }
 
+
+inline QDateTime timeShitToDateTime(ulong timeInMinutes)
+{
+    QDate d(2000, 01, 01);
+    QDateTime dt(d);
+
+    ulong temp=timeInMinutes/60/24;
+    int   ost=timeInMinutes-temp*60*24;
+
+    dt=dt.addDays(temp);
+
+    int hour=ost/60;
+    int minute=ost-hour*60;
+
+    QTime time(hour, minute);
+    dt.setTime(time);
+    return dt;
+}
+
+inline ulong dateTimeToTimeShit(const QDateTime& dt)
+{
+    QDateTime startDT(QDate (2000, 01, 01));
+
+    if (dt<startDT) {
+//qDebug () << "smaller!";
+        return 0;
+    }
+    unsigned long temp = startDT.daysTo(dt)*24*60 + dt.time().hour()*60+dt.time().minute();
+    return temp;
+}
+
+
 #endif // FUNC_H

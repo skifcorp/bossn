@@ -4,6 +4,7 @@
 //#include "precompiled.h"
 #include <QxOrm.h>
 #include <QxMemLeak.h>
+#include "func.h"
 
 QX_REGISTER_CPP_EXPORT_DLL(t_ttn)
 QX_REGISTER_CPP_EXPORT_DLL(t_rez)

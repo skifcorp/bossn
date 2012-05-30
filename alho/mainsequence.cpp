@@ -4,72 +4,18 @@
 #include "func.h"
 
 #include "dbstructs.h"
+#include "warnmessages.h"
+#include "reportsmanager.h"
+#include "codeshacks.h"
+#include "conviencefuncs.h"
+
 //#include "datetimehack.h"
 
-#include "reports.h"
+//#include "reports.h"
 
 #include <QBitArray>
-#include <QtConcurrentRun>
-
-#include <QxRegister/QxClassX.h>
-#include <QxRegister/IxClass.h>
-#include <QxDataMember/IxDataMemberX.h>
-#include <QxDataMember/IxDataMember.h>
-
-using qx::QxClassX;
-using qx::IxClass;
-using qx::IxDataMemberX;
-using qx::IxDataMember;
-
-//#include <future>
-#include <atomic>
-
-//using std::async;
-//using std::future;
 
 
-const QString greeting_message                       = QT_TRANSLATE_NOOP("MainSequence", "Go on the weight platfotrm");
-const QString apply_card_message                     = QT_TRANSLATE_NOOP("MainSequence", "Apply card to reader");
-const QString card_autorize_error_message            = QT_TRANSLATE_NOOP("MainSequence", "Card autorization error!");
-const QString card_reading_error_message             = QT_TRANSLATE_NOOP("MainSequence", "Card reading error!");
-const QString card_is_empty_error_message            = QT_TRANSLATE_NOOP("MainSequence", "Card is empty error!");
-const QString car_blocked_message                    = QT_TRANSLATE_NOOP("MainSequence", "You car is blocked! Contact to dispatcher!");
-const QString fetch_car_error_message                = QT_TRANSLATE_NOOP("MainSequence", "Fetch car error! Contact to dispatcher");
-const QString fetch_ttn_error_message                = QT_TRANSLATE_NOOP("MainSequence", "Fetch ttn error! Contact to dispatcher");
-const QString weight_not_stable_message              = QT_TRANSLATE_NOOP("MainSequence", "Weights dont stable!");
-const QString brutto_rupture_failed_message          = QT_TRANSLATE_NOOP("MainSequence", "Brutto rupture to big!");
-const QString update_ttn_error_message               = QT_TRANSLATE_NOOP("MainSequence", "Update ttn error! Contact to dispatcher");
-const QString autodetect_platform_type_error_message = QT_TRANSLATE_NOOP("MainSequence", "Platform autodetect failed! Contact to dispatcher");
-const QString kvo_mah_error_message                  = QT_TRANSLATE_NOOP("MainSequence", "KvoMah failed! Contact to dispatcher");
-const QString kontr_get_error_message                = QT_TRANSLATE_NOOP("MainSequence", "KontrGet failed! Contact to dispatcher");
-const QString get_car_for_bum_error_message          = QT_TRANSLATE_NOOP("MainSequence", "Getting car for bum failed! Contact to dispatcher");
-const QString confuse_brutto_tara_error_message      = QT_TRANSLATE_NOOP("MainSequence", "You confused brutto with tara! Contact to dispatcher");
-const QString get_backboard_bum_weight_const_error   = QT_TRANSLATE_NOOP("MainSequence", "Getting backboard bum weight error! Contact to dispatcher");
-const QString get_free_bum_error                     = QT_TRANSLATE_NOOP("MainSequence", "Getting free bum error! Contact to dispatcher");
-const QString update_bum_queue_error                 = QT_TRANSLATE_NOOP("MainSequence", "Updating bum queue error! Contact to dispatcher");
-const QString forget_brutto_on_tara_error_message    = QT_TRANSLATE_NOOP("MainSequence", "You forget for brutto!");
-const QString get_ttn_by_driver_tara0_error_message  = QT_TRANSLATE_NOOP("MainSequence", "Get ttn by driver and zero tara failed! Contact to dispatcher");
-const QString get_last_ttn_by_driver_error_message   = QT_TRANSLATE_NOOP("MainSequence", "Get last ttn by driver failed! Contact to dispatcher");
-const QString brutto_smaller_than_tara_message       = QT_TRANSLATE_NOOP("MainSequence", "Brutto smaller than tara! Contact to dispatcher");
-const QString tara_rupture_failed_message            = QT_TRANSLATE_NOOP("MainSequence", "Tara rupture to big!");
-const QString car_dont_was_in_lab                    = QT_TRANSLATE_NOOP("MainSequence", "Car was sent to lab has not been there!");
-const QString car_has_not_been_unloaded              = QT_TRANSLATE_NOOP("MainSequence", "Car has not been unloaded!");
-const QString blocking_car_for_lab_error             = QT_TRANSLATE_NOOP("MainSequence", "Cant block car which wasnt in lab!");
-const QString getting_kagat_error                    = QT_TRANSLATE_NOOP("MainSequence", "Cant get kagat!");
-const QString kagat_was_closed_error                 = QT_TRANSLATE_NOOP("MainSequence", "Kagat was closed!");
-const QString clear_bum_queue_error                  = QT_TRANSLATE_NOOP("MainSequence", "Clear bum queue error!");
-const QString cant_get_field_when_printing           = QT_TRANSLATE_NOOP("MainSequence", "Cant get field when printing");
-const QString cant_get_kontr_when_printing           = QT_TRANSLATE_NOOP("MainSequence", "Cant get kontr when printing");
-const QString cant_get_base_firm_when_printing       = QT_TRANSLATE_NOOP("MainSequence", "Cant get base firm when printing");
-const QString cant_get_bum_state_log_message         = QT_TRANSLATE_NOOP("MainSequence", "Cant get bum state log");
-const QString cant_get_bum_message                   = QT_TRANSLATE_NOOP("MainSequence", "Cant get bum!");
-const QString cant_get_const_message                 = QT_TRANSLATE_NOOP("MainSequence", "Cant get const");
-const QString error_getting_mid_tara_message         = QT_TRANSLATE_NOOP("MainSequence", "Error getting mid tara!");
-const QString error_writing_rup_tara_message         = QT_TRANSLATE_NOOP("MainSequence", "Error writing rup tara!");
-
-//const QString update_ttn_platform_error              = QT_TRANSLATE_NOOP("MainSequence", "Up! Contact to dispatcher");
-
-//const QString something_failed_in_alho               = QT_TRANSLATE_NOOP("MainSequence", "Platform autodetect failed! Contact to dispatcher");
 
 const QString brutto_finish_weight_message                  = QT_TRANSLATE_NOOP("MainSequence", "%1 kg");
 const QString brutto_finish_lab_message                     = QT_TRANSLATE_NOOP("MainSequence", "Lab(%1)");
@@ -94,15 +40,6 @@ QString MainSequence::bruttoFinishMessage(const QVariantMap & bill) const
     return ret;
 }
 
-inline uint carCodeFromDriver(uint dr)
-{
-    return dr / 10;
-}
-
-inline uint kontrCodeFromField( uint f )
-{
-    return f / 100;
-}
 
 /*
 
@@ -195,6 +132,8 @@ void MainSequence::onAppearOnWeight()
 
         try {
             card.autorize(card_code, data_block);
+
+            processPerimeter();
 
             QVariantMap bill = card.readStruct(bill_conf(app_settings));
 
@@ -481,6 +420,8 @@ void MainSequence::updateTaraValues(QVariantMap& bill, qx::dao::ptr<t_ttn> ttn, 
         ttn->kagat         = memberValue<int>("kagat", bill);
         ttn->dt_of_unload  = memberValue<QDateTime>("dateOfUnload", bill);
         ttn->was_in_lab    = memberValue<QBitArray>("flags", bill).at(3);
+
+        qDebug () << "bum: " << ttn->bum;
     }
 
     ttn->copy          = 0;
@@ -740,6 +681,7 @@ void MainSequence::processDrivingTime(qx::dao::ptr<t_ttn> ttn, qx::dao::ptr<t_ca
     }
 }
 
+#if 0
 void MainSequence::configureReportContext(const qx::dao::ptr<t_ttn>& ttn, const qx::dao::ptr<t_cars>& car, QVariantMap& ctx) const throw (MainSequenceException)
 {
     qx::dao::ptr<t_field> field = wrap_async_ex(cant_get_field_when_printing, "cant get field when printing",
@@ -748,9 +690,6 @@ void MainSequence::configureReportContext(const qx::dao::ptr<t_ttn>& ttn, const 
     qx::dao::ptr<t_kontr> kontr = wrap_async_ex(cant_get_kontr_when_printing, "cant get kontr when printing",
                             [&ttn, this]{return async_fetch<t_kontr>( kontrCodeFromField( ttn->real_field  ) ); });
 
-
-    //qx::dao::ptr<t_const> base_firm = wrap_async_ex(cant_get_base_firm_when_printing, "cant get base firm when printing",
-    //                        [&ttn, this, &options]{return async_fetch<t_const>( get_setting<QString>("base_firm_name", options) ); });
 
     qx::dao::ptr<t_const> base_firm         = getConst(get_setting<QString>("base_firm_name"   , app_settings));
     qx::dao::ptr<t_const> dont_check_time   = getConst(get_setting<QString>("dont_check_time_name", app_settings));
@@ -771,6 +710,7 @@ void MainSequence::configureReportContext(const qx::dao::ptr<t_ttn>& ttn, const 
         var_instance{"disp_phone", "t_const", disp_phone.data()}
      };
 
+    QTextCodec * co = QTextCodec::codecForName("Windows-1251");
     //QVariantMap ctx;
     for( auto iter = vars.begin(); iter != vars.end(); ++iter ) {
         IxClass * c = QxClassX::getClass( iter->typ_name );
@@ -778,36 +718,48 @@ void MainSequence::configureReportContext(const qx::dao::ptr<t_ttn>& ttn, const 
         IxDataMemberX * m = c->getDataMemberX();
         for ( long i = 0; i < m->count(); ++i  ) {
             IxDataMember * dm = m->get(i);
-            ctx[iter->var_name + "_" + dm->getName()] = dm->toVariant(iter->var);
+            qDebug () << "sql_type: "<<dm->getSqlType();
+            ctx[iter->var_name + "_" + dm->getName()] = dm->toVariant(  iter->var  );
         }
     }
 
 }
 
+#endif
+
 bool MainSequence::printStartReport(const qx::dao::ptr<t_ttn> & ttn, const qx::dao::ptr<t_cars> & car) const throw(MainSequenceException)
 {
+#if 0
     Reports r ( get_setting<QString>("start_report_file_name", app_settings) );
 
-    ttn->real_field = 101;
+    //ttn->real_field = 101;
 
     QVariantMap ctx;
 
     configureReportContext(ttn, car, ctx);
 
     return r.print(ctx);
+#endif
+    ReportsManager m(app_settings);
+    return m.printReport(ttn, car, get_setting<QString>("start_report_file_name", app_settings));
 }
 
 bool MainSequence::printFinishReport( const qx::dao::ptr<t_ttn>& ttn, const qx::dao::ptr<t_cars>& car) const throw(MainSequenceException)
 {
+#if 0
     Reports r ( get_setting<QString>("finish_report_file_name", app_settings) );
 
-    ttn->real_field = 101;
+    //ttn->real_field = 101;
 
     QVariantMap ctx;
 
     configureReportContext(ttn, car, ctx);
 
     return r.print(ctx);
+#endif
+    ReportsManager m(app_settings);
+    return m.printReport(ttn, car, get_setting<QString>("finish_report_file_name", app_settings));
+
 }
 
 void MainSequence::repairBumCorrectnessIfNeeded(qx::dao::ptr<t_ttn> ttn) const throw (MainSequenceException)
@@ -837,13 +789,14 @@ bool MainSequence::checkBumWorks(const QDateTime & date_from, const QDateTime & 
 
     return static_cast<bool> (bum_ptr->state);
 }
-
+#if 0
 qx::dao::ptr<t_const> MainSequence::getConst(const QString & k) const throw(MainSequenceException)
 {
     auto const_ = wrap_async_ex( cant_get_const_message + ": " + k, "cant get const " + k,
                                 [this, &k]{return async_fetch<t_const>(k);});
     return const_;
 }
+#endif
 
 void MainSequence::processTaraRupture(qx::dao::ptr<t_ttn> ttn, qx::dao::ptr<t_cars> car) const throw(MainSequenceException)
 {
@@ -938,7 +891,13 @@ void MainSequence::setLightsToGreen()
 
 
 
+void MainSequence::processPerimeter() const throw (MainSequenceException)
+{
+    if ( !get_setting<bool>("perimeter_control", app_settings) ) return;
 
+    if ( tags["di1"]->func("readMethod").toBool() || tags["di2"]->func("readMethod").toBool() )
+        throw MainSequenceException(perimeter_control_failed, "perimeter_control_failed!");
+}
 
 
 

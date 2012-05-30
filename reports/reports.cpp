@@ -17,7 +17,10 @@ bool Reports::print(const QVariantMap & m)
 
     QScriptEngine engine;
     for ( auto iter = m.begin(); iter != m.end(); ++iter  ) {
-        engine.globalObject().setProperty( iter.key(), engine.newVariant( *iter )) ;
+        if ( iter->type() == QVariant::DateTime )
+            engine.globalObject().setProperty( iter.key(), engine.newDate( iter->toDateTime() )) ;
+        else
+            engine.globalObject().setProperty( iter.key(), engine.newVariant( *iter )) ;
     }
 
 

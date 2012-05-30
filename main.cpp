@@ -15,6 +15,7 @@
 #include "formatersequence.h"
 #include "alhosequence.h"
 #include "initsettings.h"
+#include "initprogoptions.h"
 
 #if 0
 void initPorters(QVector<Porter::Pointer>& porters, Tags& tags)

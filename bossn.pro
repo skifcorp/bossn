@@ -1,4 +1,4 @@
-#-------------------------------------------------
+  #-------------------------------------------------
 #
 # Project created by QtCreator 2012-03-13T16:01:34
 #
@@ -65,7 +65,9 @@ SOURCES += main.cpp \
     alho/dbstructs.cpp \
     reports/reports.cpp \
     initsettings.cpp \
-    iodevicewrapper/ismmdevice.cpp
+    iodevicewrapper/ismmdevice.cpp \
+    alho/reportsmanager.cpp \
+    initprogoptions.cpp
 
 HEADERS += \    
     tools/func.h \
@@ -106,4 +108,11 @@ HEADERS += \
     alho/dbstructs.h \
     reports/reports.h \
     initsettings.h \
-    iodevicewrapper/ismmdevice.h
+    iodevicewrapper/ismmdevice.h \
+    alho/async_func.h \
+    alho/bossnexception.h \
+    alho/reportsmanager.h \
+    alho/warnmessages.h \
+    alho/codeshacks.h \
+    alho/conviencefuncs.h \
+    initprogoptions.h

@@ -4,7 +4,7 @@
 #include <QObject>
 #include <QDebug>
 #include <QTime>
-#include <QCoreApplication>
+#include <QApplication>
 #include <QBitArray>
 #include <QtConcurrentRun>
 
@@ -13,43 +13,9 @@
 #include "settingstool.h"
 #include "func.h"
 #include "dbstructs.h"
+#include "async_func.h"
 
 
-
-class MysqlException
-{
-public:
-    MysqlException (const QString& db_txt, const QString& drv_txt):database_text(db_txt), driver_text(drv_txt)
-    {
-
-    }
-    ~MysqlException () {}
-
-    QString databaseText() const {return database_text;}
-    QString driverText() const {return driver_text;}
-private:
-    QString database_text;
-    QString driver_text;
-};
-
-
-
-class MainSequenceException
-{
-public:
-    MainSequenceException(const QString& user_msg, const QString& admin_msg, const QString& sys_msg = QString())
-        :user_message(user_msg), admin_message(admin_msg), system_message(sys_msg){}
-
-    ~MainSequenceException() {}
-
-    QString userMessage() const {return user_message;}
-    QString adminMessage() const {return admin_message;}
-    QString systemMessage() const {return system_message;}
-private:
-    QString user_message;
-    QString admin_message;
-    QString system_message;
-};
 
 
 class MifareCard;
@@ -76,7 +42,7 @@ private:
 
     QString detectPlatformType(const QVariantMap& ) const throw (MainSequenceException);
 
-
+#if 0
     template <class Callable, class... Args >
     typename std::result_of<Callable(Args...)>::type async_call(Callable c, Args ... args) const
     {
@@ -212,7 +178,7 @@ private:
         return decltype(f(p...))();
     }
 
-
+#endif
     void printOnTablo(const QString& );
     int getWeight() const;
 
@@ -249,8 +215,8 @@ private:
     void repairBumCorrectnessIfNeeded( qx::dao::ptr<t_ttn> )const throw (MainSequenceException);
     bool checkBumWorks(const QDateTime& , const QDateTime&, long) const throw (MainSequenceException);
     void processTaraRupture(qx::dao::ptr<t_ttn>, qx::dao::ptr<t_cars> ) const throw (MainSequenceException);
-    qx::dao::ptr<t_const> getConst(const QString& ) const throw(MainSequenceException);        
-    void configureReportContext(const qx::dao::ptr<t_ttn>&, const qx::dao::ptr<t_cars>&, QVariantMap& ) const throw (MainSequenceException);
+    //qx::dao::ptr<t_const> getConst(const QString& ) const throw(MainSequenceException);
+    //void configureReportContext(const qx::dao::ptr<t_ttn>&, const qx::dao::ptr<t_cars>&, QVariantMap& ) const throw (MainSequenceException);
     bool printFinishReport( const qx::dao::ptr<t_ttn>&, const qx::dao::ptr<t_cars>& ) const throw (MainSequenceException);
     bool printStartReport( const qx::dao::ptr<t_ttn>&, const qx::dao::ptr<t_cars>& ) const throw (MainSequenceException);
     void clearWorkBillData( QVariantMap& ) const;
@@ -258,6 +224,8 @@ private:
 
     void setLightsToRed();
     void setLightsToGreen();
+
+    void processPerimeter() const throw (MainSequenceException);
 
     template <class T>
     void setMemberValue(const QString& mn, const T& v, QVariantMap& map) const
