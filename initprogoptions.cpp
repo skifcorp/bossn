@@ -38,19 +38,19 @@ void initProgOptions(QVariantMap & opts)
     opts.insert("common_algorithm_of_analysis"  , "discrete" ); /*discrete or database_const*/
     opts.insert("common_size_of_group"          , 1);
     opts.insert("common_number_from_group"      , 0);
-    opts.insert("corpotare_check_period_name"   , "ПериодичностьПроверкиМашинЮрЛиц");
-    opts.insert("farmer_check_period_name"      , "ПериодичностьПроверкиМашинФермеров");
-    opts.insert("bum11_name"                    , "ВесДляБум11");
-    opts.insert("base_firm_name"                , "БазФирма");
+    opts.insert("corpotare_check_period_name"   , QObject::tr("ПериодичностьПроверкиМашинЮрЛиц"));
+    opts.insert("farmer_check_period_name"      , QObject::tr("ПериодичностьПроверкиМашинФермеров"));
+    opts.insert("bum11_name"                    , QObject::tr("ВесДляБум11"));
+    opts.insert("base_firm_name"                , QObject::tr("БазФирма"));
 
     opts.insert("brutto_finish_pause"           , 10000 )  ;
     opts.insert("tara_finish_pause"             , 10000 )  ;
     opts.insert("finish_report_file_name"       , "finish_report.ui");
     opts.insert("start_report_file_name"        , "start_report.ui");
-    opts.insert("tara_cars_mid_count_name"      , "КвоМашДляСредТары");
-    opts.insert("tara_percent_name"             , "ПроцентДляТары");
-    opts.insert("dont_check_time_name"          , "НеУчитыватьВремя");
-    opts.insert("disp_phone_name"               , "ТелДиспетчера");
+    opts.insert("tara_cars_mid_count_name"      , QObject::tr("КвоМашДляСредТары"));
+    opts.insert("tara_percent_name"             , QObject::tr("ПроцентДляТары"));
+    opts.insert("dont_check_time_name"          , QObject::tr("НеУчитыватьВремя"));
+    opts.insert("disp_phone_name"               , QObject::tr("ТелДиспетчера"));
 
 //  opts.insert("report_classes"                , QVariantList {"t_ttn" , "t_rez", "t_def_field", "t_bum",
 //                                                                "t_cars", "t_kagat", "t_kontr", "t_field",

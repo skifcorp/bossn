@@ -6,6 +6,7 @@
 #include "settingstool.h"
 #include "conviencefuncs.h"
 
+#include <QMessageBox>
 
 #include <QxRegister/QxClassX.h>
 #include <QxRegister/IxClass.h>
@@ -36,6 +37,7 @@ bool ReportsManager::printReport(const qx::dao::ptr<t_ttn>  & ttn, const qx::dao
 }
 
 
+#include <QMessageBox>
 
 void ReportsManager::configureReportContext(const qx::dao::ptr<t_ttn>& ttn, const qx::dao::ptr<t_cars>& car, QVariantMap& ctx) const throw (MainSequenceException)
 {
@@ -74,12 +76,16 @@ void ReportsManager::configureReportContext(const qx::dao::ptr<t_ttn>& ttn, cons
         for ( long i = 0; i < m->count(); ++i  ) {
             IxDataMember * dm = m->get(i);
             //qDebug () << "sql_type: "<<dm->getSqlType();
-            //if ( dm->getSqlType()=="TEXT" ) {
-            //    ctx[iter->var_name + "_" + dm->getName()] =  co->toUnicode( dm->getValue<QString>(iter->var).toAscii() );
-            //}
-            //else {
+            if ( dm->getSqlType()=="TEXT" ) {
+                //QString v = dm->getValue<QString>(iter->var);
+
+                //QString  m =  v.toAscii() + " " + v.toLatin1() + " " + v.toLocal8Bit() + " " + v.toUtf8();
+                //QMessageBox::about(nullptr, " ", m);
+                ctx[iter->var_name + "_" + dm->getName()] = dm->getValue<QString>(iter->var).toLatin1();
+            }
+            else {
                 ctx[iter->var_name + "_" + dm->getName()] = dm->toVariant(  iter->var  );
-            //}
+            }
         }
     }
 

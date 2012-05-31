@@ -6,7 +6,7 @@
 
 
 QT       += core xml sql script gui
-CONFIG   += uitools
+CONFIG   += uitools console
 
 TARGET   = bossn
 CONFIG   += console
