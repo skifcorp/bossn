@@ -17,7 +17,11 @@ public:
     }
     virtual void clear()
     {
-        serial_port.reset();
+        //serial_port.reset();
+        //serial_port.flush();
+        auto m = serial_port.openMode();
+        serial_port.close();
+        serial_port.open(m);
     }
 
     static IoDeviceWrapper * create()

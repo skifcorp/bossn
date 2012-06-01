@@ -18,10 +18,12 @@ void Hbm2110::readWeight(QVariant & ret, uint & err)
 
     //qDebug() << "readWeight by HBM";
 
-    //qDebug()<<"bytes: "<<io->bytesAvailable();
+    //qDebug()<<"before bytes: "<<io_device()->bytesAvailable();
     while ( io_device()->bytesAvailable() < frame_size ) {
+        //qDebug () << " hbm_bytes: " << io_device()->bytesAvailable();
         yield();
     }
+    //qDebug()<<"after bytes: "<<io_device()->bytesAvailable();
 
     QByteArray answ = io_device()->read(frame_size);
 
