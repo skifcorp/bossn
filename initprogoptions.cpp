@@ -1,8 +1,10 @@
 #include "initprogoptions.h"
 
+const QString app_settings_file_name = "settings.xml";
 
 void initProgOptions(QVariantMap & opts)
 {
+#if 0
     QByteArray card_code;
     card_code.append(0xFE);
     card_code.append(0x86);
@@ -55,5 +57,6 @@ void initProgOptions(QVariantMap & opts)
 //  opts.insert("report_classes"                , QVariantList {"t_ttn" , "t_rez", "t_def_field", "t_bum",
 //                                                                "t_cars", "t_kagat", "t_kontr", "t_field",
 //                                                                "t_const", "t_bum_state_log"} );
+#endif
 
 }

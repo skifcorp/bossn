@@ -1,12 +1,20 @@
 #ifndef WEIGHTDEVICESERIAL_H
 #define WEIGHTDEVICESERIAL_H
 
+#include <QMetaEnum>
+
 #include "iodevicewrapper.h"
 #include "qextserialport.h"
 #include "factory.h"
 
 class IoDeviceSerial : public IoDeviceWrapper
 {
+    Q_OBJECT
+    /*Q_ENUMS(QextSerialPort::BaudRateType)
+    Q_ENUMS(QextSerialPort::DataBitsType)
+    Q_ENUMS(QextSerialPort::ParityType)
+    Q_ENUMS(QextSerialPort::StopBitsType)
+    Q_ENUMS(QextSerialPort::FlowType)*/
 public:
     ~IoDeviceSerial() {}
 
@@ -44,6 +52,22 @@ private:
     virtual const QIODevice * internalGetDevice() const { return &serial_port; }
 
     static BossnFactoryRegistrator<IoDeviceSerial> registrator;
+
+    template <class T>
+    T getEnumerableValue(const QString& enum_name, const QString& value) const
+    {
+        int enum_id = serial_port.metaObject()->indexOfEnumerator( enum_name.toAscii() );
+        if ( enum_id == -1 ) {
+            qWarning() << "cant get enumerator index for enum: "<< enum_name<< " value: "<<value;
+            qFatal("exit!!!");
+        }
+        int v = serial_port.metaObject()->enumerator( enum_id ).keyToValue( value.toAscii() );
+        if (v == -1) {
+            qWarning() << "cant get enumerator value index for enum: "<< enum_name<< " value: "<<value;
+            qFatal("exit!!!");
+        }
+        return static_cast<T>(v);
+    }
 };
 
 #endif // WEIGHTDEVICESERIAL_H

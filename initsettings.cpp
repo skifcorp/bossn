@@ -1,14 +1,224 @@
 #include "initsettings.h"
 #include "tags.h"
-#include "porter.h"
+
+
 
 #include <QList>
 #include <QVariantMap>
+#include <QFile>
+#include <QStringList>
 
-#include "qextserialport.h"
+#ifndef PROG_OPTIONS_ONLY
+#include "porter.h"
+#endif
+
+//#include "qextserialport.h"
+
+const QString AppSettings::settings_file_name = "settings.xml";
+
+void AppSettings::openDocument()
+{
+    QFile file(settings_file_name);
 
 
-void initTablo(QVector<Porter::Pointer>& porters, Tags & tags)
+    if (!file.open(QIODevice::ReadOnly)) {
+        qWarning() << "cant open settings file!!! "<<settings_file_name;
+        qFatal("exit!");
+    }
+
+    QString error_msg; int error_line = 0, error_column = 0;
+    if (!document.setContent(&file, &error_msg, &error_line, &error_column)) {
+        qWarning() << "cant set content of settings file!!!! msg: " << error_msg << " line: "<<error_line << " error_col: "<<error_column;
+        qFatal("exit!");
+    }
+}
+
+QDomElement AppSettings::findSettingsElement(const QString & n) const
+{
+    QDomElement el = document.firstChildElement("doc");
+
+    if ( el.isNull() ) {
+        qWarning() << "cant find DOC element!!!";
+        qFatal( "exit");
+    }
+
+    el = el.firstChildElement(n);
+
+    if ( el.isNull() ) {
+        qWarning() << "cant find " + n + " element!!!";
+        qFatal( "exit");
+    }
+    return el;
+}
+
+QVariant AppSettings::convertToType(const QString & type_name, const QString & value
+#ifndef PROG_OPTIONS_ONLY
+, Tags * tags
+#endif
+) const
+{
+#ifndef PROG_OPTIONS_ONLY
+    if ( type_name == "TagPlaceholder" ) {
+        return  QVariant::fromValue<TagPlaceholder>(TagPlaceholder(value.toInt()));
+    }
+    else if ( type_name == "Tag" ) {
+        QStringList l = value.split("::");
+        return QVariant::fromValue<TagBindable>(TagBindable( *tags->find(l[0]), l[1] ));
+    }
+#endif
+
+    if ( type_name == "QByteArray" ) {
+        QByteArray arr;
+        for (int i = 0; i<value.count(); i+=2) {
+            QString byte = value.mid(i, 2);
+            arr.push_front( byte.toInt(0, 16) );
+        }
+        return QVariant(arr);
+    }
+
+    QVariant v (value);
+
+    if  ( !v.convert( QVariant::nameToType( type_name.toAscii() ) ) ) {
+        qWarning() << "cant convert value: "  <<  value << " to type: " << type_name;
+        qFatal("exit");
+    }
+
+    return v;
+}
+
+void AppSettings::initProgOptions(QVariantMap & opts)
+{
+    openDocument();
+    QDomElement el = findSettingsElement("app");
+
+    QDomNode prop_node = el.firstChild();
+    while (!prop_node.isNull()) {
+        QDomElement prop_elem = prop_node.toElement();
+
+        opts[ prop_elem.attribute("name") ] = convertToType( prop_elem.attribute("type"), prop_elem.attribute("value") ) ;
+
+        prop_node = prop_node.nextSibling();
+    }
+}
+
+
+#ifndef PROG_OPTIONS_ONLY
+void AppSettings::initTags(Tags & tags)
+{
+    openDocument();
+    QDomElement el = findSettingsElement("tags");
+
+    QDomNode node = el.firstChild();
+    while (!node.isNull()) {
+        tags[node.nodeName()] = Tag::Pointer(new Tag( node.toElement().attribute("id") ));
+        node = node.nextSibling();
+    }
+}
+#endif
+
+#ifndef PROG_OPTIONS_ONLY
+void AppSettings::initPorters(QVector<Porter::Pointer> &porters, Tags & tags)
+{
+    openDocument();
+    QDomElement el = findSettingsElement("porters");
+
+    QDomNode porter_node = el.firstChild();
+    while ( !porter_node.isNull() ) {
+
+        porters.push_back( Porter::Pointer(new Porter(true)) );
+
+        porters.last()->setDevice( porter_node.toElement().attribute("device_name"),  getDynamicSettings( porter_node ) );
+        porters.last()->setScheduled( porter_node.toElement().attribute("scheduled") == "true" );
+
+        initPorterDrivers( porters.last(), porter_node, tags );
+
+
+
+        porter_node = porter_node.nextSibling();
+    }
+}
+#endif
+
+#ifndef PROG_OPTIONS_ONLY
+void AppSettings::initPorterDrivers ( Porter::Pointer porter, const QDomNode& porter_node, Tags& tags ) const
+{
+    QDomNode maybe_driver_node = porter_node.firstChild();
+
+    while (!maybe_driver_node.isNull()) {
+        if ( maybe_driver_node.nodeName() == "driver" ) {
+            QDomElement el = maybe_driver_node.toElement();
+            porter->addDriver( el.attribute("name"), getDynamicSettings(maybe_driver_node), getTagMethods(maybe_driver_node, tags) );
+            bindTags( maybe_driver_node, tags, porter );
+
+        }
+        maybe_driver_node = maybe_driver_node.nextSibling();
+    }
+}
+#endif
+
+#ifndef PROG_OPTIONS_ONLY
+void AppSettings::bindTags(const QDomNode & driver_node, Tags & tags, Porter::Pointer porter) const
+{
+    QDomElement tag_element = driver_node.firstChild().toElement();
+    while ( !tag_element.isNull() ) {
+        QDomElement func_element = tag_element.firstChild().toElement();
+
+        while ( !func_element.isNull() ) {
+            tags[tag_element.attribute("name")]->appendFunc( func_element.attribute("name"), porter.data(), func_element.attribute("porter_func") );
+
+            QDomElement arg_element = func_element.firstChild().toElement();
+            while (!arg_element.isNull()) {
+                tags[tag_element.attribute("name")]->appendArgument(func_element.attribute("name"),
+                                                                    convertToType(arg_element.attribute("type"), arg_element.attribute("value"), &tags));
+                arg_element = arg_element.nextSibling().toElement();
+            }
+
+            func_element = func_element.nextSibling().toElement();
+        }
+
+        tag_element = tag_element.nextSibling().toElement();
+    }
+}
+#endif
+QVariantMap AppSettings::getDynamicSettings( const QDomNode& par_node) const
+{
+    QDomNode n = par_node.firstChild();
+    QVariantMap ret;
+    while ( !n.isNull() ) {
+        if (n.nodeName() == "property") {
+            QDomElement el = n.toElement();
+            ret[el.attribute("name")] = el.attribute("value");
+        }
+        n = n.nextSibling();
+    }
+    return ret;
+}
+
+#ifndef PROG_OPTIONS_ONLY
+QList<TagMethod> AppSettings::getTagMethods(const QDomNode& driver_node, const Tags& tags) const
+{
+    QList<TagMethod> tag_methods;
+
+    QDomNode maybe_tag_node = driver_node.firstChild();
+
+    while ( !maybe_tag_node.isNull() ) {
+        if (maybe_tag_node.nodeName() == "tag") {
+            QDomElement el = maybe_tag_node.toElement();
+
+            TagMethod tm( tags[el.attribute("name")]->tagName(), el.attribute("func", QString()) );
+            tag_methods.push_back(tm);
+
+        }
+
+        maybe_tag_node = maybe_tag_node.nextSibling();
+    }
+
+    return tag_methods;
+}
+#endif
+
+#if 0
+void AppSettings::initTablo(QVector<Porter::Pointer>& porters, Tags & tags)
 {
     QVariantMap serial_settings_tablo;
 
@@ -37,7 +247,7 @@ void initTablo(QVector<Porter::Pointer>& porters, Tags & tags)
     qDebug() <<"tablo initialized!";
 }
 
-void initReader(QVector<Porter::Pointer>& porters, Tags & tags)
+void AppSettings::initReader(QVector<Porter::Pointer>& porters, Tags & tags)
 {
     QList<TagMethod> tag_method_reader;
     tag_method_reader.append(TagMethod("reader1"));
@@ -96,7 +306,7 @@ void initReader(QVector<Porter::Pointer>& porters, Tags & tags)
 
 }
 
-void initWeight(QVector<Porter::Pointer>& porters, Tags & tags)
+void AppSettings::initWeight(QVector<Porter::Pointer>& porters, Tags & tags)
 {
     QMap <QString, QVariant> serial_settings;
 
@@ -125,7 +335,7 @@ void initWeight(QVector<Porter::Pointer>& porters, Tags & tags)
 
 }
 
-void initDiDo(QVector<Porter::Pointer>& porters, Tags& tags)
+void AppSettings::initDiDo(QVector<Porter::Pointer>& porters, Tags& tags)
 {
     QList<TagMethod> tag_method_dido;
     tag_method_dido.append(TagMethod("dido", "getDi"));
@@ -204,31 +414,5 @@ void initDiDo(QVector<Porter::Pointer>& porters, Tags& tags)
     tags["do4"]->appendArgument("writeMethod", QVariant::fromValue<TagBindable>(TagBindable(tags["do4_tmp"], "writeMethod")));
 }
 
+#endif
 
-
-void initTags(Tags & tags)
-{
-    tags["weight1_1"]  = Tag::Pointer(new Tag("weight1_1"));
-    tags["tablo"]      = Tag::Pointer(new Tag("tablo"));
-
-
-
-
-    tags["dido"]       = Tag::Pointer(new Tag("dido"));
-    tags["di1"]        = Tag::Pointer(new Tag("di1"));
-    tags["di2"]        = Tag::Pointer(new Tag("di2"));
-    tags["di3"]        = Tag::Pointer(new Tag("di3"));
-    tags["di4"]        = Tag::Pointer(new Tag("di4"));
-
-    tags["do1"]        = Tag::Pointer(new Tag("do"));
-    tags["do2"]        = Tag::Pointer(new Tag("do"));
-    tags["do3"]        = Tag::Pointer(new Tag("do"));
-    tags["do4"]        = Tag::Pointer(new Tag("do"));
-
-    tags["do1_tmp"]    = Tag::Pointer(new Tag("do1_tmp"));
-    tags["do2_tmp"]    = Tag::Pointer(new Tag("do2_tmp"));
-    tags["do3_tmp"]    = Tag::Pointer(new Tag("do3_tmp"));
-    tags["do4_tmp"]    = Tag::Pointer(new Tag("do4_tmp"));
-
-    tags["reader1"]    = Tag::Pointer(new Tag("reader1"));
-}

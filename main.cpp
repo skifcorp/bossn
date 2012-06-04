@@ -345,23 +345,23 @@ int main(int argc, char *argv[])
 
     printOnDisplay("Hello");
 
-
-
-    //MrwSettings::instance()->load("mrwsettings.xml");
-//    MrwSettings::instance()->print();
-
-    Tags tags;
-    initTags(tags);
-
-    QVector<Porter::Pointer> porters;
-
-    initTablo(porters, tags);
-    initReader(porters, tags);
-    initWeight(porters, tags);
-    initDiDo(porters, tags);
+    AppSettings app_settings;
 
     QMap<QString, QVariant> options;
-    initProgOptions(options);
+    app_settings.initProgOptions(options);
+
+    Tags tags;
+    app_settings.initTags(tags);
+
+    QVector<Porter::Pointer> porters;
+    app_settings.initPorters(porters, tags);
+
+    /*initTablo(porters, tags);
+    initReader(porters, tags);
+    initWeight(porters, tags);
+    initDiDo(porters, tags);*/
+
+
 
     TaskExec task_exec;    
 

@@ -91,7 +91,7 @@ void Scheduler::onScheduleTimer(Schedul & s)
 
 void Scheduler::onReadyRead()
 {
-    qDebug() << "onReadY read!!!";
+    //qDebug() << "onReadY read!!!";
     execute();
 }
 
