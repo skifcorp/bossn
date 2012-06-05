@@ -20,8 +20,7 @@
 
 class MifareCard;
 
-class MainSequence : public QObject,
-                     public AlhoSequence
+class MainSequence : public AlhoSequence
 {
     Q_OBJECT
 public:
@@ -29,9 +28,11 @@ public:
 
     ~MainSequence() {}
 
-public slots:
-    void onAppearOnWeight();
-    void onDisappearOnWeight();
+
+    Q_INVOKABLE void onAppearOnWeight(const QString&);
+    Q_INVOKABLE void onDisappearOnWeight(const QString&);
+
+    virtual void setSettings(const QVariantMap &);
 private:
     Tags & tags;
     const QVariantMap & app_settings;
@@ -42,143 +43,7 @@ private:
 
     QString detectPlatformType(const QVariantMap& ) const throw (MainSequenceException);
 
-#if 0
-    template <class Callable, class... Args >
-    typename std::result_of<Callable(Args...)>::type async_call(Callable c, Args ... args) const
-    {
-        auto f = QtConcurrent::run(c, args...);
 
-        while (!f.isFinished()) {
-            qApp->processEvents();
-        }
-
-        return f.result();
-    }
-
-    template <class T, class ID>
-    qx::dao::ptr<T> async_fetch(const ID& id, bool ex_on_no_data = true) const throw (MysqlException)
-    {
-        qx::dao::ptr<T> p = qx::dao::ptr<T>( new T(id) );
-
-        QSqlError err = async_call([&p]{return qx::dao::fetch_by_id(p);});
-
-        if (err.isValid() && err.number() == 1111 && !ex_on_no_data) {
-            return  qx::dao::ptr<T>();
-        }
-
-        if  (err.isValid()) {                        
-            throw MysqlException(err.databaseText() , err.driverText());
-        }
-        return p;
-    }
-
-    template <class T>
-    qx::dao::ptr<T> async_fetch_by_query(const qx_query& q, bool ex_on_no_data = true) const throw (MysqlException)
-    {
-        qx::dao::ptr<T> p = qx::dao::ptr<T>( new T() );
-
-        QSqlError err = async_call([&p, &q]{return qx::dao::fetch_by_query(q, p);});
-
-        if (err.isValid() && err.number() == 1111 && !ex_on_no_data) {
-            return  qx::dao::ptr<T>();
-        }
-
-        if  (err.isValid()) {
-            throw MysqlException(err.databaseText() , err.driverText());
-
-        }
-        return p;
-    }
-
-    template <class T>
-    void async_update(qx::dao::ptr<T> p) const throw (MysqlException)
-    {
-        QSqlError err = async_call([&p]{return qx::dao::update_optimized<T>(p);});
-
-        if  (err.isValid()) {
-            throw MysqlException(err.databaseText(), err.driverText());
-        }
-    }
-
-    template <class T>
-    void async_count(long & cnt, const qx_query& q) const throw (MysqlException)
-    {
-        QSqlError err = async_call( [&cnt, &q]{ return qx::dao::count<T>(cnt, q); });
-
-        if  (err.isValid()) {
-            throw MysqlException(err.databaseText() , err.driverText());
-        }
-    }
-
-    template <class T>
-    qx::dao::ptr<T> async_exec_query(const QString& qs, bool ex_on_no_data = true) const throw (MysqlException)
-    {
-        qx_query q(qs);
-        qx::dao::ptr<T> t = qx::dao::ptr<T>(new T);
-        //T t;
-        QSqlError err = async_call( [&q, &t]{ return qx::dao::execute_query(q, t); });       
-
-        if (err.isValid() && err.number() == 1111 && !ex_on_no_data) {
-            return  qx::dao::ptr<T>();
-        }
-
-        if  (err.isValid()) {
-            qDebug()<<"error is valid!";
-            throw MysqlException(err.databaseText() , err.driverText());
-        }
-
-        return t;
-    }
-
-
-    template <class T>
-    T async_call_query(const QString& qs) const throw (MysqlException)
-    {
-        qx_query q(qs);
-        QSqlError err = async_call( [&q]{ return qx::dao::call_query( q ) ;});
-
-        if  (err.isValid()) {
-            throw MysqlException(err.databaseText() , err.driverText());
-        }
-
-        QVariant v = q.boundValue(0);
-        return v.value<T>();
-    }
-
-    void async_call_query(const QString& qs) const throw (MysqlException)
-    {
-        QSqlError err = async_call( [&qs]{ qx_query q(qs); return qx::dao::call_query( q ) ;});
-
-        if  (err.isValid()) {
-            throw MysqlException(err.databaseText() , err.driverText());
-        }
-    }
-
-    template <class Func, class ... Params>
-    auto wrap_async_ex (const QString& user_msg, const QString& admin_msg,
-                        Func f, Params ... p) const throw (MainSequenceException) -> decltype( f(p...) )
-    {
-        try {
-            return f(p...);
-        }
-        catch (MysqlException& ex) {
-            throw MainSequenceException(user_msg, admin_msg, "databaseText: " + ex.databaseText() + " driver_text: " + ex.driverText() );
-        }
-    }
-
-    template <class Func, class ... Params>
-    auto wrap_async (Func f, Params ... p) const throw (MainSequenceException) -> decltype( f(p...) )
-    {
-        try {
-            return f(p...);
-        }
-        catch (MysqlException& ex) {
-            //throw MainSequenceException(user_msg, admin_msg, "databaseText: " + ex.databaseText() + " driver_text: " + ex.driverText() );
-        }
-        return decltype(f(p...))();
-    }
-
-#endif
     void printOnTablo(const QString& );
     int getWeight() const;
 

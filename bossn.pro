@@ -16,7 +16,7 @@ DESTDIR  = build
 TEMPLATE = app
 INCLUDEPATH    += ../qextserialport/src/ db alho serial weight generic iodevicewrapper scheduler           \
                       porter task dido perimeter tools reader  reports ../coroutine/src/ ../QxOrm/include  \
-                      $$(BOOST_ROOT) ../ismm/
+                      $$(BOOST_ROOT) ../ismm/ settings
 QMAKE_CXXFLAGS += -std=c++0x #-m32
 #QMAKE_LFLAGS   += -m32
 
@@ -37,7 +37,6 @@ LIBS           +=   -L../qextserialport_build/src/build/ -lqextserialport       
 }
 
 SOURCES += main.cpp \
-    mrwsettings.cpp \
     weight/mettlertoledo8530.cpp \
     weight/mettlertoledo310.cpp \
     weight/hbm2110.cpp \
@@ -64,14 +63,14 @@ SOURCES += main.cpp \
     alho/cardstructs.cpp \
     alho/dbstructs.cpp \
     reports/reports.cpp \
-    initsettings.cpp \
     iodevicewrapper/ismmdevice.cpp \
     alho/reportsmanager.cpp \
-    initprogoptions.cpp
+    settings/appsettings.cpp \
+    settings/portersettings.cpp \
+    settings/tasksettings.cpp
 
 HEADERS += \    
     tools/func.h \
-    mrwsettings.h \   
     weight/mettlertoledo8530.h \
     weight/mettlertoledo310.h \
     weight/hbm2110.h \
@@ -106,8 +105,7 @@ HEADERS += \
     alho/alhosequence.h \
     alho/cardstructs.h \
     alho/dbstructs.h \
-    reports/reports.h \
-    initsettings.h \
+    reports/reports.h \    
     iodevicewrapper/ismmdevice.h \
     alho/async_func.h \
     alho/bossnexception.h \
@@ -115,6 +113,8 @@ HEADERS += \
     alho/warnmessages.h \
     alho/codeshacks.h \
     alho/conviencefuncs.h \
-    initprogoptions.h
+    settings/appsettings.h \
+    settings/portersettings.h \
+    settings/tasksettings.h
 
 

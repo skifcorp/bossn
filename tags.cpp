@@ -11,38 +11,144 @@ void Tag::appendArgument(const QString &fn, const QVariant &arg)
         qWarning() << "Tag::appendArgunment: cant find func " << fn <<" in arg method!!!"; return;
     }
 
-    QVariant arg1 = arg;
-
-    /*if (arg.userType() == __id_placeholder) {
-        TagPlaceholder ph = arg.value<TagPlaceholder>();
-        if (ph.tag.isNull() ){
-            ph.tag = sharedFromThis();
-            arg1 = QVariant::fromValue<TagPlaceholder>(ph);
-        }
-    }*/
+    QVariant arg1 = arg;  
 
     iter->args.append(arg1);
 }
-/*
-QVariant Tag::arg(const QString& fn, int n)
+
+QVariant Tag::call_as_func(FuncContext& func, const QList<QGenericArgument>& args)
 {
-    auto iter = funcs.find(fn);
-    if (iter == funcs.end()) {
-        qWarning() << "tag:arg: cant find func " << fn <<" in arg method!!!";
-        return QVariant();
+    QVariant ret;
+    bool invoke_ret = false;
+
+    switch (args.count()) {
+    case 0:
+        invoke_ret = QMetaObject::invokeMethod( func.object, func.method.toAscii().data(), func.conn_type, Q_RETURN_ARG(QVariant,ret), Q_ARG(QString, tag_name) );
+        break;
+    case 1:
+        invoke_ret = QMetaObject::invokeMethod( func.object, func.method.toAscii().data(), func.conn_type, Q_RETURN_ARG(QVariant,ret), Q_ARG(QString, tag_name),
+                                   Q_ARG(QGenericArgument, args[0]) );
+        break;
+
+    case 2:
+        invoke_ret = QMetaObject::invokeMethod( func.object, func.method.toAscii().data(), func.conn_type, Q_RETURN_ARG(QVariant,ret), Q_ARG(QString, tag_name),
+                                   Q_ARG(QGenericArgument, args[0]),
+                                   Q_ARG(QGenericArgument, args[1]));
+        break;
+    case 3:
+        invoke_ret = QMetaObject::invokeMethod( func.object, func.method.toAscii().data(), func.conn_type, Q_RETURN_ARG(QVariant,ret), Q_ARG(QString, tag_name),
+                                   Q_ARG(QGenericArgument, args[0]),
+                                   Q_ARG(QGenericArgument, args[1]),
+                                   Q_ARG(QGenericArgument, args[2]));
+        break;
+    case 4:
+        invoke_ret = QMetaObject::invokeMethod( func.object, func.method.toAscii().data(), func.conn_type, Q_RETURN_ARG(QVariant,ret), Q_ARG(QString, tag_name),
+                                                Q_ARG(QGenericArgument, args[0]),
+                                                Q_ARG(QGenericArgument, args[1]),
+                                                Q_ARG(QGenericArgument, args[2]),
+                                                Q_ARG(QGenericArgument, args[3]));
+        break;
+    case 5:
+        invoke_ret = QMetaObject::invokeMethod( func.object, func.method.toAscii().data(), func.conn_type, Q_RETURN_ARG(QVariant,ret), Q_ARG(QString, tag_name),
+                                                Q_ARG(QGenericArgument, args[0]),
+                                                Q_ARG(QGenericArgument, args[1]),
+                                                Q_ARG(QGenericArgument, args[2]),
+                                                Q_ARG(QGenericArgument, args[3]),
+                                                Q_ARG(QGenericArgument, args[4]));
+        break;
+    case 6:
+        invoke_ret = QMetaObject::invokeMethod( func.object, func.method.toAscii().data(), func.conn_type, Q_RETURN_ARG(QVariant,ret), Q_ARG(QString, tag_name),
+                                                Q_ARG(QGenericArgument, args[0]),
+                                                Q_ARG(QGenericArgument, args[1]),
+                                                Q_ARG(QGenericArgument, args[2]),
+                                                Q_ARG(QGenericArgument, args[3]),
+                                                Q_ARG(QGenericArgument, args[4]),
+                                                Q_ARG(QGenericArgument, args[5]));
+        break;
+    case 7:
+        invoke_ret = QMetaObject::invokeMethod( func.object, func.method.toAscii().data(), func.conn_type, Q_RETURN_ARG(QVariant,ret), Q_ARG(QString, tag_name),
+                                                Q_ARG(QGenericArgument, args[0]),
+                                                Q_ARG(QGenericArgument, args[1]),
+                                                Q_ARG(QGenericArgument, args[2]),
+                                                Q_ARG(QGenericArgument, args[3]),
+                                                Q_ARG(QGenericArgument, args[4]),
+                                                Q_ARG(QGenericArgument, args[5]),
+                                                Q_ARG(QGenericArgument, args[6]));
+        break;
+    };
+
+    if (!invoke_ret) {
+        qWarning()<<"Tag::func: function "<<func.method <<" failed to invoke!!";
     }
-
-    if (iter->args[n].userType() == __id_bindable) {
-        //need get tag value
-        QVariant ret = iter->args[n].value<TagBindable>().execute();//->func("readMethod");
-                //iter->args[n].value<Tag::WeakPointer>().data()->func("readMethod");
-
-        return ret;
-    }
-
-    return iter->args[n];
+    return ret;
 }
-*/
+
+
+void Tag::call_as_proc(FuncContext& func, const QList<QGenericArgument>& args)
+{
+    bool invoke_ret = false;
+
+    switch (args.count()) {
+    case 0:
+        invoke_ret = QMetaObject::invokeMethod( func.object, func.method.toAscii().data(), func.conn_type, Q_ARG(QString, tag_name) );
+        break;
+    case 1:
+        invoke_ret = QMetaObject::invokeMethod( func.object, func.method.toAscii().data(), func.conn_type,  Q_ARG(QString, tag_name),
+                                   Q_ARG(QGenericArgument, args[0]) );
+        break;
+
+    case 2:
+        invoke_ret = QMetaObject::invokeMethod( func.object, func.method.toAscii().data(), func.conn_type, Q_ARG(QString, tag_name),
+                                   Q_ARG(QGenericArgument, args[0]),
+                                   Q_ARG(QGenericArgument, args[1]));
+        break;
+    case 3:
+        invoke_ret = QMetaObject::invokeMethod( func.object, func.method.toAscii().data(), func.conn_type,  Q_ARG(QString, tag_name),
+                                   Q_ARG(QGenericArgument, args[0]),
+                                   Q_ARG(QGenericArgument, args[1]),
+                                   Q_ARG(QGenericArgument, args[2]));
+        break;
+    case 4:
+        invoke_ret = QMetaObject::invokeMethod( func.object, func.method.toAscii().data(), func.conn_type,  Q_ARG(QString, tag_name),
+                                                Q_ARG(QGenericArgument, args[0]),
+                                                Q_ARG(QGenericArgument, args[1]),
+                                                Q_ARG(QGenericArgument, args[2]),
+                                                Q_ARG(QGenericArgument, args[3]));
+        break;
+    case 5:
+        invoke_ret = QMetaObject::invokeMethod( func.object, func.method.toAscii().data(), func.conn_type,  Q_ARG(QString, tag_name),
+                                                Q_ARG(QGenericArgument, args[0]),
+                                                Q_ARG(QGenericArgument, args[1]),
+                                                Q_ARG(QGenericArgument, args[2]),
+                                                Q_ARG(QGenericArgument, args[3]),
+                                                Q_ARG(QGenericArgument, args[4]));
+        break;
+    case 6:
+        invoke_ret = QMetaObject::invokeMethod( func.object, func.method.toAscii().data(), func.conn_type,  Q_ARG(QString, tag_name),
+                                                Q_ARG(QGenericArgument, args[0]),
+                                                Q_ARG(QGenericArgument, args[1]),
+                                                Q_ARG(QGenericArgument, args[2]),
+                                                Q_ARG(QGenericArgument, args[3]),
+                                                Q_ARG(QGenericArgument, args[4]),
+                                                Q_ARG(QGenericArgument, args[5]));
+        break;
+    case 7:
+        invoke_ret = QMetaObject::invokeMethod( func.object, func.method.toAscii().data(), func.conn_type,  Q_ARG(QString, tag_name),
+                                                Q_ARG(QGenericArgument, args[0]),
+                                                Q_ARG(QGenericArgument, args[1]),
+                                                Q_ARG(QGenericArgument, args[2]),
+                                                Q_ARG(QGenericArgument, args[3]),
+                                                Q_ARG(QGenericArgument, args[4]),
+                                                Q_ARG(QGenericArgument, args[5]),
+                                                Q_ARG(QGenericArgument, args[6]));
+        break;
+    };
+
+    if (!invoke_ret) {
+        qWarning()<<"Tag::func: function "<<func.method <<" failed to invoke!!";
+    }
+}
+
 
 QVariant Tag::execObject(FuncContext& func, const QList<QGenericArgument>& external_args)
 {
@@ -61,70 +167,12 @@ QVariant Tag::execObject(FuncContext& func, const QList<QGenericArgument>& exter
         }
     }
 
-    QVariant ret;
-    bool invoke_ret = false;
-
-    switch (args.count()) {
-    case 0:
-        invoke_ret = QMetaObject::invokeMethod( func.object, func.method.toAscii().data(), Q_RETURN_ARG(QVariant,ret), Q_ARG(QString, tag_name) );
-        break;
-    case 1:
-        invoke_ret = QMetaObject::invokeMethod( func.object, func.method.toAscii().data(), Q_RETURN_ARG(QVariant,ret), Q_ARG(QString, tag_name),
-                                   Q_ARG(QGenericArgument, args[0]) );
-        break;
-
-    case 2:
-        invoke_ret = QMetaObject::invokeMethod( func.object, func.method.toAscii().data(), Q_RETURN_ARG(QVariant,ret), Q_ARG(QString, tag_name),
-                                   Q_ARG(QGenericArgument, args[0]),
-                                   Q_ARG(QGenericArgument, args[1]));
-        break;
-    case 3:
-        invoke_ret = QMetaObject::invokeMethod( func.object, func.method.toAscii().data(), Q_RETURN_ARG(QVariant,ret), Q_ARG(QString, tag_name),
-                                   Q_ARG(QGenericArgument, args[0]),
-                                   Q_ARG(QGenericArgument, args[1]),
-                                   Q_ARG(QGenericArgument, args[2]));
-        break;
-    case 4:
-        invoke_ret = QMetaObject::invokeMethod( func.object, func.method.toAscii().data(), Q_RETURN_ARG(QVariant,ret), Q_ARG(QString, tag_name),
-                                                Q_ARG(QGenericArgument, args[0]),
-                                                Q_ARG(QGenericArgument, args[1]),
-                                                Q_ARG(QGenericArgument, args[2]),
-                                                Q_ARG(QGenericArgument, args[3]));
-        break;
-    case 5:
-        invoke_ret = QMetaObject::invokeMethod( func.object, func.method.toAscii().data(), Q_RETURN_ARG(QVariant,ret), Q_ARG(QString, tag_name),
-                                                Q_ARG(QGenericArgument, args[0]),
-                                                Q_ARG(QGenericArgument, args[1]),
-                                                Q_ARG(QGenericArgument, args[2]),
-                                                Q_ARG(QGenericArgument, args[3]),
-                                                Q_ARG(QGenericArgument, args[4]));
-        break;
-    case 6:
-        invoke_ret = QMetaObject::invokeMethod( func.object, func.method.toAscii().data(), Q_RETURN_ARG(QVariant,ret), Q_ARG(QString, tag_name),
-                                                Q_ARG(QGenericArgument, args[0]),
-                                                Q_ARG(QGenericArgument, args[1]),
-                                                Q_ARG(QGenericArgument, args[2]),
-                                                Q_ARG(QGenericArgument, args[3]),
-                                                Q_ARG(QGenericArgument, args[4]),
-                                                Q_ARG(QGenericArgument, args[5]));
-        break;
-    case 7:
-        invoke_ret = QMetaObject::invokeMethod( func.object, func.method.toAscii().data(), Q_RETURN_ARG(QVariant,ret), Q_ARG(QString, tag_name),
-                                                Q_ARG(QGenericArgument, args[0]),
-                                                Q_ARG(QGenericArgument, args[1]),
-                                                Q_ARG(QGenericArgument, args[2]),
-                                                Q_ARG(QGenericArgument, args[3]),
-                                                Q_ARG(QGenericArgument, args[4]),
-                                                Q_ARG(QGenericArgument, args[5]),
-                                                Q_ARG(QGenericArgument, args[6]));
-        break;
-    };
-
-    if (!invoke_ret) {
-        qWarning()<<"Tag::func: function "<<func.method <<" failed to invoke!!";
+    if ( func.conn_type == Qt::QueuedConnection) {
+        call_as_proc( func, args );
+        return QVariant();
     }
 
-    return ret;
+    return call_as_func( func, args );
 }
 
 QVariant Tag::func (const QString& func_name, const QList<QGenericArgument>& external_args)
@@ -164,141 +212,5 @@ QVariant Tag::func (const QString& func_name, QGenericArgument val0,
     passed_args.append(val7);
 
     return execObject(*iter, passed_args);
-
-
- /*
-    QVariant ret;
-    bool invoke_ret = false;
-
-    switch (iter->args.count()) {
-    case 0:
-
-        invoke_ret = QMetaObject::invokeMethod( iter->object, iter->method.toAscii().data(),
-                                   Q_RETURN_ARG(QVariant,ret),
-                                   Q_ARG(QString, tag_name),
-                                   Q_ARG(QGenericArgument, val0),
-                                   Q_ARG(QGenericArgument, val1),
-                                   Q_ARG(QGenericArgument, val2),
-                                   Q_ARG(QGenericArgument, val3),
-                                   Q_ARG(QGenericArgument, val4),
-                                   Q_ARG(QGenericArgument, val5),
-                                   Q_ARG(QGenericArgument, val6),
-                                   Q_ARG(QGenericArgument, val7) );
-        break;
-    case 1:
-        qDebug() << "111111111111";
-        invoke_ret = QMetaObject::invokeMethod( iter->object, iter->method.toAscii().data(),
-                                   Q_RETURN_ARG(QVariant,ret),
-                                   Q_ARG(QString, tag_name),
-                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, arg(func_name, 0))),
-                                   Q_ARG(QGenericArgument, val0),
-                                   Q_ARG(QGenericArgument, val1),
-                                   Q_ARG(QGenericArgument, val2),
-                                   Q_ARG(QGenericArgument, val3),
-                                   Q_ARG(QGenericArgument, val4),
-                                   Q_ARG(QGenericArgument, val5),
-                                   Q_ARG(QGenericArgument, val6));
-        break;
-
-    case 2:
-          qDebug() << "33333333333: "<<val0.name();
-        invoke_ret = QMetaObject::invokeMethod( iter->object, iter->method.toAscii().data(), Q_RETURN_ARG(QVariant,ret),
-                                   Q_ARG(QString, tag_name),
-                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, arg(func_name, 0))),
-                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, arg(func_name, 1))),
-                                   Q_ARG(QGenericArgument, val0),
-                                   Q_ARG(QGenericArgument, val1),
-                                   Q_ARG(QGenericArgument, val2),
-                                   Q_ARG(QGenericArgument, val3),
-                                   Q_ARG(QGenericArgument, val4),
-                                   Q_ARG(QGenericArgument, val5));
-        break;
-
-    case 3:
-        qDebug() << "44444444444";
-        invoke_ret = QMetaObject::invokeMethod( iter->object, iter->method.toAscii().data(), Q_RETURN_ARG(QVariant,ret),
-                                   Q_ARG(QString, tag_name),
-                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, arg(func_name, 0))),
-                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, arg(func_name, 1))),
-                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, arg(func_name, 2))),
-                                   Q_ARG(QGenericArgument, val0),
-                                   Q_ARG(QGenericArgument, val1),
-                                   Q_ARG(QGenericArgument, val2),
-                                   Q_ARG(QGenericArgument, val3),
-                                   Q_ARG(QGenericArgument, val4));
-        break;
-
-    case 4:
-        invoke_ret = QMetaObject::invokeMethod( iter->object, iter->method.toAscii().data(), Q_RETURN_ARG(QVariant,ret),
-                                   Q_ARG(QString, tag_name),
-                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, arg(func_name, 0))),
-                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, arg(func_name, 1))),
-                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, arg(func_name, 2))),
-                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, arg(func_name, 3))),
-                                   Q_ARG(QGenericArgument, val0),
-                                   Q_ARG(QGenericArgument, val1),
-                                   Q_ARG(QGenericArgument, val2),
-                                   Q_ARG(QGenericArgument, val3));
-        break;
-
-    case 5:
-        invoke_ret = QMetaObject::invokeMethod( iter->object, iter->method.toAscii().data(), Q_RETURN_ARG(QVariant,ret),
-                                   Q_ARG(QString, tag_name),
-                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, arg(func_name, 0))),
-                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, arg(func_name, 1))),
-                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, arg(func_name, 2))),
-                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, arg(func_name, 3))),
-                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, arg(func_name, 4))),
-                                   Q_ARG(QGenericArgument, val0),
-                                   Q_ARG(QGenericArgument, val1),
-                                   Q_ARG(QGenericArgument, val2));
-        break;
-
-    case 6:
-        invoke_ret = QMetaObject::invokeMethod( iter->object, iter->method.toAscii().data(), Q_RETURN_ARG(QVariant,ret),
-                                   Q_ARG(QString, tag_name),
-                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, arg(func_name, 0))),
-                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, arg(func_name, 1))),
-                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, arg(func_name, 2))),
-                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, arg(func_name, 3))),
-                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, arg(func_name, 4))),
-                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, arg(func_name, 5))),
-                                   Q_ARG(QGenericArgument, val0),
-                                   Q_ARG(QGenericArgument, val1));
-        break;
-
-    case 7:
-        invoke_ret = QMetaObject::invokeMethod( iter->object, iter->method.toAscii().data(), Q_RETURN_ARG(QVariant,ret),
-                                   Q_ARG(QString, tag_name),
-                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, arg(func_name, 0))),
-                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, arg(func_name, 1))),
-                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, arg(func_name, 2))),
-                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, arg(func_name, 3))),
-                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, arg(func_name, 4))),
-                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, arg(func_name, 5))),
-                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, arg(func_name, 6))),
-                                   Q_ARG(QGenericArgument, val0));
-        break;
-
-    case 8:
-        invoke_ret = QMetaObject::invokeMethod( iter->object, iter->method.toAscii().data(), Q_RETURN_ARG(QVariant,ret),
-                                   Q_ARG(QString, tag_name),
-                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, arg(func_name, 0))),
-                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, arg(func_name, 1))),
-                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, arg(func_name, 2))),
-                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, arg(func_name, 3))),
-                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, arg(func_name, 4))),
-                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, arg(func_name, 5))),
-                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, arg(func_name, 6))),
-                                   Q_ARG(QGenericArgument, Q_ARG(QVariant, arg(func_name, 7))));
-        break;
-
-    };
-
-    if (!invoke_ret) {
-        qWarning()<<"Tag::func: function "<<iter->method <<" failed to invoke!!";
-    }
-
-    return ret;*/
 }
 

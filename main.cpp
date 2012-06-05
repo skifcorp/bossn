@@ -1,10 +1,10 @@
-﻿//#include <QtCore/QCoreApplication>
+﻿
 #include <QApplication>
 #include <QVector>
 #include <QSharedPointer>
 
 #include "func.h"
-#include "mrwsettings.h"
+
 #include "porter.h"
 #include "qextserialport.h"
 #include "tags.h"
@@ -14,8 +14,8 @@
 #include "mainsequence.h"
 #include "formatersequence.h"
 #include "alhosequence.h"
-#include "initsettings.h"
-#include "initprogoptions.h"
+#include "tasksettings.h"
+
 
 #if 0
 void initPorters(QVector<Porter::Pointer>& porters, Tags& tags)
@@ -321,13 +321,9 @@ void initTasks(TaskExec & tasks, Tags & tags, MainSequence & seq )
     perim_settings["DisappearDi"]   = "di2";
     perim_settings["method"]        = "readMethod";*/
 
-//    return;
-
-    //qDebug() << perim; return;
 
     QObject::connect(perim.data(), SIGNAL(appeared()), &seq, SLOT(onAppearOnWeight()), Qt::QueuedConnection );
     QObject::connect(perim.data(), SIGNAL(disappeared()), &seq, SLOT(onDisappearOnWeight()), Qt::QueuedConnection);
-
 
 
     perim->setSettings(perim_settings);
@@ -345,7 +341,7 @@ int main(int argc, char *argv[])
 
     printOnDisplay("Hello");
 
-    AppSettings app_settings;
+    TaskSettings app_settings;
 
     QMap<QString, QVariant> options;
     app_settings.initProgOptions(options);
@@ -356,29 +352,24 @@ int main(int argc, char *argv[])
     QVector<Porter::Pointer> porters;
     app_settings.initPorters(porters, tags);
 
-    /*initTablo(porters, tags);
-    initReader(porters, tags);
-    initWeight(porters, tags);
-    initDiDo(porters, tags);*/
-
-
-
     TaskExec task_exec;    
+    app_settings.initTasks(task_exec, tags);
 
-    QSharedPointer<AlhoSequence> main_alho;
+    QVector<AlhoSequence::Pointer> alhos;
+    app_settings.initAlhos(alhos, tags, options);
 
-    if (options["run_mode"].toString() == "prog") {
+/*    if (options["run_mode"].toString() == "prog") {
         qDebug() << "run prog mode";
 
         main_alho = QSharedPointer<AlhoSequence>(new MainSequence(tags, options) );
-        initTasks(task_exec, tags, *main_alho.staticCast<MainSequence>());
+        //initTasks(task_exec, tags, *main_alho.staticCast<MainSequence>());
     }
     else if (options["run_mode"].toString() == "format") {
         qDebug() << "run format mode";
 
         main_alho = QSharedPointer<AlhoSequence>(new FormaterSequence(tags, options) );
         main_alho.staticCast<FormaterSequence>()->start();
-    }
+    }*/
 
     return app.exec();
 }

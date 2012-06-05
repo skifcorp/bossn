@@ -1,4 +1,4 @@
-#include "initsettings.h"
+#include "appsettings.h"
 #include "tags.h"
 
 
@@ -8,16 +8,15 @@
 #include <QFile>
 #include <QStringList>
 
-#ifndef PROG_OPTIONS_ONLY
-#include "porter.h"
-#endif
 
-//#include "qextserialport.h"
+
 
 const QString AppSettings::settings_file_name = "settings.xml";
 
 void AppSettings::openDocument()
 {
+    if (!document.isNull()) return;
+
     QFile file(settings_file_name);
 
 
@@ -51,22 +50,8 @@ QDomElement AppSettings::findSettingsElement(const QString & n) const
     return el;
 }
 
-QVariant AppSettings::convertToType(const QString & type_name, const QString & value
-#ifndef PROG_OPTIONS_ONLY
-, Tags * tags
-#endif
-) const
+QVariant AppSettings::convertToType(const QString & type_name, const QString & value) const
 {
-#ifndef PROG_OPTIONS_ONLY
-    if ( type_name == "TagPlaceholder" ) {
-        return  QVariant::fromValue<TagPlaceholder>(TagPlaceholder(value.toInt()));
-    }
-    else if ( type_name == "Tag" ) {
-        QStringList l = value.split("::");
-        return QVariant::fromValue<TagBindable>(TagBindable( *tags->find(l[0]), l[1] ));
-    }
-#endif
-
     if ( type_name == "QByteArray" ) {
         QByteArray arr;
         for (int i = 0; i<value.count(); i+=2) {
@@ -102,120 +87,24 @@ void AppSettings::initProgOptions(QVariantMap & opts)
 }
 
 
-#ifndef PROG_OPTIONS_ONLY
-void AppSettings::initTags(Tags & tags)
-{
-    openDocument();
-    QDomElement el = findSettingsElement("tags");
-
-    QDomNode node = el.firstChild();
-    while (!node.isNull()) {
-        tags[node.nodeName()] = Tag::Pointer(new Tag( node.toElement().attribute("id") ));
-        node = node.nextSibling();
-    }
-}
-#endif
-
-#ifndef PROG_OPTIONS_ONLY
-void AppSettings::initPorters(QVector<Porter::Pointer> &porters, Tags & tags)
-{
-    openDocument();
-    QDomElement el = findSettingsElement("porters");
-
-    QDomNode porter_node = el.firstChild();
-    while ( !porter_node.isNull() ) {
-
-        porters.push_back( Porter::Pointer(new Porter(true)) );
-
-        porters.last()->setDevice( porter_node.toElement().attribute("device_name"),  getDynamicSettings( porter_node ) );
-        porters.last()->setScheduled( porter_node.toElement().attribute("scheduled") == "true" );
-
-        initPorterDrivers( porters.last(), porter_node, tags );
-
-
-
-        porter_node = porter_node.nextSibling();
-    }
-}
-#endif
-
-#ifndef PROG_OPTIONS_ONLY
-void AppSettings::initPorterDrivers ( Porter::Pointer porter, const QDomNode& porter_node, Tags& tags ) const
-{
-    QDomNode maybe_driver_node = porter_node.firstChild();
-
-    while (!maybe_driver_node.isNull()) {
-        if ( maybe_driver_node.nodeName() == "driver" ) {
-            QDomElement el = maybe_driver_node.toElement();
-            porter->addDriver( el.attribute("name"), getDynamicSettings(maybe_driver_node), getTagMethods(maybe_driver_node, tags) );
-            bindTags( maybe_driver_node, tags, porter );
-
-        }
-        maybe_driver_node = maybe_driver_node.nextSibling();
-    }
-}
-#endif
-
-#ifndef PROG_OPTIONS_ONLY
-void AppSettings::bindTags(const QDomNode & driver_node, Tags & tags, Porter::Pointer porter) const
-{
-    QDomElement tag_element = driver_node.firstChild().toElement();
-    while ( !tag_element.isNull() ) {
-        QDomElement func_element = tag_element.firstChild().toElement();
-
-        while ( !func_element.isNull() ) {
-            tags[tag_element.attribute("name")]->appendFunc( func_element.attribute("name"), porter.data(), func_element.attribute("porter_func") );
-
-            QDomElement arg_element = func_element.firstChild().toElement();
-            while (!arg_element.isNull()) {
-                tags[tag_element.attribute("name")]->appendArgument(func_element.attribute("name"),
-                                                                    convertToType(arg_element.attribute("type"), arg_element.attribute("value"), &tags));
-                arg_element = arg_element.nextSibling().toElement();
-            }
-
-            func_element = func_element.nextSibling().toElement();
-        }
-
-        tag_element = tag_element.nextSibling().toElement();
-    }
-}
-#endif
 QVariantMap AppSettings::getDynamicSettings( const QDomNode& par_node) const
 {
+    //qDebug () << "node_name: " << par_node.nodeName();
     QDomNode n = par_node.firstChild();
     QVariantMap ret;
     while ( !n.isNull() ) {
         if (n.nodeName() == "property") {
             QDomElement el = n.toElement();
-            ret[el.attribute("name")] = el.attribute("value");
+            //qDebug () << "   property_name" << el.attribute("name");
+
+            ret[el.attribute("name")] = convertToType( el.attribute("type"),  el.attribute("value") );
         }
         n = n.nextSibling();
     }
     return ret;
 }
 
-#ifndef PROG_OPTIONS_ONLY
-QList<TagMethod> AppSettings::getTagMethods(const QDomNode& driver_node, const Tags& tags) const
-{
-    QList<TagMethod> tag_methods;
 
-    QDomNode maybe_tag_node = driver_node.firstChild();
-
-    while ( !maybe_tag_node.isNull() ) {
-        if (maybe_tag_node.nodeName() == "tag") {
-            QDomElement el = maybe_tag_node.toElement();
-
-            TagMethod tm( tags[el.attribute("name")]->tagName(), el.attribute("func", QString()) );
-            tag_methods.push_back(tm);
-
-        }
-
-        maybe_tag_node = maybe_tag_node.nextSibling();
-    }
-
-    return tag_methods;
-}
-#endif
 
 #if 0
 void AppSettings::initTablo(QVector<Porter::Pointer>& porters, Tags & tags)

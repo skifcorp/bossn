@@ -47,7 +47,7 @@ void PerimeterControlByWeight::setSettings( const QMap<QString, QVariant>& s)
 {
     weight_name = get_setting<QString>("weightName", s);
     min_weight  = get_setting<float>  ("minWeight" , s);
-    method      = get_setting<QString>("method"    , s);
+    get_weight_method      = get_setting<QString>("method"    , s);
 }
 
 bool PerimeterControlByWeight::appeared()
@@ -56,7 +56,7 @@ bool PerimeterControlByWeight::appeared()
 
     //qDebug() << "weight_name: " <<weight_name;
 
-    if ( tags_[weight_name]->func(method).toFloat() > min_weight && !was_appeared) {
+    if ( tags_[weight_name]->func(get_weight_method).toInt() > min_weight && !was_appeared) {
         was_appeared = true;
         ret = true;
     }
@@ -68,7 +68,7 @@ bool PerimeterControlByWeight::disappeared()
 {
     bool ret = false;
 
-    if ( tags_[weight_name]->func(method).toFloat() < min_weight && was_appeared) {
+    if ( tags_[weight_name]->func(get_weight_method).toFloat() < min_weight && was_appeared) {
         was_appeared = false;
         ret = true;
     }

@@ -28,7 +28,10 @@ private:
     Tags & tags;
     PerimeterControl::Pointer perim;
     //QString type;
-
+    QString appeared_tag_name;
+    QString appeared_tag_func;
+    QString disappeared_tag_name;
+    QString disappeared_tag_func;
 
 };
 

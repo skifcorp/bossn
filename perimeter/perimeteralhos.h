@@ -63,7 +63,7 @@ private:
     bool was_appeared;
     QString weight_name;
 
-    QString method;
+    QString get_weight_method;
 };
 
 

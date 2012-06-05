@@ -37,18 +37,16 @@ public:
                    QGenericArgument val6 = QGenericArgument(),
                    QGenericArgument val7 = QGenericArgument() );
 
-
-
     void setTagName(const QString& n) {tag_name = n;}
     QString tagName() const {return tag_name;}
 
-    void appendFunc(const QString& fn, QObject * obj, const QString& method)
+    void appendFunc(const QString& fn, QObject * obj, const QString& method, Qt::ConnectionType conn_type = Qt::DirectConnection)
     {
         if (funcs.contains(fn)) {
             qWarning() << "function "<<fn<<" already exists!!!!"; return;
         }
 
-        funcs.insert(fn, FuncContext(obj, method));
+        funcs.insert(fn, FuncContext(obj, method, conn_type));
     }
 
 
@@ -59,13 +57,13 @@ private:
         QObject        * object;
         QString         method;
         QVariantList    args;
+        Qt::ConnectionType conn_type;
 
-        FuncContext (QObject * o , const QString& m ) :  object(o), method(m)
+        FuncContext (QObject * o , const QString& m, Qt::ConnectionType ct) :  object(o), method(m), conn_type(ct)
         {   }
 
-        FuncContext () : object(nullptr)
+        FuncContext () : object(nullptr), conn_type(Qt::DirectConnection)
         {   }
-        //int placeholdersCount() const;
     };
 
     QVariant execObject(FuncContext & fn, const QList<QGenericArgument>& passed_args);
@@ -76,7 +74,8 @@ private:
     Funcs funcs;
 
     QString tag_name;
-
+    void call_as_proc(FuncContext& func, const QList<QGenericArgument>& args);
+    QVariant call_as_func(FuncContext& func, const QList<QGenericArgument>& args);
 };
 
 typedef QMap<QString, Tag::Pointer> Tags;

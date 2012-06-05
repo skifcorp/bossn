@@ -22,6 +22,11 @@ const QString brutto_finish_lab_message                     = QT_TRANSLATE_NOOP(
 const QString brutto_finish_bum_message                     = QT_TRANSLATE_NOOP("MainSequence", "BUM %1");
 
 
+void MainSequence::setSettings(const QVariantMap & )
+{
+
+}
+
 QString MainSequence::taraFinishMessage() const
 {
     return "tara finished!";
@@ -105,7 +110,7 @@ QString MainSequence::detectPlatformType(const QVariantMap & bill) const throw (
     throw MainSequenceException(autodetect_platform_type_error_message ,"something terrible happens!!! cant detect platform type. Maybe bill corrupted :(" );
 }
 
-void MainSequence::onAppearOnWeight()
+void MainSequence::onAppearOnWeight(const QString& )
 {
     qDebug() << "something appeared on weight!!!!";
     on_weight = true;
@@ -625,7 +630,7 @@ bool MainSequence::isPureTaraWeight(const QVariantMap &bill) const throw(MainSeq
     throw MainSequenceException(forget_brutto_on_tara_error_message, "forget for brutto!" );
 }
 
-void MainSequence::onDisappearOnWeight()
+void MainSequence::onDisappearOnWeight(const QString& )
 {
     qDebug() << "something disappeared on weight!!!!";
 
@@ -634,7 +639,7 @@ void MainSequence::onDisappearOnWeight()
     tags["reader1"]->func("doOff");
     //tags["tablo"]->func("print", Q_ARG(const QVariant&, QVariant("Zaidkte na vagu")));
     printOnTablo(greeting_message);
-    setLightsToGreen();
+    setLightsToGreen();   
 }
 
 void MainSequence::checkBum( QVariantMap& bill )const throw(MainSequenceException)
