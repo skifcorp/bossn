@@ -60,7 +60,7 @@ private:
     void checkKagat(const QVariantMap&) const throw(MainSequenceException);
     void checkBum(QVariantMap&) const throw(MainSequenceException);
 
-    bool isWeightCorrect(int w) const {return w >= 0;}
+    bool isWeightCorrect(int w) const;
     bool isPureBruttoWeight(const QVariantMap& bill) const throw (MainSequenceException);
     bool checkDeltaForReweights(int prev_weight, int cur_weight) const;
 

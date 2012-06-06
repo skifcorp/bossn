@@ -5,6 +5,7 @@
 #include <QTimer>
 #include <QSharedPointer>
 #include <QObject>
+#include <QVariantMap>
 
 class BaseTask : public QObject
 {
@@ -15,6 +16,7 @@ public:
 
     virtual ~BaseTask(){}
     virtual void exec() = 0;
+    virtual void setSettings(const QVariantMap& ) = 0;
 protected:
 
 };

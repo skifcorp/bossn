@@ -16,7 +16,7 @@ DESTDIR  = build
 TEMPLATE = app
 INCLUDEPATH    += ../qextserialport/src/ db alho serial weight generic iodevicewrapper scheduler           \
                       porter task dido perimeter tools reader  reports ../coroutine/src/ ../QxOrm/include  \
-                      $$(BOOST_ROOT) ../ismm/ settings
+                      $$(BOOST_ROOT) ../ismm/ settings stable
 QMAKE_CXXFLAGS += -std=c++0x #-m32
 #QMAKE_LFLAGS   += -m32
 
@@ -67,7 +67,8 @@ SOURCES += main.cpp \
     alho/reportsmanager.cpp \
     settings/appsettings.cpp \
     settings/portersettings.cpp \
-    settings/tasksettings.cpp
+    settings/tasksettings.cpp \
+    stable/stable.cpp
 
 HEADERS += \    
     tools/func.h \
@@ -115,6 +116,7 @@ HEADERS += \
     alho/conviencefuncs.h \
     settings/appsettings.h \
     settings/portersettings.h \
-    settings/tasksettings.h
+    settings/tasksettings.h \
+    stable/stable.h
 
 

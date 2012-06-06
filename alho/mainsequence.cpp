@@ -450,6 +450,11 @@ bool MainSequence::checkDeltaForReweights(int prev_weight, int weight) const
     return qAbs( prev_weight - weight ) < get_setting<int>("brutto_delta_between_reweights", app_settings);
 }
 
+bool MainSequence::isWeightCorrect(int w) const
+{
+    return w >= 0 && tags["stable1"]->func("isStable").toBool();
+}
+
 void MainSequence::brutto(QVariantMap & bill, qx::dao::ptr<t_cars> car, const MifareCard& card) const throw(MainSequenceException)
 {
     auto ttn = wrap_async_ex(fetch_ttn_error_message, "fetching ttn failed!!!",

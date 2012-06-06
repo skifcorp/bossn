@@ -20,10 +20,8 @@ public:
     PerimeterTask(Tags & t );
     ~PerimeterTask() {}
     virtual void exec();
-    void setSettings ( const QMap<QString, QVariant>& );
-signals:
-    void appeared();
-    void disappeared();
+    virtual void setSettings ( const QVariantMap& );
+
 private:
     Tags & tags;
     PerimeterControl::Pointer perim;

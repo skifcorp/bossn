@@ -43,7 +43,7 @@ protected:
     }
 
     QByteArray weightRequestFrame() const;
-    float parseWeightFrameAnswer(const QByteArray& ba, uint &) const;
+    int parseWeightFrameAnswer(const QByteArray& ba, uint &) const;
     static BossnFactoryRegistrator<Hbm2110> registrator;
 };
 
