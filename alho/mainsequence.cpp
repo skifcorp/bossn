@@ -9,10 +9,6 @@
 #include "codeshacks.h"
 #include "conviencefuncs.h"
 
-//#include "datetimehack.h"
-
-//#include "reports.h"
-
 #include <QBitArray>
 
 
@@ -22,9 +18,37 @@ const QString brutto_finish_lab_message                     = QT_TRANSLATE_NOOP(
 const QString brutto_finish_bum_message                     = QT_TRANSLATE_NOOP("MainSequence", "BUM %1");
 
 
-void MainSequence::setSettings(const QVariantMap & )
-{
+void MainSequence::setSettings(const QVariantMap & s)
+{    
+    alho_settings.green_light.tag_name = get_setting<QString>("green_light_tag", s);
+    alho_settings.green_light.method_name = get_setting<QString>("green_light_method", s);
 
+    alho_settings.red_light.tag_name = get_setting<QString>("red_light_tag", s);
+    alho_settings.red_light.method_name = get_setting<QString>("red_light_method", s);
+
+    alho_settings.tablo_tag.tag_name = get_setting<QString>("tablo_tag", s);
+    alho_settings.tablo_tag.method_name = get_setting<QString>("tablo_method", s);
+
+    alho_settings.perim_in.tag_name = get_setting<QString>("perim_in_tag", s);
+    alho_settings.perim_in.method_name = get_setting<QString>("perim_in_method", s);
+
+    alho_settings.perim_out.tag_name = get_setting<QString>("perim_out_tag", s);
+    alho_settings.perim_out.method_name = get_setting<QString>("perim_out_method", s);
+
+    alho_settings.weight_tag.tag_name = get_setting<QString>("weight_tag", s);
+    alho_settings.weight_tag.method_name = get_setting<QString>("weight_method", s);
+
+    alho_settings.weight_stable.tag_name = get_setting<QString>("stable_tag", s);
+    alho_settings.weight_stable.method_name = get_setting<QString>("stable_method", s);
+
+    alho_settings.reader.name           = get_setting<QString>("reader_tag", s);
+    alho_settings.reader.do_on          = get_setting<QString>("reader_do_on", s);
+    alho_settings.reader.do_off         = get_setting<QString>("reader_do_off", s);
+    alho_settings.reader.activate_idle  = get_setting<QString>("reader_activate_idle", s);
+    alho_settings.reader.host_coded_key = get_setting<QString>("reader_host_coded_key", s);
+    alho_settings.reader.do_auth        = get_setting<QString>("reader_do_auth", s);
+    alho_settings.reader.write_block    = get_setting<QString>("reader_write_block", s);
+    alho_settings.reader.read_block     = get_setting<QString>("reader_read_block", s);
 }
 
 QString MainSequence::taraFinishMessage() const
@@ -45,27 +69,16 @@ QString MainSequence::bruttoFinishMessage(const QVariantMap & bill) const
     return ret;
 }
 
-
-/*
-
-template <class Callable, class... Args>
-void async_call(Callable c, Args ... args)
-{
-    auto f = async(std::launch::async, c, args...);
-
-    while (!f.is_ready()) {
-        qApp->processEvents();
-    }
-}*/
-
 void MainSequence::printOnTablo(const QString & s)
 {
-    tags["tablo"]->func("print", Q_ARG(const QVariant&, QVariant(s)));
+    //tags["tablo"]->func("print", Q_ARG(const QVariant&, QVariant(s)));
+    tags[alho_settings.tablo_tag.tag_name]->func(alho_settings.tablo_tag.method_name, Q_ARG(const QVariant&, QVariant(s)));
 }
 
 int MainSequence::getWeight() const
 {
-    return tags["weight1_1"]->func("readMethod").toInt();
+    //return tags["weight1_1"]->func("readMethod").toInt();
+    return tags[alho_settings.weight_tag.tag_name]->func( alho_settings.weight_tag.method_name ).toInt();
 }
 
 
@@ -119,14 +132,15 @@ void MainSequence::onAppearOnWeight(const QString& )
 
     setLightsToRed();
 
-    tags["reader1"]->func("doOn");
+    //tags["reader1"]->func("doOn");
+    tags[ alho_settings.reader.name]->func( alho_settings.reader.do_on );
 
     QByteArray card_code = get_setting<QByteArray>("card_code" , app_settings);
     uint data_block      = get_setting<uint>      ("data_block", app_settings);
 
     while(on_weight) {
-        ActivateCardISO14443A act = tags["reader1"]->func("activateIdleA").value<ActivateCardISO14443A>();
-        MifareCard card(tags["reader1"], act);
+        ActivateCardISO14443A act = tags[alho_settings.reader.name]->func(alho_settings.reader.activate_idle).value<ActivateCardISO14443A>();
+        MifareCard card(tags[alho_settings.reader.name], act, alho_settings.reader);
 
         if ( !card.active() ) {
             qDebug() << "card not active!!!";            
@@ -452,7 +466,7 @@ bool MainSequence::checkDeltaForReweights(int prev_weight, int weight) const
 
 bool MainSequence::isWeightCorrect(int w) const
 {
-    return w >= 0 && tags["stable1"]->func("isStable").toBool();
+    return w >= 0 && tags[alho_settings.weight_stable.tag_name]->func(alho_settings.weight_stable.method_name).toBool();
 }
 
 void MainSequence::brutto(QVariantMap & bill, qx::dao::ptr<t_cars> car, const MifareCard& card) const throw(MainSequenceException)
@@ -641,8 +655,8 @@ void MainSequence::onDisappearOnWeight(const QString& )
 
     on_weight = false;
 
-    tags["reader1"]->func("doOff");
-    //tags["tablo"]->func("print", Q_ARG(const QVariant&, QVariant("Zaidkte na vagu")));
+    tags[alho_settings.reader.name]->func( alho_settings.reader.do_off );
+
     printOnTablo(greeting_message);
     setLightsToGreen();   
 }
@@ -888,14 +902,20 @@ qx::dao::ptr<t_ttn> MainSequence::makeNewTask(qx::dao::ptr<t_cars> car, const QV
 
 void MainSequence::setLightsToRed()
 {
-    tags["do1"]->func("writeMethod", Q_ARG(QVariant, 1));
-    tags["do2"]->func("writeMethod", Q_ARG(QVariant, 0));
+    //tags["do1"]->func("writeMethod", Q_ARG(QVariant, 1));
+    //tags["do2"]->func("writeMethod", Q_ARG(QVariant, 0));
+
+    tags[alho_settings.red_light.tag_name]->func(alho_settings.red_light.method_name, Q_ARG(QVariant, 1));
+    tags[alho_settings.green_light.tag_name]->func(alho_settings.green_light.method_name, Q_ARG(QVariant, 0));
+
 }
 
 void MainSequence::setLightsToGreen()
 {
-    tags["do1"]->func("writeMethod", Q_ARG(QVariant, 0));
-    tags["do2"]->func("writeMethod", Q_ARG(QVariant, 1));
+//    tags["do1"]->func("writeMethod", Q_ARG(QVariant, 0));
+//    tags["do2"]->func("writeMethod", Q_ARG(QVariant, 1));
+    tags[alho_settings.red_light.tag_name]->func(alho_settings.red_light.method_name, Q_ARG(QVariant, 0));
+    tags[alho_settings.green_light.tag_name]->func(alho_settings.green_light.method_name, Q_ARG(QVariant, 1));
 }
 
 
@@ -905,8 +925,13 @@ void MainSequence::processPerimeter() const throw (MainSequenceException)
 {
     if ( !get_setting<bool>("perimeter_control", app_settings) ) return;
 
-    if ( tags["di1"]->func("readMethod").toBool() || tags["di2"]->func("readMethod").toBool() )
+//    if ( tags["di1"]->func("readMethod").toBool() || tags["di2"]->func("readMethod").toBool() )
+//        throw MainSequenceException(perimeter_control_failed, "perimeter_control_failed!");
+
+    if ( tags[ alho_settings.perim_in.tag_name ]->func(alho_settings.perim_in.method_name).toBool() ||
+         tags[ alho_settings.perim_out.tag_name ]->func(alho_settings.perim_out.method_name).toBool() )
         throw MainSequenceException(perimeter_control_failed, "perimeter_control_failed!");
+
 }
 
 

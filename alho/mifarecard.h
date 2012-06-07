@@ -12,7 +12,7 @@ using std::function;
 #include "mifarereader.h"
 #include "tags.h"
 #include "cardstructs.h"
-
+#include "readersettings.h"
 
 class MifareCardException
 {
@@ -39,7 +39,7 @@ private:
 class MifareCard
 {
 public:
-    MifareCard(Tag::WeakPointer r , const ActivateCardISO14443A& );
+    MifareCard(Tag::WeakPointer r , const ActivateCardISO14443A&, const ReaderTagMethods& );
 
     ~MifareCard(){}
 
@@ -66,6 +66,7 @@ public:
 
         return blocksIn1KSectors + (block - blocksIn1KSectors) / blocksIn4KSector * blocksIn4KSector + 15;
     }
+
 private:
     Tag::WeakPointer reader;
     ActivateCardISO14443A activate_card;
@@ -73,6 +74,7 @@ private:
     QVariant readMember (const StructMemberConf& , const QByteArray& ) const throw (MifareCardException);
     void     writeMember(const StructMemberConf& , const QVariant&, QByteArray& ) const throw (MifareCardException);
 
+    const ReaderTagMethods& reader_settings;
 };
 
 

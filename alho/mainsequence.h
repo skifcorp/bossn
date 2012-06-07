@@ -14,11 +14,26 @@
 #include "func.h"
 #include "dbstructs.h"
 #include "async_func.h"
-
-
+#include "tagmethod.h"
+#include "readersettings.h"
 
 
 class MifareCard;
+
+
+
+struct MainSequenceSettings
+{
+    TagMethod weight_tag;
+    TagMethod tablo_tag;
+    TagMethod weight_stable;
+    TagMethod red_light;
+    TagMethod green_light;
+    TagMethod perim_in;
+    TagMethod perim_out;
+
+    ReaderTagMethods reader;
+};
 
 class MainSequence : public AlhoSequence
 {
@@ -34,9 +49,9 @@ public:
 
     virtual void setSettings(const QVariantMap &);
 private:
-    Tags & tags;
+    Tags & tags;    
     const QVariantMap & app_settings;
-
+    MainSequenceSettings  alho_settings;
 
     bool on_weight;
 

@@ -3,7 +3,7 @@
 
 #include <QByteArray>
 
-ushort doCrc16(const QByteArray& buff, int start_byte = 0)
+inline ushort doCrc16(const QByteArray& buff, int start_byte = 0)
 {
   ushort CRC = 0xFFFF;
   for ( int j = start_byte; j< buff.length(); ++j ) {

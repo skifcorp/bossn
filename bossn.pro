@@ -117,6 +117,8 @@ HEADERS += \
     settings/appsettings.h \
     settings/portersettings.h \
     settings/tasksettings.h \
-    stable/stable.h
+    stable/stable.h \
+    tools/tagmethod.h \
+    alho/readersettings.h
 
 
