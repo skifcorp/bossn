@@ -49,6 +49,23 @@ void MainSequence::setSettings(const QVariantMap & s)
     alho_settings.reader.do_auth        = get_setting<QString>("reader_do_auth", s);
     alho_settings.reader.write_block    = get_setting<QString>("reader_write_block", s);
     alho_settings.reader.read_block     = get_setting<QString>("reader_read_block", s);
+
+    database = QSqlDatabase::addDatabase(get_setting<QString>("database_driver", s));
+
+    database.setHostName(get_setting<QString>("database_host", s));
+    database.setDatabaseName(get_setting<QString>("database_name", s));
+    database.setUserName(get_setting<QString>("database_user", s));
+    database.setPassword(get_setting<QString>("database_password", s));
+
+    seq_id             = get_setting<QString>("id", s);
+
+    async_func_ptr     = async_func_ptr_t( new  async_func(database) );
+    convience_func_ptr = convience_func_ptr_t( new convience_func (*async_func_ptr) );
+
+    qx::QxSqlDatabase::getSingleton()->setDriverName(get_setting<QString>("database_driver", s)); //ugly hack for reflection
+
+    printOnTablo(greeting_message);
+    setLightsToGreen();
 }
 
 QString MainSequence::taraFinishMessage() const
@@ -69,7 +86,7 @@ QString MainSequence::bruttoFinishMessage(const QVariantMap & bill) const
     return ret;
 }
 
-void MainSequence::printOnTablo(const QString & s)
+void MainSequence::printOnTablo(const QString & s) const
 {
     //tags["tablo"]->func("print", Q_ARG(const QVariant&, QVariant(s)));
     tags[alho_settings.tablo_tag.tag_name]->func(alho_settings.tablo_tag.method_name, Q_ARG(const QVariant&, QVariant(s)));
@@ -84,18 +101,15 @@ int MainSequence::getWeight() const
 
 MainSequence::MainSequence(Tags & t, const QVariantMap& s):tags(t), app_settings(s), on_weight(false)
 {
-    printOnTablo(greeting_message);
-    setLightsToGreen();
-
     qx::QxSqlDatabase::getSingleton()->setTraceSqlQuery(false);
     qx::QxSqlDatabase::getSingleton()->setTraceSqlRecord(false);
 
-    qx::QxSqlDatabase::getSingleton()->setDriverName(get_setting<QString>("database_driver", app_settings));
+/*    qx::QxSqlDatabase::getSingleton()->setDriverName(get_setting<QString>("database_driver", app_settings));
     qx::QxSqlDatabase::getSingleton()->setDatabaseName(get_setting<QString>("database_name", app_settings));
     qx::QxSqlDatabase::getSingleton()->setHostName(get_setting<QString>("database_host", app_settings));
     qx::QxSqlDatabase::getSingleton()->setUserName(get_setting<QString>("database_user", app_settings));
     qx::QxSqlDatabase::getSingleton()->setPassword(get_setting<QString>("database_password", app_settings));
-
+*/
 
 }
 
@@ -125,12 +139,14 @@ QString MainSequence::detectPlatformType(const QVariantMap & bill) const throw (
 
 void MainSequence::onAppearOnWeight(const QString& )
 {
-    qDebug() << "something appeared on weight!!!!";
+    qDebug() << "something appeared on weight!!!! id" << seq_id;
     on_weight = true;
-
+    //qDebug () << "111111111";
     printOnTablo(apply_card_message);
-
+    //qDebug () << "222222222";
     setLightsToRed();
+
+    qDebug () << "33333";
 
     //tags["reader1"]->func("doOn");
     tags[ alho_settings.reader.name]->func( alho_settings.reader.do_on );
@@ -160,8 +176,8 @@ void MainSequence::onAppearOnWeight(const QString& )
                 throw MainSequenceException(card_is_empty_error_message, "bill is empty");
             }
 
-            auto car = wrap_async_ex(fetch_car_error_message, "fetching car failed!!!: driver: " + memberValue<QString>("driver", bill),
-                                  [&bill, this]{return async_fetch<t_cars>( carCodeFromDriver( memberValue<uint>("driver", bill) ) );});
+            auto car = async_func_ptr->wrap_async_ex(fetch_car_error_message, "fetching car failed!!!: driver: " + memberValue<QString>("driver", bill),
+                                  [&bill, this]{return async_func_ptr->async_fetch<t_cars>( carCodeFromDriver( memberValue<uint>("driver", bill) ) );});
 
 
             if (car->block) {
@@ -216,8 +232,8 @@ void MainSequence::onAppearOnWeight(const QString& )
 void MainSequence::repairBeetFieldCorrectnessIfNeeded(QVariantMap & bill, qx::dao::ptr<t_ttn> ttn) const throw()
 {  
     //qDebug () << "before!!!";
-    if ( memberValue<uint>("realNumField", bill) == 0 || !wrap_async( [&bill, this]{
-                                    return async_fetch<t_field>( memberValue<uint>("realNumField", bill) );
+    if ( memberValue<uint>("realNumField", bill) == 0 || !async_func_ptr->wrap_async( [&bill, this]{
+                                    return async_func_ptr->async_fetch<t_field>( memberValue<uint>("realNumField", bill) );
                                  } ) )  {
 
         setMemberValue("realNumField", memberValue<uint>("numField", bill), bill);
@@ -245,7 +261,7 @@ uint MainSequence::countCarsFromFieldForDayExcludeCurrent(uint ttn_num, uint fie
                    " and dt_of_brutto<='" + workDate.addDays(1).toString("yyyy.MM.dd") + " 08:00:00' and num_nakl <> " +
                    QString::number(ttn_num) );
         long count = 0;
-        async_count<t_ttn>( count, q );
+        async_func_ptr->async_count<t_ttn>( count, q );
 
         return count;
     }
@@ -268,12 +284,12 @@ uint MainSequence::getAnalisysPeriodFromStorage(uint typ) const throw(MysqlExcep
     qx::dao::ptr<t_const> const_;
 
     if ( typ == 0 ) {
-        const_ = wrap_async_ex( "error for kontragent type when doint chemical analysis typ=0", QString(),                                
-                                [this]{return async_fetch<t_const>(get_setting<QString>("corpotare_check_period_name", app_settings));});
+        const_ = async_func_ptr->wrap_async_ex( "error for kontragent type when doint chemical analysis typ=0", QString(),
+                                [this]{return async_func_ptr->async_fetch<t_const>(get_setting<QString>("corpotare_check_period_name", app_settings));});
     }
     else if ( typ == 3 ) {
-        const_ = wrap_async_ex( "error for kontragent type when doint chemical analysis typ=3", QString(),
-                                [this]{return async_fetch<t_const>(get_setting<QString>("farmer_check_period_name", app_settings)); });
+        const_ = async_func_ptr->wrap_async_ex( "error for kontragent type when doint chemical analysis typ=3", QString(),
+                                [this]{return async_func_ptr->async_fetch<t_const>(get_setting<QString>("farmer_check_period_name", app_settings)); });
     }
     else {
         //qWarning()<< "error for kontragent type when doint chemical analysis";
@@ -288,14 +304,14 @@ bool MainSequence::checkForNeedDatabaseConstAnalisys(long count, long kontrag) c
     if (count + 1 == 1) return true; //first car always go for analysis
 
     try {
-        auto kontr = wrap_async_ex( "cant get kontr of ttns for chemical analysis!!! kontrag: " + QString::number(kontrag),
+        auto kontr = async_func_ptr->wrap_async_ex( "cant get kontr of ttns for chemical analysis!!! kontrag: " + QString::number(kontrag),
                                      QString(),
-                                    [&kontrag, this]{return async_fetch<t_kontr>(kontrag);} );
+                                    [&kontrag, this]{return async_func_ptr->async_fetch<t_kontr>(kontrag);} );
 
         uint period = kontr->period;
 
         if ( period == 0 ) {
-            period = wrap_async_ex("error for getting const for type:" + QString::number(kontr->type), QString(),
+            period = async_func_ptr->wrap_async_ex("error for getting const for type:" + QString::number(kontr->type), QString(),
                                    [&kontr, this]{return getAnalisysPeriodFromStorage(kontr->type);} );
         }
 
@@ -366,8 +382,8 @@ QString MainSequence::getBumsClause(const QVariantMap & bill, qx::dao::ptr<t_car
     }
 
     if (car->back_board) {
-        qx::dao::ptr<t_const> const_ = wrap_async_ex(get_backboard_bum_weight_const_error, "error getting const for backboard bum",
-                        [this]{return async_fetch<t_const>(get_setting<QString>("bum11_name", app_settings));});
+        qx::dao::ptr<t_const> const_ = async_func_ptr->wrap_async_ex(get_backboard_bum_weight_const_error, "error getting const for backboard bum",
+                        [this]{return async_func_ptr->async_fetch<t_const>(get_setting<QString>("bum11_name", app_settings));});
 
         if ( memberValue<int>("bruttoWeight", bill) > const_->value.toInt() ) {
             ret.append("id = 11");
@@ -387,18 +403,18 @@ void MainSequence::processFreeBum(QVariantMap & bill, qx::dao::ptr<t_ttn> ttn, q
     const QString q1 =  "select * from t_bum where state=1 and queue=(select min(queue) from t_bum where state=1 and ("+bums_where_clause+")) and ("+bums_where_clause +");";
     const QString q2 =  "select * from t_bum where queue=(select min(queue) from t_bum where ("+bums_where_clause+")) and ("+bums_where_clause +");";
 
-    qx::dao::ptr<t_bum> bum = wrap_async_ex(get_free_bum_error, "Error getting free bum1",
-        [&bums_where_clause, &q1, this]{ return async_exec_query<t_bum>(q1, false);});
+    qx::dao::ptr<t_bum> bum = async_func_ptr->wrap_async_ex(get_free_bum_error, "Error getting free bum1",
+        [&bums_where_clause, &q1, this]{ return async_func_ptr->async_exec_query<t_bum>(q1, false);});
 
     //qDebug() << "----------------> BUM_ID: "<<bum->id;
 
     if ( !bum ) {
-        bum = wrap_async_ex(get_free_bum_error, "Error getting free bum2",
-            [&bums_where_clause, &q2, this]{ return async_exec_query<t_bum>(q2);});
+        bum = async_func_ptr->wrap_async_ex(get_free_bum_error, "Error getting free bum2",
+            [&bums_where_clause, &q2, this]{ return async_func_ptr->async_exec_query<t_bum>(q2);});
     }
 
     bum->queue += 1;
-    wrap_async_ex( update_bum_queue_error, "Error updating bum queue", [&bum, this]{ async_update(bum); });
+    async_func_ptr->wrap_async_ex( update_bum_queue_error, "Error updating bum queue", [&bum, this]{ async_func_ptr->async_update(bum); });
 
     if ( bum->id != 99 ) {
         ttn->bum_platforma = bum->id % 10;
@@ -429,7 +445,7 @@ void MainSequence::updateBruttoValues(QVariantMap& bill, qx::dao::ptr<t_ttn> ttn
     ttn->brutto_platforma = 88;
 
 
-    wrap_async_ex( update_ttn_error_message, "Error updating ttn brutto", [&ttn, this]{ async_update(ttn); });
+    async_func_ptr->wrap_async_ex( update_ttn_error_message, "Error updating ttn brutto", [&ttn, this]{ async_func_ptr->async_update(ttn); });
 }
 
 void MainSequence::updateTaraValues(QVariantMap& bill, qx::dao::ptr<t_ttn> ttn, qx::dao::ptr<t_cars> car, bool pure_weight) const throw (MainSequenceException)
@@ -448,7 +464,7 @@ void MainSequence::updateTaraValues(QVariantMap& bill, qx::dao::ptr<t_ttn> ttn, 
     ttn->tara_platforma  = 99;
     ttn->field_from_car  = car->num_field;
 
-    wrap_async_ex( update_ttn_error_message, "Error updating ttn tara", [&ttn, this]{ async_update(ttn); });
+    async_func_ptr->wrap_async_ex( update_ttn_error_message, "Error updating ttn tara", [&ttn, this]{ async_func_ptr->async_update(ttn); });
 }
 
 bool MainSequence::isPureBruttoWeight(const QVariantMap& bill) const throw (MainSequenceException)
@@ -471,8 +487,8 @@ bool MainSequence::isWeightCorrect(int w) const
 
 void MainSequence::brutto(QVariantMap & bill, qx::dao::ptr<t_cars> car, const MifareCard& card) const throw(MainSequenceException)
 {
-    auto ttn = wrap_async_ex(fetch_ttn_error_message, "fetching ttn failed!!!",
-                                  [&bill, this]{return async_fetch<t_ttn>(bill["billNumber"].toUInt());});
+    auto ttn = async_func_ptr->wrap_async_ex(fetch_ttn_error_message, "fetching ttn failed!!!",
+                                  [&bill, this]{return async_func_ptr->async_fetch<t_ttn>(bill["billNumber"].toUInt());});
 
     repairBeetFieldCorrectnessIfNeeded(bill, ttn);
 
@@ -576,8 +592,8 @@ void MainSequence::tara(QVariantMap & bill, qx::dao::ptr<t_cars> car) const thro
         printFinishReport(ttn, car);
     }
     else  {
-        ttn = wrap_async_ex(fetch_ttn_error_message, "fetching ttn failed!!!",
-                                  [&bill, this]{return async_fetch<t_ttn>(bill["billNumber"].toUInt());});
+        ttn = async_func_ptr->wrap_async_ex(fetch_ttn_error_message, "fetching ttn failed!!!",
+                                  [&bill, this]{return async_func_ptr->async_fetch<t_ttn>(bill["billNumber"].toUInt());});
         checkBum(bill);
         checkLaboratory(bill, car);
         checkKagat(bill);
@@ -617,15 +633,15 @@ void MainSequence::clearBumQueue(qx::dao::ptr<t_ttn> ttn) const throw(MainSequen
         bum = bum * 10 + ttn->bum_platforma;
     }
 
-    wrap_async_ex(clear_bum_queue_error, "clear bum queue error",
-                [&ttn, this, &bum]{ async_call_query("update t_bum set queue = queue - 1 where id=" + QString::number(bum) + ";") ;});
+    async_func_ptr->wrap_async_ex(clear_bum_queue_error, "clear bum queue error",
+                [&ttn, this, &bum]{ async_func_ptr->async_call_query("update t_bum set queue = queue - 1 where id=" + QString::number(bum) + ";") ;});
 
 }
 
 qx::dao::ptr<t_ttn> MainSequence::ttnByDriver( int drv )const throw (MainSequenceException)
 {
-    auto ret = wrap_async_ex(get_ttn_by_driver_tara0_error_message, "getting ttn by driver with zero tara failed!",
-                            [&drv, this]{ return async_fetch_by_query<t_ttn>(
+    auto ret = async_func_ptr->wrap_async_ex(get_ttn_by_driver_tara0_error_message, "getting ttn by driver with zero tara failed!",
+                            [&drv, this]{ return async_func_ptr->async_fetch_by_query<t_ttn>(
                                 qx_query().where("driver").isEqualTo(drv).and_("brutto").isNotEqualTo(0).and_("tara").isEqualTo(0)); });
 
     if ( ret ) {
@@ -633,8 +649,8 @@ qx::dao::ptr<t_ttn> MainSequence::ttnByDriver( int drv )const throw (MainSequenc
         return ret;
     }
 
-    ret = wrap_async_ex(get_last_ttn_by_driver_error_message, "getting last ttn by driver failed!",
-                                [&drv, this]{ return async_fetch_by_query<t_ttn>(
+    ret = async_func_ptr->wrap_async_ex(get_last_ttn_by_driver_error_message, "getting last ttn by driver failed!",
+                                [&drv, this]{ return async_func_ptr->async_fetch_by_query<t_ttn>(
                                 qx_query().where("driver").isEqualTo(drv).and_("dt_of_tara").
                                     in_Select("select MAX(dt_of_tara) from t_ttn where driver=" + QString::number(drv)));});
 
@@ -674,7 +690,7 @@ void MainSequence::checkLaboratory( const QVariantMap& bill , qx::dao::ptr<t_car
 {
     if ( memberValue<QBitArray>("flags", bill).at(2) && !memberValue<QBitArray>("flags", bill).at(3) ) {
         car->block = 1;
-        wrap_async_ex( blocking_car_for_lab_error, "Error blocking car which wasnt in lab", [&car, this]{ async_update(car); });
+        async_func_ptr->wrap_async_ex( blocking_car_for_lab_error, "Error blocking car which wasnt in lab", [&car, this]{ async_func_ptr->async_update(car); });
 
         throw MainSequenceException (car_dont_was_in_lab, "car dont was in lab");
     }
@@ -685,8 +701,8 @@ void MainSequence::checkKagat(const QVariantMap& bill)const throw(MainSequenceEx
     if ( memberValue<int>("kagat", bill) ==0 )
         throw MainSequenceException(car_has_not_been_unloaded, "car was not unloaded!");
 
-    qx::dao::ptr<t_kagat> kagat = wrap_async_ex(getting_kagat_error, "cant get kagat",
-                    [&bill, this]{ return async_fetch<t_kagat>(memberValue<int>("kagat", bill)) ;});
+    qx::dao::ptr<t_kagat> kagat = async_func_ptr->wrap_async_ex(getting_kagat_error, "cant get kagat",
+                    [&bill, this]{ return async_func_ptr->async_fetch<t_kagat>(memberValue<int>("kagat", bill)) ;});
 
     if (!kagat->state) {
         throw MainSequenceException(kagat_was_closed_error, "kagat was closed!");
@@ -764,7 +780,8 @@ bool MainSequence::printStartReport(const qx::dao::ptr<t_ttn> & ttn, const qx::d
 
     return r.print(ctx);
 #endif
-    ReportsManager m(app_settings);
+    ReportsManager m(app_settings, *async_func_ptr, *convience_func_ptr);
+
     return m.printReport(ttn, car, get_setting<QString>("start_report_file_name", app_settings));
 }
 
@@ -781,7 +798,7 @@ bool MainSequence::printFinishReport( const qx::dao::ptr<t_ttn>& ttn, const qx::
 
     return r.print(ctx);
 #endif
-    ReportsManager m(app_settings);
+    ReportsManager m(app_settings, *async_func_ptr, *convience_func_ptr);
     return m.printReport(ttn, car, get_setting<QString>("finish_report_file_name", app_settings));
 
 }
@@ -803,32 +820,25 @@ bool MainSequence::checkBumWorks(const QDateTime & date_from, const QDateTime & 
 {
     qx_query q;
     q.where("date_time").isGreaterThanOrEqualTo(date_from).and_("date_time").isLessThanOrEqualTo(date_to).and_("bum").isEqualTo(QVariant::fromValue<long>(bum));
-    qx::dao::ptr<t_bum_state_log> bum_log = wrap_async_ex( cant_get_bum_state_log_message, "cant get bum state log",
-                            [&q, this]{ return async_fetch_by_query<t_bum_state_log>(q) ;});
+    qx::dao::ptr<t_bum_state_log> bum_log = async_func_ptr->wrap_async_ex( cant_get_bum_state_log_message, "cant get bum state log",
+                            [&q, this]{ return async_func_ptr->async_fetch_by_query<t_bum_state_log>(q) ;});
 
     if (bum_log) return false;
 
-    qx::dao::ptr<t_bum> bum_ptr = wrap_async_ex(cant_get_bum_message, "cant get bum",
-                        [&bum, this]{ return async_fetch<t_bum>(bum);});
+    qx::dao::ptr<t_bum> bum_ptr = async_func_ptr->wrap_async_ex(cant_get_bum_message, "cant get bum",
+                        [&bum, this]{ return async_func_ptr->async_fetch<t_bum>(bum);});
 
     return static_cast<bool> (bum_ptr->state);
 }
-#if 0
-qx::dao::ptr<t_const> MainSequence::getConst(const QString & k) const throw(MainSequenceException)
-{
-    auto const_ = wrap_async_ex( cant_get_const_message + ": " + k, "cant get const " + k,
-                                [this, &k]{return async_fetch<t_const>(k);});
-    return const_;
-}
-#endif
+
 
 void MainSequence::processTaraRupture(qx::dao::ptr<t_ttn> ttn, qx::dao::ptr<t_cars> car) const throw(MainSequenceException)
 {
-    QString percent = getConst( get_setting<QString>("tara_percent_name", app_settings) )->value ;
+    QString percent = convience_func_ptr->getConst( get_setting<QString>("tara_percent_name", app_settings) )->value ;
 
     QString count;
     if ( car->amount_of_car_for_middle_tara < 0 ) {
-        count = getConst( get_setting<QString>("tara_cars_mid_count_name", app_settings) )->value ;
+        count = convience_func_ptr->getConst( get_setting<QString>("tara_cars_mid_count_name", app_settings) )->value ;
     }
     else {
         count = QString::number( car->amount_of_car_for_middle_tara );
@@ -836,8 +846,8 @@ void MainSequence::processTaraRupture(qx::dao::ptr<t_ttn> ttn, qx::dao::ptr<t_ca
 
 
 
-    int mid_tara = wrap_async_ex( error_getting_mid_tara_message, "error getting mid tara",
-                                [this, &ttn, &car, &count]{  return async_call_query<int>(
+    int mid_tara = async_func_ptr->wrap_async_ex( error_getting_mid_tara_message, "error getting mid tara",
+                                [this, &ttn, &car, &count]{  return async_func_ptr->async_call_query<int>(
                                     "select avg(tara) from (select tara from t_ttn where tara!=0 and num_nakl!="+
                                     QString::number(ttn->num_nakl)+
                                     " and car="+QString::number(car->id)+

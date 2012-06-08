@@ -37,20 +37,24 @@ void TaskSettings::initAlhos (QVector<AlhoSequence::Pointer> &alhos, Tags &tags,
     openDocument();
     QDomElement el = findSettingsElement("alhos");
 
-    QDomElement alho_elem = el.firstChild().toElement();
+    //AlhoSequence::setSettings(getDynamicSettings(el));
 
-    while (!alho_elem.isNull()) {
-        if  ( alho_elem.attribute("name") == "MainSequence") {
-            AlhoSequence::Pointer seq (new MainSequence(tags, app_settings));
+    QDomElement maybe_alho_elem = el.firstChild().toElement();
 
-            bindTags( alho_elem, tags, seq.data()  );
+    while (!maybe_alho_elem.isNull()) {
+        if ( maybe_alho_elem.nodeName() == "alho" ) {
+            if  ( maybe_alho_elem.attribute("name") == "MainSequence") {
+                AlhoSequence::Pointer seq (new MainSequence(tags, app_settings));
+                seq->setSettings( getDynamicSettings(maybe_alho_elem) );
+                bindTags( maybe_alho_elem, tags, seq.data()  );
 
-            alhos.push_back(seq);
+                alhos.push_back(seq);
+            }
+            else {
+                qWarning() << maybe_alho_elem.attribute("name") << " dont supported!! ";
+                qFatal("exit");
+            }
         }
-        else {
-            qWarning() << alho_elem.attribute("name") << " dont supported!! ";
-            qFatal("exit");
-        }
-        alho_elem = alho_elem.nextSibling().toElement();
+        maybe_alho_elem = maybe_alho_elem.nextSibling().toElement();
     }
 }

@@ -7,6 +7,7 @@
 #include <QApplication>
 #include <QBitArray>
 #include <QtConcurrentRun>
+#include <QSqlDatabase>
 
 #include "tags.h"
 #include "alhosequence.h"
@@ -16,7 +17,7 @@
 #include "async_func.h"
 #include "tagmethod.h"
 #include "readersettings.h"
-
+#include "conviencefuncs.h"
 
 class MifareCard;
 
@@ -54,12 +55,19 @@ private:
     MainSequenceSettings  alho_settings;
 
     bool on_weight;
+    QSqlDatabase database;
+    QString seq_id;
 
+    typedef QSharedPointer<async_func>     async_func_ptr_t;
+    typedef QSharedPointer<convience_func> convience_func_ptr_t;
+
+    async_func_ptr_t      async_func_ptr;
+    convience_func_ptr_t  convience_func_ptr;
 
     QString detectPlatformType(const QVariantMap& ) const throw (MainSequenceException);
 
 
-    void printOnTablo(const QString& );
+    void printOnTablo(const QString& ) const;
     int getWeight() const;
 
 

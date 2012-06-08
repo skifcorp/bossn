@@ -78,7 +78,43 @@ private:
     QVariant call_as_func(FuncContext& func, const QList<QGenericArgument>& args);
 };
 
-typedef QMap<QString, Tag::Pointer> Tags;
+template <class K, class T>
+class SafeMap : public QMap<K, T>
+{
+public:
+    SafeMap() : QMap<K, T>()
+    {
+    }
+    //using QMap<K,T>::operator [];
+
+    T& operator [](const K& k)
+    {
+        //qWarning() << "cant find in safemap: " << k;
+
+        auto iter = this->find(k);
+        if ( iter == this->end() ) {
+            //qWarning() << "cant find in safemap: " << k;
+            //qFatal("Exiting");
+        }
+        return QMap<K, T>::operator [](k);
+    }
+
+
+    const T operator [](const K& k) const
+    {
+        //qWarning() << "cant find in const_safemap: " << k;
+
+        auto iter = this->find(k);
+        if ( iter == this->end() ) {
+            qWarning() << "cant find in safemap: " << k;
+            qFatal("Exiting");
+        }
+        return *iter;
+    }
+
+};
+typedef SafeMap<QString, Tag::Pointer> Tags;
+
 
 struct TagBindable
 {

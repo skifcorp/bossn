@@ -1,12 +1,15 @@
 #ifndef ASYNC_FUNC_H
 #define ASYNC_FUNC_H
 
+#include <QSqlDatabase>
+
 #include <QtConcurrentRun>
 
 #include <QxRegister/QxClassX.h>
 #include <QxRegister/IxClass.h>
 #include <QxDataMember/IxDataMemberX.h>
 #include <QxDataMember/IxDataMember.h>
+#include <QxOrm.h>
 
 #include "bossnexception.h"
 
@@ -14,6 +17,12 @@ using qx::QxClassX;
 using qx::IxClass;
 using qx::IxDataMemberX;
 using qx::IxDataMember;
+
+
+struct async_func
+{
+   QSqlDatabase &database;
+   async_func ( QSqlDatabase & db ) : database(db) {}
 
    template <class Callable, class... Args >
    typename std::result_of<Callable(Args...)>::type async_call(Callable c, Args ... args)
@@ -32,7 +41,7 @@ using qx::IxDataMember;
     {
         qx::dao::ptr<T> p = qx::dao::ptr<T>( new T(id) );
 
-        QSqlError err = async_call([&p]{return qx::dao::fetch_by_id(p);});
+        QSqlError err = async_call([&p, this]{return qx::dao::fetch_by_id(p, &database);});
 
         if (err.isValid() && err.number() == 1111 && !ex_on_no_data) {
             return  qx::dao::ptr<T>();
@@ -49,7 +58,7 @@ using qx::IxDataMember;
     {
         qx::dao::ptr<T> p = qx::dao::ptr<T>( new T() );
 
-        QSqlError err = async_call([&p, &q]{return qx::dao::fetch_by_query(q, p);});
+        QSqlError err = async_call([&p, &q, this]{return qx::dao::fetch_by_query(q, p, &database);});
 
         if (err.isValid() && err.number() == 1111 && !ex_on_no_data) {
             return  qx::dao::ptr<T>();
@@ -65,7 +74,7 @@ using qx::IxDataMember;
     template <class T>
     void async_update(qx::dao::ptr<T> p) throw (MysqlException)
     {
-        QSqlError err = async_call([&p]{return qx::dao::update_optimized<T>(p);});
+        QSqlError err = async_call([&p, this]{return qx::dao::update_optimized<T>(p, &database);});
 
         if  (err.isValid()) {
             throw MysqlException(err.databaseText(), err.driverText());
@@ -75,7 +84,7 @@ using qx::IxDataMember;
     template <class T>
     void async_count(long & cnt, const qx_query& q) throw (MysqlException)
     {
-        QSqlError err = async_call( [&cnt, &q]{ return qx::dao::count<T>(cnt, q); });
+        QSqlError err = async_call( [&cnt, &q, this]{ return qx::dao::count<T>(cnt, q, &database); });
 
         if  (err.isValid()) {
             throw MysqlException(err.databaseText() , err.driverText());
@@ -88,7 +97,7 @@ using qx::IxDataMember;
         qx_query q(qs);
         qx::dao::ptr<T> t = qx::dao::ptr<T>(new T);
         //T t;
-        QSqlError err = async_call( [&q, &t]{ return qx::dao::execute_query(q, t); });
+        QSqlError err = async_call( [&q, &t, this]{ return qx::dao::execute_query(q, t, &database); });
 
         if (err.isValid() && err.number() == 1111 && !ex_on_no_data) {
             return  qx::dao::ptr<T>();
@@ -107,7 +116,7 @@ using qx::IxDataMember;
     T async_call_query(const QString& qs) throw (MysqlException)
     {
         qx_query q(qs);
-        QSqlError err = async_call( [&q]{ return qx::dao::call_query( q ) ;});
+        QSqlError err = async_call( [&q, this]{ return qx::dao::call_query( q, &database ) ;});
 
         if  (err.isValid()) {
             throw MysqlException(err.databaseText() , err.driverText());
@@ -119,7 +128,7 @@ using qx::IxDataMember;
 
     inline void async_call_query(const QString& qs) throw (MysqlException)
     {
-        QSqlError err = async_call( [&qs]{ qx_query q(qs); return qx::dao::call_query( q ) ;});
+        QSqlError err = async_call( [&qs, this]{ qx_query q(qs); return qx::dao::call_query( q, &database ) ;});
 
         if  (err.isValid()) {
             throw MysqlException(err.databaseText() , err.driverText());
@@ -149,6 +158,6 @@ using qx::IxDataMember;
         }
         return decltype(f(p...))();
     }
-
+};
 
 #endif // ASYNC_FUNC_H

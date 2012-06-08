@@ -22,7 +22,8 @@ using qx::IxDataMember;
 
 #include <QTextCodec>
 
-ReportsManager::ReportsManager(const QVariantMap &s) : app_settings(s)
+ReportsManager::ReportsManager(const QVariantMap & s, async_func& af, convience_func& cf)
+    : app_settings(s), async_func_(af), convience_func_(cf)
 {
 }
 
@@ -41,16 +42,16 @@ bool ReportsManager::printReport(const qx::dao::ptr<t_ttn>  & ttn, const qx::dao
 
 void ReportsManager::configureReportContext(const qx::dao::ptr<t_ttn>& ttn, const qx::dao::ptr<t_cars>& car, QVariantMap& ctx) const throw (MainSequenceException)
 {
-    qx::dao::ptr<t_field> field = wrap_async_ex(cant_get_field_when_printing, "cant get field when printing",
-                            [&ttn, this]{return async_fetch<t_field>( ttn->real_field ); });
+    qx::dao::ptr<t_field> field = async_func_.wrap_async_ex(cant_get_field_when_printing, "cant get field when printing",
+                            [&ttn, this]{return async_func_.async_fetch<t_field>( ttn->real_field ); });
 
-    qx::dao::ptr<t_kontr> kontr = wrap_async_ex(cant_get_kontr_when_printing, "cant get kontr when printing",
-                            [&ttn, this]{return async_fetch<t_kontr>( kontrCodeFromField( ttn->real_field  ) ); });
+    qx::dao::ptr<t_kontr> kontr = async_func_.wrap_async_ex(cant_get_kontr_when_printing, "cant get kontr when printing",
+                            [&ttn, this]{return async_func_.async_fetch<t_kontr>( kontrCodeFromField( ttn->real_field  ) ); });
 
 
-    qx::dao::ptr<t_const> base_firm         = getConst(get_setting<QString>("base_firm_name"   , app_settings));
-    qx::dao::ptr<t_const> dont_check_time   = getConst(get_setting<QString>("dont_check_time_name", app_settings));
-    qx::dao::ptr<t_const> disp_phone        = getConst(get_setting<QString>("disp_phone_name", app_settings));
+    qx::dao::ptr<t_const> base_firm         = convience_func_.getConst(get_setting<QString>("base_firm_name"   , app_settings));
+    qx::dao::ptr<t_const> dont_check_time   = convience_func_.getConst(get_setting<QString>("dont_check_time_name", app_settings));
+    qx::dao::ptr<t_const> disp_phone        = convience_func_.getConst(get_setting<QString>("disp_phone_name", app_settings));
 
   struct var_instance {
         QString var_name;
