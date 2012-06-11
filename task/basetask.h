@@ -7,7 +7,12 @@
 #include <QObject>
 #include <QVariantMap>
 
-class BaseTask : public QObject
+#include "factory.h"
+#include "tags.h"
+
+
+class BaseTask : public QObject,
+                 public BossnFactory<BaseTask, Tags&, const QVariantMap& >
 {
 public:
     typedef QSharedPointer<BaseTask> Pointer;

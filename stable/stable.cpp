@@ -60,6 +60,8 @@ count_delta_op  count_delta;
 grater_than_op  grater_than;
 smaller_than_op smaller_than;
 
+BossnFactoryRegistrator<StableTask> StableTask::registrator("StableTask");
+
 void StableTask::exec()
 {
     values.enqueue( tags[controlled_tag_name]->func(controlled_tag_func) );

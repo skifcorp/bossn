@@ -3,13 +3,14 @@
 
 
 #include "portersettings.h"
-#include "taskexec.h"
+
 #include "alhosequence.h"
 
 class TaskSettings : public PorterSettings
 {
 public:
-    void initTasks(TaskExec& , Tags& );
+    TaskSettings(const QString& fn):PorterSettings(fn){}
+
     void initAlhos(QVector<AlhoSequence::Pointer>&, Tags&, const QVariantMap& );
 };
 

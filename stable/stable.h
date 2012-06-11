@@ -47,6 +47,12 @@ public:
     virtual void setSettings(const QVariantMap& );
 
     Q_INVOKABLE QVariant isStable(const QString&) const {return is_stable;}
+
+    static BaseTask * create(Tags& t, const QVariantMap& )
+    {
+        return new StableTask(t);
+    }
+
 private:
     Tags& tags;
     bool is_stable;
@@ -58,6 +64,8 @@ private:
     QVariant delta;
     //QString signaled_tag_name;
     //QString signaled_tag_func;
+
+    static BossnFactoryRegistrator<StableTask> registrator;
 };
 
 #endif // STABLE_H

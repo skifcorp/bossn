@@ -1,6 +1,7 @@
 #include "perimeter.h"
 #include "settingstool.h"
 
+BossnFactoryRegistrator<PerimeterTask> PerimeterTask::registrator("PerimeterTask");
 
 PerimeterTask::PerimeterTask(Tags & t):tags(t)
 {

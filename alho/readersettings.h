@@ -12,6 +12,7 @@ struct ReaderTagMethods
     QString do_auth;
     QString write_block;
     QString read_block;
+    QString do_sound;
 };
 
 

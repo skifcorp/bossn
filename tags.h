@@ -89,11 +89,11 @@ public:
 
     T& operator [](const K& k)
     {
-        //qWarning() << "cant find in safemap: " << k;
+        //qWarning() << "find in safemap: " << k;
 
         auto iter = this->find(k);
         if ( iter == this->end() ) {
-            //qWarning() << "cant find in safemap: " << k;
+            qWarning() << "cant find in safemap: " << k;
             //qFatal("Exiting");
         }
         return QMap<K, T>::operator [](k);
@@ -102,7 +102,7 @@ public:
 
     const T operator [](const K& k) const
     {
-        //qWarning() << "cant find in const_safemap: " << k;
+        //qWarning() << "find in const_safemap: " << k;
 
         auto iter = this->find(k);
         if ( iter == this->end() ) {

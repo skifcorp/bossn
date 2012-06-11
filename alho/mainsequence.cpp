@@ -49,6 +49,7 @@ void MainSequence::setSettings(const QVariantMap & s)
     alho_settings.reader.do_auth        = get_setting<QString>("reader_do_auth", s);
     alho_settings.reader.write_block    = get_setting<QString>("reader_write_block", s);
     alho_settings.reader.read_block     = get_setting<QString>("reader_read_block", s);
+    alho_settings.reader.do_sound       = get_setting<QString>("reader_sound", s);
 
     database = QSqlDatabase::addDatabase(get_setting<QString>("database_driver", s));
 
@@ -103,14 +104,6 @@ MainSequence::MainSequence(Tags & t, const QVariantMap& s):tags(t), app_settings
 {
     qx::QxSqlDatabase::getSingleton()->setTraceSqlQuery(false);
     qx::QxSqlDatabase::getSingleton()->setTraceSqlRecord(false);
-
-/*    qx::QxSqlDatabase::getSingleton()->setDriverName(get_setting<QString>("database_driver", app_settings));
-    qx::QxSqlDatabase::getSingleton()->setDatabaseName(get_setting<QString>("database_name", app_settings));
-    qx::QxSqlDatabase::getSingleton()->setHostName(get_setting<QString>("database_host", app_settings));
-    qx::QxSqlDatabase::getSingleton()->setUserName(get_setting<QString>("database_user", app_settings));
-    qx::QxSqlDatabase::getSingleton()->setPassword(get_setting<QString>("database_password", app_settings));
-*/
-
 }
 
 QString MainSequence::detectPlatformType(const QVariantMap & bill) const throw (MainSequenceException)
@@ -141,12 +134,11 @@ void MainSequence::onAppearOnWeight(const QString& )
 {
     qDebug() << "something appeared on weight!!!! id" << seq_id;
     on_weight = true;
-    //qDebug () << "111111111";
+
     printOnTablo(apply_card_message);
-    //qDebug () << "222222222";
+
     setLightsToRed();
 
-    qDebug () << "33333";
 
     //tags["reader1"]->func("doOn");
     tags[ alho_settings.reader.name]->func( alho_settings.reader.do_on );
@@ -193,7 +185,8 @@ void MainSequence::onAppearOnWeight(const QString& )
 
                 card.writeStruct(bill_conf(app_settings), bill);
 
-                printOnTablo( bruttoFinishMessage(bill) );                                           
+                printOnTablo( bruttoFinishMessage(bill) );
+                tags[alho_settings.reader.name]->func(alho_settings.reader.do_sound, Q_ARG(QVariant, get_setting<int>("beep_length", app_settings)));
                 sleepnb( get_setting<int>("brutto_finish_pause", app_settings) );
                 printOnTablo( apply_card_message );
                 continue;
@@ -204,6 +197,8 @@ void MainSequence::onAppearOnWeight(const QString& )
                 tara(bill, car);
                 card.writeStruct(bill_conf(app_settings), bill);
                 printOnTablo( taraFinishMessage() );
+                tags[alho_settings.reader.name]->func(alho_settings.reader.do_sound, Q_ARG(QVariant, get_setting<int>("beep_length", app_settings)));
+
                 sleepnb( get_setting<int>("brutto_finish_pause", app_settings) );
                 printOnTablo( apply_card_message );
                 continue;

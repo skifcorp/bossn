@@ -9,7 +9,7 @@
 class AppSettings
 {
 public:
-    AppSettings(){}
+    AppSettings(const QString& fn):settings_file_name(fn){}
     virtual ~AppSettings(){}
 
 
@@ -23,7 +23,7 @@ protected:
 
     QDomDocument document;
 
-    static const QString settings_file_name;
+   QString settings_file_name;
 };
 
 #endif // INITSETTINGS_H

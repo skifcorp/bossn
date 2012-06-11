@@ -58,7 +58,9 @@ int main(int argc, char *argv[])
 
     printOnDisplay("Hello");
 
-    TaskSettings app_settings;
+    const QString settings_file_name = "settings.xml";
+
+    TaskSettings app_settings(settings_file_name);
 
     QMap<QString, QVariant> options;
     app_settings.initProgOptions(options);
@@ -70,7 +72,7 @@ int main(int argc, char *argv[])
     app_settings.initPorters(porters, tags);
 
     TaskExec task_exec;    
-    app_settings.initTasks(task_exec, tags);
+    app_settings.initTasks(task_exec, tags, options);
 
     QVector<AlhoSequence::Pointer> alhos;
     app_settings.initAlhos(alhos, tags, options);

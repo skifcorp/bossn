@@ -11,7 +11,7 @@
 
 
 
-const QString AppSettings::settings_file_name = "settings.xml";
+
 
 void AppSettings::openDocument()
 {

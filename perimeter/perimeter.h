@@ -21,7 +21,10 @@ public:
     ~PerimeterTask() {}
     virtual void exec();
     virtual void setSettings ( const QVariantMap& );
-
+    static BaseTask * create(Tags& t, const QVariantMap& )
+    {
+        return new PerimeterTask(t);
+    }
 private:
     Tags & tags;
     PerimeterControl::Pointer perim;
@@ -31,6 +34,7 @@ private:
     QString disappeared_tag_name;
     QString disappeared_tag_func;
 
+    static BossnFactoryRegistrator<PerimeterTask> registrator;
 };
 
 #endif
