@@ -54,9 +54,11 @@ bool PerimeterControlByWeight::appeared()
 {
     bool ret = false;
 
-    //qDebug() << "weight_name: " <<weight_name;
+    QVariant val = tags_[weight_name]->func(get_weight_method);
 
-    if ( tags_[weight_name]->func(get_weight_method).toInt() > min_weight && !was_appeared) {
+    if ( !val.isValid() ) return false;
+
+    if ( val.toInt() > min_weight && !was_appeared) {
         was_appeared = true;
         ret = true;
     }
@@ -68,7 +70,11 @@ bool PerimeterControlByWeight::disappeared()
 {
     bool ret = false;
 
-    if ( tags_[weight_name]->func(get_weight_method).toFloat() < min_weight && was_appeared) {
+    QVariant val = tags_[weight_name]->func(get_weight_method);
+
+    if (!val.isValid()) return false;
+
+    if ( val.toInt() < min_weight && was_appeared) {
         was_appeared = false;
         ret = true;
     }

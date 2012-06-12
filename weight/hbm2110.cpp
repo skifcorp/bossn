@@ -49,7 +49,7 @@ int Hbm2110::parseWeightFrameAnswer(const QByteArray& ba, uint & err) const
 {
     if (parseAddress(ba) != address) {
         //throw WeightFrameExceptionBadAddress();
-        err = WeightFrameBadAddress; return -1;
+        err = PorterFrameBadAddress; return -1;
     }
 
     QByteArray ret = ba.left(8);
@@ -59,11 +59,11 @@ int Hbm2110::parseWeightFrameAnswer(const QByteArray& ba, uint & err) const
 
     if (!ok) {
         //throw WeightFrameExceptionCorrupted();
-        err = WeightFrameCorrupted; return -1;
+        err = PorterFrameCorrupted; return -1;
     }
 
     //qDebug () << "getWeight: " << fret;
-
+    err = 0;
     return fret;
 }
 

@@ -50,10 +50,10 @@ float MettlerToledo310::parseWeightFrameAnswer(const QByteArray& ba, uint & err)
     bool ok = false;
     float fret = ret.toFloat(&ok);
     if (!ok)  {
-         err = WeightFrameCorrupted;//throw WeightFrameExceptionCorrupted();
+         err = PorterFrameCorrupted;//throw WeightFrameExceptionCorrupted();
          return NAN;
     }
-
+    err = 0;
     return fret;
 }
 

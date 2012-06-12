@@ -40,10 +40,11 @@ void MifareRequestFrame::print() const
           "  address         = "<<address<<"\n"<<
           "  ident           = "<<ident<<"\n"<<
           "  cmdCode         = "<<cmdCode<<"\n"<<
-          "  params["<<std::hex;
-    for( int i = 0; i< params.size(); ++i ) {
-        cout<<params[i]<<" ";
-    }
+          "  params["<<std::hex<<"\n";
+    //for( int i = 0; i< params.size(); ++i ) {
+    //    cout<<params[i]<<" ";
+    //}
+    printByteArray(params);
     cout << "]\n"<<
             "  crc16           = 0x"<<crc16<<"\n"<<
             "  finishCondition = 0x"<<finishCondition<<std::dec<<"\n"<<
@@ -127,10 +128,11 @@ void MifareResponseFrame::print() const
           "  ident           = "<<ident<<"\n"<<
           "  cmdCode         = "<<cmdCode<<"\n"<<
           "  cmdStatus       = "<<cmdStatus<<"\n"<<
-          "  params["<<std::hex;
-    for( int i = 0; i< params.size(); ++i ) {
-        cout<<params[i]<<" ";
-    }
+          "  params["<<std::hex<<"\n";
+    //for( int i = 0; i< params.size(); ++i ) {
+    //    cout<<params[i]<<" ";
+    //}
+    printByteArray(params);
     cout << "]\n"<<
             "  crc16           = 0x"<<crc16<<"\n"<<
             "  finishCondition = 0x"<<finishCondition<<std::dec<<"\n"<<
@@ -169,37 +171,45 @@ bool MifareResponseFrame::unpackFrame(const QByteArray & frame)
 
 bool MifareResponseFrame::checkResponse(const MifareRequestFrame & req)
 {
+    bool ret = true;
     if (req.startCondition != startCondition) {
-        qWarning() << "Check mifare responce: req.startCondition: "<<req.startCondition<<" != resp.startCondition: "<<startCondition;
-        return false;
+        qWarning() << "Check mifare responce: req.startCondition: "<<req.startCondition<<" != resp.startCondition: "<<startCondition;        
+        ret = false;
     }
 
     if (req.address != address) {
         qWarning() << "Check mifare responce: req.address: "<<req.address<<" != resp.address: "<<address;
-        return false;
+        ret = false;
     }
 
     if (req.ident != ident) {
         qWarning() << "Check mifare responce: req.ident: "<<req.ident<<" != resp.ident: "<<ident;
-        return false;
+        ret = false;
     }
 
     if (req.cmdCode != cmdCode) {
         qWarning() << "Check mifare responce: req.cmdCode: "<<req.cmdCode<<" != resp.address: "<<cmdCode;
-        return false;
+        ret = false;
     }
 
     if (req.finishCondition !=  finishCondition) {
         qWarning() << "Check mifare responce: req.finishCondition: "<<req.finishCondition<<" != resp.finishCondition: "<<finishCondition;
-        return false;
+        ret = false;
     }
 
     if (!checkCrc()) {
         qWarning() << "Check mifare responce: crcCheck failed!";
-        return false;
+        ret = false;
     }
 
-    return true;
+    if (!ret) {
+        qDebug() << "request: ";
+        req.print();
+        qDebug() << "response: ";
+        print();
+    }
+
+    return ret;
 }
 
 QByteArray MifareResponseFrame::unstaffBytes(const QByteArray & arr)

@@ -24,8 +24,8 @@ public:
     typedef QSharedPointer<PorterDriver> Pointer;
     typedef QWeakPointer<IoDeviceWrapper::Pointer::Type> DevPointer;
 
-    enum WeightError {
-        WeightFrameOk = 0, WeightFrameCorrupted, WeightFrameBadConf, WeightFrameBadAddress, WeightFrameNotAnswer
+    enum PorterError {
+        PorterFrameOk = 0, PorterFrameCorrupted, PorterFrameBadConf, PorterFrameBadAddress, PorterFrameNotAnswer
     };
 
     virtual ~PorterDriver(){}

@@ -44,20 +44,21 @@ float MettlerToledo8530::parseWeightFrameAnswer(const QByteArray& ba, uint & err
 
     if (ba[0] != '2' || ba[2] != 'U' || ba[3] != 'B' || ba.right(1) != QByteArray::fromHex("0D")) {
         //throw WeightFrameExceptionCorrupted();
-        err = WeightFrameCorrupted; return NAN;
+        err = PorterFrameCorrupted; return NAN;
     }
 
     if ( static_cast<uchar>(QString( ba[1] ).toUInt()) != address ) {
         //throw WeightFrameExceptionBadAddress();
-        err = WeightFrameBadAddress; return NAN;
+        err = PorterFrameBadAddress; return NAN;
     }
 
     bool ok = false;
     bool fret = ba.mid(4,8).toFloat(&ok);
     if (!ok) {
         //throw WeightFrameExceptionCorrupted();
-        err = WeightFrameCorrupted; return NAN;
+        err = PorterFrameCorrupted; return NAN;
     }
+    err = 0;
     return fret;
 }
 

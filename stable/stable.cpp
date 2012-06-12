@@ -64,7 +64,13 @@ BossnFactoryRegistrator<StableTask> StableTask::registrator("StableTask");
 
 void StableTask::exec()
 {
-    values.enqueue( tags[controlled_tag_name]->func(controlled_tag_func) );
+    QVariant v = tags[controlled_tag_name]->func(controlled_tag_func);
+
+    if ( !v.isValid() ) {
+        is_stable = false; return;
+    }
+
+    values.enqueue( v );
 
     if (values.size() < 2 ) {is_stable = false; return;}
 

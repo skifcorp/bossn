@@ -43,7 +43,7 @@ private:
         if (mode == 1 ) return weightRequestFrameM1();
         else if (mode == 3) return weightRequestFrameM3();
 
-        err = WeightFrameBadConf;
+        err = PorterFrameBadConf;
 
         return QByteArray();
     }
@@ -54,7 +54,7 @@ private:
         else if (mode == 3) return parseWeightFrameAnswerM3(ba, err);
 
         //throw WeightFrameExceptionBadConf();
-        err = WeightFrameBadConf;
+        err = PorterFrameBadConf;
 
         return NAN;
     }

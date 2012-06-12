@@ -27,8 +27,9 @@ float WeightFromFile::parseWeightFrameAnswer(const QByteArray& ba, uint & err) c
     float fret = ba.toFloat(&ok);
     if (!ok) {
         //throw WeightFrameExceptionCorrupted();
-        err = WeightFrameCorrupted; return NAN;
+        err = PorterFrameCorrupted; return NAN;
     }
+    err = 0;
     return fret;
 }
 /*

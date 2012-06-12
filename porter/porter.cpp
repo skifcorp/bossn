@@ -22,9 +22,6 @@ void Porter::addDriver(const QString & n, const QMap<QString, QVariant>& drv_con
     for (QList<TagMethod>::const_iterator iter = tags_methods.begin(); iter != tags_methods.end(); ++iter) {
         methods.insert(iter->tag_name, MethodInfo(iter->method_name, idx));
         if ( scheduled ) {
-
-            //qDebug () << iter->tag_name;
-
             addTagToSchedule( idx, iter->tag_name );
         }
     }
@@ -66,12 +63,11 @@ void Porter::addTagToSchedule(Drivers::size_type driver_index, const QString& ta
                 MethodInfo & mi = methods[tag_name];
 
                 QMetaObject::invokeMethod(drivers[driver_index].data(), mi.method.toAscii().data(),
-                                          //Q_ARG(IoDeviceWrapper::Pointer::Type*, device.data()),
                                           Q_ARG(QVariant&, mi.value), Q_ARG(uint&, mi.error));
             },
             [&device, &drivers, driver_index, &methods, tag_name] {
                 MethodInfo & mi = methods[tag_name];
-                mi.value  = NAN; mi.error = PorterDriver::WeightFrameNotAnswer;
+                mi.value  = 0; mi.error = PorterDriver::PorterFrameNotAnswer;
                 qDebug () << device->deviceName() << " dont answered!";
             }, 500, 1000);
 }
@@ -81,7 +77,7 @@ inline Ret generic_arg_cast(QGenericArgument arg)
 {
     if ( qstrcmp( arg.name(), "QVariant" ) ) {
         qWarning() << "generic_arg_cast Bad argument name!!!" << arg.name();
-        Q_ASSERT(0);
+        qFatal("Exit");
         return Ret();
     }
 
@@ -110,8 +106,7 @@ QVariant Porter::exec(const QString& tag_name,  QGenericArgument func,
 
     MethodInfo mi = methods[tag_name];
 
-    QVariant ret;//(true);
-    //qDebug () << "1: executing for tag_name: " << tag_name;
+    QVariant ret;
 
     scheduler.execFunction(
                 [&drivers, &mi, &ret, &val0, &val1, &val2, &val3, &val4, &val5, &val6, &val7, &func_name]{
@@ -124,11 +119,14 @@ QVariant Porter::exec(const QString& tag_name,  QGenericArgument func,
                     }
 
                 },
-                [&device]{
+                [&device, &mi]{
                     qWarning()<<"device: "<<device->deviceName()<<" not answered!!!!";
+                    mi.error = PorterDriver::PorterFrameNotAnswer;
                 },
                 500);
 
+
+    if (mi.error)   return QVariant();
 
     return ret;
 }
@@ -137,15 +135,15 @@ QVariant Porter::value (const QString& n,  QGenericArgument val0, QGenericArgume
                         QGenericArgument val3, QGenericArgument val4, QGenericArgument val5, QGenericArgument val6,
                         QGenericArgument val7, QGenericArgument val8 )
 {
+    MethodInfo mi = methods[n];
+
     if (scheduled) {
+        if ( mi.error )  return QVariant();
+
         return methods[n].value;
     }
 
-    MethodInfo mi = methods[n];
-
-    QVariant ret;//(true);
-
-    //qDebug () << "2: executing for tag_name: " << n;
+    QVariant ret;
 
     scheduler.execFunction(
                 [&drivers, &mi, &ret, &val0, &val1, &val2, &val3, &val4, &val5, &val6, &val7, &val8]{
@@ -160,25 +158,14 @@ QVariant Porter::value (const QString& n,  QGenericArgument val0, QGenericArgume
                 },
                 [&device, &mi]{
                     qWarning()<<"device: "<<device->deviceName()<<" not answered!!!!";
+                    mi.error = PorterDriver::PorterFrameNotAnswer;
                 },
                 500);
 
 
+    if (mi.error)  return QVariant();
+
     return ret;
 }
 
-
-/*float Weighter::weight(QList<DriverContext>::size_type idx) const
-{
-    if (scheduled)
-        return drivers[idx].value;
-
-    float ret = 0.0f;
-    uint error=0;
-
-    drivers[idx].driver->readWeight(weight_device.data(), ret, error);
-    if (error) return NAN;
-
-    return ret;
-}*/
 

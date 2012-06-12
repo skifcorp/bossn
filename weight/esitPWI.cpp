@@ -54,7 +54,7 @@ float EsitPWI::parseWeightFrameAnswerM1(const QByteArray& ba, uint & err) const
         if (ba[i] == 0x2B || ba[i] == 0x2D) {
             if (i+7 >= frame_size || ba[7] != 0x0D)  {
                 //throw WeightFrameExceptionCorrupted();
-                err = WeightFrameCorrupted; return NAN;
+                err = PorterFrameCorrupted; return NAN;
             }
             *iter = ba[i];
             for (int j = 1; j<7; ++j) {
@@ -67,7 +67,7 @@ float EsitPWI::parseWeightFrameAnswerM1(const QByteArray& ba, uint & err) const
                 }
                 else if ( ba[i+j]!=0x20) {
                     //throw WeightFrameExceptionCorrupted();
-                    err =  WeightFrameCorrupted; return NAN;
+                    err =  PorterFrameCorrupted; return NAN;
                 }
             }
             break;
@@ -77,7 +77,7 @@ float EsitPWI::parseWeightFrameAnswerM1(const QByteArray& ba, uint & err) const
     bool ok = false; auto fret = ret.toFloat(&ok);
     if (!ok) {
         //throw WeightFrameExceptionCorrupted();
-        err = WeightFrameCorrupted; return NAN;
+        err = PorterFrameCorrupted; return NAN;
     }
     return fret;
 }
@@ -87,7 +87,7 @@ float EsitPWI::parseWeightFrameAnswerM3(const QByteArray& ba, uint & err) const
     //if (ba.size() < 8) throw WeightFrameExceptionTooSmall();
 
     if (ba[0] != 0x2B || ba[0] != 0x2D || ba[ba.size() - 1] != 0x0D){
-        err = WeightFrameCorrupted; return NAN;
+        err = PorterFrameCorrupted; return NAN;
     }
 
     QByteArray ret(9,0);
@@ -110,7 +110,7 @@ float EsitPWI::parseWeightFrameAnswerM3(const QByteArray& ba, uint & err) const
     bool ok = false; auto fret = ret.toFloat(&ok);
     if (!ok) {
         //throw WeightFrameExceptionCorrupted();
-        err = WeightFrameCorrupted; return NAN;
+        err = PorterFrameCorrupted; return NAN;
     }
     return fret;
 }

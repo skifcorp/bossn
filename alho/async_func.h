@@ -122,7 +122,8 @@ struct async_func
             throw MysqlException(err.databaseText() , err.driverText());
         }
 
-        QVariant v = q.boundValue(0);
+
+        QVariant v = q.getSqlResultAt(0, 0);//q.boundValue(0);
         return v.value<T>();
     }
 

@@ -42,5 +42,7 @@ const QString cant_get_const_message                 = QT_TRANSLATE_NOOP("MainSe
 const QString error_getting_mid_tara_message         = QT_TRANSLATE_NOOP("MainSequence", "Error getting mid tara!");
 const QString error_writing_rup_tara_message         = QT_TRANSLATE_NOOP("MainSequence", "Error writing rup tara!");
 const QString perimeter_control_failed               = QT_TRANSLATE_NOOP("MainSequence", "Perimeter control failed!");
+const QString stealed_card_message                   = QT_TRANSLATE_NOOP("MainSequence", "You used stealed card!");
+const QString weights_dont_work                      = QT_TRANSLATE_NOOP("MainSequence", "Weights dont work!!");
 
 #endif // WARNMESSAGES_H

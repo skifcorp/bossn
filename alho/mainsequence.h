@@ -18,6 +18,7 @@
 #include "tagmethod.h"
 #include "readersettings.h"
 #include "conviencefuncs.h"
+#include "mifarereader.h"
 
 class MifareCard;
 
@@ -68,7 +69,7 @@ private:
 
 
     void printOnTablo(const QString& ) const;
-    int getWeight() const;
+    int getWeight() const throw (MainSequenceException);
 
 
     void brutto(QVariantMap&, qx::dao::ptr<t_cars>, const MifareCard& ) const throw (MainSequenceException);
@@ -114,6 +115,7 @@ private:
     void setLightsToGreen();
 
     void processPerimeter() const throw (MainSequenceException);
+    void checkForStealedCard(const ActivateCardISO14443A&, const ActivateCardISO14443A& ) const throw (MainSequenceException);
 
     template <class T>
     void setMemberValue(const QString& mn, const T& v, QVariantMap& map) const

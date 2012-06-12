@@ -16,9 +16,6 @@ MifareCard::MifareCard(Tag::WeakPointer r, const ActivateCardISO14443A& ac,
 
 void MifareCard::autorize(const QByteArray & key, int block) throw (MifareCardException, MifareCardAuthException)
 {
-    //HostCodedKey coded_key =  reader->getHostCodedKey(key);
-    //qDebug () << "debugging autorize...";
-    //printByteArray(key);
     QVariant key_var(key);
 
     HostCodedKey coded_key =  reader.data()->func(reader_settings.host_coded_key,

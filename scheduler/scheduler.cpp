@@ -48,7 +48,7 @@ void Scheduler::addFunction(function<void ()>schf, function<void ()> tmf, int sc
 
 void Scheduler::execFunction(function<void ()>schf, function<void ()> tmf, int tm_msec)
 {
-   // qDebug () << "exec function!";
+    //qDebug () << "exec function!";
 
     waitForFree();
     Schedul s(schf, tmf, 0, tm_msec);
@@ -62,7 +62,7 @@ void Scheduler::execFunction(function<void ()>schf, function<void ()> tmf, int t
 
 void Scheduler::onTimeoutTimer()
 {    
-    qDebug() << "onTimeout timer!";
+    qDebug() << "onTimeout timer! "<<device.data()->deviceName();
 
     current_coro.schedul->timeout_func();
     device.data()->clear();
@@ -74,6 +74,8 @@ void Scheduler::onTimeoutTimer()
 void Scheduler::startNewCoro(Schedul & s)
 {
     current_coro = CoroContext(QSharedPointer<Coroutine>(  Coroutine::build( s.schedule_func ) ), &s);
+
+    //qDebug() << "start coro: " << device.data()->deviceName();
 
     execute();
 }
@@ -100,8 +102,9 @@ void Scheduler::execute()
     //qDebug() << "execute started! {";
 
     if (!current_coro.schedul) {
-        qWarning() << "\n\n\nsomething terrible! GOT EVENT ON PORT WHILE NOTHING WRITED!!\n\n\n"<<device.data()->deviceName();
-        //device.data()->clear();
+        qWarning() << "\n\n\nsomething terrible! GOT EVENT ON PORT WHILE NOTHING WRITED!! "<<device.data()->deviceName()<<"bytes num:"
+                   << device.data()->bytesAvailable() << "\n\n\n";
+        device.data()->clear();
         return;
     }
 

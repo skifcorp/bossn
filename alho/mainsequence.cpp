@@ -63,7 +63,7 @@ void MainSequence::setSettings(const QVariantMap & s)
     async_func_ptr     = async_func_ptr_t( new  async_func(database) );
     convience_func_ptr = convience_func_ptr_t( new convience_func (*async_func_ptr) );
 
-    qx::QxSqlDatabase::getSingleton()->setDriverName(get_setting<QString>("database_driver", s)); //ugly hack for reflection
+    //qx::QxSqlDatabase::getSingleton()->setDriverName(get_setting<QString>("database_driver", s)); //ugly hack for reflection
 
     printOnTablo(greeting_message);
     setLightsToGreen();
@@ -93,10 +93,13 @@ void MainSequence::printOnTablo(const QString & s) const
     tags[alho_settings.tablo_tag.tag_name]->func(alho_settings.tablo_tag.method_name, Q_ARG(const QVariant&, QVariant(s)));
 }
 
-int MainSequence::getWeight() const
+int MainSequence::getWeight() const throw (MainSequenceException)
 {
     //return tags["weight1_1"]->func("readMethod").toInt();
-    return tags[alho_settings.weight_tag.tag_name]->func( alho_settings.weight_tag.method_name ).toInt();
+    QVariant v = tags[alho_settings.weight_tag.tag_name]->func( alho_settings.weight_tag.method_name );
+    if (!v.isValid()) throw MainSequenceException(weights_dont_work, "weights dont work!");
+
+    return v.toInt();
 }
 
 
@@ -130,6 +133,15 @@ QString MainSequence::detectPlatformType(const QVariantMap & bill) const throw (
     throw MainSequenceException(autodetect_platform_type_error_message ,"something terrible happens!!! cant detect platform type. Maybe bill corrupted :(" );
 }
 
+void MainSequence::checkForStealedCard(const ActivateCardISO14443A& prev_card, const ActivateCardISO14443A& card) const throw (MainSequenceException)
+{
+    if ( prev_card.uid.isEmpty() ) return;
+
+    if ( prev_card.uid == card.uid ) return;
+
+    throw MainSequenceException(stealed_card_message, "You used stealed card!");
+}
+
 void MainSequence::onAppearOnWeight(const QString& )
 {
     qDebug() << "something appeared on weight!!!! id" << seq_id;
@@ -146,6 +158,8 @@ void MainSequence::onAppearOnWeight(const QString& )
     QByteArray card_code = get_setting<QByteArray>("card_code" , app_settings);
     uint data_block      = get_setting<uint>      ("data_block", app_settings);
 
+    ActivateCardISO14443A cur_act;
+
     while(on_weight) {
         ActivateCardISO14443A act = tags[alho_settings.reader.name]->func(alho_settings.reader.activate_idle).value<ActivateCardISO14443A>();
         MifareCard card(tags[alho_settings.reader.name], act, alho_settings.reader);
@@ -158,6 +172,10 @@ void MainSequence::onAppearOnWeight(const QString& )
         qDebug()<< "card active!";
 
         try {
+
+            checkForStealedCard(cur_act, act); cur_act = act;
+
+
             card.autorize(card_code, data_block);
 
             processPerimeter();
@@ -459,6 +477,8 @@ void MainSequence::updateTaraValues(QVariantMap& bill, qx::dao::ptr<t_ttn> ttn, 
     ttn->tara_platforma  = 99;
     ttn->field_from_car  = car->num_field;
 
+    qDebug () << "real_rup_tara: " << ttn->real_rup_tara;
+
     async_func_ptr->wrap_async_ex( update_ttn_error_message, "Error updating ttn tara", [&ttn, this]{ async_func_ptr->async_update(ttn); });
 }
 
@@ -662,7 +682,7 @@ bool MainSequence::isPureTaraWeight(const QVariantMap &bill) const throw(MainSeq
 
 void MainSequence::onDisappearOnWeight(const QString& )
 {
-    qDebug() << "something disappeared on weight!!!!";
+    qDebug() << "something disappeared on weight!!!! begin{ ";
 
     on_weight = false;
 
@@ -670,6 +690,8 @@ void MainSequence::onDisappearOnWeight(const QString& )
 
     printOnTablo(greeting_message);
     setLightsToGreen();   
+
+    qDebug() << "} end ";
 }
 
 void MainSequence::checkBum( QVariantMap& bill )const throw(MainSequenceException)
@@ -840,6 +862,13 @@ void MainSequence::processTaraRupture(qx::dao::ptr<t_ttn> ttn, qx::dao::ptr<t_ca
     }
 
 
+/*    qDebug( ) << "before tara!!!: " << "select avg(tara) from (select tara from t_ttn where tara!=0 and num_nakl!=" <<
+                 QString::number(ttn->num_nakl)<<
+                 " and car="+QString::number(car->id) <<
+                 " order by -dt_of_tara limit "+count+") as temp_table;"; */
+
+
+
 
     int mid_tara = async_func_ptr->wrap_async_ex( error_getting_mid_tara_message, "error getting mid tara",
                                 [this, &ttn, &car, &count]{  return async_func_ptr->async_call_query<int>(
@@ -847,6 +876,9 @@ void MainSequence::processTaraRupture(qx::dao::ptr<t_ttn> ttn, qx::dao::ptr<t_ca
                                     QString::number(ttn->num_nakl)+
                                     " and car="+QString::number(car->id)+
                                     " order by -dt_of_tara limit "+count+") as temp_table;");});
+    //qDebug( ) << "after tara!!!";
+
+    qDebug () << "mid_tara: "<<mid_tara;
 
     ttn->rup_tara           = mid_tara * percent.toUInt() / 100;
     ttn->real_rup_tara      = qAbs(ttn->tara - mid_tara);
