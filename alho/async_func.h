@@ -82,6 +82,16 @@ struct async_func
     }
 
     template <class T>
+    void async_insert(qx::dao::ptr<T> p) throw (MysqlException)
+    {
+        QSqlError err = async_call([&p, this]{return qx::dao::insert(p, &database);});
+
+        if  (err.isValid()) {
+            throw MysqlException(err.databaseText(), err.driverText());
+        }
+    }
+
+    template <class T>
     void async_count(long & cnt, const qx_query& q) throw (MysqlException)
     {
         QSqlError err = async_call( [&cnt, &q, this]{ return qx::dao::count<T>(cnt, q, &database); });
