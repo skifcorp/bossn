@@ -58,7 +58,7 @@ void MainSequence::setSettings(const QVariantMap & s)
     database.setUserName(get_setting<QString>("database_user", s));
     database.setPassword(get_setting<QString>("database_password", s));
 
-    seq_id             = get_setting<QString>("id", s);
+    seq_id             = get_setting<int>("id", s);
 
     async_func_ptr     = async_func_ptr_t( new  async_func(database) );
     convience_func_ptr = convience_func_ptr_t( new convience_func (*async_func_ptr) );
@@ -101,7 +101,7 @@ int MainSequence::getWeight() const throw (MainSequenceException)
 }
 
 
-MainSequence::MainSequence(Tags & t, const QVariantMap& s):tags(t), app_settings(s), on_weight(false)
+MainSequence::MainSequence(Tags & t, const QVariantMap& s):tags(t), app_settings(s), on_weight(false), seq_id(0)
 {
     qx::QxSqlDatabase::getSingleton()->setTraceSqlQuery(false);
     qx::QxSqlDatabase::getSingleton()->setTraceSqlRecord(false);
@@ -446,7 +446,7 @@ void MainSequence::updateBruttoValues(QVariantMap& bill, qx::dao::ptr<t_ttn> ttn
     ttn->num_kart         = byteArrayToString (card.uid());
     ttn->copy             = 0;
     ttn->time_of_brutto   = ttn->dt_of_brutto.time().toString("hh:mm:ss");
-    ttn->brutto_platforma = 88;
+    ttn->brutto_platforma = seq_id;
 
 
     async_func_ptr->wrap_async_ex( update_ttn_error_message, "Error updating ttn brutto", [&ttn, this]{ async_func_ptr->async_update(ttn); });
@@ -465,7 +465,7 @@ void MainSequence::updateTaraValues(QVariantMap& bill, qx::dao::ptr<t_ttn> ttn, 
 
     ttn->copy          = 0;
     ttn->time_of_tara  = ttn->dt_of_tara.time().toString("hh:mm:ss");
-    ttn->tara_platforma  = 99;
+    ttn->tara_platforma  = seq_id;
     ttn->field_from_car  = car->num_field;
 
     qDebug () << "real_rup_tara: " << ttn->real_rup_tara;
@@ -793,7 +793,7 @@ void MainSequence::processTaraRupture(qx::dao::ptr<t_ttn> ttn, qx::dao::ptr<t_ca
 
 
     ttn->rup_tara           = mid_tara * percent.toUInt() / 100;
-    ttn->real_rup_tara      = qAbs(mid_tara - ttn->tara);
+    ttn->real_rup_tara      = qAbs(mid_tara - static_cast<int>(ttn->tara));
 
     qDebug () << "mid_tara: "<<mid_tara;
 }

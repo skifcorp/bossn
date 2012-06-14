@@ -57,7 +57,7 @@ private:
 
     bool on_weight;
     QSqlDatabase database;
-    QString seq_id;
+    int seq_id;
 
     typedef QSharedPointer<async_func>     async_func_ptr_t;
     typedef QSharedPointer<convience_func> convience_func_ptr_t;
