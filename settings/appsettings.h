@@ -6,6 +6,7 @@
 #include <QDomDocument>
 #include <QList>
 
+
 class AppSettings
 {
 public:
@@ -15,15 +16,23 @@ public:
 
     void initProgOptions(QVariantMap & opts);
 
+
 protected:
     void openDocument();
+
+    inline QString simpleValueFromPropertyNode(const QDomNode& value_node) const
+    {
+        return value_node.firstChild().nodeValue();
+    }
+    void fillVariantMap(QVariantMap& , const QDomNode& ) const;
+
     QDomElement findSettingsElement ( const QString& ) const;
-    QVariant convertToType( const QString&, const QString&) const;
+    QVariant convertToType( const QDomNode& value_node) const; //const QString&, const QString&) const;
     QVariantMap getDynamicSettings( const QDomNode& ) const;
 
     QDomDocument document;
 
-   QString settings_file_name;
+    QString settings_file_name;
 };
 
 #endif // INITSETTINGS_H

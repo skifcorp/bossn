@@ -13,6 +13,8 @@ void PorterSettings::initTasks(TaskExec & tasks, Tags& tags, const QVariantMap& 
     QDomElement task_element = el.firstChild().toElement();
 
     while ( !task_element.isNull() ) {
+        //qDebug() << "GOT TASk!!!!!!!!!!1" << task_element.attribute("name");
+
         BaseTask::Pointer task = BaseTask::create(task_element.attribute("name"), tags, as);
 #if 0
         if ( task_element.attribute("name") == "PerimeterTask" ) {
@@ -34,18 +36,19 @@ void PorterSettings::initTasks(TaskExec & tasks, Tags& tags, const QVariantMap& 
     }
 }
 
-QVariant PorterSettings::convertToType(const QString & type_name, const QString & value, Tags * tags) const
+QVariant PorterSettings::convertToType(const QDomNode& value_node, Tags * tags) const
 {
+    const QString type_name = value_node.nodeName();
 
     if ( type_name == "TagPlaceholder" ) {
-        return  QVariant::fromValue<TagPlaceholder>(TagPlaceholder(value.toInt()));
+        return QVariant::fromValue<TagPlaceholder>(TagPlaceholder(simpleValueFromPropertyNode(value_node).toInt()));
     }
     else if ( type_name == "Tag" ) {
-        QStringList l = value.split("::");
+        QStringList l = simpleValueFromPropertyNode(value_node).split("::");
         return QVariant::fromValue<TagBindable>(TagBindable( *tags->find(l[0]), l[1] ));
     }
 
-    return AppSettings::convertToType(type_name, value);
+    return AppSettings::convertToType(value_node);
 }
 
 
@@ -117,7 +120,8 @@ void PorterSettings::bindTags(const QDomNode & driver_node, Tags & tags, QObject
                 QDomElement arg_element = func_element.firstChild().toElement();
                 while (!arg_element.isNull()) {
                     tags[maybe_tag_element.attribute("name")]->appendArgument(func_element.attribute("name"),
-                                                                    convertToType(arg_element.attribute("type"), arg_element.attribute("value"), &tags));
+                                                                    //convertToType(arg_element.attribute("type"), arg_element.attribute("value"), &tags));
+                                                                      convertToType(arg_element.firstChild(), &tags));
                     arg_element = arg_element.nextSibling().toElement();
                 }
                 func_element = func_element.nextSibling().toElement();

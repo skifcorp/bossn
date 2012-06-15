@@ -50,8 +50,37 @@ QDomElement AppSettings::findSettingsElement(const QString & n) const
     return el;
 }
 
-QVariant AppSettings::convertToType(const QString & type_name, const QString & value) const
+QVariant AppSettings::convertToType(const QDomNode &value_node) const
 {
+    const QString type_name = value_node.nodeName();
+
+    if ( type_name == "QVariantList"  ) {
+        //qDebug() << "LIST!!!!!!!!!!!!!!\n";
+
+        QVariantList list;
+
+        QDomNode list_node = value_node.firstChild();
+        while(!list_node.isNull()) {
+            list.push_back( convertToType(list_node) );
+
+            list_node = list_node.nextSibling();
+        }
+        return list;
+    }
+    else if ( type_name == "QVariantMap") {
+
+        //qDebug() << "MAP!!!!!!!!!!!!!!!!\n";
+
+        QVariantMap map;
+        //QDomNode map_node = value_node.firstChild();
+        fillVariantMap(map, value_node);
+
+        return map;
+    }
+
+
+    const QString value = simpleValueFromPropertyNode(value_node);//par_node.firstChild().nodeValue();
+
     if ( type_name == "QByteArray" ) {
         QByteArray arr;
         for (int i = 0; i<value.count(); i+=2) {
@@ -60,6 +89,7 @@ QVariant AppSettings::convertToType(const QString & type_name, const QString & v
         }
         return QVariant(arr);
     }
+
 
     QVariant v (value);
 
@@ -71,33 +101,37 @@ QVariant AppSettings::convertToType(const QString & type_name, const QString & v
     return v;
 }
 
-void AppSettings::initProgOptions(QVariantMap & opts)
+void AppSettings::fillVariantMap(QVariantMap & map, const QDomNode & node) const
 {
-    openDocument();
-    QDomElement el = findSettingsElement("app");
-
-    QDomNode prop_node = el.firstChild();
+/*    QDomNode prop_node = node.firstChild();
     while (!prop_node.isNull()) {
         QDomElement prop_elem = prop_node.toElement();
 
-        opts[ prop_elem.attribute("name") ] = convertToType( prop_elem.attribute("type"), prop_elem.attribute("value") ) ;
+        map[ prop_elem.attribute("name") ] = convertToType( prop_elem.firstChild() ) ;
 
         prop_node = prop_node.nextSibling();
-    }
+    }*/
+    map = getDynamicSettings(node);
+}
+
+void AppSettings::initProgOptions(QVariantMap & opts)
+{
+    openDocument();
+
+
+    fillVariantMap( opts, findSettingsElement("app") );
 }
 
 
 QVariantMap AppSettings::getDynamicSettings( const QDomNode& par_node) const
 {
-    //qDebug () << "node_name: " << par_node.nodeName();
     QDomNode n = par_node.firstChild();
     QVariantMap ret;
     while ( !n.isNull() ) {
         if (n.nodeName() == "property") {
             QDomElement el = n.toElement();
-            //qDebug () << "   property_name" << el.attribute("name");
 
-            ret[el.attribute("name")] = convertToType( el.attribute("type"),  el.attribute("value") );
+            ret[el.attribute("name")] = convertToType( n.firstChild() );
         }
         n = n.nextSibling();
     }
