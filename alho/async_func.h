@@ -5,10 +5,10 @@
 
 #include <QtConcurrentRun>
 
-#include <QxRegister/QxClassX.h>
-#include <QxRegister/IxClass.h>
-#include <QxDataMember/IxDataMemberX.h>
-#include <QxDataMember/IxDataMember.h>
+//#include <QxRegister/QxClassX.h>
+//#include <QxRegister/IxClass.h>
+//#include <QxDataMember/IxDataMemberX.h>
+//#include <QxDataMember/IxDataMember.h>
 #include <QxOrm.h>
 
 #include "bossnexception.h"
@@ -82,9 +82,9 @@ struct async_func
     }
 
     template <class T>
-    void async_insert(qx::dao::ptr<T> p) throw (MysqlException)
+    void async_insert(T& t) throw (MysqlException)
     {
-        QSqlError err = async_call([&p, this]{return qx::dao::insert(p, &database);});
+        QSqlError err = async_call([&t, this]{return qx::dao::insert(t, &database);});
 
         if  (err.isValid()) {
             throw MysqlException(err.databaseText(), err.driverText());
@@ -145,6 +145,29 @@ struct async_func
             throw MysqlException(err.databaseText() , err.driverText());
         }
     }
+
+    template <class T>
+    inline QSqlError async_create_table(const QString& table_name = QString()) throw (MysqlException)
+    {
+        QSqlError err = async_call([&table_name, this]{ return qx::dao::create_table<T>(&database, table_name); } );
+        if  (err.isValid()) {
+            throw MysqlException(err.databaseText() , err.driverText());
+        }
+        return err;
+    }
+
+    template <class T>
+    inline QSqlError async_delete_all(const QString& table_name = QString()) throw (MysqlException)
+    {
+        Q_UNUSED(table_name);
+
+        QSqlError err = async_call([&table_name, this]{ return qx::dao::delete_all<T>(&database); } );
+        if  (err.isValid()) {
+            throw MysqlException(err.databaseText() , err.driverText());
+        }
+        return err;
+    }
+
 
     template <class Func, class ... Params>
     auto wrap_async_ex (const QString& user_msg, const QString& admin_msg,
