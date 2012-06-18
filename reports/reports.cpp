@@ -48,7 +48,7 @@ bool Reports::print(const QVariantMap & m)
 
     }
 
-    report->show();
+    //report->show();
     //QPrinter printer;
 
     //report->render(&printer);

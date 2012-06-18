@@ -33,13 +33,6 @@ inline void printByteArray(const QByteArray& ba)
     cout << "\n"<<std::dec;
 }
 
-inline void sleepnb(int msec)
-{
-    QTime tm;
-    tm.start();
-
-    while (tm.elapsed() < msec) qApp->processEvents();
-}
 
 inline QString byteArrayToString(const QByteArray& ba)
 {

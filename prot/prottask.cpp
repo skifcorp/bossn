@@ -125,7 +125,7 @@ void ProtTask::initConfigForProtViewer(const QVariantMap& s)
 
 void ProtTask::exec()
 {
-    qDebug() << "exec!!!";
+    //qDebug() << "exec!!!";
 
     TagsValues::Iterator iter = tags_values.begin();
     for (const TagProtConf & tpc : tag_prot_confs) {

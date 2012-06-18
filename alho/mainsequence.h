@@ -8,6 +8,7 @@
 #include <QBitArray>
 #include <QtConcurrentRun>
 #include <QSqlDatabase>
+#include <QTimer>
 
 #include "tags.h"
 #include "alhosequence.h"
@@ -19,6 +20,7 @@
 #include "readersettings.h"
 #include "conviencefuncs.h"
 #include "mifarereader.h"
+#include "coroutine.h"
 
 class MifareCard;
 
@@ -37,8 +39,14 @@ struct MainSequenceSettings
     ReaderTagMethods reader;
 };
 
-class MainSequence : public AlhoSequence
+
+
+
+
+class MainSequence : public AlhoSequence, public Coroutine
 {
+//    friend class SeqDebug;
+
     Q_OBJECT
 public:
     MainSequence(Tags & t, const QVariantMap& );
@@ -50,14 +58,37 @@ public:
     Q_INVOKABLE void onDisappearOnWeight(const QString&);
 
     virtual void setSettings(const QVariantMap &);
-private:
+public slots:
+    void wakeUp();
+private:    
+    class SeqDebug : public QDebug
+    {
+    public:
+        SeqDebug(const MainSequence& s) : QDebug(QtDebugMsg), seq(s) {}
+        ~SeqDebug()
+        {
+            operator <<("platform: ").operator << (seq.seq_id).operator <<(" ");
+        }
+    private:
+        const MainSequence & seq;
+    };
+
+
     Tags & tags;    
     const QVariantMap & app_settings;
+
+
     MainSequenceSettings  alho_settings;
 
     bool on_weight;
     QSqlDatabase database;
     int seq_id;
+    QTimer wake_timer;
+
+    SeqDebug seqDebug() const
+    {
+        return SeqDebug(*this);
+    }
 
     typedef QSharedPointer<async_func>     async_func_ptr_t;
     typedef QSharedPointer<convience_func> convience_func_ptr_t;
@@ -168,7 +199,18 @@ private:
 
 
 
-    void sleepnbtm() const
+    inline void sleepnb(int msec)
+    {
+        //QTime tm;
+        //tm.start();
+        //qApp->sendPostedEvents();
+        //while (tm.elapsed() < msec) qApp->processEvents();
+        wake_timer.setInterval(msec);
+        wake_timer.start();
+        yield();
+    }
+
+    void sleepnbtm()
     {
         static uint tm = get_setting<uint>("sleepnb_timeout", app_settings, 100);
         sleepnb(tm);
@@ -182,8 +224,10 @@ private:
         printOnTablo(msg2);
     }
 
-
-
+    virtual void run();
 };
+
+
+
 
 #endif // MAINSEQUENCE_H
