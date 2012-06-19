@@ -59,8 +59,10 @@ void MainSequence::setSettings(const QVariantMap & s)
     database.setDatabaseName(get_setting<QString>("database_name", s));
     database.setUserName(get_setting<QString>("database_user", s));
     database.setPassword(get_setting<QString>("database_password", s));
+    database.setConnectOptions( get_setting<QString>("connection_options", s, QString() ));
 
 
+    //qDebug() << "isOpen: " << database.isOpen();
 
     async_func_ptr     = async_func_ptr_t( new  async_func(database) );
     convience_func_ptr = convience_func_ptr_t( new convience_func (*async_func_ptr) );
@@ -153,9 +155,13 @@ void MainSequence::wakeUp()
 
 void MainSequence::onAppearOnWeight(const QString& )
 {
-    restart();
+    qDebug ( ) << "status: " << status();
 
-    wakeUp();
+    if ( status() == NotStarted || status() == Terminated ) {
+        restart();
+
+        wakeUp();
+    }
 }
 
 void MainSequence::run()
@@ -188,6 +194,10 @@ void MainSequence::run()
         seqDebug()<< "card active! platform: " + QString::number(seq_id);
 
         try {
+            if ( !database.isOpen() ) {
+                if ( !async_func_ptr->async_call( [this]{return database.open();}) )
+                    throw MainSequenceException(error_database_lost, "Error database lost!!!");
+            }
 
             checkForStealedCard(cur_act, act); cur_act = act;
 
@@ -245,23 +255,28 @@ void MainSequence::run()
             }
         }
         catch (MifareCardAuthException& ex) {
-            qWarning() << "auth_exeption! "<<ex.message();
+            seqWarning() << "auth_exeption! "<<ex.message();
             sleepnbtmerr(card_autorize_error_message, apply_card_message);
             continue;
         }
         catch (MifareCardException& ex) {
-            qWarning() << "card_exception! "<<ex.message();
+            seqWarning() << "card_exception! "<<ex.message();
             sleepnbtmerr(ex.message(), apply_card_message);
             continue;
         }
         catch (MainSequenceException& ex) {
-            qWarning()<<"sequence_exception: " << ex.adminMessage();
+            //if ( database.isOpenError() ) {
+            //    seqDebug() << "---------->>> OPEN ERROR!!!! isOpen: " << database.isOpen();
+            //}
+
+            seqWarning()<<"sequence_exception: " << ex.adminMessage();
 
             sleepnbtmerr(ex.userMessage(), apply_card_message);
             continue;
         }
     }
 
+    seqDebug () << "\n\nexit from onAppearOnWeight!!!!!!!";
 }
 
 void MainSequence::repairBeetFieldCorrectnessIfNeeded(QVariantMap & bill, qx::dao::ptr<t_ttn> ttn) const throw()
@@ -292,7 +307,7 @@ uint MainSequence::countCarsFromFieldForDayExcludeCurrent(uint ttn_num, uint fie
         return count;
     }
     catch (MysqlException& ex) {
-        qWarning() << "cant get count of ttns for chemical analysis!!! field: "<<field_num;
+        seqWarning() << "cant get count of ttns for chemical analysis!!! field: "<<field_num;
     }
 
     return 0;
@@ -318,7 +333,7 @@ uint MainSequence::getAnalisysPeriodFromStorage(uint typ) const throw(MysqlExcep
                                 [this]{return async_func_ptr->async_fetch<t_const>(get_setting<QString>("farmer_check_period_name", app_settings)); });
     }
     else {
-        //qWarning()<< "error for kontragent type when doint chemical analysis";
+        ;
         throw MainSequenceException("error for kontragent type when doint chemical analysis", QString());
     }
 
@@ -344,12 +359,12 @@ bool MainSequence::checkForNeedDatabaseConstAnalisys(long count, long kontrag) c
         uint carInPeriod = kontr->car_in_period;
         if (carInPeriod == 0 ) {
             carInPeriod = 1;
-            qWarning() << "error for getting carInPeriod. Kontragent dont have corrent chemical analisys params";
+            seqWarning() << "error for getting carInPeriod. Kontragent dont have corrent chemical analisys params";
         }
 
         if ( period == 0 )  {
             period = 1;
-            qWarning() << "error for getting period. Kontragent dont have corrent chemical analisys params";
+            seqWarning() << "error for getting period. Kontragent dont have corrent chemical analisys params";
         }
 
         uint num_in_group = (count + 1)%period;
@@ -574,7 +589,7 @@ void MainSequence::tara(QVariantMap & bill, qx::dao::ptr<t_cars> car) const thro
     qx::dao::ptr<t_ttn> ttn;
 
     if ( !isPureTaraWeight(bill) ) {
-        qWarning()<< "tara reweiting!";
+        seqWarning()<< "tara reweiting!";
 
         ttn = ttnByDriver( carCodeFromDriver( memberValue<uint>("driver", bill) ) );
 
@@ -653,7 +668,7 @@ qx::dao::ptr<t_ttn> MainSequence::ttnByDriver( int drv )const throw (MainSequenc
                                 qx_query().where("driver").isEqualTo(drv).and_("brutto").isNotEqualTo(0).and_("tara").isEqualTo(0)); });
 
     if ( ret ) {
-        qWarning() << "Corrupted data on card!. Maybe dispatcher made task before tara finished!";
+        seqWarning() << "Corrupted data on card!. Maybe dispatcher made task before tara finished!";
         return ret;
     }
 
@@ -681,10 +696,16 @@ void MainSequence::onDisappearOnWeight(const QString& )
 
     tags[alho_settings.reader.name]->func( alho_settings.reader.do_off );
 
+
+
+    async_func_ptr->terminate();
+    if ( wake_timer.isActive() ) {
+        wake_timer.stop();
+        wakeUp();
+    }
+
     printOnTablo(greeting_message);
-    setLightsToGreen();   
-
-
+    setLightsToGreen();
 }
 
 void MainSequence::checkBum( QVariantMap& bill )const throw(MainSequenceException)

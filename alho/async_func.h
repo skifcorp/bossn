@@ -19,22 +19,29 @@ using qx::IxDataMemberX;
 using qx::IxDataMember;
 
 
-struct async_func
+class async_func
 {
+public:
    QSqlDatabase &database;
-   async_func ( QSqlDatabase & db ) : database(db) {}
+   async_func ( QSqlDatabase & db ) : database(db), terminate_(false) {}
 
    template <class Callable, class... Args >
    typename std::result_of<Callable(Args...)>::type async_call(Callable c, Args ... args)
     {
+        terminate_ = false; //but this terminate_ DONT WORKS!!!!
+
         auto f = QtConcurrent::run(c, args...);
 
-        while (!f.isFinished()) {
+        while (!f.isFinished() && !terminate_ ) {
             qApp->processEvents();
         }
 
+        terminate_ = false;
+
         return f.result();
     }
+
+    void terminate(){terminate_ = true;}
 
     template <class T, class ID>
     qx::dao::ptr<T> async_fetch(const ID& id, bool ex_on_no_data = true) throw (MysqlException)
@@ -192,6 +199,8 @@ struct async_func
         }
         return decltype(f(p...))();
     }
+private:
+    bool terminate_;
 };
 
 #endif // ASYNC_FUNC_H

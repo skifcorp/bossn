@@ -64,7 +64,7 @@ private:
     class SeqDebug : public QDebug
     {
     public:
-        SeqDebug(const MainSequence& s) : QDebug(QtDebugMsg), seq(s) {}
+        SeqDebug(const MainSequence& s, QtMsgType t) : QDebug(t), seq(s) {}
         ~SeqDebug()
         {
             operator <<("platform: ").operator << (seq.seq_id).operator <<(" ");
@@ -87,8 +87,14 @@ private:
 
     SeqDebug seqDebug() const
     {
-        return SeqDebug(*this);
+        return SeqDebug(*this, QtDebugMsg);
     }
+
+    SeqDebug seqWarning() const
+    {
+        return SeqDebug(*this, QtWarningMsg);
+    }
+
 
     typedef QSharedPointer<async_func>     async_func_ptr_t;
     typedef QSharedPointer<convience_func> convience_func_ptr_t;
@@ -201,7 +207,7 @@ private:
 
     inline void sleepnb(int msec)
     {
-        //QTime tm;
+       // QTime tm;
         //tm.start();
         //qApp->sendPostedEvents();
         //while (tm.elapsed() < msec) qApp->processEvents();

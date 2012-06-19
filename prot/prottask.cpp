@@ -7,6 +7,9 @@ BossnFactoryRegistrator<ProtTask> ProtTask::registrator("ProtTask");
 
 void ProtTask::setSettings(const QVariantMap & s)
 {
+    save_timer.setInterval( get_setting<int>("save_interval", s) );
+    connect(&save_timer, SIGNAL(timeout()), this, SLOT(onSaveTimer()));
+
     QVariantList tgs = get_setting<QVariantList>("tags", s);
     for( QVariant tg_ : tgs) {
         QVariantMap tg = tg_.toMap();
@@ -25,57 +28,71 @@ void ProtTask::setSettings(const QVariantMap & s)
             tag_prot_conf.dz_type = TagProtConf::DzPerc;
 
 
-        //qDebug () << "name_var: " << tag_prot_conf.NameVar;
-
         tag_prot_confs.push_back(tag_prot_conf);
     }
 
+    initTagsValues();
+
+
+    config_database = QSqlDatabase::addDatabase(get_setting<QString>("database_driver", s), get_setting<QString>("connection_name", s) + "_conf");
+    config_database.setHostName(get_setting<QString>("database_host", s));
+    config_database.setDatabaseName(get_setting<QString>("config_database", s));
+    config_database.setUserName(get_setting<QString>("database_user", s));
+    config_database.setPassword(get_setting<QString>("database_password", s));
+    config_database.setConnectOptions( get_setting<QString>("connection_options", s, QString() ) );
+
+    tryInitializeProtViewerConf(get_setting<QString>("database_name", s),
+                                        get_setting<QString>("database_ru_name", s));
 
     database = QSqlDatabase::addDatabase(get_setting<QString>("database_driver", s), get_setting<QString>("connection_name", s));
-    database.setHostName(get_setting<QString>("database_host", s));
-    database.setDatabaseName(get_setting<QString>("config_database", s));
-    database.setUserName(get_setting<QString>("database_user", s));
-    database.setPassword(get_setting<QString>("database_password", s));
-
-    initConfigForProtViewer(s);
-
-    database.close();
-
-    //QSqlDatabase::removeDatabase(database.connectionName());
-
-
-    //database = QSqlDatabase::addDatabase(get_setting<QString>("database_driver", s), get_setting<QString>("connection_name", s));
-
     database.setHostName(get_setting<QString>("database_host", s));
     database.setDatabaseName(get_setting<QString>("database_name", s));
     database.setUserName(get_setting<QString>("database_user", s));
     database.setPassword(get_setting<QString>("database_password", s));
-
-    initProtDataTables();
-
+    database.setConnectOptions( get_setting<QString>("connection_options", s, QString() ) );
 
 
-    save_timer.setInterval( get_setting<int>("save_interval", s) );
-    connect(&save_timer, SIGNAL(timeout()), this, SLOT(onSaveTimer()));
-
-
-
-    initTagsValues();
+    tryInitializeProtDataTables();
 
     save_timer.start();
 }
 
-void ProtTask::initProtDataTables()
+void ProtTask::tryInitializeProtViewerConf(const QString& db_name, const QString& db_ru_name)
+{
+    try {
+        initConfigForProtViewer(db_name, db_ru_name);
+
+        config_database.close();
+        viewer_prot_initialized = true;
+    }
+    catch(MainSequenceException& ex){
+        qWarning() << "initConfigForProtViewer error!!: db_text: " << ex.systemMessage();
+        tryInitializeProtViewerConf_ = [db_name, db_ru_name, this] { tryInitializeProtViewerConf(db_name, db_ru_name); };
+    }
+
+}
+
+void ProtTask::tryInitializeProtDataTables()
+{
+    try {
+        initProtDataTables();
+        prot_conf_initialized = true;
+    }
+    catch (  MainSequenceException& ex ) {
+        qWarning() << "cant initProtDatatable! " << ex.systemMessage();
+    }
+}
+
+
+void ProtTask::initProtDataTables()  throw (MainSequenceException)
 {
     for (TagProtConf & tpc : tag_prot_confs) {
-        try {
-            //qDebug () << "name_var: " << tpc.NameVar;
-
+        //try {
             async_func_.wrap_async_ex( QString(), QString(), [this, &tpc]{return async_func_.async_create_table<prot_values>(tpc.NameVar);});
-        }
-        catch (MainSequenceException& ex)  {
-            qWarning() << "cant initProtDatatable! " << ex.systemMessage();
-        }
+        //}
+        //catch (MainSequenceException& ex)  {
+            //qWarning() << "cant initProtDatatable! " << ex.systemMessage();
+        //}
     }
 
 
@@ -83,53 +100,65 @@ void ProtTask::initProtDataTables()
 
 void ProtTask::insertProtConf() throw (MainSequenceException)
 {
-
-
-    async_func_.wrap_async_ex(QString(), QString(), [this]{return async_func_.async_delete_all<prot_conf>();} );
+    config_async_func_.wrap_async_ex(QString(), QString(), [this]{return config_async_func_.async_delete_all<prot_conf>();} );
     QList<prot_conf> prot_confs;
 
     for (TagProtConf & tpc : tag_prot_confs) {
         prot_confs.push_back(tpc);
     }
 
-
-
-    async_func_.async_insert(prot_confs);
+    config_async_func_.async_insert(prot_confs);
 }
 
 void ProtTask::insertDbNames(const QString& db_name, const QString& db_ru_name) throw (MainSequenceException)
 {
-    async_func_.wrap_async_ex(QString(), QString(), [this]{return async_func_.async_delete_all<db_names>();} );
+    config_async_func_.wrap_async_ex(QString(), QString(), [this]{return config_async_func_.async_delete_all<db_names>();} );
 
     db_names dn;
     dn.DB_name   = db_name;
     dn.DB_r_name = db_ru_name;
 
-    async_func_.async_insert(dn);
+    config_async_func_.async_insert(dn);
 }
 
 
-void ProtTask::initConfigForProtViewer(const QVariantMap& s)
+void ProtTask::initConfigForProtViewer(const QString& db_name, const QString& db_ru_name) throw (MainSequenceException)
 {
-    try {
+    //try {
 
-        insertDbNames(get_setting<QString>("database_name", s), get_setting<QString>("database_ru_name", s));
+        insertDbNames(db_name, db_ru_name);
 
         insertProtConf();
-    }
-    catch(MainSequenceException& ex){
-        qWarning() << "initConfigForProtViewer error!!: db_text: " << ex.systemMessage();
-    }
+    //}
+    //catch(MainSequenceException& ex){
+       // qWarning() << "initConfigForProtViewer error!!: db_text: " << ex.systemMessage();
+
+
+    //}
+
 
 }
 
 void ProtTask::exec()
-{
-    //qDebug() << "exec!!!";
+{    
+    qDebug () << "exec!";
+
+    if ( !viewer_prot_initialized )
+        tryInitializeProtViewerConf_();
+
+    if ( !prot_conf_initialized && viewer_prot_initialized ) {
+        // have initialize prot_conf if viewer_prot_conf dont initialized because they are in the same host
+        tryInitializeProtDataTables();
+    }
+
+    if (!prot_conf_initialized) return;
 
     TagsValues::Iterator iter = tags_values.begin();
     for (const TagProtConf & tpc : tag_prot_confs) {
-        iter->push_back( prot_values{ QDateTime::currentDateTime().toUTC(), tags[ tpc.NameVar ]->func( tpc.func_name ).toFloat() } );
+        QVariant val = tags[ tpc.NameVar ]->func( tpc.func_name );
+        if ( !val.isValid() ) continue;
+
+        iter->push_back( prot_values{ QDateTime::currentDateTime().toUTC(), val.toFloat() } );
 
         ++iter;
     }
@@ -152,12 +181,25 @@ void ProtTask::clearDataInTagsValues()
 
 void ProtTask::onSaveTimer()
 {   
+    qDebug () << "want save!!!";
+
+    if (!prot_conf_initialized) {
+        qWarning() << "SAVING OPERATION NOT STARTED BECAUSE prot_conf not initialied!. Will try next time.... point count: " << tags_values.first().count();
+        return;
+    }
+
+    if ( static_cast<int>(saving_now) > 0 ) {
+        qWarning() << "SAVING OPERATION NOT BECAUSE PREVIOUS NOT FINISHED. Will try next time.... point count: " << tags_values.first().count();
+        return;
+    }
+
     QList<QString> names;
     for (const TagProtConf & tpc : tag_prot_confs) {
         names.push_back(tpc.NameVar);
     }
 
-    QtConcurrent::run( [tags_values, names, &database]()mutable {
+    QtConcurrent::run( [tags_values, names, &database, &saving_now]()mutable {
+        saving_now.ref();
         QList<QString>::const_iterator iter = names.begin();
 
         //for (TagValues & tv : tags_values) {
@@ -168,6 +210,8 @@ void ProtTask::onSaveTimer()
             }
             ++iter;
         }
+        saving_now.deref();
+        qDebug() << "saved!";
     } );
 
     //tags_values.clear();

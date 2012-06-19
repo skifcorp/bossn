@@ -11,14 +11,21 @@
 #include "async_func.h"
 #include "protdb.h"
 
+#include <QAtomicInt>
+
 class ProtTask : public BaseTask
 {
     Q_OBJECT
 public:
-    ProtTask(Tags & t):tags(t), async_func_(database)
+    ProtTask(Tags & t):tags(t),
+                       async_func_(database),
+                       config_async_func_( config_database ),
+                       viewer_prot_initialized(false),
+                       prot_conf_initialized(false)
     {
-        //qDebug( ) << "prot!!!! ";
+
     }
+
     ~ProtTask()  {}
 
     virtual void setSettings(const QVariantMap &);
@@ -35,6 +42,7 @@ private slots:
 private:
     Tags & tags;
     async_func async_func_;
+    async_func config_async_func_;
 
     static BossnFactoryRegistrator<ProtTask> registrator;
 
@@ -59,17 +67,26 @@ private:
     TagsValues tags_values;
 
     QSqlDatabase database;
+    QSqlDatabase config_database;
 
-    void initConfigForProtViewer(const QVariantMap& );
+    void initConfigForProtViewer(const QString&, const QString& ) throw(MainSequenceException);
     void insertProtConf() throw (MainSequenceException);
     void insertDbNames(const QString&, const QString& ) throw (MainSequenceException);
+    void initProtDataTables()  throw (MainSequenceException);
 
-    void initProtDataTables();
+    void tryInitializeProtViewerConf(const QString&, const QString&);
+    std::function <void ()> tryInitializeProtViewerConf_;
+    void tryInitializeProtDataTables();
 
     QTimer save_timer;
 
     void initTagsValues();
     void clearDataInTagsValues();
+
+    QAtomicInt saving_now;
+
+    bool viewer_prot_initialized;
+    bool prot_conf_initialized;
 };
 
 #endif // PROTTASK_H
