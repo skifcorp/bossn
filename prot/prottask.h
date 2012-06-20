@@ -10,16 +10,17 @@
 #include "tags.h"
 #include "async_func.h"
 #include "protdb.h"
+#include "coroutine.h"
 
 #include <QAtomicInt>
 
-class ProtTask : public BaseTask
+class ProtTask : public BaseTask, public Coroutine
 {
     Q_OBJECT
 public:
     ProtTask(Tags & t):tags(t),
-                       async_func_(database),
-                       config_async_func_( config_database ),
+                       async_func_(database, *this),
+                       config_async_func_( config_database, *this ),
                        viewer_prot_initialized(false),
                        prot_conf_initialized(false)
     {
@@ -37,6 +38,8 @@ public:
         return new ProtTask(t);
     }
     virtual void exec();
+protected:
+    virtual void run();
 private slots:
     void onSaveTimer();
 private:
@@ -65,6 +68,7 @@ private:
     typedef QList<TagValues>    TagsValues;
 
     TagsValues tags_values;
+    TagValues  last_values;
 
     QSqlDatabase database;
     QSqlDatabase config_database;
@@ -87,6 +91,7 @@ private:
 
     bool viewer_prot_initialized;
     bool prot_conf_initialized;
+
 };
 
 #endif // PROTTASK_H

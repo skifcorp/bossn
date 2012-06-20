@@ -39,6 +39,7 @@ bool Reports::print(const QVariantMap & m)
 
         if ( engine.hasUncaughtException() ) {
             printOnDisplay("text: " + l->text() + " has exception: " + engine.uncaughtException().toString() );
+            delete report;
             return false;
         }
         else {

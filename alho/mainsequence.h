@@ -205,7 +205,7 @@ private:
 
 
 
-    inline void sleepnb(int msec)
+    void sleepnb(int msec)
     {
        // QTime tm;
         //tm.start();

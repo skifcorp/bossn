@@ -46,5 +46,6 @@ const QString stealed_card_message                   = QT_TRANSLATE_NOOP("MainSe
 const QString weights_dont_work                      = QT_TRANSLATE_NOOP("MainSequence", "Weights dont work!!");
 const QString error_make_new_task                    = QT_TRANSLATE_NOOP("MainSequence", "Cant make new task!");
 const QString error_database_lost                    = QT_TRANSLATE_NOOP("MainSequence", "Lost connection to database!!!");
+const QString processing_message                     = QT_TRANSLATE_NOOP("MainSequence", "Processing card!!!");
 
 #endif // WARNMESSAGES_H

@@ -4,6 +4,7 @@
 #include <QSqlDatabase>
 
 #include <QtConcurrentRun>
+#include <QFutureWatcher>
 
 //#include <QxRegister/QxClassX.h>
 //#include <QxRegister/IxClass.h>
@@ -12,31 +13,67 @@
 #include <QxOrm.h>
 
 #include "bossnexception.h"
+#include "coroutine.h"
 
 using qx::QxClassX;
 using qx::IxClass;
 using qx::IxDataMemberX;
 using qx::IxDataMember;
 
+//template <class T>
+class async_func : public QObject
 
-class async_func
 {
+    Q_OBJECT
+
+private slots:
+    void onFutureFinished()
+    {
+        qDebug() << "FINISHED FUTURE!";
+
+        coro.cont();
+    }
+
 public:
    QSqlDatabase &database;
-   async_func ( QSqlDatabase & db ) : database(db), terminate_(false) {}
+   Coroutine    & coro;
+
+   async_func ( QSqlDatabase & db, Coroutine & c ) : database(db), coro(c), terminate_(false) {}
 
    template <class Callable, class... Args >
    typename std::result_of<Callable(Args...)>::type async_call(Callable c, Args ... args)
-    {
-        terminate_ = false; //but this terminate_ DONT WORKS!!!!
+   {
+
+
+        //cont();
+
+        //terminate_ = false; //but this terminate_ DONT WORKS!!!!
+
+        //auto f = QtConcurrent::run(c, args...);
+
+
+
+
+        //while (!f.isFinished() && !terminate_ ) {
+        //    qApp->processEvents();
+        //}
+
+        //terminate_ = false;
+
+        QFutureWatcher<decltype(QtConcurrent::run(c, args...).result())> w;
+        connect(&w, SIGNAL(finished()), this, SLOT(onFutureFinished()));
 
         auto f = QtConcurrent::run(c, args...);
+        w.setFuture(f);
 
-        while (!f.isFinished() && !terminate_ ) {
-            qApp->processEvents();
-        }
+        coro.yield();
+        //yield();
+        //qDebug() << "async_func: " << "before cont";
+        //restart();
 
-        terminate_ = false;
+        //cont();
+
+        qDebug() << "async_func: " << "returning result!!!";
 
         return f.result();
     }

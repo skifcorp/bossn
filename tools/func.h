@@ -7,6 +7,7 @@
 #include <QCoreApplication>
 #include <QTime>
 #include <QTextStream>
+#include <QApplication>
 
 #include <iostream>
 

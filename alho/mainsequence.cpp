@@ -61,13 +61,8 @@ void MainSequence::setSettings(const QVariantMap & s)
     database.setPassword(get_setting<QString>("database_password", s));
     database.setConnectOptions( get_setting<QString>("connection_options", s, QString() ));
 
-
-    //qDebug() << "isOpen: " << database.isOpen();
-
-    async_func_ptr     = async_func_ptr_t( new  async_func(database) );
+    async_func_ptr     = async_func_ptr_t( new  async_func(database, *this) );
     convience_func_ptr = convience_func_ptr_t( new convience_func (*async_func_ptr) );
-
-    //qx::QxSqlDatabase::getSingleton()->setDriverName(get_setting<QString>("database_driver", s)); //ugly hack for reflection
 
     printOnTablo(greeting_message);
     setLightsToGreen();
@@ -194,6 +189,8 @@ void MainSequence::run()
         seqDebug()<< "card active! platform: " + QString::number(seq_id);
 
         try {
+            printOnTablo(processing_message);
+
             if ( !database.isOpen() ) {
                 if ( !async_func_ptr->async_call( [this]{return database.open();}) )
                     throw MainSequenceException(error_database_lost, "Error database lost!!!");
@@ -265,9 +262,9 @@ void MainSequence::run()
             continue;
         }
         catch (MainSequenceException& ex) {
-            //if ( database.isOpenError() ) {
-            //    seqDebug() << "---------->>> OPEN ERROR!!!! isOpen: " << database.isOpen();
-            //}
+            if ( database.isOpenError() ) {
+                seqDebug() << "---------->>> OPEN ERROR!!!! isOpen: " << database.isOpen();
+            }
 
             seqWarning()<<"sequence_exception: " << ex.adminMessage();
 
@@ -277,6 +274,9 @@ void MainSequence::run()
     }
 
     seqDebug () << "\n\nexit from onAppearOnWeight!!!!!!!";
+
+    printOnTablo(greeting_message);
+    setLightsToGreen();
 }
 
 void MainSequence::repairBeetFieldCorrectnessIfNeeded(QVariantMap & bill, qx::dao::ptr<t_ttn> ttn) const throw()
@@ -694,18 +694,25 @@ void MainSequence::onDisappearOnWeight(const QString& )
 
     on_weight = false;
 
+    //qDebug( )     << "1";
+
     tags[alho_settings.reader.name]->func( alho_settings.reader.do_off );
 
-
+    //qDebug( )     << "2";
 
     async_func_ptr->terminate();
+    //qDebug( )     << "3";
     if ( wake_timer.isActive() ) {
+        //qDebug( )     << "4";
         wake_timer.stop();
+        //qDebug( )     << "5";
         wakeUp();
+        //qDebug( )     << "6";
     }
+    //qDebug( )     << "7";
 
-    printOnTablo(greeting_message);
-    setLightsToGreen();
+//    printOnTablo(greeting_message);
+//    setLightsToGreen();
 }
 
 void MainSequence::checkBum( QVariantMap& bill )const throw(MainSequenceException)
@@ -800,7 +807,7 @@ bool MainSequence::checkBumWorks(const QDateTime & date_from, const QDateTime & 
 
     if (bum_log) return false;
 
-    qx::dao::ptr<t_bum> bum_ptr = async_func_ptr->wrap_async_ex(cant_get_bum_message, "cant get bum",
+    qx::dao::ptr<t_bum> bum_ptr = async_func_ptr->wrap_async_ex(cant_get_bum_message, "cant get bum: " + QString::number(bum),
                         [&bum, this]{ return async_func_ptr->async_fetch<t_bum>(bum);});
 
     return static_cast<bool> (bum_ptr->state);
