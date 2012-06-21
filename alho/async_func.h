@@ -29,7 +29,7 @@ class async_func : public QObject
 private slots:
     void onFutureFinished()
     {
-        qDebug() << "FINISHED FUTURE!";
+        //qDebug() << "FINISHED FUTURE!";
 
         coro.cont();
     }
@@ -73,7 +73,7 @@ public:
 
         //cont();
 
-        qDebug() << "async_func: " << "returning result!!!";
+        //qDebug() << "async_func: " << "returning result!!!";
 
         return f.result();
     }
@@ -126,9 +126,9 @@ public:
     }
 
     template <class T>
-    void async_insert(T& t) throw (MysqlException)
+    void async_insert(T& t, bool on_duplicate_key_update=false) throw (MysqlException)
     {
-        QSqlError err = async_call([&t, this]{return qx::dao::insert(t, &database);});
+        QSqlError err = async_call([&t, this, &on_duplicate_key_update]{return qx::dao::insert(t, &database, QString(), on_duplicate_key_update);});
 
         if  (err.isValid()) {
             throw MysqlException(err.databaseText(), err.driverText());

@@ -145,20 +145,32 @@ void ProtTask::initConfigForProtViewer(const QString& db_name, const QString& db
 
 }
 
-void ProtTask::run()
+void ProtTask::initializeProtWork()
 {
-    qDebug() << "1: " << viewer_prot_initialized << " "<<prot_conf_initialized;
+    cur_prot_work->start_from = cur_prot_work->work_till = QDateTime::currentDateTime().toUTC();
 
+    try {
+        async_func_.wrap_async_ex( QString(), QString(), [this]{return async_func_.async_create_table<prot_work>();});
+        async_func_.wrap_async_ex( QString(), QString(), [this]{return async_func_.async_insert(cur_prot_work, true); });
 
+        prot_work_initialized = true;
+    }
+    catch(MainSequenceException& ex) {
+        qWarning() << "cant initProtWORK!!!! " << ex.systemMessage();
+    }
+}
+
+void ProtTask::run()
+{  
     while (!viewer_prot_initialized)
         tryInitializeProtViewerConf_();
-    qDebug() << "2" << viewer_prot_initialized << " "<<prot_conf_initialized;
+
     while (!prot_conf_initialized)
         tryInitializeProtDataTables();
 
+    while (!prot_work_initialized)
+        initializeProtWork();
 
-    qDebug() << "3" << viewer_prot_initialized << " "<<prot_conf_initialized;
-    //yield();
     save_timer.start();
 }
 
@@ -167,7 +179,7 @@ void ProtTask::exec()
     if (!viewer_prot_initialized || !prot_conf_initialized) return;
 
 
-    qDebug () << "exec!<";
+    qDebug () << "exec!< "<<QDateTime::currentDateTime().toUTC().toString("yyyy-mm-dd hh:mm:ss");
 
     //if ( !viewer_prot_initialized )
 //        tryInitializeProtViewerConf_();
@@ -248,15 +260,22 @@ void ProtTask::onSaveTimer()
         names.push_back(tpc.NameVar);
     }
 
-    QtConcurrent::run( [tags_values, names, &database, &saving_now]() mutable {
+    QtConcurrent::run( [tags_values, names, &database, &saving_now, &cur_prot_work]() mutable {
         saving_now.ref();
+        cur_prot_work->work_till = QDateTime::currentDateTime().toUTC();
+        QSqlError err2 = qx::dao::update_optimized(cur_prot_work, &database);
+        if ( err2.isValid() ) {
+            qWarning() << "prot_error while updating work_till! "<< err2.databaseText() << " " << err2.driverText();
+        }
+
+
         QList<QString>::const_iterator iter = names.begin();
 
         //for (TagValues & tv : tags_values) {
         for (TagsValues::iterator values_iter = tags_values.begin(); values_iter != tags_values.end(); ++values_iter  ) {
             if (values_iter->isEmpty()) continue;
 
-            QSqlError err = qx::dao::insert(*values_iter, &database, *iter);
+            QSqlError err = qx::dao::insert(*values_iter, &database, *iter, true);
             if ( err.isValid() ) {
                 qWarning() << "prot_error while saving data! "<< err.databaseText() << " " << err.driverText();
             }

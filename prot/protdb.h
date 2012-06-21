@@ -45,13 +45,22 @@ struct prot_values
 
 };
 
+struct prot_work
+{
+    QDateTime start_from;
+    QDateTime work_till;
 
+    virtual ~prot_work(){}
+};
 
 QX_REGISTER_PRIMARY_KEY(prot_values, QDateTime)
+
+QX_REGISTER_PRIMARY_KEY(prot_work, QDateTime)
 
 
 QX_REGISTER_HPP_EXPORT_DLL(prot_conf          , qx::trait::no_base_class_defined, 1)
 QX_REGISTER_HPP_EXPORT_DLL(db_names           , qx::trait::no_base_class_defined, 1)
 QX_REGISTER_HPP_EXPORT_DLL(prot_values        , qx::trait::no_base_class_defined, 1)
+QX_REGISTER_HPP_EXPORT_DLL(prot_work          , qx::trait::no_base_class_defined, 1)
 
 #endif // PROTDB_H

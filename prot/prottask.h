@@ -22,7 +22,9 @@ public:
                        async_func_(database, *this),
                        config_async_func_( config_database, *this ),
                        viewer_prot_initialized(false),
-                       prot_conf_initialized(false)
+                       prot_conf_initialized(false),
+                        prot_work_initialized(false),
+                        cur_prot_work (new prot_work)
     {
 
     }
@@ -81,6 +83,7 @@ private:
     void tryInitializeProtViewerConf(const QString&, const QString&);
     std::function <void ()> tryInitializeProtViewerConf_;
     void tryInitializeProtDataTables();
+    void initializeProtWork();
 
     QTimer save_timer;
 
@@ -91,7 +94,9 @@ private:
 
     bool viewer_prot_initialized;
     bool prot_conf_initialized;
+    bool prot_work_initialized;
 
+    qx::dao::ptr<prot_work> cur_prot_work;
 };
 
 #endif // PROTTASK_H

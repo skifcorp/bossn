@@ -5,7 +5,7 @@
 QX_REGISTER_CPP_EXPORT_DLL(prot_conf)
 QX_REGISTER_CPP_EXPORT_DLL(db_names)
 QX_REGISTER_CPP_EXPORT_DLL(prot_values)
-
+QX_REGISTER_CPP_EXPORT_DLL(prot_work)
 
 
 
@@ -29,6 +29,12 @@ namespace qx {
     {
         t.id( &prot_values::time, "time");
         t.data(  &prot_values::value, "value" );
+    }
+
+    template <> void register_class(QxClass<prot_work> & t)
+    {
+        t.id  (  &prot_work::start_from, "start_from" );
+        t.data(  &prot_work::work_till , "work_till"  );
     }
 
 

@@ -66,6 +66,13 @@ void MainSequence::setSettings(const QVariantMap & s)
 
     printOnTablo(greeting_message);
     setLightsToGreen();
+
+//    t_ttn ttn;
+//    ttn.bum = 12;
+//    ttn.car = 120;
+//    qx::dao::insert( ttn, &database, "t_ttn", true );
+
+
 }
 
 QString MainSequence::taraFinishMessage() const
@@ -177,7 +184,10 @@ void MainSequence::run()
 
     ActivateCardISO14443A cur_act;
 
+
     while(on_weight) {
+        long cur_num_nakl = 0;
+
         ActivateCardISO14443A act = tags[alho_settings.reader.name]->func(alho_settings.reader.activate_idle).value<ActivateCardISO14443A>();
         MifareCard card(tags[alho_settings.reader.name], act, alho_settings.reader);
 
@@ -187,6 +197,7 @@ void MainSequence::run()
         }
 
         seqDebug()<< "card active! platform: " + QString::number(seq_id);
+
 
         try {
             printOnTablo(processing_message);
@@ -207,6 +218,8 @@ void MainSequence::run()
             if (!checkMember("billNumber", bill, 0) || !checkMember("driver", bill, 0)) {
                 throw MainSequenceException(card_is_empty_error_message, "bill is empty");
             }
+
+            cur_num_nakl = memberValue<int>("billNumber", bill);
 
             auto car = async_func_ptr->wrap_async_ex(fetch_car_error_message, "fetching car failed!!!: driver: " + memberValue<QString>("driver", bill),
                                   [&bill, this]{return async_func_ptr->async_fetch<t_cars>( carCodeFromDriver( memberValue<uint>("driver", bill) ) );});
@@ -252,12 +265,12 @@ void MainSequence::run()
             }
         }
         catch (MifareCardAuthException& ex) {
-            seqWarning() << "auth_exeption! "<<ex.message();
+            seqWarning() << "auth_exeption! "<<ex.message() << " curNumNakl: " << cur_num_nakl;
             sleepnbtmerr(card_autorize_error_message, apply_card_message);
             continue;
         }
         catch (MifareCardException& ex) {
-            seqWarning() << "card_exception! "<<ex.message();
+            seqWarning() << "card_exception! "<<ex.message() << " curNumNakl: "<< cur_num_nakl;
             sleepnbtmerr(ex.message(), apply_card_message);
             continue;
         }
@@ -266,7 +279,7 @@ void MainSequence::run()
                 seqDebug() << "---------->>> OPEN ERROR!!!! isOpen: " << database.isOpen();
             }
 
-            seqWarning()<<"sequence_exception: " << ex.adminMessage();
+            seqWarning()<<"sequence_exception: " << ex.adminMessage() << " curNumNakl: "<< cur_num_nakl;;
 
             sleepnbtmerr(ex.userMessage(), apply_card_message);
             continue;
