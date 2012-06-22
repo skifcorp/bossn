@@ -1,11 +1,12 @@
-#include "hbm2110.h"
+#include "Hbm2110.h"
 #include <QString>
 #include <QByteArray>
 #include <QDebug>
 #include <typeinfo>
 
 
-//bool Hbm2110::registered = Hbm2110::registerInFact();
+#include "func.h"
+
 BossnFactoryRegistrator<Hbm2110> Hbm2110::registrator("Hbm2110");
 
 void Hbm2110::readWeight(QVariant & ret, uint & err)
@@ -14,16 +15,11 @@ void Hbm2110::readWeight(QVariant & ret, uint & err)
 
     io_device()->write(req);
 
-    const uchar frame_size = 17;
+    const uchar frame_size = 6;
 
-    //qDebug() << "readWeight by HBM";
-
-    //qDebug()<<"before bytes: "<<io_device()->bytesAvailable();
     while ( io_device()->bytesAvailable() < frame_size ) {
-        //qDebug () << " hbm_bytes: " << io_device()->bytesAvailable();
         yield();
     }
-    //qDebug()<<"after bytes: "<<io_device()->bytesAvailable();
 
     QByteArray answ = io_device()->read(frame_size);
 
@@ -47,12 +43,12 @@ QByteArray Hbm2110::weightRequestFrame() const
 
 int Hbm2110::parseWeightFrameAnswer(const QByteArray& ba, uint & err) const
 {
-    if (parseAddress(ba) != address) {
+/*    if (parseAddress(ba) != address) {
         //throw WeightFrameExceptionBadAddress();
         err = PorterFrameBadAddress; return -1;
-    }
+    }*/
 
-    QByteArray ret = ba.left(8);
+/*    QByteArray ret = ba.left(8);
 
     bool ok = false;
     float fret = ret.toInt(&ok);
@@ -64,7 +60,12 @@ int Hbm2110::parseWeightFrameAnswer(const QByteArray& ba, uint & err) const
 
     //qDebug () << "getWeight: " << fret;
     err = 0;
-    return fret;
+    return fret;*/
+
+    //printByteArray( ba );
+    int ret = static_cast<int>( (static_cast<uchar>(ba[0]) << 16)  | (static_cast<uchar>(ba[1]) << 8) | static_cast<uchar>(ba[2]));
+    //qDebug() << "ret: "<< QString::number(ret, 16);
+    return ret;
 }
 
 

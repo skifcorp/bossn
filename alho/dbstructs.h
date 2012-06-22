@@ -85,8 +85,8 @@ struct t_bum
     bool state;
     uint queue;
 
-    t_bum() {}
-    t_bum(long id_):id(id_){}
+    t_bum():id(0), state(false), queue(0) {}
+    t_bum(long id_):id(id_), state(false), queue(0){}
     bool isValid() const {return id > 0;}
     virtual ~t_bum(){}
 };

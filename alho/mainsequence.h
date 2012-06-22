@@ -35,6 +35,7 @@ struct MainSequenceSettings
     TagMethod green_light;
     TagMethod perim_in;
     TagMethod perim_out;
+    TagMethod logging;
 
     ReaderTagMethods reader;
 };
@@ -64,13 +65,31 @@ private:
     class SeqDebug : public QDebug
     {
     public:
-        SeqDebug(const MainSequence& s, QtMsgType t) : QDebug(t), seq(s) {}
+        SeqDebug(bool use_db, const MainSequence& s, int err_code) : QDebug(&buffer), use_database(use_db), seq(s), error_code(err_code) {}
         ~SeqDebug()
         {
             operator <<("platform: ").operator << (seq.seq_id).operator <<(" ");
+
+            QString print_string = QDateTime::currentDateTimeUtc().toString("yyyy-mm-dd hh:mm:ss") + " " + QString::number(seq.seq_id).leftJustified(5) +
+                    QString::number(error_code).leftJustified(5) + " " + buffer;
+
+            if ( use_database ) {
+                seq.tags[ seq.alho_settings.logging.tag_name ]->func(seq.alho_settings.logging.method_name,
+                                                                            Q_ARG(const QVariant&, QVariant(seq.seq_id) ),
+                                                                            Q_ARG(const QVariant&, QVariant(error_code) ),
+                                                                            Q_ARG(const QVariant&, QVariant(buffer) ) );
+                qWarning() <<  print_string;
+            }
+            else {
+                qDebug() << print_string;
+            }
+
         }
     private:
+        bool use_database;
         const MainSequence & seq;
+        QString buffer;
+        int error_code;
     };
 
 
@@ -85,14 +104,14 @@ private:
     int seq_id;
     QTimer wake_timer;
 
-    SeqDebug seqDebug() const
+    SeqDebug seqDebug(int err_code=-1) const
     {
-        return SeqDebug(*this, QtDebugMsg);
+        return SeqDebug(false, *this, err_code);
     }
 
-    SeqDebug seqWarning() const
+    SeqDebug seqWarning(int err_code=-1) const
     {
-        return SeqDebug(*this, QtWarningMsg);
+        return SeqDebug(true, *this, err_code);
     }
 
 

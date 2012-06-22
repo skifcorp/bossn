@@ -18,7 +18,7 @@
 
 
 
-
+#if 0
 
 void initTasks(TaskExec & tasks, Tags & tags, MainSequence & seq )
 {
@@ -48,6 +48,7 @@ void initTasks(TaskExec & tasks, Tags & tags, MainSequence & seq )
     tasks.addTask(500, perim.staticCast<BaseTask::Pointer::Type>());
 }
 
+#endif
 
 int main(int argc, char *argv[])
 {  

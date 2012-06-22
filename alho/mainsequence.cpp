@@ -42,6 +42,9 @@ void MainSequence::setSettings(const QVariantMap & s)
     alho_settings.weight_stable.tag_name = get_setting<QString>("stable_tag", s);
     alho_settings.weight_stable.method_name = get_setting<QString>("stable_method", s);
 
+    alho_settings.logging.tag_name = get_setting<QString>("logging_tag", s);
+    alho_settings.logging.method_name = get_setting<QString>("logging_method", s);
+
     alho_settings.reader.name           = get_setting<QString>("reader_tag", s);
     alho_settings.reader.do_on          = get_setting<QString>("reader_do_on", s);
     alho_settings.reader.do_off         = get_setting<QString>("reader_do_off", s);
@@ -157,7 +160,7 @@ void MainSequence::wakeUp()
 
 void MainSequence::onAppearOnWeight(const QString& )
 {
-    qDebug ( ) << "status: " << status();
+    //qDebug ( ) << "status: " << status();
 
     if ( status() == NotStarted || status() == Terminated ) {
         restart();
@@ -196,7 +199,7 @@ void MainSequence::run()
             sleepnbtm(); continue;
         }
 
-        seqDebug()<< "card active! platform: " + QString::number(seq_id);
+        //seqDebug()<< "card active! platform: " + QString::number(seq_id);
 
 
         try {
@@ -266,6 +269,7 @@ void MainSequence::run()
         }
         catch (MifareCardAuthException& ex) {
             seqWarning() << "auth_exeption! "<<ex.message() << " curNumNakl: " << cur_num_nakl;
+
             sleepnbtmerr(card_autorize_error_message, apply_card_message);
             continue;
         }
@@ -300,7 +304,7 @@ void MainSequence::repairBeetFieldCorrectnessIfNeeded(QVariantMap & bill, qx::da
 
         setMemberValue("realNumField", memberValue<uint>("numField", bill), bill);
         ttn->real_field = memberValue<uint>("numField", bill);
-        seqDebug () << "field repared: "<<ttn->real_field;
+        //seqDebug () << "field repared: "<<ttn->real_field;
     }
 }
 
@@ -398,17 +402,17 @@ void MainSequence::processChemicalAnalysis(QVariantMap & bill, qx::dao::ptr<t_tt
 
     QString alho = get_setting<QString>("common_algorithm_of_analysis", app_settings);
 
-    seqDebug() << "analisys alho: "<<alho<<" cars_count: "<<count;
+    //seqDebug() << "analisys alho: "<<alho<<" cars_count: "<<count;
 
     if ( alho == "discrete"  ) {
         if ( !checkForNeedDiscreteAnalisys(count) ) {
-            seqDebug () << " dont needed...";
+            //seqDebug () << " dont needed...";
             return;
         }
     }
     else if (alho == "database_const") {        
         if ( !checkForNeedDatabaseConstAnalisys( count, kontrCodeFromField( memberValue<uint>("realNumField", bill) ) ) ) {
-            seqDebug () << " dont needed...";
+            //seqDebug () << " dont needed...";
             return;
         }
     }
@@ -463,13 +467,19 @@ void MainSequence::processFreeBum(QVariantMap & bill, qx::dao::ptr<t_ttn> ttn, q
 
 
     if ( !bum ) {
+        //qDebug () << "BUM IS ENPTYYYYYYYYYYYYYYYY!";
+
         bum = async_func_ptr->wrap_async_ex(get_free_bum_error, "Error getting free bum2",
             [&bums_where_clause, &q2, this]{ return async_func_ptr->async_exec_query<t_bum>(q2);});
     }
 
+    //qDebug () << "q1: " << q1 << " q2: " <<q2;
+
+    //seqDebug () <<  "bum queue1: " << bum->queue << "id: " << bum->id << " state: " << bum->state;
+
     bum->queue += 1;
 
-    seqDebug () <<  "bum queue: " << bum->queue;
+    //seqDebug () <<  "bum queue2: " << bum->queue;
 
     async_func_ptr->wrap_async_ex( update_bum_queue_error, "Error updating bum queue", [&bum, this]{ async_func_ptr->async_update(bum); });
 
@@ -513,7 +523,7 @@ void MainSequence::updateTaraValues(QVariantMap& bill, qx::dao::ptr<t_ttn> ttn, 
         ttn->dt_of_unload  = memberValue<QDateTime>("dateOfUnload", bill);
         ttn->was_in_lab    = memberValue<QBitArray>("flags", bill).at(3);
 
-        seqDebug () << "bum: " << ttn->bum;
+       // seqDebug () << "bum: " << ttn->bum;
     }
 
     ttn->copy          = 0;
@@ -521,7 +531,7 @@ void MainSequence::updateTaraValues(QVariantMap& bill, qx::dao::ptr<t_ttn> ttn, 
     ttn->tara_platforma  = seq_id;
     ttn->field_from_car  = car->num_field;
 
-    seqDebug () << "real_rup_tara: " << ttn->real_rup_tara;
+    //seqDebug () << "real_rup_tara: " << ttn->real_rup_tara;
 
     async_func_ptr->wrap_async_ex( update_ttn_error_message, "Error updating ttn tara", [&ttn, this]{ async_func_ptr->async_update(ttn); });
 }
@@ -553,7 +563,7 @@ void MainSequence::brutto(QVariantMap & bill, qx::dao::ptr<t_cars> car, const Mi
 
     int weight = getWeight();
 
-    seqDebug () << "weight_value: "<<weight;
+    //seqDebug () << "weight_value: "<<weight;
 
     if ( !isWeightCorrect( weight ) ) {
         throw MainSequenceException(weight_not_stable_message, "brutto: weights dont stable!" );
@@ -567,7 +577,7 @@ void MainSequence::brutto(QVariantMap & bill, qx::dao::ptr<t_cars> car, const Mi
                                     " cur: " + QString::number(weight)  + " max_delta: " +
                                     get_setting<QString>("brutto_delta_between_reweights", app_settings));
         }
-        seqDebug ()<<"reweight!";
+        //seqDebug ()<<"reweight!";
 
         setMemberValue("flags", 0, true, bill );
         setMemberValue("bruttoWeight", weight, bill);
@@ -576,7 +586,7 @@ void MainSequence::brutto(QVariantMap & bill, qx::dao::ptr<t_cars> car, const Mi
 
     }
     else {
-        seqDebug() << "weight!";
+        //seqDebug() << "weight!";
 
         setMemberValue("bruttoWeight", weight, bill);
         setMemberValue("dateOfBrutto", QDateTime::currentDateTime(), bill);
@@ -626,7 +636,7 @@ void MainSequence::tara(QVariantMap & bill, qx::dao::ptr<t_cars> car) const thro
         printFinishReport(ttn, car);
     }
     else  {
-        seqDebug( ) << "tara weight!!!";
+        //seqDebug( ) << "tara weight!!!";
 
         ttn = async_func_ptr->wrap_async_ex(fetch_ttn_error_message, "fetching ttn failed!!!",
                                   [&bill, this]{return async_func_ptr->async_fetch<t_ttn>(bill["billNumber"].toUInt());});
@@ -857,7 +867,7 @@ void MainSequence::processTaraRupture(qx::dao::ptr<t_ttn> ttn, qx::dao::ptr<t_ca
     ttn->rup_tara           = mid_tara * percent.toUInt() / 100;
     ttn->real_rup_tara      = qAbs(mid_tara - static_cast<int>(ttn->tara));
 
-    seqDebug () << "mid_tara: "<<mid_tara;
+    //seqDebug () << "mid_tara: "<<mid_tara;
 }
 
 

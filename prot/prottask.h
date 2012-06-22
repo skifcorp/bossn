@@ -24,6 +24,7 @@ public:
                        viewer_prot_initialized(false),
                        prot_conf_initialized(false),
                         prot_work_initialized(false),
+                        message_logs_initialized(false),
                         cur_prot_work (new prot_work)
     {
 
@@ -40,6 +41,13 @@ public:
         return new ProtTask(t);
     }
     virtual void exec();
+
+
+    Q_INVOKABLE QVariant addLogMessage(const QString&, QGenericArgument sender_id, QGenericArgument type, QGenericArgument text );
+    //Q_INVOKABLE void addLogMessage(const QString&, const QVariant& sender_id, const QVariant& type, const QVariant& text );
+    void addLogMessageP( int sender_id, int type, const QString& text );
+
+
 protected:
     virtual void run();
 private slots:
@@ -57,6 +65,8 @@ private:
 
         QString func_name;
         QVariant dz;
+        QVariant min;
+        QVariant max;
         int dz_type;
         TagProtConf(  ) : prot_conf(), dz_type(DzNone)
         {
@@ -84,6 +94,7 @@ private:
     std::function <void ()> tryInitializeProtViewerConf_;
     void tryInitializeProtDataTables();
     void initializeProtWork();
+    void initializeMessageLogs();
 
     QTimer save_timer;
 
@@ -95,8 +106,11 @@ private:
     bool viewer_prot_initialized;
     bool prot_conf_initialized;
     bool prot_work_initialized;
+    bool message_logs_initialized;
 
     qx::dao::ptr<prot_work> cur_prot_work;
+
+    QList<message_log> message_logs;
 };
 
 #endif // PROTTASK_H

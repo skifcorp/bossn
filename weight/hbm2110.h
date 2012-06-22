@@ -1,3 +1,7 @@
+#ifndef HBM2110_H
+#define HBM2110_H
+
+
 #ifndef __QT_HBM_2110_H__
 #define __QT_HBM_2110_H__
 
@@ -48,3 +52,6 @@ protected:
 };
 
 #endif
+
+
+#endif // HBM2110_H

@@ -126,9 +126,9 @@ public:
     }
 
     template <class T>
-    void async_insert(T& t, bool on_duplicate_key_update=false) throw (MysqlException)
+    void async_insert(T& t, bool on_duplicate_key_update=false, const QString& table_name=QString()) throw (MysqlException)
     {
-        QSqlError err = async_call([&t, this, &on_duplicate_key_update]{return qx::dao::insert(t, &database, QString(), on_duplicate_key_update);});
+        QSqlError err = async_call([&t, this, &on_duplicate_key_update, &table_name]{return qx::dao::insert(t, &database, table_name, on_duplicate_key_update);});
 
         if  (err.isValid()) {
             throw MysqlException(err.databaseText(), err.driverText());
@@ -154,6 +154,7 @@ public:
         QSqlError err = async_call( [&q, &t, this]{ return qx::dao::execute_query(q, t, &database); });
 
         if (err.isValid() && err.number() == 1111 && !ex_on_no_data) {
+            //qDebug()  << "bacause value is empty but is not error: we returning: " << (qx::dao::ptr<T>() != 0);
             return  qx::dao::ptr<T>();
         }
 

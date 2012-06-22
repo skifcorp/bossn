@@ -22,6 +22,8 @@ void ProtTask::setSettings(const QVariantMap & s)
         tag_prot_conf.NameDB   = get_setting<QString>("database_name", s);
         tag_prot_conf.func_name = get_setting<QString>("func", tg);
         tag_prot_conf.dz        = get_setting<QVariant>("dz", tg, QVariant(0));
+        tag_prot_conf.min        = get_setting<QVariant>("min", tg, QVariant(0));
+        tag_prot_conf.max        = get_setting<QVariant>("max", tg, QVariant(0));
 
         QString dz_type = get_setting<QString>("dz_type", tg, QString());
         if (dz_type == "absolute")
@@ -95,6 +97,11 @@ void ProtTask::initProtDataTables()  throw (MainSequenceException)
     for (TagProtConf & tpc : tag_prot_confs) {
         //try {
             async_func_.wrap_async_ex( QString(), QString(), [this, &tpc]{return async_func_.async_create_table<prot_values>(tpc.NameVar);});
+            async_func_.wrap_async_ex( QString(), QString(), [this, &tpc]{return async_func_.async_create_table<prot_value_scale>("Scale_" + tpc.NameVar);});
+
+            prot_value_scale sc(tpc.min.toFloat(), tpc.max.toFloat());
+
+            async_func_.wrap_async_ex( QString(), QString(), [this, &tpc, &sc]{return async_func_.async_insert(sc, true, "Scale_" + tpc.NameVar);});
         //}
         //catch (MainSequenceException& ex)  {
             //qWarning() << "cant initProtDatatable! " << ex.systemMessage();
@@ -160,6 +167,19 @@ void ProtTask::initializeProtWork()
     }
 }
 
+
+void ProtTask::initializeMessageLogs()
+{
+    try {
+        async_func_.wrap_async_ex( QString(), QString(), [this]{return async_func_.async_create_table<message_log>();});
+
+        message_logs_initialized = true;
+    }
+    catch(MainSequenceException& ex) {
+        qWarning() << "cant initProtWORK!!!! " << ex.systemMessage();
+    }
+}
+
 void ProtTask::run()
 {  
     while (!viewer_prot_initialized)
@@ -171,15 +191,19 @@ void ProtTask::run()
     while (!prot_work_initialized)
         initializeProtWork();
 
+    while (!message_logs_initialized)
+        initializeMessageLogs();
+
+
     save_timer.start();
 }
 
 void ProtTask::exec()
 {    
-    if (!viewer_prot_initialized || !prot_conf_initialized) return;
+    if (!viewer_prot_initialized || !prot_conf_initialized || !prot_work_initialized || !message_logs_initialized) return;
 
 
-    qDebug () << "exec!< "<<QDateTime::currentDateTime().toUTC().toString("yyyy-mm-dd hh:mm:ss");
+    //qDebug () << "exec!< "<<QDateTime::currentDateTime().toUTC().toString("yyyy-mm-dd hh:mm:ss");
 
     //if ( !viewer_prot_initialized )
 //        tryInitializeProtViewerConf_();
@@ -198,30 +222,32 @@ void ProtTask::exec()
 
     for (const TagProtConf & tpc : tag_prot_confs) {
         QVariant val = tags[ tpc.NameVar ]->func( tpc.func_name );
-        if ( !val.isValid() ) continue;
-
-        float fval = val.toFloat();
-
-
-
-        if ( true ||
-             ( last_value_iter->value != last_value_iter->value /*isnan*/) ||
-             ( tpc.dz_type == TagProtConf::DzNone && !qFuzzyCompare(fval, last_value_iter->value) ) ||
-             ( tpc.dz_type == TagProtConf::DzAbs && qAbs(fval - last_value_iter->value) > tpc.dz.toFloat() ) ) {
-
-            *last_value_iter = prot_values{ QDateTime::currentDateTime().toUTC(), val.toFloat() };
-
-//        qDebug () << "prot tag: "<< tpc.NameVar <<" got new_value-->" << last_value_iter->time << " value: " << fval
-//                  << ( last_value_iter->value != last_value_iter->value /*isnan*/)
-//                  << qFuzzyCompare(fval, last_value_iter->value);
-
-            iter->push_back( *last_value_iter );
+        if ( !val.isValid() ) {
+            if ( last_value_iter->value == last_value_iter->value /*not nan*/ ) {
+                *last_value_iter = prot_values{ QDateTime::currentDateTime().toUTC(), NAN };
+                iter->push_back( *last_value_iter );
+            }
         }
+        else {
 
+            float fval = val.toFloat();
+
+
+
+            if ( true ||
+                 ( last_value_iter->value != last_value_iter->value /*isnan*/) ||
+                 ( tpc.dz_type == TagProtConf::DzNone && !qFuzzyCompare(fval, last_value_iter->value) ) ||
+                 ( tpc.dz_type == TagProtConf::DzAbs && qAbs(fval - last_value_iter->value) > tpc.dz.toFloat() ) ) {
+
+                *last_value_iter = prot_values{ QDateTime::currentDateTime().toUTC(), val.toFloat() };
+
+                iter->push_back( *last_value_iter );
+            }
+        }
 
         ++iter; ++last_value_iter;
     }
-    //qDebug () << ">exec";
+
 }
 
 void ProtTask::initTagsValues()
@@ -260,7 +286,7 @@ void ProtTask::onSaveTimer()
         names.push_back(tpc.NameVar);
     }
 
-    QtConcurrent::run( [tags_values, names, &database, &saving_now, &cur_prot_work]() mutable {
+    QtConcurrent::run( [tags_values, names, &database, &saving_now, &cur_prot_work, message_logs]() mutable {
         saving_now.ref();
         cur_prot_work->work_till = QDateTime::currentDateTime().toUTC();
         QSqlError err2 = qx::dao::update_optimized(cur_prot_work, &database);
@@ -281,10 +307,51 @@ void ProtTask::onSaveTimer()
             }
             ++iter;
         }
+
+
+        QSqlError err3 = qx::dao::insert(message_logs, &database);
+        if ( err3.isValid() ) {
+            qWarning() << "prot_error while inserting message_logs! "<< err3.databaseText() << " " << err3.driverText();
+        }
+
         saving_now.deref();
         qDebug() << "saved!";
     } );
 
     //tags_values.clear();
     clearDataInTagsValues();
+    message_logs.clear();
+}
+
+
+QVariant ProtTask::addLogMessage(const QString&, QGenericArgument sender_id, QGenericArgument type, QGenericArgument text )
+//void ProtTask::addLogMessage(const QString&, const QVariant& sender_id, const QVariant& type, const QVariant& text )
+{
+/*    if ( sender_id.name() != QString("QVariant")) {
+        qWarning() << "bad type for sender_id: (" << sender_id.name()<< ")"; return QVariant();
+    }
+
+    if (type.name() != QString("QVariant")) {
+        qWarning() << "bad type for type (" << sender_id.name()<<")"; return  QVariant();
+    }
+
+    if (text.name() != QString("QVariant")) {
+        qWarning() << "bad type for text (" << sender_id.name()<<")"; return  QVariant();
+    }*/
+
+    addLogMessageP( reinterpret_cast<QVariant*>(sender_id.data())->toInt(),
+                   reinterpret_cast<QVariant*>(type.data())->toInt(),
+                   reinterpret_cast<QVariant*>(text.data())->toString() );
+
+//    addLogMessageP( sender_id.toInt(),
+//                   type.toInt(),
+//                   text.toString() );
+    return QVariant();
+
+}
+
+
+void ProtTask::addLogMessageP( int sender_id, int type, const QString& text )
+{
+    message_logs.push_back(message_log{sender_id, type, text});
 }

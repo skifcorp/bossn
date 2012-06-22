@@ -39,7 +39,6 @@ LIBS           +=   -L../qextserialport_build/src/build/ -lqextserialport       
 SOURCES += main.cpp \
     weight/mettlertoledo8530.cpp \
     weight/mettlertoledo310.cpp \
-    weight/hbm2110.cpp \
     weight/esitPWI.cpp \
     weight/weightfromfile.cpp \
     scheduler/scheduler.cpp \
@@ -70,13 +69,14 @@ SOURCES += main.cpp \
     settings/tasksettings.cpp \
     stable/stable.cpp \
     prot/prottask.cpp \
-    prot/protdb.cpp
+    prot/protdb.cpp \
+    weight/hbm2108.cpp \
+    weight/hbm2110.cpp
 
 HEADERS += \    
     tools/func.h \
     weight/mettlertoledo8530.h \
     weight/mettlertoledo310.h \
-    weight/hbm2110.h \
     weight/esitPWI.h \
     weight/weightfromfile.h \
     dido/didoer.h \
@@ -123,6 +123,8 @@ HEADERS += \
     tools/tagmethod.h \
     alho/readersettings.h \
     prot/prottask.h \
-    prot/protdb.h
+    prot/protdb.h \
+    weight/hbm2108.h \
+    weight/hbm2110.h
 
 
