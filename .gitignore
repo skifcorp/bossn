@@ -1,3 +1,4 @@
+*.qm
 Makefile
 bossn.pro.user
 Makefile.Debug

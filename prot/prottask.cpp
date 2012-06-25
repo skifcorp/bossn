@@ -299,6 +299,12 @@ void ProtTask::onSaveTimer()
 
         //for (TagValues & tv : tags_values) {
         for (TagsValues::iterator values_iter = tags_values.begin(); values_iter != tags_values.end(); ++values_iter  ) {
+            //qDebug() << "this values " << *iter << "[";
+            for ( auto pv : *values_iter ) {
+                //qDebug() << pv.time << " "<<pv.value;
+            }
+            //qDebug() << "this values ]\n";
+
             if (values_iter->isEmpty()) continue;
 
             QSqlError err = qx::dao::insert(*values_iter, &database, *iter, true);

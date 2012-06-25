@@ -2,6 +2,7 @@
 #include <QApplication>
 #include <QVector>
 #include <QSharedPointer>
+#include <QTranslator>
 
 #include "func.h"
 
@@ -56,6 +57,11 @@ int main(int argc, char *argv[])
     QTextCodec::setCodecForCStrings(QTextCodec::codecForName("Windows-1251"));
     QTextCodec::setCodecForLocale(QTextCodec::codecForName("UTF-8"));
     QTextCodec::setCodecForTr(QTextCodec::codecForName("UTF-8"));
+
+
+    QTranslator translator;
+    translator.load("bossn_ua");
+    app.installTranslator(&translator);
 
     printOnDisplay("Hello");
 

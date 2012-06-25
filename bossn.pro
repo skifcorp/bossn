@@ -36,6 +36,8 @@ LIBS           +=   -L../qextserialport_build/src/build/ -lqextserialport       
                     -L ../ismm/ -lismm
 }
 
+TRANSLATIONS = bossn_ua.ts
+
 SOURCES += main.cpp \
     weight/mettlertoledo8530.cpp \
     weight/mettlertoledo310.cpp \
