@@ -129,7 +129,7 @@ private:
 
 
     void brutto(QVariantMap&, qx::dao::ptr<t_cars>, const MifareCard& ) const throw (MainSequenceException);
-    void tara  (QVariantMap&, qx::dao::ptr<t_cars> ) const throw (MainSequenceException) ;
+    qx::dao::ptr<t_ttn> tara  (QVariantMap&, qx::dao::ptr<t_cars> ) const throw (MainSequenceException) ;
 
     void repairBeetFieldCorrectnessIfNeeded(QVariantMap &, qx::dao::ptr<t_ttn> ) const throw();
     void processChemicalAnalysis(QVariantMap&, qx::dao::ptr<t_ttn> ) const throw();
@@ -151,7 +151,7 @@ private:
     uint getAnalisysPeriodFromStorage(uint typ) const throw (MysqlException, MainSequenceException);
     QString getBumsClause(const QVariantMap & bill, qx::dao::ptr<t_cars> car) const throw(MainSequenceException);
     QString bruttoFinishMessage(const QVariantMap & bill)  const;
-    QString taraFinishMessage()  const;
+    QString taraFinishMessage(int)  const;
 
     bool isPureTaraWeight(const QVariantMap& bill)const throw (MainSequenceException);
     qx::dao::ptr<t_ttn> ttnByDriver( int  )const throw (MainSequenceException);

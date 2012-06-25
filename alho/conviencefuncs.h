@@ -15,7 +15,7 @@ struct convience_func
 
     inline qx::dao::ptr<t_const> getConst(const QString & k) throw(MainSequenceException)
     {
-        auto const_ = async_func_.wrap_async_ex( cant_get_const_message + ": " + k, "cant get const " + k,
+        auto const_ = async_func_.wrap_async_ex( QObject::tr(cant_get_const_message )+ QString(": ") + k, "cant get const " + k,
                                 [&k,this]{return async_func_.async_fetch<t_const>(k);});
         return const_;
     }

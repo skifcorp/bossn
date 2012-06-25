@@ -60,7 +60,13 @@ int main(int argc, char *argv[])
 
 
     QTranslator translator;
-    translator.load("bossn_ua");
+    if ( !translator.load("bossn_ua") )  {
+        qWarning() << "cant load translator!";
+    }
+    else {
+        qDebug() << "translator loaded! is it empty: " << translator.isEmpty();
+    }
+
     app.installTranslator(&translator);
 
     printOnDisplay("Hello");

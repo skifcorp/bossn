@@ -49,7 +49,7 @@ void ReportsManager::configureReportContext(const qx::dao::ptr<t_ttn>& ttn, cons
 /*    qx::dao::ptr<t_kontr> kontr = async_func_.wrap_async_ex(cant_get_kontr_when_printing, "cant get kontr when printing",
                             [&ttn, this]{return async_func_.async_fetch<t_kontr>( kontrCodeFromField( ttn->real_field  ) ); }); */
 
-      qx::dao::ptr<t_kontr> kontr = async_func_.wrap_async_ex(cant_get_kontr_when_printing, "cant get kontr when printing",
+      qx::dao::ptr<t_kontr> kontr = async_func_.wrap_async_ex(QObject::tr(cant_get_kontr_when_printing), "cant get kontr when printing",
                                 [&ttn, &field, this]{return async_func_.async_fetch<t_kontr>( kontrCodeFromField( field->id  ) ); });
 
 
