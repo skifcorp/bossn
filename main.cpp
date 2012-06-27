@@ -60,7 +60,7 @@ int main(int argc, char *argv[])
 
 
     QTranslator translator;
-    if ( !translator.load("bossn_ua") )  {
+    if ( !translator.load("proj/bossn_ua") )  {
         qWarning() << "cant load translator!";
     }
     else {
@@ -71,7 +71,7 @@ int main(int argc, char *argv[])
 
     printOnDisplay("Hello");
 
-    const QString settings_file_name = "settings.xml";
+    const QString settings_file_name = "proj/settings.xml";
 
     TaskSettings app_settings(settings_file_name);
 

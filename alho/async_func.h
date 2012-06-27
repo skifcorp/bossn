@@ -30,8 +30,9 @@ private slots:
     void onFutureFinished()
     {
         //qDebug() << "FINISHED FUTURE!";
-
+        //qDebug () << "before cont!";
         coro.cont();
+        //qDebug () << "after cont!";
     }
 
 public:
@@ -61,10 +62,11 @@ public:
         //terminate_ = false;
 
         QFutureWatcher<decltype(QtConcurrent::run(c, args...).result())> w;
-        connect(&w, SIGNAL(finished()), this, SLOT(onFutureFinished()));
+        connect(&w, SIGNAL(finished()), this, SLOT(onFutureFinished()), Qt::QueuedConnection);
 
         auto f = QtConcurrent::run(c, args...);
         w.setFuture(f);
+        //qDebug() << "before yield!!!";
 
         coro.yield();
         //yield();
@@ -87,11 +89,14 @@ public:
 
         QSqlError err = async_call([&p, this]{return qx::dao::fetch_by_id(p, &database);});
 
+        //qDebug()  << "after async_call!";
+
         if (err.isValid() && err.number() == 1111 && !ex_on_no_data) {
             return  qx::dao::ptr<T>();
         }
 
         if  (err.isValid()) {
+            //qDebug()  << "throwing exeption!";
             throw MysqlException(err.databaseText() , err.driverText());
         }
         return p;
@@ -222,6 +227,8 @@ public:
             return f(p...);
         }
         catch (MysqlException& ex) {
+            //qDebug() << "GOT MySQL excption!!!";
+
             throw MainSequenceException(user_msg, admin_msg, "databaseText: " + ex.databaseText() + " driver_text: " + ex.driverText() );
         }
     }
