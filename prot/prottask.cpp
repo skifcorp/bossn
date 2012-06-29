@@ -221,6 +221,8 @@ void ProtTask::exec()
     TagValues::Iterator  last_value_iter = last_values.begin();
 
     for (const TagProtConf & tpc : tag_prot_confs) {
+        //qDebug () <<  "exec: " << tpc.NameVar;
+
         QVariant val = tags[ tpc.NameVar ]->func( tpc.func_name );
         if ( !val.isValid() ) {
             if ( last_value_iter->value == last_value_iter->value /*not nan*/ ) {
@@ -234,11 +236,11 @@ void ProtTask::exec()
 
 
 
-            if ( true ||
+            if ( /* true || */
                  ( last_value_iter->value != last_value_iter->value /*isnan*/) ||
                  ( tpc.dz_type == TagProtConf::DzNone && !qFuzzyCompare(fval, last_value_iter->value) ) ||
                  ( tpc.dz_type == TagProtConf::DzAbs && qAbs(fval - last_value_iter->value) > tpc.dz.toFloat() ) ) {
-
+                //qDebug () << "IN DEADZONE!!!";
                 *last_value_iter = prot_values{ QDateTime::currentDateTime().toUTC(), val.toFloat() };
 
                 iter->push_back( *last_value_iter );
@@ -297,20 +299,14 @@ void ProtTask::onSaveTimer()
 
         QList<QString>::const_iterator iter = names.begin();
 
-        //for (TagValues & tv : tags_values) {
         for (TagsValues::iterator values_iter = tags_values.begin(); values_iter != tags_values.end(); ++values_iter  ) {
-            //qDebug() << "this values " << *iter << "[";
-            for ( auto pv : *values_iter ) {
-                //qDebug() << pv.time << " "<<pv.value;
+            if (!values_iter->isEmpty()) {
+                QSqlError err = qx::dao::insert(*values_iter, &database, *iter, true);
+                if ( err.isValid() ) {
+                    qWarning() << "prot_error while saving data! "<< err.databaseText() << " " << err.driverText();
+                }
             }
-            //qDebug() << "this values ]\n";
 
-            if (values_iter->isEmpty()) continue;
-
-            QSqlError err = qx::dao::insert(*values_iter, &database, *iter, true);
-            if ( err.isValid() ) {
-                qWarning() << "prot_error while saving data! "<< err.databaseText() << " " << err.driverText();
-            }
             ++iter;
         }
 
