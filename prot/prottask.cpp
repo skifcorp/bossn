@@ -1,7 +1,11 @@
+//#include <winsock.h>
+//#include "mysql.h"
+
 #include "prottask.h"
 #include "settingstool.h"
 #include "protdb.h"
 #include "async_func.h"
+
 
 #include <cmath>
 
@@ -45,6 +49,11 @@ void ProtTask::setSettings(const QVariantMap & s)
     config_database.setPassword(get_setting<QString>("database_password", s));
     config_database.setConnectOptions( get_setting<QString>("connection_options", s, QString() ) );
 
+    //config_database.open();
+
+    //MYSQL * m = *static_cast<MYSQL**>( config_database.driver()->handle().data() );
+    //mysql_set_character_set(m, "cp1251");
+
     //tryInitializeProtViewerConf(get_setting<QString>("database_name", s),
     //                                    get_setting<QString>("database_ru_name", s));
     QString db_name = get_setting<QString>("database_name", s);
@@ -58,6 +67,9 @@ void ProtTask::setSettings(const QVariantMap & s)
     database.setPassword(get_setting<QString>("database_password", s));
     database.setConnectOptions( get_setting<QString>("connection_options", s, QString() ) );
 
+    //database.open();
+    //m = *static_cast<MYSQL**>( database.driver()->handle().data() );
+    //mysql_set_character_set(m, "cp1251");
 
     //tryInitializeProtDataTables();
 
@@ -120,7 +132,8 @@ void ProtTask::insertProtConf() throw (MainSequenceException)
         prot_confs.push_back(tpc);
     }
 
-    config_async_func_.async_insert(prot_confs);
+    //config_async_func_.async_insert(prot_confs);
+    config_async_func_.wrap_async_ex(QString(), QString(), [this, &prot_confs]{config_async_func_.async_insert(prot_confs);});
 }
 
 void ProtTask::insertDbNames(const QString& db_name, const QString& db_ru_name) throw (MainSequenceException)
@@ -131,7 +144,8 @@ void ProtTask::insertDbNames(const QString& db_name, const QString& db_ru_name) 
     dn.DB_name   = db_name;
     dn.DB_r_name = db_ru_name;
 
-    config_async_func_.async_insert(dn);
+    //config_async_func_.async_insert(dn);
+    config_async_func_.wrap_async_ex(QString(), QString(), [this, &dn]{config_async_func_.async_insert(dn);});
 }
 
 

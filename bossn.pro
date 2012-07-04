@@ -16,7 +16,7 @@ DESTDIR  = build
 TEMPLATE = app
 INCLUDEPATH    += ../qextserialport/src/ db alho serial weight generic iodevicewrapper scheduler           \
                       porter task dido perimeter tools reader  reports ../coroutine/src/ ../QxOrm/include  \
-                      $$(BOOST_ROOT) ../ismm/ settings stable prot
+                      $$(BOOST_ROOT) ../ismm/ settings stable prot  $$(MYSQL_DIR)/include
 QMAKE_CXXFLAGS += -std=c++0x #-m32
 #QMAKE_LFLAGS   += -m32
 

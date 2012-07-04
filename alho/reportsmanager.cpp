@@ -82,7 +82,12 @@ void ReportsManager::configureReportContext(const qx::dao::ptr<t_ttn>& ttn, cons
             IxDataMember * dm = m->get(i);
 
             if ( dm->getSqlType()=="TEXT" ) {
-                ctx[iter->var_name + "_" + dm->getName()] = dm->getValue<QString>(iter->var).toLatin1();
+                //ctx[iter->var_name + "_" + dm->getName()] = dm->getValue<QString>(iter->var).toLatin1();
+                QTextCodec * utf = QTextCodec::codecForName("UTF-8");
+                QByteArray ba = utf->fromUnicode(dm->getValue<QString>(iter->var));
+                QTextCodec * cp1251 = QTextCodec::codecForName("Windows-1251");
+
+                ctx[iter->var_name + "_" + dm->getName()] = dm->getValue<QString>(iter->var);//cp1251->toUnicode(ba);
             }
             else {
                 ctx[iter->var_name + "_" + dm->getName()] = dm->toVariant(  iter->var  );

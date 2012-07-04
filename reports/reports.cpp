@@ -48,8 +48,9 @@ bool Reports::print(const QVariantMap & m)
 
 
     }
-    delete report;
-    //report->show();
+    //delete report;
+    report->setAttribute( Qt::WA_QuitOnClose, false );
+    report->show();
     //QPrinter printer;
 
     //report->render(&printer);

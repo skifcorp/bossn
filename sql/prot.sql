@@ -5,7 +5,7 @@ use Config_files;
 
 drop table if exists prot_conf;
 
-create table prot_conf 
+create table if not exists prot_conf 
 (
 	NameDB CHAR(255),
 	Names CHAR(255), 
@@ -13,7 +13,7 @@ create table prot_conf
 	Parametrs CHAR (255)
 );
 
-create table db_names 
+create table if not exists db_names 
 (
 	DB_name CHAR(255), 
 	DB_r_name CHAR(255)
