@@ -9,6 +9,8 @@
 #include "codeshacks.h"
 #include "conviencefuncs.h"
 
+//#include "mysql.h"
+
 #include <QBitArray>
 
 
@@ -74,8 +76,17 @@ void MainSequence::setSettings(const QVariantMap & s)
 //    ttn.bum = 12;
 //    ttn.car = 120;
 //    qx::dao::insert( ttn, &database, "t_ttn", true );
+    /*if ( !database.open() ) {
+        qDebug() << "cant open!" << database.lastError();
+    }*/
+
+    //qDebug() << database.exec("SET NAMES 'cp1251'").lastError() << " !!!!";
 
 
+    /*MYSQL * m = *static_cast<MYSQL**>( database.driver()->handle().data() );
+    mysql_set_character_set(m, "cp1251");
+    qDebug() << " -------------" <<(void *)m;
+    qDebug() << "!!!!!! "<< mysql_character_set_name(m);*/
 }
 
 QString MainSequence::taraFinishMessage(int tara) const
@@ -164,7 +175,7 @@ void MainSequence::onAppearOnWeight(const QString& )
 
     if ( status() == NotStarted || status() == Terminated ) {
         restart();
-
+        createStack(65535);
         wakeUp();
     }
 }
@@ -465,7 +476,7 @@ void MainSequence::processFreeBum(QVariantMap & bill, qx::dao::ptr<t_ttn> ttn, q
     qx::dao::ptr<t_bum> bum = async_func_ptr->wrap_async_ex(tr(get_free_bum_error), "Error getting free bum1",
         [&bums_where_clause, &q1, this]{ return async_func_ptr->async_exec_query<t_bum>(q1, false);});
 
-
+    //qDebug() <<  "  BBB: " << q2;
 
     if ( !bum ) {
         //qDebug () << "BUM IS ENPTYYYYYYYYYYYYYYYY!";
