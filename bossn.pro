@@ -17,6 +17,8 @@ TEMPLATE = app
 INCLUDEPATH    += ../qextserialport/src/ db alho serial weight generic iodevicewrapper scheduler           \
                       porter task dido perimeter tools reader  reports ../coroutine/src/ ../QxOrm/include  \
                       $$(BOOST_ROOT) ../ismm/ settings stable prot
+
+INCLUDEPATH             += $$(QTSDK_DIR)/QtSources/4.8.1/include
 QMAKE_CXXFLAGS += -std=c++0x #-m32
 #QMAKE_LFLAGS   += -m32
 
