@@ -42,6 +42,9 @@ struct t_ttn
     uint brutto_platforma;
     uint tara_platforma;
     uint field_from_car;
+    uint culture;
+    uint sort;
+    uint repr;
 
     t_ttn();
     t_ttn(long id):num_nakl(id){}

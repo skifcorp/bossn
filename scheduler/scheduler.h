@@ -16,26 +16,66 @@ using std::function;
 
 
 class IoDeviceWrapper;
+class Scheduler;
+class AlhoSequence;
 
-struct Schedul
+class Schedul : public QObject
+
 {
-    typedef QSharedPointer<QTimer> TimerPointer;
+    Q_OBJECT
+public:
+    typedef QSharedPointer<Schedul> Pointer;
+
+    Schedul(Scheduler & s, function<void ()> schf, function<void ()> tmf, int schedul_msec, int timeout_msec)
+        :num(0), schedule_func(schf), timeout_func(tmf), scheduler(s)
+    {
+        schedule_timer.setSingleShot(true);
+        schedule_timer.setInterval(schedul_msec);
+
+        timeout_timer.setSingleShot(true);
+        timeout_timer.setInterval(timeout_msec);
+
+        connect(&schedule_timer,SIGNAL(timeout()), this, SLOT(onScheduleTimer()) );
+    }
+    int num;
+    Schedul(const Schedul& ) = delete;
 
     function<void ()> schedule_func;
     function<void ()> timeout_func;
-    TimerPointer schedule_timer;
-    TimerPointer timeout_timer;
+    QTimer timeout_timer;
 
-    Schedul( function<void ()> schf, function<void ()> tmf, int schedul_msec, int timeout_msec)
-        :schedule_func(schf), timeout_func(tmf), schedule_timer(new QTimer), timeout_timer(new QTimer), num(0)
+    void startScheduleTimer();
+    static void coro_deleter(Coroutine *);
+    static void coro_deleter_for_external_coro(Coroutine *);
+
+    void setExternalCoro(Coroutine *);
+    void yield()
     {
-        schedule_timer->setSingleShot(true);
-        schedule_timer->setInterval(schedul_msec);
-
-        timeout_timer->setSingleShot(true);
-        timeout_timer->setInterval(timeout_msec);
+        coro->yield();
     }
-    int num;
+    bool cont()
+    {
+        return coro->cont();
+    }
+    bool running() const
+    {
+        return coro->status() == Coroutine::Stopped;
+    }
+protected:
+    //virtual void run();
+private:
+    typedef QSharedPointer<Coroutine> TrickyCoroPointer;
+
+    Scheduler & scheduler;
+
+
+
+    QTimer schedule_timer;
+    TrickyCoroPointer coro;
+
+public slots:
+    void onScheduleTimer();    
+    void onSchedulerFinished();
 };
 
 class connect_helper : public QObject
@@ -63,19 +103,22 @@ struct CoroContext
     typedef QSharedPointer<Coroutine> CoroPointer;
     CoroPointer coro;
     Schedul * schedul;
-    CoroContext(const CoroPointer & c, Schedul *s):coro(c), schedul(s) {}
-    CoroContext():schedul(nullptr) {}
-    void clear()
-    {
-        schedul = nullptr;
-        coro.clear();
-    }
+    CoroContext(const CoroPointer & c, Schedul *s):coro(c), schedul(s) , activate_on_finish(false), cyclic(true){}
+    CoroContext():schedul(nullptr), activate_on_finish(false), cyclic(true) {}
+    void clear();
     bool empty() const {return schedul == nullptr && !coro.data();}
+    bool activate_on_finish;
+    bool cyclic;
 };
 
 class Scheduler : public QObject
 {
+    friend class Schedul;
+
     Q_OBJECT
+signals:
+    void finished();
+    void finished2();
 public:    
     typedef QWeakPointer<IoDeviceWrapper> IoDevPointer;
 
@@ -83,22 +126,28 @@ public:
     ~Scheduler(){}
 
     void addFunction( function<void ()>, function<void ()>, int schedul_msec, int timeout_msec );
-    void execFunction( function<void ()>, function<void ()>, int timeout_msec );
+
+    void execFunction(AlhoSequence * caller, function<void ()>, function<void ()>, int timeout_msec );
 
     void setDevice(IoDevPointer d);
     void clear();
     bool busy() const {return !current_coro.empty();}
-    void waitForFree () const {   while (busy()) {qApp->processEvents();}   }
+public slots:
+
+    void waitForFree (Schedul&, bool important );
+
+protected:
 
 private slots:
     void onTimeoutTimer();
-    void onScheduleTimer(Schedul & s);
+    //void onScheduleTimer(Schedul & s);
     void onReadyRead();
+    //void continueExec();
 private:    
     template <class R, class T>
     friend void connect_callable(QObject * sender, const char * signal, R*receiver , const T& slot,  Qt::ConnectionType t = Qt::AutoConnection);
 
-    typedef QList<Schedul> Scheduls;
+    typedef QList<Schedul::Pointer> Scheduls;
 
     CoroContext        current_coro;
     IoDevPointer       device;
@@ -106,9 +155,13 @@ private:
 
     Scheduls scheduls;
 
+    QList<QObject*> waiters;
+
 
     void execute();
-    void startNewCoro(Schedul &);
+    void startNewCoro(Schedul &, bool important, bool actiavate_on_finish, bool cyclic);
+    void activateWaiter();
+
 };
 
 #endif // SCHEDULER_H

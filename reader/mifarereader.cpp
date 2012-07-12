@@ -203,10 +203,10 @@ bool MifareResponseFrame::checkResponse(const MifareRequestFrame & req)
     }
 
     if (!ret) {
-        qDebug() << "request: ";
-        req.print();
-        qDebug() << "response: ";
-        print();
+        //qDebug() << "request: ";
+        //req.print();
+        //qDebug() << "response: ";
+        //print();
     }
 
     return ret;
@@ -303,6 +303,8 @@ MifareReader::~MifareReader()
 
 QVariant MifareReader::doOn()
 {    
+    //qDebug() << "Mifare 1 begin: {";
+
     MifareRequestFrame req_frame;
 
     req_frame.address  = address;
@@ -324,17 +326,22 @@ QVariant MifareReader::doOn()
     resp_frame.unpackFrame(answ);
 
     if (!resp_frame.checkResponse(req_frame)) {
+        //qDebug() << "} Mifare 1 end";
         qWarning()<<"GOT ERROR IN MifareReader DO ON!!!!!";
         return QVariant(false);
     }
 
-    qDebug() << "doOn finished correctrly";
+    //qDebug() << "doOn finished correctrly";
+
+    //qDebug() << "} Mifare 1 end";
 
     return QVariant(true);
 }
 
 QVariant MifareReader::doOff()
 {
+    //qDebug() << "Mifare 2 begin: {";
+
     MifareRequestFrame req_frame;
 
     req_frame.address  = address;
@@ -357,16 +364,19 @@ QVariant MifareReader::doOff()
     resp_frame.unpackFrame(answ);
 
     if (!resp_frame.checkResponse(req_frame)) {
+        //qDebug() << "} Mifare 2 end";
         qWarning()<<"GOT ERROR IN MifareReader DO OFF!!!!!";
         return QVariant(false);
     }
-
+//qDebug() << "} Mifare 2 end";
     return QVariant(true);
 }
 
 
 QVariant MifareReader::doSound(const QVariant& cnt)
 {
+    //qDebug() << "Mifare 3 begin: {";
+
     uchar count = static_cast<uchar>(cnt.toUInt());
 
     MifareRequestFrame req_frame;
@@ -392,16 +402,18 @@ QVariant MifareReader::doSound(const QVariant& cnt)
     resp_frame.unpackFrame(answ);
 
     if (!resp_frame.checkResponse(req_frame)) {
+        //qDebug() << "} Mifare 3 end";
         qWarning()<<"GOT ERROR IN MifareReader DO SOUND!!!!!";
         return QVariant(false);
     }
-
+//qDebug() << "} Mifare 3 end";
     return QVariant(true);
 }
 
 
 QVariant MifareReader::activateIdleA()
 {
+    //qDebug() << "Mifare 4 begin: {";
     MifareRequestFrame req_frame;
     req_frame.address  = address;
     req_frame.ident    = frame_ident++;
@@ -421,11 +433,14 @@ QVariant MifareReader::activateIdleA()
 
     if (!resp_frame.checkResponse(req_frame)) {
         qWarning()<<"GOT ERROR IN MifareReader activateIdleA!!!!!";
+        //qDebug() << "Mifare 4 end }";
         //sharedFromThis();
         return QVariant::fromValue<ActivateCardISO14443A>(ActivateCardISO14443A());
     }
 
     if (resp_frame.cmdStatus != 0) {
+        //qWarning() <<"mifare reader activateIdleA cmdStatus != 0:  "<<errorMessage(resp_frame.cmdStatus);
+        //qDebug() << "Mifare 4 end }";
         return QVariant::fromValue<ActivateCardISO14443A>(ActivateCardISO14443A());
     }
 
@@ -435,6 +450,8 @@ QVariant MifareReader::activateIdleA()
     ac.sak = resp_frame.params[2];
     uchar uid_len = static_cast<uchar>(resp_frame.params[3]);
     ac.uid = resp_frame.params.mid(4).left(uid_len);
+
+    //qDebug() << "Mifare 4 end }";
 
     return QVariant::fromValue<ActivateCardISO14443A>(ac);
 }
@@ -450,6 +467,8 @@ bool MifareReader::waitForAnswer()
 
 QVariant MifareReader::getHostCodedKey(const QVariant& key)//const QByteArray& key)
 {
+    //qDebug() << "Mifare 5 begin: {";
+
     MifareRequestFrame req_frame;
 
     req_frame.address  = address;
@@ -472,25 +491,29 @@ QVariant MifareReader::getHostCodedKey(const QVariant& key)//const QByteArray& k
     resp_frame.unpackFrame(answ);
 
     if (!resp_frame.checkResponse(req_frame)) {
+        //qDebug() << "} Mifare 5 end";
         qWarning()<<"checkresponce: GOT ERROR IN MifareReader getHostCodeKey!!!!!";
         return QVariant::fromValue<HostCodedKey>(HostCodedKey());
     }
 
     if (resp_frame.cmdStatus != 0) {
-        qWarning() << "cmdStatus: GOT ERROR IN MifareReader getHostCodeKey!!!!!" + errorMessage(resp_frame.cmdStatus);
+        //qDebug() << "} Mifare 5 end";
+        qWarning() << "cmdStatus: GOT ERROR IN MifareReader getHostCodeKey!!!!!" << errorMessage(resp_frame.cmdStatus);
         return QVariant::fromValue<HostCodedKey>(HostCodedKey());
     }
 
     HostCodedKey coded_key;
     coded_key.ack   = resp_frame.cmdStatus;
     coded_key.coded = resp_frame.params;
-
+//qDebug() << "} Mifare 5 end";
     return QVariant::fromValue<HostCodedKey>(coded_key);
 }
 
 
 QVariant MifareReader::doAuth(const QVariant& var_auth)//const AuthKey & auth)
 {
+    //qDebug() << "Mifare 6 begin: {";
+
     MifareRequestFrame req_frame;
 
     AuthKey auth = var_auth.value<AuthKey>();
@@ -519,19 +542,23 @@ QVariant MifareReader::doAuth(const QVariant& var_auth)//const AuthKey & auth)
 
     if (!resp_frame.checkResponse(req_frame)) {
         qWarning()<<"check_responce: GOT ERROR IN MifareReader doAuth!!!!!";
+        //qDebug() << "} Mifare 6 end";
         return QVariant(false);
     }
 
     if (resp_frame.cmdStatus != 0  ) {
-        qWarning()<<"cmd_status: GOT ERROR IN MifareReader doAuth!!!!!" + errorMessage(resp_frame.cmdStatus);
+        qWarning()<<"cmd_status: GOT ERROR IN MifareReader doAuth!!!!!" << errorMessage(resp_frame.cmdStatus);
+        //qDebug() << "} Mifare 6 end";
         return QVariant(false);
     }
-
+//qDebug() << "} Mifare 6 end";
     return QVariant(true);
 }
 
 QVariant MifareReader::readBlock(const QVariant& num)
 {
+    //qDebug() << "Mifare 7 begin: {";
+
     MifareRequestFrame req_frame;
 
     req_frame.address  = address;
@@ -552,12 +579,14 @@ QVariant MifareReader::readBlock(const QVariant& num)
     resp_frame.unpackFrame(answ);
 
     if (!resp_frame.checkResponse(req_frame)) {
+        //qDebug() << "} Mifare 7 end";
         qWarning()<<"readBlock: check_responce: GOT ERROR IN MifareReader readBlock!!!!!";
         return QVariant::fromValue<MifareRead>(MifareRead());
     }
 
     if (resp_frame.cmdStatus != 0) {
-        qWarning()<<"readBlock: cmdStatus: GOT ERROR IN MifareReader readBlock!!!!! : " + errorMessage(resp_frame.cmdStatus);
+        //qDebug() << "} Mifare 7 end";
+        qWarning()<<"readBlock: cmdStatus: GOT ERROR IN MifareReader readBlock!!!!! : " << errorMessage(resp_frame.cmdStatus);
         return QVariant::fromValue<MifareRead>(MifareRead());
     }
 
@@ -566,13 +595,15 @@ QVariant MifareReader::readBlock(const QVariant& num)
     ret.data = resp_frame.params;
     ret.result = true;
 
-    qDebug () << "readBlock OK!";
-
+    //qDebug () << "readBlock OK!";
+//qDebug() << "} Mifare 7 end";
     return QVariant::fromValue<MifareRead>(ret);
 }
 
 QVariant MifareReader::writeBlock(const QVariant& block_num, const QVariant& data)
 {
+    //qDebug() << "Mifare 8 begin: {";
+
     MifareRequestFrame req_frame;
 
     req_frame.address = address;
@@ -593,16 +624,18 @@ QVariant MifareReader::writeBlock(const QVariant& block_num, const QVariant& dat
     resp_frame.unpackFrame(answ);
 
     if (!resp_frame.checkResponse(req_frame)) {
+        //qDebug() << "} Mifare 8 end";
         qWarning()<<"writeBlock: check_responce: GOT ERROR IN MifareReader writeBlock!!!!!";
         return QVariant(false);
     }
 
     if (resp_frame.cmdStatus != 0) {
-        qWarning()<<"writeBlock: cmdStatus: GOT ERROR IN MifareReader writeBlock!!!!! : " + errorMessage(resp_frame.cmdStatus);
+        //qDebug() << "} Mifare 8 end";
+        qWarning()<<"writeBlock: cmdStatus: GOT ERROR IN MifareReader writeBlock!!!!! : " << errorMessage(resp_frame.cmdStatus);
         return QVariant(false);    
     }
 
-    qDebug () << "writeBlock OK!";
-
+    //qDebug () << "writeBlock OK!";
+//qDebug() << "} Mifare 8 end";
     return QVariant(true);
 }

@@ -13,6 +13,7 @@ using std::function;
 #include "tags.h"
 #include "cardstructs.h"
 #include "readersettings.h"
+#include "alhosequence.h"
 
 class MifareCardException
 {
@@ -39,7 +40,7 @@ private:
 class MifareCard
 {
 public:
-    MifareCard(Tag::WeakPointer r , const ActivateCardISO14443A&, const ReaderTagMethods& );
+    MifareCard(Tag::WeakPointer r , const ActivateCardISO14443A&, const ReaderTagMethods&, AlhoSequence& c );
 
     ~MifareCard(){}
 
@@ -75,6 +76,7 @@ private:
     void     writeMember(const StructMemberConf& , const QVariant&, QByteArray& ) const throw (MifareCardException);
 
     const ReaderTagMethods& reader_settings;
+    AlhoSequence& caller;
 };
 
 

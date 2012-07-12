@@ -9,14 +9,15 @@
 #include "tags.h"
 #include "perimtercontrol.h"
 
+#if 0
 class PerimeterControlByDi : public PerimeterControl
 {
 public:
     ~PerimeterControlByDi(){}
 
     virtual void setSettings( const QMap<QString, QVariant>& );
-    virtual bool appeared();
-    virtual bool disappeared();
+    virtual bool appeared(AlhoSequence *);
+    virtual bool disappeared(AlhoSequence *);
 
     static PerimeterControl * create(Tags & t)
     {
@@ -40,6 +41,7 @@ private:
 
     QString method;
 };
+#endif
 
 class PerimeterControlByWeight : public PerimeterControl
 {
@@ -47,8 +49,8 @@ public:
     ~PerimeterControlByWeight(){}
 
     virtual void setSettings( const QMap<QString, QVariant>& );
-    virtual bool appeared();
-    virtual bool disappeared();
+    virtual bool appeared(AlhoSequence *);
+    virtual bool disappeared(AlhoSequence *);
 
     static PerimeterControl * create(Tags & t)
     {

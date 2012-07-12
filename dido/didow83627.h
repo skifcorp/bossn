@@ -16,7 +16,7 @@ public:
     ~DidoW83627() {}
 
     Q_INVOKABLE QVariant getDi();
-    Q_INVOKABLE void setDo(const QVariant& );
+    Q_INVOKABLE QVariant setDo(const QVariant& );
 
     Q_INVOKABLE QVariant getDiBit(const QVariant& full_byte, const QVariant& num);
     Q_INVOKABLE QVariant setDoBit(const QVariant& full_byte, const QVariant& num, const QVariant& );

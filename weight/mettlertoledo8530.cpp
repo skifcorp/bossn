@@ -7,8 +7,10 @@
 
 BossnFactoryRegistrator<MettlerToledo8530> MettlerToledo8530::registrator("MettlerToledo8530");
 
-void MettlerToledo8530::readWeight(float & ret, uint & err)
+void MettlerToledo8530::readWeight(QVariant & ret, uint & err)
 {
+    //qDebug() << "readWeight!";
+
     QByteArray req = weightRequestFrame();
     io_device()->write(req);
 
@@ -17,9 +19,15 @@ void MettlerToledo8530::readWeight(float & ret, uint & err)
         yield();
     }
 
+    //qDebug () << "GOT SOMETHING!";
+
     QByteArray answ = io_device()->read(frame_size);
 
-    ret = parseWeightFrameAnswer(answ, err);
+
+
+    ret = static_cast<int> (parseWeightFrameAnswer(answ, err, req));
+
+    //qDebug( ) << ret;
 }
 
 void MettlerToledo8530::zero(uint &)
@@ -31,32 +39,34 @@ void MettlerToledo8530::zero(uint &)
 QByteArray MettlerToledo8530::weightRequestFrame() const
 {
     QByteArray cmd;
-    cmd+='2';
+    /*cmd+='2';
     cmd+=QByteArray::number(address);
+    cmd+='U';
+    cmd+='B';
+    cmd+=QByteArray::fromHex("0D");*/
+
+    cmd += QByteArray::fromHex("02");
+    cmd += QByteArray::number(address);
     cmd+='U';
     cmd+='B';
     cmd+=QByteArray::fromHex("0D");
     return cmd;
 }
 
-float MettlerToledo8530::parseWeightFrameAnswer(const QByteArray& ba, uint & err) const
+float MettlerToledo8530::parseWeightFrameAnswer(const QByteArray& ba, uint & err, const QByteArray& cmd) const
 {
 
-    if (ba[0] != '2' || ba[2] != 'U' || ba[3] != 'B' || ba.right(1) != QByteArray::fromHex("0D")) {
+    if ( cmd.left(4) != ba.left(4) || ba.right(1)!=QByteArray::fromHex("0D") ) {
         //throw WeightFrameExceptionCorrupted();
-        err = PorterFrameCorrupted; return NAN;
+        err = PorterFrameCorrupted; return 0;
     }
 
-    if ( static_cast<uchar>(QString( ba[1] ).toUInt()) != address ) {
-        //throw WeightFrameExceptionBadAddress();
-        err = PorterFrameBadAddress; return NAN;
-    }
 
     bool ok = false;
-    bool fret = ba.mid(4,8).toFloat(&ok);
+    float fret = ba.mid(4,8).toFloat(&ok);
     if (!ok) {
         //throw WeightFrameExceptionCorrupted();
-        err = PorterFrameCorrupted; return NAN;
+        err = PorterFrameCorrupted; return 0;
     }
     err = 0;
     return fret;

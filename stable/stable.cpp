@@ -62,17 +62,24 @@ smaller_than_op smaller_than;
 
 BossnFactoryRegistrator<StableTask> StableTask::registrator("StableTask");
 
-void StableTask::exec()
+void StableTask::run()
 {
-    QVariant v = tags[controlled_tag_name]->func(controlled_tag_func);
+    //qDebug() << "stable run!!!";
+
+    is_busy = true;
+
+    QVariant v = tags[controlled_tag_name]->func(controlled_tag_func, this);
 
     if ( !v.isValid() ) {
-        is_stable = false; return;
+        //qDebug() << "stable not valid!!!";
+        is_stable = false;
+        is_busy = false;
+        return;
     }
 
     values.enqueue( v );
 
-    if (values.size() < 2 ) {is_stable = false; return;}
+    if (values.size() < 2 ) {is_stable = false; is_busy = false; return;}
 
     VariantFixedQueue::const_iterator iter1 , iter2;
     iter1 = iter2 = values.begin();
@@ -95,9 +102,9 @@ void StableTask::exec()
 
     is_stable = grater_than( delta, max_delta ).toBool();
 
+    is_busy = false;
 
-
-   // qDebug () << "stable: " << is_stable << "\n";
+    //qDebug () << "stable: " << is_stable << "\n";
 }
 
 
@@ -115,3 +122,12 @@ void StableTask::setSettings(const QVariantMap & s)
 
     delta  = get_setting<QVariant>("delta", s);
 }
+
+bool StableTask::busy() const
+{
+    return is_busy;
+}
+
+
+
+

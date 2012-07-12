@@ -11,6 +11,11 @@
 
 BossnFactoryRegistrator<ProtTask> ProtTask::registrator("ProtTask");
 
+bool ProtTask::busy() const
+{
+    return is_busy;
+}
+
 void ProtTask::setSettings(const QVariantMap & s)
 {
     save_timer.setInterval( get_setting<int>("save_interval", s) );
@@ -49,8 +54,14 @@ void ProtTask::setSettings(const QVariantMap & s)
     config_database.setPassword(get_setting<QString>("database_password", s));
     config_database.setConnectOptions( get_setting<QString>("connection_options", s, QString() ) );
 
-    //config_database.open();
+    /*if  ( config_database.open() ) {
+        qDebug() << "OPENED!";
+    }
+    else {
+        qDebug() << "cant open!!!: "<<config_database.lastError().text();
+    }*/
 
+    //qFatal( "exit;" );
     //MYSQL * m = *static_cast<MYSQL**>( config_database.driver()->handle().data() );
     //mysql_set_character_set(m, "cp1251");
 
@@ -74,7 +85,12 @@ void ProtTask::setSettings(const QVariantMap & s)
     //tryInitializeProtDataTables();
 
     //save_timer.start();
+
+
+    createStack(65535*4);
     cont();
+
+    //qDebug() << "prot set settings!!!!!!!!!!!!!!";
 }
 
 void ProtTask::tryInitializeProtViewerConf(const QString& db_name, const QString& db_ru_name)
@@ -96,11 +112,14 @@ void ProtTask::tryInitializeProtDataTables()
 {
     try {
         initProtDataTables();
+        //qDebug() << "AFTER INITPROTDATA_TABLSE!!!!!!!!!!!!!";
         prot_conf_initialized = true;
     }
     catch (  MainSequenceException& ex ) {
         qWarning() << "cant initProtDatatable! " << ex.systemMessage();
     }
+
+
 }
 
 
@@ -108,8 +127,12 @@ void ProtTask::initProtDataTables()  throw (MainSequenceException)
 {
     for (TagProtConf & tpc : tag_prot_confs) {
         //try {
-            async_func_.wrap_async_ex( QString(), QString(), [this, &tpc]{return async_func_.async_create_table<prot_values>(tpc.NameVar);});
-            async_func_.wrap_async_ex( QString(), QString(), [this, &tpc]{return async_func_.async_create_table<prot_value_scale>("Scale_" + tpc.NameVar);});
+        //qDebug() << "creating table: " << tpc.NameVar;
+
+        async_func_.wrap_async_ex( QString(), QString(), [this, &tpc]{return async_func_.async_create_table<prot_values>(tpc.NameVar);});
+        //qDebug() << "creating table: " << tpc.NameVar << " OK!!!!!!!!!!!!!!!";
+
+        async_func_.wrap_async_ex( QString(), QString(), [this, &tpc]{return async_func_.async_create_table<prot_value_scale>("Scale_" + tpc.NameVar);});
 
             prot_value_scale sc(tpc.min.toFloat(), tpc.max.toFloat());
 
@@ -196,20 +219,29 @@ void ProtTask::initializeMessageLogs()
 
 void ProtTask::run()
 {  
-    while (!viewer_prot_initialized)
-        tryInitializeProtViewerConf_();
+    if (init) {
+        while (!viewer_prot_initialized)
+            tryInitializeProtViewerConf_();
 
-    while (!prot_conf_initialized)
-        tryInitializeProtDataTables();
+        while (!prot_conf_initialized)
+            tryInitializeProtDataTables();
 
-    while (!prot_work_initialized)
-        initializeProtWork();
+        while (!prot_work_initialized)
+            initializeProtWork();
 
-    while (!message_logs_initialized)
-        initializeMessageLogs();
+        while (!message_logs_initialized)
+            initializeMessageLogs();
 
 
-    save_timer.start();
+        save_timer.start();
+        init = false;
+
+        qDebug() << "PROT INITIALIZED!";
+
+        return;
+    }
+
+    exec();
 }
 
 void ProtTask::exec()
@@ -217,18 +249,7 @@ void ProtTask::exec()
     if (!viewer_prot_initialized || !prot_conf_initialized || !prot_work_initialized || !message_logs_initialized) return;
 
 
-    //qDebug () << "exec!< "<<QDateTime::currentDateTime().toUTC().toString("yyyy-mm-dd hh:mm:ss");
-
-    //if ( !viewer_prot_initialized )
-//        tryInitializeProtViewerConf_();
-
-  //  if ( !prot_conf_initialized && viewer_prot_initialized ) {
-        // have initialize prot_conf if viewer_prot_conf dont initialized because they are in the same host
-    //    tryInitializeProtDataTables();
-    //}
-
-    //if (!prot_conf_initialized) return;
-
+     is_busy = true;
 
 
     TagsValues::Iterator iter            = tags_values.begin();
@@ -237,7 +258,7 @@ void ProtTask::exec()
     for (const TagProtConf & tpc : tag_prot_confs) {
         //qDebug () <<  "exec: " << tpc.NameVar;
 
-        QVariant val = tags[ tpc.NameVar ]->func( tpc.func_name );
+        QVariant val = tags[ tpc.NameVar ]->func( tpc.func_name, this );
         if ( !val.isValid() ) {
             if ( last_value_iter->value == last_value_iter->value /*not nan*/ ) {
                 *last_value_iter = prot_values{ QDateTime::currentDateTime().toUTC(), NAN };
@@ -264,6 +285,9 @@ void ProtTask::exec()
         ++iter; ++last_value_iter;
     }
 
+    //qDebug() << "!!!!!!!EXECUTING PROT!!!!!!!";
+
+    is_busy = false;
 }
 
 void ProtTask::initTagsValues()
@@ -340,7 +364,7 @@ void ProtTask::onSaveTimer()
 }
 
 
-QVariant ProtTask::addLogMessage(const QString&, QGenericArgument sender_id, QGenericArgument type, QGenericArgument text )
+QVariant ProtTask::addLogMessage(const QString&, AlhoSequence*, QGenericArgument sender_id, QGenericArgument type, QGenericArgument text )
 //void ProtTask::addLogMessage(const QString&, const QVariant& sender_id, const QVariant& type, const QVariant& text )
 {
 /*    if ( sender_id.name() != QString("QVariant")) {

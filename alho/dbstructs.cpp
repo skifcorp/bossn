@@ -18,12 +18,12 @@ QX_REGISTER_CPP_EXPORT_DLL(t_const)
 QX_REGISTER_CPP_EXPORT_DLL(t_bum_state_log)
 QX_REGISTER_CPP_EXPORT_DLL(t_action_log)
 
-t_ttn::t_ttn():num_nakl(0), date_time(timeShitToDateTime(0)), car(0), field(0), real_field(0), loader(0), dt_of_load(timeShitToDateTime(0)),
+t_ttn::t_ttn():num_nakl(-1), date_time(timeShitToDateTime(0)), car(0), field(0), real_field(0), loader(0), dt_of_load(timeShitToDateTime(0)),
                 driver(0),  brutto(0), dt_of_brutto(timeShitToDateTime(0)),
                 tara(0), dt_of_tara(timeShitToDateTime(0)), bum(0), real_bum(0), kagat(0), dt_of_unload(timeShitToDateTime(0)),
     routed_to_lab(0), was_in_lab(0), copy(0), time_return(timeShitToDateTime(0)),
                trailer(0), real_loader(0), err(0), bum_platforma(0), rup_tara(0), real_rup_tara(0),
-                brutto_platforma(0), tara_platforma(0), field_from_car(0)
+    brutto_platforma(0), tara_platforma(0), field_from_car(0), culture(0),sort(0),repr(0)
 {
 
 }
@@ -64,6 +64,11 @@ namespace qx {
         t.data(&t_ttn::brutto_platforma , "brutto_platforma");
         t.data(&t_ttn::tara_platforma , "tara_platforma");
         t.data(&t_ttn::field_from_car , "field_from_car");
+        t.data(&t_ttn::culture , "culture");
+        t.data(&t_ttn::sort , "sort");
+        t.data(&t_ttn::repr , "repr");
+
+
     }
 
     template <> void register_class(QxClass<t_rez> & t)

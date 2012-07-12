@@ -44,7 +44,7 @@ struct MainSequenceSettings
 
 
 
-class MainSequence : public AlhoSequence, public Coroutine
+class MainSequence : public AlhoSequence
 {
 //    friend class SeqDebug;
 
@@ -55,8 +55,8 @@ public:
     ~MainSequence() {}
 
 
-    Q_INVOKABLE void onAppearOnWeight(const QString&);
-    Q_INVOKABLE void onDisappearOnWeight(const QString&);
+    Q_INVOKABLE void onAppearOnWeight(const QString&, AlhoSequence*);
+    Q_INVOKABLE void onDisappearOnWeight(const QString&, AlhoSequence*);
 
     virtual void setSettings(const QVariantMap &);
 public slots:
@@ -65,7 +65,7 @@ private:
     class SeqDebug : public QDebug
     {
     public:
-        SeqDebug(bool use_db, const MainSequence& s, int err_code) : QDebug(&buffer), use_database(use_db), seq(s), error_code(err_code) {}
+        SeqDebug(bool use_db, MainSequence& s, int err_code) : QDebug(&buffer), use_database(use_db), seq(s), error_code(err_code) {}
         ~SeqDebug()
         {
             operator <<("platform: ").operator << (seq.seq_id).operator <<(" ");
@@ -74,7 +74,7 @@ private:
                     QString::number(error_code).leftJustified(5) + " " + buffer;
 
             if ( use_database ) {
-                seq.tags[ seq.alho_settings.logging.tag_name ]->func(seq.alho_settings.logging.method_name,
+                seq.tags[ seq.alho_settings.logging.tag_name ]->func(seq.alho_settings.logging.method_name, &seq,
                                                                             Q_ARG(const QVariant&, QVariant(seq.seq_id) ),
                                                                             Q_ARG(const QVariant&, QVariant(error_code) ),
                                                                             Q_ARG(const QVariant&, QVariant(buffer) ) );
@@ -87,11 +87,12 @@ private:
         }
     private:
         bool use_database;
-        const MainSequence & seq;
+        MainSequence & seq;
         QString buffer;
         int error_code;
     };
 
+    bool init;
 
     Tags & tags;    
     const QVariantMap & app_settings;
@@ -104,12 +105,12 @@ private:
     int seq_id;
     QTimer wake_timer;
 
-    SeqDebug seqDebug(int err_code=-1) const
+    SeqDebug seqDebug(int err_code=-1)
     {
         return SeqDebug(false, *this, err_code);
     }
 
-    SeqDebug seqWarning(int err_code=-1) const
+    SeqDebug seqWarning(int err_code=-1)
     {
         return SeqDebug(true, *this, err_code);
     }
@@ -124,15 +125,15 @@ private:
     QString detectPlatformType(const QVariantMap& ) const throw (MainSequenceException);
 
 
-    void printOnTablo(const QString& ) const;
-    int getWeight() const throw (MainSequenceException);
+    void printOnTablo(const QString& ) ;
+    int getWeight()  throw (MainSequenceException);
 
 
-    void brutto(QVariantMap&, qx::dao::ptr<t_cars>, const MifareCard& ) const throw (MainSequenceException);
-    qx::dao::ptr<t_ttn> tara  (QVariantMap&, qx::dao::ptr<t_cars> ) const throw (MainSequenceException) ;
+    void brutto(QVariantMap&, qx::dao::ptr<t_cars>, const MifareCard& ) throw (MainSequenceException);
+    qx::dao::ptr<t_ttn> tara  (QVariantMap&, qx::dao::ptr<t_cars> )  throw (MainSequenceException) ;
 
     void repairBeetFieldCorrectnessIfNeeded(QVariantMap &, qx::dao::ptr<t_ttn> ) const throw();
-    void processChemicalAnalysis(QVariantMap&, qx::dao::ptr<t_ttn> ) const throw();
+    void processChemicalAnalysis(QVariantMap&, qx::dao::ptr<t_ttn> )  throw();
     void processFreeBum(QVariantMap & bill, qx::dao::ptr<t_ttn> ttn, qx::dao::ptr<t_cars> car ) const throw(MainSequenceException);
     void updateBruttoValues(QVariantMap&, qx::dao::ptr<t_ttn>, const MifareCard& )const throw(MainSequenceException);
     void updateTaraValues(QVariantMap&, qx::dao::ptr<t_ttn>, qx::dao::ptr<t_cars>, bool pure_weight)const throw(MainSequenceException);
@@ -140,21 +141,21 @@ private:
     void checkKagat(const QVariantMap&) const throw(MainSequenceException);
     void checkBum(QVariantMap&) const throw(MainSequenceException);
 
-    bool isWeightCorrect(int w) const;
+    bool isWeightCorrect(int w) ;
     bool isPureBruttoWeight(const QVariantMap& bill) const throw (MainSequenceException);
     bool checkDeltaForReweights(int prev_weight, int cur_weight) const;
 
-    uint countCarsFromFieldForDayExcludeCurrent(uint, uint) const throw();
+    uint countCarsFromFieldForDayExcludeCurrent(uint, uint)  throw();
 
     bool checkForNeedDiscreteAnalisys(long count) const throw();
-    bool checkForNeedDatabaseConstAnalisys(long count, long kontrag) const throw();
+    bool checkForNeedDatabaseConstAnalisys(long count, long kontrag)  throw();
     uint getAnalisysPeriodFromStorage(uint typ) const throw (MysqlException, MainSequenceException);
     QString getBumsClause(const QVariantMap & bill, qx::dao::ptr<t_cars> car) const throw(MainSequenceException);
     QString bruttoFinishMessage(const QVariantMap & bill)  const;
     QString taraFinishMessage(int)  const;
 
     bool isPureTaraWeight(const QVariantMap& bill)const throw (MainSequenceException);
-    qx::dao::ptr<t_ttn> ttnByDriver( int  )const throw (MainSequenceException);
+    qx::dao::ptr<t_ttn> ttnByDriver( int  ) throw (MainSequenceException);
     void clearBumQueue(qx::dao::ptr<t_ttn> ttn) const throw (MainSequenceException);
     void processDrivingTime(qx::dao::ptr<t_ttn> , qx::dao::ptr<t_cars> )const throw (MainSequenceException);
     void repairBumCorrectnessIfNeeded( qx::dao::ptr<t_ttn> )const throw (MainSequenceException);
@@ -170,7 +171,7 @@ private:
     void setLightsToRed();
     void setLightsToGreen();
 
-    void processPerimeter() const throw (MainSequenceException);
+    void processPerimeter()  throw (MainSequenceException);
     void checkForStealedCard(const ActivateCardISO14443A&, const ActivateCardISO14443A& ) const throw (MainSequenceException);
 
     template <class T>

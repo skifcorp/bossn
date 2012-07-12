@@ -2,6 +2,8 @@
 #include "didow83627.h"
 #include "wdt.h"
 
+#include <QMessageBox>
+#include <QTextCodec>
 
 BossnFactoryRegistrator<DidoW83627> DidoW83627::registator("DidoW83627");
 
@@ -13,7 +15,11 @@ uchar DidoW83627::readAll()
     BOOL ret = io_device()->DeviceIoControl(IOCTL_SYS_DIO_READ, &cParam, sizeof(WDTPARAM), &cParam, sizeof(WDTPARAM), &nReturn, NULL);
 
     if (!ret) {
-        qWarning("Cant read dido!!!!"); return 0;
+        //qWarning()<<"lastError: "<<io_device()->lastError( );
+        //QMessageBox::warning(0, "err", io_device()->lastError( ));
+        QTextCodec * c = QTextCodec::codecForName("IBM 866");
+        qWarning("HHHHHHHH: %s\n",  c->fromUnicode(io_device()->lastError()).data());
+        return 0;
     }
 
     return cParam.timeout;
@@ -28,7 +34,7 @@ QVariant DidoW83627::getDi()
 }
 
 //void DidoIt8718f::setDo(IoDeviceWrapper::Pointer::Type* io, const QVariant& num, bool b)
-void DidoW83627::setDo(const QVariant& val)
+QVariant DidoW83627::setDo(const QVariant& val)
 {
 /*    uchar data = readAll(io);
     data = data >> 4;
@@ -44,6 +50,7 @@ void DidoW83627::setDo(const QVariant& val)
     if (!ret) {
         qWarning("Cant write dido!!!!");
     }
+    return QVariant();
 }
 
 QVariant DidoW83627::getDiBit(const QVariant& full_byte, const QVariant& num)

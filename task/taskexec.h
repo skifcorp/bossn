@@ -37,7 +37,8 @@ private slots:
     void onTimer()
     {
         for (QList<BaseTask::Pointer>::iterator iter = tasks.begin(); iter != tasks.end(); ++iter) {
-            (*iter)->exec();
+            if (! (*iter)->busy() )
+                (*iter)->exec();
         }
     }
 private:

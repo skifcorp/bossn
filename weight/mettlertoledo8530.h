@@ -8,7 +8,7 @@ class MettlerToledo8530 : public PorterDriver
     Q_OBJECT
 public:
     //~MettlerToledo8530 () {}
-    void readWeight(float & ret, uint &);
+    Q_INVOKABLE void readWeight(QVariant & ret, uint &);
     void zero(uint &);
 
 
@@ -30,7 +30,7 @@ protected:
     }*/
 
     virtual QByteArray weightRequestFrame() const;
-    virtual float parseWeightFrameAnswer(const QByteArray& ba, uint &) const;
+    virtual float parseWeightFrameAnswer(const QByteArray& ba, uint &, const QByteArray& cmd) const;
 
     virtual QByteArray zeroRequestFrame(uchar) const;
     virtual void  parseZeroFrameAnswer(const QByteArray&, uint & ) const;

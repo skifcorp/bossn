@@ -10,8 +10,10 @@
 #include "factory.h"
 #include "tags.h"
 
+#include "alhosequence.h"
 
-class BaseTask : public QObject,
+
+class BaseTask : public AlhoSequence,
                  public BossnFactory<BaseTask, Tags&, const QVariantMap& >
 {
 public:
@@ -20,8 +22,14 @@ public:
     BaseTask() {}
 
     virtual ~BaseTask(){}
-    virtual void exec() = 0;
+    void exec()
+    {
+        restart();
+        createStack(65535 * 4 );
+        cont();
+    }
     virtual void setSettings(const QVariantMap& ) = 0;
+    virtual bool busy() const= 0;
 protected:
 
 };

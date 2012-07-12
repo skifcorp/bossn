@@ -10,7 +10,7 @@
 #include <QDebug>
 
 #include "sharedfromthis.h"
-
+#include "alhosequence.h"
 
 class FuncContext;
 
@@ -27,15 +27,13 @@ public:
 
     Tag(const Tag& ) = delete;
 
-    QVariant func (const QString& fn,
+    QVariant func (const QString& fn, AlhoSequence * caller,
                    QGenericArgument val0 = QGenericArgument(),
                    QGenericArgument val1 = QGenericArgument(),
                    QGenericArgument val2 = QGenericArgument(),
                    QGenericArgument val3 = QGenericArgument(),
                    QGenericArgument val4 = QGenericArgument(),
-                   QGenericArgument val5 = QGenericArgument(),
-                   QGenericArgument val6 = QGenericArgument(),
-                   QGenericArgument val7 = QGenericArgument() );
+                   QGenericArgument val5 = QGenericArgument());
 
     void setTagName(const QString& n) {tag_name = n;}
     QString tagName() const {return tag_name;}
@@ -66,16 +64,16 @@ private:
         {   }
     };
 
-    QVariant execObject(FuncContext & fn, const QList<QGenericArgument>& passed_args);
+    QVariant execObject(FuncContext & fn, AlhoSequence * caller, const QList<QGenericArgument>& passed_args);
 
-    QVariant func (const QString& fn, const QList<QGenericArgument>& );
+    QVariant func (const QString& fn, AlhoSequence * caller, const QList<QGenericArgument>& );
 
     typedef QMap<QString, FuncContext> Funcs;
     Funcs funcs;
 
     QString tag_name;
-    void call_as_proc(FuncContext& func, const QList<QGenericArgument>& args);
-    QVariant call_as_func(FuncContext& func, const QList<QGenericArgument>& args);
+    void call_as_proc(FuncContext& func, AlhoSequence * caller, const QList<QGenericArgument>& args);
+    QVariant call_as_func(FuncContext& func, AlhoSequence * caller, const QList<QGenericArgument>& args);
 };
 
 template <class K, class T>
@@ -139,5 +137,5 @@ struct TagPlaceholder
 
 Q_DECLARE_METATYPE(TagBindable)
 Q_DECLARE_METATYPE(TagPlaceholder)
-
+Q_DECLARE_METATYPE(AlhoSequence *)
 #endif

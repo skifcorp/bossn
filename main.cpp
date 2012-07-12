@@ -84,13 +84,14 @@ int main(int argc, char *argv[])
     QVector<Porter::Pointer> porters;
     app_settings.initPorters(porters, tags);
 
-    TaskExec task_exec;    
+    TaskExec task_exec;
     app_settings.initTasks(task_exec, tags, options);
 
     QVector<AlhoSequence::Pointer> alhos;
     app_settings.initAlhos(alhos, tags, options);
 
     return app.exec();
+
 }
 
 

@@ -1,7 +1,7 @@
 #include "perimeteralhos.h"
 #include "settingstool.h"
 
-
+#if 0
 BossnFactoryRegistrator<PerimeterControlByDi> PerimeterControlByDi::registator("PerimeterControlByDi");
 
 
@@ -38,7 +38,7 @@ bool PerimeterControlByDi::disappeared()
 }
 
 
-
+#endif
 
 BossnFactoryRegistrator<PerimeterControlByWeight> PerimeterControlByWeight::registator("PerimeterControlByWeight");
 
@@ -50,11 +50,11 @@ void PerimeterControlByWeight::setSettings( const QMap<QString, QVariant>& s)
     get_weight_method      = get_setting<QString>("method"    , s);
 }
 
-bool PerimeterControlByWeight::appeared()
+bool PerimeterControlByWeight::appeared(AlhoSequence * caller)
 {
     bool ret = false;
 
-    QVariant val = tags_[weight_name]->func(get_weight_method);
+    QVariant val = tags_[weight_name]->func(get_weight_method, caller);
 
     if ( !val.isValid() ) return false;
 
@@ -66,11 +66,11 @@ bool PerimeterControlByWeight::appeared()
     return ret;
 }
 
-bool PerimeterControlByWeight::disappeared()
+bool PerimeterControlByWeight::disappeared(AlhoSequence * caller)
 {
     bool ret = false;
 
-    QVariant val = tags_[weight_name]->func(get_weight_method);
+    QVariant val = tags_[weight_name]->func(get_weight_method, caller);
 
     if (!val.isValid()) return false;
 

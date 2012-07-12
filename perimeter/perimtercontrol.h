@@ -6,6 +6,7 @@
 
 #include "tags.h"
 #include "factory.h"
+#include "alhosequence.h"
 
 class PerimeterControl : public BossnFactory<PerimeterControl, Tags&>
 {
@@ -15,8 +16,8 @@ public:
 
     virtual void setSettings(const QMap<QString,QVariant>& ) = 0;
 
-    virtual bool appeared() = 0;
-    virtual bool disappeared() = 0;
+    virtual bool appeared(AlhoSequence *) = 0;
+    virtual bool disappeared(AlhoSequence *) = 0;
 
     Tags & tags() {return tags_;}
     const Tags & tags() const {return tags_;}

@@ -29,12 +29,17 @@ void Porter::addDriver(const QString & n, const QMap<QString, QVariant>& drv_con
 
 void Porter::setDevice(const QString& n, const QMap<QString, QVariant> & settings)
 {
+    qDebug() << "setDevice: " << n;
+
     device = IoDeviceWrapper::create(n);
 
     device->setSettings(settings);
-    qDebug () << "openening port: " << device->deviceName();
+    qDebug () << "opening port: " << device->deviceName();
     if  (!device->open(QIODevice::ReadWrite) ) {
         qWarning() << "cant open device!!!!: " <<device->deviceName();
+    }
+    else {
+        qDebug() << "succesully opened: " << device->deviceName();
     }
 
     //if (scheduled)
@@ -92,15 +97,11 @@ inline Ret generic_arg_cast(QGenericArgument arg)
     return var.value<Ret>();
 }
 
-QVariant Porter::exec(const QString& tag_name,  QGenericArgument func,
-                                                QGenericArgument val0,
-                                                QGenericArgument val1,
-                                                QGenericArgument val2,
-                                                QGenericArgument val3,
-                                                QGenericArgument val4,
-                                                QGenericArgument val5,
-                                                QGenericArgument val6,
-                                                QGenericArgument val7)
+QVariant Porter::exec(const QString& tag_name,  AlhoSequence * caller, QGenericArgument func,
+        QGenericArgument val0,  QGenericArgument val1,
+        QGenericArgument val2,  QGenericArgument val3,
+        QGenericArgument val4,  QGenericArgument val5,
+        QGenericArgument val6,  QGenericArgument val7)
 {
     QString func_name = generic_arg_cast<QString>(func);
 
@@ -108,7 +109,7 @@ QVariant Porter::exec(const QString& tag_name,  QGenericArgument func,
 
     QVariant ret;
 
-    scheduler.execFunction(
+    scheduler.execFunction(caller,
                 [&drivers, &mi, &ret, &val0, &val1, &val2, &val3, &val4, &val5, &val6, &val7, &func_name]{
                     bool res = QMetaObject::invokeMethod( drivers[mi.driver_idx].data(),
                                  func_name.toAscii().data(), Q_RETURN_ARG(QVariant, ret),
@@ -131,7 +132,8 @@ QVariant Porter::exec(const QString& tag_name,  QGenericArgument func,
     return ret;
 }
 
-QVariant Porter::value (const QString& n,  QGenericArgument val0, QGenericArgument val1, QGenericArgument val2,
+QVariant Porter::value (const QString& n,  AlhoSequence * caller,
+                        QGenericArgument val0, QGenericArgument val1, QGenericArgument val2,
                         QGenericArgument val3, QGenericArgument val4, QGenericArgument val5, QGenericArgument val6,
                         QGenericArgument val7, QGenericArgument val8 )
 {
@@ -145,7 +147,7 @@ QVariant Porter::value (const QString& n,  QGenericArgument val0, QGenericArgume
 
     QVariant ret;
 
-    scheduler.execFunction(
+    scheduler.execFunction(caller,
                 [&drivers, &mi, &ret, &val0, &val1, &val2, &val3, &val4, &val5, &val6, &val7, &val8]{
                     bool res = QMetaObject::invokeMethod( drivers[mi.driver_idx].data(),
                                  mi.method.toAscii().data(), Q_RETURN_ARG(QVariant, ret),

@@ -36,7 +36,8 @@ public:
 
     virtual bool open(QIODevice::OpenModeFlag f)
     {
-        return internalGetDevice()->open(f);
+        bool is_opened = internalGetDevice()->open(f);
+        return is_opened;
     }
 
     qint64 virtual write ( const QByteArray& data )
@@ -68,9 +69,10 @@ public:
     {
         return internalGetDevice()->peek(maxSize);
     }
-
+    bool isDeviceOpened() const {return is_opened;}
 #if defined(Q_OS_WIN)
     virtual BOOL DeviceIoControl(DWORD , LPVOID , DWORD , LPVOID , DWORD , LPDWORD ,  LPOVERLAPPED ) {return false; }
+    virtual QString lastError() {return QString();}
 #elif defined (Q_OS_LINUX)
     virtual int ioctl(int command, void * arg) {return 0;}
 #endif
@@ -88,19 +90,21 @@ public:
 
 protected:
     //typedef QMap<QString, function<IoDeviceWrapper * ()> > FactoryMap;
-    IoDeviceWrapper() {}
+    IoDeviceWrapper():is_opened(false) {}
     /*static FactoryMap & factory_map()
     {
         static FactoryMap map;
         return map;
     }*/
+    bool is_opened;
 private:
+
     virtual QIODevice * internalGetDevice() = 0;
     virtual const QIODevice * internalGetDevice() const = 0;
 
     void connectSignals()
     {
-        //if ( internalGetDevice() )
+        if ( internalGetDevice() )
             connect(internalGetDevice(), SIGNAL(readyRead()), this, SIGNAL(readyRead()));
     }
 signals:

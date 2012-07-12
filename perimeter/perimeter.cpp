@@ -3,7 +3,7 @@
 
 BossnFactoryRegistrator<PerimeterTask> PerimeterTask::registrator("PerimeterTask");
 
-PerimeterTask::PerimeterTask(Tags & t):tags(t)
+PerimeterTask::PerimeterTask(Tags & t):tags(t), is_busy(false)
 {
 
 }
@@ -21,20 +21,30 @@ void PerimeterTask::setSettings ( const QMap<QString, QVariant>& s )
     perim->setSettings(s);
 }
 
-void PerimeterTask::exec()
+void PerimeterTask::run()
 {
+
+    //qDebug() << "perimeter run!!!";
+
     if (!perim) return ;
 
-    if (perim->appeared()) {
+    is_busy = true;
+
+    if (perim->appeared(this)) {
         //emit(appeared());
-        tags[appeared_tag_name]->func(appeared_tag_func);
+        tags[appeared_tag_name]->func(appeared_tag_func, this);
     }
 
-    if (perim->disappeared()) {
+    if (perim->disappeared(this)) {
         //emit (disappeared());
-        tags[disappeared_tag_name]->func(disappeared_tag_func);
+        tags[disappeared_tag_name]->func(disappeared_tag_func, this);
     }
+
+    is_busy = false;
 }
 
-
-
+bool PerimeterTask::busy() const
+{
+     //qDebug() << "want check perimeter: "<<is_busy;
+     return is_busy;
+}

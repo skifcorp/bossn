@@ -43,17 +43,20 @@ public:
     StableTask(Tags & t):tags(t), is_stable(false) {}
     ~StableTask() {}
 
-    virtual void exec();
+    //virtual void exec();
     virtual void setSettings(const QVariantMap& );
 
-    Q_INVOKABLE QVariant isStable(const QString&) const {return is_stable;}
+    Q_INVOKABLE QVariant isStable(const QString&, AlhoSequence *) const {return is_stable;}
 
     static BaseTask * create(Tags& t, const QVariantMap& )
     {
         return new StableTask(t);
     }
-
+    virtual bool busy()const;
+protected:
+    virtual void run();
 private:
+
     Tags& tags;
     bool is_stable;
 
@@ -64,7 +67,7 @@ private:
     QVariant delta;
     //QString signaled_tag_name;
     //QString signaled_tag_func;
-
+    bool is_busy;
     static BossnFactoryRegistrator<StableTask> registrator;
 };
 

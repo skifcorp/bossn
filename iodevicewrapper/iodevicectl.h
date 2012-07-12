@@ -6,6 +6,7 @@
 #include <QMap>
 #include <QSharedPointer>
 #include <QFile>
+#include <QTextCodec>
 
 #include <functional>
 
@@ -14,68 +15,13 @@ using std::function;
 #include "iodevicewrapper.h"
 #include "factory.h"
 
-/*
-class DioLocalDriver : public QIODevice
-{
-public:
-    typedef QSharedPointer<DioLocalDriver> Pointer;
-    virtual void setDeviceName(const QString& ) = 0;
-    virtual  QString deviceName() const = 0;
-    static Pointer create(const QString& n)
-    {
-        if (factory_map().contains(n))  {
-            Pointer p (factory_map()[n]());
-            //qDebug () << "pointer: "<<p.data();
-            return p;
-        }
-        qWarning() << "DioDevice factory dont contains: " << n  << " class";
-        return Pointer();
-    }
-protected:
-    typedef QMap<QString, function<DioLocalDriver * ()> > FactoryMap;
 
-    static FactoryMap & factory_map()
-    {
-        static FactoryMap map;
-        return map;
-    }
-private:
-
-};*/
 
 
 #ifdef Q_OS_WIN32
 
 #include <windows.h>
 #include <io.h>
-/*
-class DioDeviceIt8718f : public DioLocalDriver
-{
-public:
-
-    ~DioDeviceIt8718f();
-    virtual bool open(QIODevice::OpenModeFlag );
-    virtual void close();
-    void setDeviceName(const QString& dn){device_name = dn;}
-    QString deviceName() const {return device_name;}
-    static DioLocalDriver * create()
-    {
-        return new DioDeviceIt8718f();
-    }
-protected:
-    DioDeviceIt8718f();
-    virtual qint64	readData ( char * data, qint64 maxSize );
-    virtual qint64	writeData ( const char * data, qint64 maxSize );
-private:
-    HANDLE handle;
-    QString device_name;
-    static bool registered;
-    static bool registerInFact()
-    {
-        factory_map().insert("DioDeviceIt8718f", &DioDeviceIt8718f::create);
-        return true;
-    }
-};*/
 
 #endif
 
@@ -94,19 +40,25 @@ class IoDeviceCtl : public IoDeviceWrapper
 
 public:
     IoDeviceCtl () {}
-    ~IoDeviceCtl () {}
+    ~IoDeviceCtl ()
+    {
+        if (hndFile != INVALID_HANDLE_VALUE)
+            CloseHandle(hndFile);
+    }
 
     virtual void setSettings(const QMap<QString, QVariant>& s)
     {
         {
             auto iter = s.find("deviceName");
-            if (iter != s.end()) file.setFileName(iter->toString());
+            if (iter != s.end()) {
+                file_name = iter->toString();
+            }
         }
     }
 
     virtual QString deviceName() const
     {
-        return file.fileName();
+        return file_name;
     }
     virtual void clear()
     {
@@ -122,35 +74,60 @@ public:
                                  LPVOID lpOutBuffer, DWORD nOutBufferSize, LPDWORD lpBytesReturned,
                                  LPOVERLAPPED lpOverlapped )
     {
-        HandleGuard grd(reinterpret_cast<HANDLE> (_get_osfhandle(file.handle())));
-        return ::DeviceIoControl(grd.handle(),  dwIoControlCode, lpInBuffer,  nInBufferSize, lpOutBuffer,  nOutBufferSize,  lpBytesReturned, lpOverlapped);
-        return false;
+        //HandleGuard grd(reinterpret_cast<HANDLE> (_get_osfhandle(file.handle())));
+        return ::DeviceIoControl(hndFile,  dwIoControlCode, lpInBuffer,  nInBufferSize, lpOutBuffer,  nOutBufferSize,  lpBytesReturned, lpOverlapped);
+    }
+    virtual QString lastError()
+    {
+        char lpMsgBuf[1000];
+
+        DWORD dw = GetLastError();
+        if (dw) qDebug() << "error code: " <<dw;
+        FormatMessageA(
+            FORMAT_MESSAGE_FROM_SYSTEM |
+            FORMAT_MESSAGE_IGNORE_INSERTS,
+            NULL,
+            dw,
+            MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+            (char *)&lpMsgBuf,
+            1000, NULL );
+
+        QTextCodec * c = QTextCodec::codecForName("Windows-1251");
+
+        QString s = c->toUnicode(lpMsgBuf);
+        return s;
     }
 
 #elif defined (Q_OS_LINUX)
     virtual int ioctl(int command, void * arg) {return 0;}
 #endif
+    virtual bool open(QIODevice::OpenModeFlag )
+    {
+        hndFile = CreateFile(L"\\\\.\\WDT_DEVICE",
+                             GENERIC_READ | GENERIC_WRITE,
+                             FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL);
+         is_opened = hndFile != INVALID_HANDLE_VALUE;
+         return is_opened;
+    }
+
+
 protected:
 
 private:
+    QString file_name;
+    HANDLE hndFile;
+
     virtual QIODevice * internalGetDevice()
     {
-        return &file;
+        return nullptr;
     }
 
     virtual const QIODevice * internalGetDevice() const
     {
-        return &file;
+        return nullptr;
     }
-    QFile file;
 
 
-    /*static bool registered;
-    static bool registerInFact()
-    {
-        factory_map().insert("IoDeviceCtl", &IoDeviceCtl::create);
-        return true;
-    }*/
     static BossnFactoryRegistrator<IoDeviceCtl> registrator;
 };
 

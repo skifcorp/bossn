@@ -97,7 +97,7 @@ public:
 
         if  (err.isValid()) {
             //qDebug()  << "throwing exeption!";
-            throw MysqlException(err.databaseText() , err.driverText());
+            throw MysqlException(database.lastError().databaseText(), database.lastError().driverText());
         }
         return p;
     }
@@ -114,7 +114,8 @@ public:
         }
 
         if  (err.isValid()) {
-            throw MysqlException(err.databaseText() , err.driverText());
+            throw MysqlException(database.lastError().databaseText() ,
+                                 database.lastError().driverText());
 
         }
         return p;
@@ -126,7 +127,8 @@ public:
         QSqlError err = async_call([&p, this]{return qx::dao::update_optimized<T>(p, &database);});
 
         if  (err.isValid()) {
-            throw MysqlException(err.databaseText(), err.driverText());
+            throw MysqlException(database.lastError().databaseText(),
+                                 database.lastError().driverText());
         }
     }
 
@@ -136,7 +138,8 @@ public:
         QSqlError err = async_call([&t, this, &on_duplicate_key_update, &table_name]{return qx::dao::insert(t, &database, table_name, on_duplicate_key_update);});
 
         if  (err.isValid()) {
-            throw MysqlException(err.databaseText(), err.driverText());
+            throw MysqlException(database.lastError().databaseText(),
+                                 database.lastError().driverText());
         }
     }
 
@@ -146,7 +149,8 @@ public:
         QSqlError err = async_call( [&cnt, &q, this]{ return qx::dao::count<T>(cnt, q, &database); });
 
         if  (err.isValid()) {
-            throw MysqlException(err.databaseText() , err.driverText());
+            throw MysqlException(database.lastError().databaseText() ,
+                                 database.lastError().driverText());
         }
     }
 
@@ -165,7 +169,8 @@ public:
 
         if  (err.isValid()) {
             qDebug()<<"error is valid!";
-            throw MysqlException(err.databaseText() , err.driverText());
+            throw MysqlException(database.lastError().databaseText() ,
+                                 database.lastError().driverText());
         }
 
         return t;
@@ -179,7 +184,8 @@ public:
         QSqlError err = async_call( [&q, this]{ return qx::dao::call_query( q, &database ) ;});
 
         if  (err.isValid()) {
-            throw MysqlException(err.databaseText() , err.driverText());
+            throw MysqlException(database.lastError().databaseText() ,
+                                 database.lastError().driverText() );
         }
 
 
@@ -192,16 +198,23 @@ public:
         QSqlError err = async_call( [&qs, this]{ qx_query q(qs); return qx::dao::call_query( q, &database ) ;});
 
         if  (err.isValid()) {
-            throw MysqlException(err.databaseText() , err.driverText());
+            throw MysqlException(database.lastError().databaseText() ,
+                                 database.lastError().driverText());
         }
     }
 
     template <class T>
     inline QSqlError async_create_table(const QString& table_name = QString()) throw (MysqlException)
     {
-        QSqlError err = async_call([&table_name, this]{ return qx::dao::create_table<T>(&database, table_name); } );
+        QSqlError err = async_call([&table_name, this]{
+                                   //qDebug() << "before create table: " << table_name;
+                                   auto ret=  qx::dao::create_table<T>(&database, table_name);
+                                   //qDebug() << "after create table: " << table_name;
+                                    return ret;
+        } );
         if  (err.isValid()) {
-            throw MysqlException(err.databaseText() , err.driverText());
+            throw MysqlException(database.lastError().databaseText() ,
+                                 database.lastError().driverText());
         }
         return err;
     }
@@ -213,7 +226,8 @@ public:
 
         QSqlError err = async_call([&table_name, this]{ return qx::dao::delete_all<T>(&database); } );
         if  (err.isValid()) {
-            throw MysqlException(err.databaseText() , err.driverText());
+            throw MysqlException(database.lastError().databaseText() ,
+                                 database.lastError().driverText());
         }
         return err;
     }

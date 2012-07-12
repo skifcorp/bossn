@@ -4,7 +4,9 @@
 #include <QSharedPointer>
 #include <QVariant>
 
-class AlhoSequence : public QObject
+#include "coroutine.h"
+
+class AlhoSequence : public QObject, public Coroutine
 {
 public:
     typedef QSharedPointer<AlhoSequence> Pointer;
@@ -13,7 +15,11 @@ public:
     virtual ~AlhoSequence() {}
 
     virtual void setSettings(const QVariantMap& ) = 0;
-
+public slots:
+/*    void onShedulerFinished()
+    {
+        cont();
+    }*/
 };
 
 #endif // ALHOSEQUENCE_H

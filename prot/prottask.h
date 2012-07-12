@@ -14,7 +14,7 @@
 
 #include <QAtomicInt>
 
-class ProtTask : public BaseTask, public Coroutine
+class ProtTask : public BaseTask
 {
     Q_OBJECT
 public:
@@ -25,7 +25,7 @@ public:
                        prot_conf_initialized(false),
                         prot_work_initialized(false),
                         message_logs_initialized(false),
-                        cur_prot_work (new prot_work)
+                        cur_prot_work (new prot_work), init(true)
     {
 
     }
@@ -40,14 +40,14 @@ public:
 
         return new ProtTask(t);
     }
-    virtual void exec();
 
 
-    Q_INVOKABLE QVariant addLogMessage(const QString&, QGenericArgument sender_id, QGenericArgument type, QGenericArgument text );
+
+    Q_INVOKABLE QVariant addLogMessage(const QString&, AlhoSequence*, QGenericArgument sender_id, QGenericArgument type, QGenericArgument text );
     //Q_INVOKABLE void addLogMessage(const QString&, const QVariant& sender_id, const QVariant& type, const QVariant& text );
     void addLogMessageP( int sender_id, int type, const QString& text );
 
-
+    virtual bool busy() const ;
 protected:
     virtual void run();
 private slots:
@@ -111,6 +111,10 @@ private:
     qx::dao::ptr<prot_work> cur_prot_work;
 
     QList<message_log> message_logs;
+    bool init;
+
+    void exec();
+    bool is_busy;
 };
 
 #endif // PROTTASK_H
