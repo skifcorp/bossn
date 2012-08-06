@@ -21,7 +21,7 @@ void MettlerToledo8530::readWeight(QVariant & ret, uint & err)
 
     //qDebug () << "GOT SOMETHING!";
 
-    QByteArray answ = io_device()->read(frame_size);
+    QByteArray answ = io_device()->readAll();
 
 
 
@@ -55,10 +55,14 @@ QByteArray MettlerToledo8530::weightRequestFrame() const
 
 float MettlerToledo8530::parseWeightFrameAnswer(const QByteArray& ba, uint & err, const QByteArray& cmd) const
 {
+    const uchar frame_size = 13;
+    if (ba.size() != frame_size) {
+        err = PorterFrameCorrupted; return 0.0f;
+    }
 
     if ( cmd.left(4) != ba.left(4) || ba.right(1)!=QByteArray::fromHex("0D") ) {
         //throw WeightFrameExceptionCorrupted();
-        err = PorterFrameCorrupted; return 0;
+        err = PorterFrameCorrupted; return 0.0f;
     }
 
 
@@ -66,9 +70,10 @@ float MettlerToledo8530::parseWeightFrameAnswer(const QByteArray& ba, uint & err
     float fret = ba.mid(4,8).toFloat(&ok);
     if (!ok) {
         //throw WeightFrameExceptionCorrupted();
-        err = PorterFrameCorrupted; return 0;
+        err = PorterFrameCorrupted; return 0.0f;
     }
     err = 0;
+    //qDebug() << "weight: " <<fret;
     return fret;
 }
 

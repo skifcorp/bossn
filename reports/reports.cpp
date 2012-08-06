@@ -8,6 +8,8 @@
 #include <QList>
 #include <QLabel>
 #include <QPrinter>
+#include <QPixmap>
+#include <QPainter>
 
 bool Reports::print(const QVariantMap & m)
 {
@@ -31,10 +33,15 @@ bool Reports::print(const QVariantMap & m)
 
     QWidget * report = uil.load(&f, 0);
 
+    //report->resize( report->minimumSizeHint() );
 
     QList<QLabel*> ll = report->findChildren<QLabel *>();
 
     for ( QLabel * l : ll ) {
+        QFont f = l->font();
+        f.setStyleStrategy(QFont::PreferAntialias);
+        l->setFont(f);
+
         QString val = engine.evaluate(l->text()).toString();
 
         if ( engine.hasUncaughtException() ) {
@@ -50,11 +57,27 @@ bool Reports::print(const QVariantMap & m)
     }
     //delete report;
     report->setAttribute( Qt::WA_QuitOnClose, false );
-    report->show();
-    //QPrinter printer;
+    //report->show();
+    //QPixmap pix = QPixmap::grabWidget(report);
+    //delete report;
 
+    QPrinter printer(QPrinter::HighResolution);
+    //printer.setR
+    //printer.setPaperSize(QSize(148, 72), QPrinter::Millimeter);
+    //printer.setPrinterName(printer_name);
+    //printer.setResolution(72);
+
+    QPainter painter(&printer);
+    //painter.setRenderHint(QPainter::Antialiasing, true);
+    //painter.setRenderHint(QPainter::TextAntialiasing , true);
+
+    report->render(&painter);
+
+    //QPainter painter(&printer);
+    //painter.setRenderHint( QPainter::Antialiasing, true );
+    //painter.drawPixmap(0, 0, pix);
     //report->render(&printer);
-
+    delete report;
     //printer.print
 
     return true;

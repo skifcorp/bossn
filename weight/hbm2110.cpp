@@ -21,7 +21,7 @@ void Hbm2110::readWeight(QVariant & ret, uint & err)
         yield();
     }
 
-    QByteArray answ = io_device()->read(frame_size);
+    QByteArray answ = io_device()->readAll();
 
     ret = parseWeightFrameAnswer(answ, err);
 }
@@ -63,6 +63,12 @@ int Hbm2110::parseWeightFrameAnswer(const QByteArray& ba, uint & err) const
     return fret;*/
 
     //printByteArray( ba );
+
+    const uchar frame_size = 6;
+    if (ba.size() != frame_size) {
+        err = PorterFrameCorrupted; return -1;
+    }
+
     int ret = static_cast<int>( (static_cast<uchar>(ba[0]) << 16)  | (static_cast<uchar>(ba[1]) << 8) | static_cast<uchar>(ba[2]));
     //qDebug() << "ret: "<< QString::number(ret, 16);
     return ret;

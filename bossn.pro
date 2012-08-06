@@ -14,10 +14,10 @@ CONFIG   -= app_bundle
 DESTDIR  = build
 
 TEMPLATE = app
-INCLUDEPATH    += ../qextserialport/src/ db alho serial weight generic iodevicewrapper scheduler           \
-                    porter task dido perimeter tools reader  reports ../coroutine/src/ ../QxOrm/include    \
-					$$(BOOST_ROOT) ../ismm/ settings stable prot  $$(MYSQL_DIR)/include                    \
-					$$(QTSDK_DIR)/QtSources/4.8.1/include 
+INCLUDEPATH    += ../qextserialport/src/ db alho serial weight generic iodevicewrapper scheduler              \
+                    porter task dido perimeter tools reader  reports ../coroutine/src/ ../QxOrm/include       \
+                                        $$(BOOST_ROOT) ../ismm/ settings stable prot  $$(MYSQL_DIR)/include   \
+                                        $$(QTSDK_DIR)/QtSources/4.8.1/include alho/weighters alho/direction
 
 QMAKE_CXXFLAGS += -std=c++0x #-m32
 #QMAKE_LFLAGS   += -m32
@@ -64,7 +64,8 @@ SOURCES += main.cpp \
     alho/formatersequence.cpp \
     alho/alhosequence.cpp \
     alho/cardstructs.cpp \
-    alho/dbstructs.cpp \
+    alho/weighters/graindbstructs.cpp \
+	alho/weighters/beetdbstructs.cpp \
     reports/reports.cpp \
     iodevicewrapper/ismmdevice.cpp \
     alho/reportsmanager.cpp \
@@ -75,7 +76,19 @@ SOURCES += main.cpp \
     prot/prottask.cpp \
     prot/protdb.cpp \
     weight/hbm2108.cpp \
-    weight/hbm2110.cpp
+    weight/hbm2110.cpp \
+    alho/mifarecarddata.cpp \
+    alho/tagfunchelper.cpp \
+    alho/seqdebug.cpp \
+    alho/weighters/baseweighter.cpp \
+    alho/initcardstructs.cpp \
+    alho/weighters/baseacceptanceweighter.cpp \
+    alho/weighters/beetacceptanceweighter.cpp \
+    alho/weighters/grainacceptanceweighter.cpp \
+    alho/weighters/grainshipmentweighter.cpp \
+    alho/weighters/baseshipmentweighter.cpp \
+    alho/weighters/weighterconf.cpp \
+    alho/weighters/genericdbstructs.cpp
 
 HEADERS += \    
     tools/func.h \
@@ -111,7 +124,6 @@ HEADERS += \
     alho/formatersequence.h \
     alho/alhosequence.h \
     alho/cardstructs.h \
-    alho/dbstructs.h \
     reports/reports.h \    
     iodevicewrapper/ismmdevice.h \
     alho/async_func.h \
@@ -129,6 +141,21 @@ HEADERS += \
     prot/prottask.h \
     prot/protdb.h \
     weight/hbm2108.h \
-    weight/hbm2110.h
+    weight/hbm2110.h \
+    alho/weighters/baseweighter.h \
+    alho/mifarecarddata.h \
+    alho/tagfunchelper.h \
+    alho/mainsequencesettings.h \
+    alho/seqdebug.h \
+    alho/weighters/graindbstructs.h \
+	alho/weighters/beetdbstructs.h \
+    alho/weighters/baseacceptanceweighter.h \
+    alho/weighters/baseshipmentweighter.h \
+    alho/weighters/beetacceptanceweighter.h \
+    alho/weighters/grainacceptanceweighter.h \
+    alho/weighters/grainshipmentweighter.h \
+    alho/weighters/weighterconf.h \
+    alho/weighters/genericdbstructs.h
+	
 
 

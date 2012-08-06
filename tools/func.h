@@ -19,9 +19,10 @@ inline void printOnDisplay(const QString& str)
     //qDebug( codec->fromUnicode(str) );
 
     ///qDebug () << str;
-    QTextStream s(stdout);
-    s.setCodec("IBM866");
-    s<<str;
+    //QTextStream s(stdout);
+    //s.setCodec("IBM866");
+    //s<<str;
+    qDebug() << str;
 }
 
 inline void printByteArray(const QByteArray& ba)
@@ -35,11 +36,11 @@ inline void printByteArray(const QByteArray& ba)
 }
 
 
-inline QString byteArrayToString(const QByteArray& ba)
+inline QString byteArrayToString(const QByteArray& ba, int base = 16)
 {
     QString ret;
     for (int i = 0; i< ba.count(); ++i) {
-        ret += QString::number(static_cast<uint>(static_cast<uchar>(ba[i])), 16);
+        ret += QString::number(static_cast<uint>(static_cast<uchar>(ba[i])), base) + " ";
     }
     return ret;
 }

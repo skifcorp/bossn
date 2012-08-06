@@ -109,6 +109,8 @@ struct CoroContext
     bool empty() const {return schedul == nullptr && !coro.data();}
     bool activate_on_finish;
     bool cyclic;
+    QString tag_name;
+    QString func_name;
 };
 
 class Scheduler : public QObject
@@ -127,7 +129,8 @@ public:
 
     void addFunction( function<void ()>, function<void ()>, int schedul_msec, int timeout_msec );
 
-    void execFunction(AlhoSequence * caller, function<void ()>, function<void ()>, int timeout_msec );
+    void execFunction(AlhoSequence * caller, function<void ()>, function<void ()>, int timeout_msec,
+                      const QString& tag_name, const QString& func_name);
 
     void setDevice(IoDevPointer d);
     void clear();
@@ -159,7 +162,8 @@ private:
 
 
     void execute();
-    void startNewCoro(Schedul &, bool important, bool actiavate_on_finish, bool cyclic);
+    void startNewCoro(Schedul &, bool important, bool actiavate_on_finish, bool cyclic, const QString&,
+                      const QString& );
     void activateWaiter();
 
 };

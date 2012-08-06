@@ -7,6 +7,10 @@
 #include <QtGlobal>
 #include <QDateTime>
 
+#include "func.h"
+
+#include "genericdbstructs.h"
+
 struct t_ttn
 {
     long num_nakl;
@@ -17,9 +21,9 @@ struct t_ttn
     uint loader;
     QDateTime dt_of_load;
     uint driver;
-    uint brutto;
+    int brutto;
     QDateTime dt_of_brutto;
-    uint tara;
+    int tara;
     QDateTime dt_of_tara;
     uint bum;
     uint real_bum;
@@ -45,14 +49,17 @@ struct t_ttn
     uint culture;
     uint sort;
     uint repr;
+    QString culture_name;
 
     t_ttn();
-    t_ttn(long id):num_nakl(id){}
+    t_ttn(long id);//:num_nakl(id){}
 
     virtual ~t_ttn() {}
 
     bool isValid () const {return num_nakl > 0;}
 };
+
+
 
 struct t_rez
 {
@@ -87,6 +94,9 @@ struct t_bum
     long id;
     bool state;
     uint queue;
+    int heavyweight;
+    int client;
+    int field;
 
     t_bum():id(0), state(false), queue(0) {}
     t_bum(long id_):id(id_), state(false), queue(0){}
@@ -117,9 +127,22 @@ struct t_cars
     QDateTime start_time;
     int amount_of_car_for_middle_tara;
     uint vremja_na_hodku;
+    bool copy;
+    bool fl_perimetr;
+    QString smena;
 
-    t_cars() {}
-    t_cars(long id_):id(id_) {}
+    t_cars():id(-1), dump_body_truck(false), side_board(false),
+        back_board(false), tara(0), atp_id(0), num_field(0), num_loader(0),
+        speed(0), brutto(0), block(0),
+        start_time(timeShitToDateTime(0)), amount_of_car_for_middle_tara(0),
+        vremja_na_hodku(0)
+    {}
+    t_cars(long id_):id(id_), dump_body_truck(false), side_board(false),
+        back_board(false), tara(0), atp_id(0), num_field(0), num_loader(0),
+        speed(0), brutto(0), block(0),
+        start_time(timeShitToDateTime(0)), amount_of_car_for_middle_tara(0),
+        vremja_na_hodku(0) {}
+
     bool isValid() const {return id > 0;}
     virtual ~t_cars(){}
 };
@@ -129,8 +152,8 @@ struct t_kagat
     long id;
     bool state;
 
-    t_kagat(){}
-    t_kagat(long id_):id(id_){}
+    t_kagat():id(-1), state(false){}
+    t_kagat(long id_):id(id_), state(false) {}
     bool isValid() const {return id > 0;}
 
     virtual ~t_kagat(){}
@@ -147,9 +170,10 @@ struct t_kontr
     uint period;
     uint car_in_period;
     uint type;
+    int firstcar;
 
-    t_kontr(){}
-    t_kontr(long id_):id(id_){}
+    t_kontr():id(-1) ,period(0), car_in_period(0), type(0){}
+    t_kontr(long id_):id(id_),period(0), car_in_period(0), type(0){}
     bool isValid() const {return id > 0;}
     virtual ~t_kontr(){}
 };
@@ -161,8 +185,8 @@ struct t_field
     uint distance;
     QString info;
 
-    t_field(){}
-    t_field(long id_): id(id_){}
+    t_field():id(-1), distance(0){}
+    t_field(long id_): id(id_),distance(0){}
     bool isValid () const {return id > 0;}
     virtual ~t_field(){}
 };
@@ -211,6 +235,53 @@ struct t_action_log
     virtual ~t_action_log(){}
 };
 
+struct t_prikaz
+{
+    long num_nakl;
+    QDateTime date_time;
+    int lim;
+    int rest;
+    int place_out;
+    int place_in;
+    bool copy;
+    QString culture;
+    int sort;
+    int repr;
+    int virtual_rest;
+
+    t_prikaz(long id);
+    t_prikaz();
+
+    virtual ~t_prikaz() {}
+};
+
+struct t_ttno
+{
+    t_ttno(long id);
+    t_ttno();
+
+    virtual ~t_ttno() {}
+
+    QDateTime date_time;
+    long num_nakl;
+    int car;
+    int prikaz;
+    int place_out;
+    int place_in;
+    int driver;
+    int brutto;
+    QDateTime dt_of_brutto;
+    int tara;
+    QDateTime dt_of_tara;
+    QString num_kart;
+    int copy;
+    int trailer;
+    QString culture;
+    int sort;
+    int repr;
+
+    int netto() const {return brutto - tara;}
+};
 
 QX_REGISTER_HPP_EXPORT_DLL(t_ttn          , qx::trait::no_base_class_defined, 1)
 QX_REGISTER_HPP_EXPORT_DLL(t_rez          , qx::trait::no_base_class_defined, 1)
@@ -223,6 +294,7 @@ QX_REGISTER_HPP_EXPORT_DLL(t_field        , qx::trait::no_base_class_defined, 1)
 QX_REGISTER_HPP_EXPORT_DLL(t_const        , qx::trait::no_base_class_defined, 1)
 QX_REGISTER_HPP_EXPORT_DLL(t_bum_state_log, qx::trait::no_base_class_defined, 1)
 QX_REGISTER_HPP_EXPORT_DLL(t_action_log   , qx::trait::no_base_class_defined, 1)
-
+QX_REGISTER_HPP_EXPORT_DLL(t_prikaz       , qx::trait::no_base_class_defined, 1)
+QX_REGISTER_HPP_EXPORT_DLL(t_ttno         , qx::trait::no_base_class_defined, 1)
 
 #endif // DBSTRUCTS_H

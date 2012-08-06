@@ -129,14 +129,14 @@ void ProtTask::initProtDataTables()  throw (MainSequenceException)
         //try {
         //qDebug() << "creating table: " << tpc.NameVar;
 
-        async_func_.wrap_async_ex( QString(), QString(), [this, &tpc]{return async_func_.async_create_table<prot_values>(tpc.NameVar);});
+        wrap_async_ex( QString(), QString(), [this, &tpc]{return async_func_.async_create_table<prot_values>(tpc.NameVar);});
         //qDebug() << "creating table: " << tpc.NameVar << " OK!!!!!!!!!!!!!!!";
 
-        async_func_.wrap_async_ex( QString(), QString(), [this, &tpc]{return async_func_.async_create_table<prot_value_scale>("Scale_" + tpc.NameVar);});
+        wrap_async_ex( QString(), QString(), [this, &tpc]{return async_func_.async_create_table<prot_value_scale>("Scale_" + tpc.NameVar);});
 
             prot_value_scale sc(tpc.min.toFloat(), tpc.max.toFloat());
 
-            async_func_.wrap_async_ex( QString(), QString(), [this, &tpc, &sc]{return async_func_.async_insert(sc, true, "Scale_" + tpc.NameVar);});
+            wrap_async_ex( QString(), QString(), [this, &tpc, &sc]{return async_func_.async_insert(sc, true, "Scale_" + tpc.NameVar);});
         //}
         //catch (MainSequenceException& ex)  {
             //qWarning() << "cant initProtDatatable! " << ex.systemMessage();
@@ -148,7 +148,7 @@ void ProtTask::initProtDataTables()  throw (MainSequenceException)
 
 void ProtTask::insertProtConf() throw (MainSequenceException)
 {
-    config_async_func_.wrap_async_ex(QString(), QString(), [this]{return config_async_func_.async_delete_all<prot_conf>();} );
+    wrap_async_ex(QString(), QString(), [this]{return config_async_func_.async_delete_all<prot_conf>();} );
     QList<prot_conf> prot_confs;
 
     for (TagProtConf & tpc : tag_prot_confs) {
@@ -156,19 +156,23 @@ void ProtTask::insertProtConf() throw (MainSequenceException)
     }
 
     //config_async_func_.async_insert(prot_confs);
-    config_async_func_.wrap_async_ex(QString(), QString(), [this, &prot_confs]{config_async_func_.async_insert(prot_confs);});
+    wrap_async_ex(QString(), QString(), [this, &prot_confs]{config_async_func_.async_insert(prot_confs);});
 }
 
 void ProtTask::insertDbNames(const QString& db_name, const QString& db_ru_name) throw (MainSequenceException)
 {
-    config_async_func_.wrap_async_ex(QString(), QString(), [this]{return config_async_func_.async_delete_all<db_names>();} );
+    //qDebug() << "before delete all";
+
+    wrap_async_ex(QString(), QString(), [this]{return config_async_func_.async_delete_all<db_names>();} );
+
+    //qDebug() << "after";
 
     db_names dn;
     dn.DB_name   = db_name;
     dn.DB_r_name = db_ru_name;
 
     //config_async_func_.async_insert(dn);
-    config_async_func_.wrap_async_ex(QString(), QString(), [this, &dn]{config_async_func_.async_insert(dn);});
+    wrap_async_ex(QString(), QString(), [this, &dn]{config_async_func_.async_insert(dn);});
 }
 
 
@@ -194,8 +198,8 @@ void ProtTask::initializeProtWork()
     cur_prot_work->start_from = cur_prot_work->work_till = QDateTime::currentDateTime().toUTC();
 
     try {
-        async_func_.wrap_async_ex( QString(), QString(), [this]{return async_func_.async_create_table<prot_work>();});
-        async_func_.wrap_async_ex( QString(), QString(), [this]{return async_func_.async_insert(cur_prot_work, true); });
+        wrap_async_ex( QString(), QString(), [this]{return async_func_.async_create_table<prot_work>();});
+        wrap_async_ex( QString(), QString(), [this]{return async_func_.async_insert(cur_prot_work, true); });
 
         prot_work_initialized = true;
     }
@@ -208,7 +212,7 @@ void ProtTask::initializeProtWork()
 void ProtTask::initializeMessageLogs()
 {
     try {
-        async_func_.wrap_async_ex( QString(), QString(), [this]{return async_func_.async_create_table<message_log>();});
+        wrap_async_ex( QString(), QString(), [this]{return async_func_.async_create_table<message_log>();});
 
         message_logs_initialized = true;
     }
@@ -220,8 +224,12 @@ void ProtTask::initializeMessageLogs()
 void ProtTask::run()
 {  
     if (init) {
-        while (!viewer_prot_initialized)
+        is_busy = true;
+
+        while (!viewer_prot_initialized) {
+            //qDebug() << "cycle!!!!";
             tryInitializeProtViewerConf_();
+        }
 
         while (!prot_conf_initialized)
             tryInitializeProtDataTables();
@@ -237,6 +245,8 @@ void ProtTask::run()
         init = false;
 
         qDebug() << "PROT INITIALIZED!";
+
+        is_busy = false;
 
         return;
     }
@@ -309,7 +319,7 @@ void ProtTask::clearDataInTagsValues()
 
 void ProtTask::onSaveTimer()
 {   
-    qDebug () << "want save!!!";
+    //qDebug () << "want save!!!";
 
     if (!prot_conf_initialized) {
         qWarning() << "SAVING OPERATION NOT STARTED BECAUSE prot_conf not initialied!. Will try next time.... point count: " << tags_values.first().count();
@@ -329,7 +339,7 @@ void ProtTask::onSaveTimer()
     QtConcurrent::run( [tags_values, names, &database, &saving_now, &cur_prot_work, message_logs]() mutable {
         saving_now.ref();
         cur_prot_work->work_till = QDateTime::currentDateTime().toUTC();
-        QSqlError err2 = qx::dao::update_optimized(cur_prot_work, &database);
+        QSqlError err2 = qx::dao::update_optimized(cur_prot_work, &database, "prot_work");
         if ( err2.isValid() ) {
             qWarning() << "prot_error while updating work_till! "<< err2.databaseText() << " " << err2.driverText();
         }
@@ -355,7 +365,7 @@ void ProtTask::onSaveTimer()
         }
 
         saving_now.deref();
-        qDebug() << "saved!";
+        //qDebug() << "saved!";
     } );
 
     //tags_values.clear();

@@ -19,10 +19,12 @@ public:
     }
     void setFileName(const QString& fn) {file_name = fn;}
     QString fileName() const {return file_name;}
-
+    void setPrinterName(const QString& pn) {printer_name = pn;}
+    QString  printerName()const {return printer_name;}
     bool print(const QVariantMap&);
 private:
     QString file_name;
+    QString printer_name;
 
 };
 

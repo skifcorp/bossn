@@ -14,16 +14,11 @@ StructMemberConf::TypesFactoryForWrite StructMemberConf::typesFactoryForWrite;
 bool types_registered = StructMemberConf::registerTypes();
 
 
-
+/*
 uint StructConf::size() const
 {
-    uint s = 0;
-    for (int i = 0 ;i<blocks.count(); ++i) {
-        s += blocks[i].blockSize;
-    }
-    return s;
 }
-
+*/
 
 bool StructMemberConf::registerTypes()
 {
@@ -87,6 +82,7 @@ bool StructMemberConf::registerTypes()
                             QByteArray ret;
                             QDataStream st(&ret, QIODevice::WriteOnly); st.setByteOrder(QDataStream::LittleEndian);
                             QBitArray tmp = val.toBitArray();
+                            //qDebug() << "size: " << tmp.size();
                             ushort save_val = 0;
                             for (int i = 0; i<16; ++i) {
                                 save_val = save_val | (tmp.testBit(i)<<i);

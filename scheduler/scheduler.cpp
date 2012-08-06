@@ -18,6 +18,7 @@ void CoroContext::clear()
     //qDebug() << "cleared !!!!";
     schedul = nullptr;
     coro.clear();
+    tag_name = func_name = QString();
 }
 
 
@@ -55,7 +56,8 @@ void Schedul::startScheduleTimer()
 
     schedule_timer.start();
     coro = TrickyCoroPointer (
-         Coroutine::build( [this](){scheduler.startNewCoro(*this, false, false, true);} ), coro_deleter );
+                Coroutine::build( [this](){scheduler.startNewCoro(*this, false, false, true,
+                                                 "cyclic", "cyclic");} ), coro_deleter );
 }
 
 void Schedul::setExternalCoro(Coroutine * c)
@@ -142,7 +144,8 @@ void Scheduler::activateWaiter()
 
 
 
-void Scheduler::execFunction(AlhoSequence * caller, function<void ()>schf, function<void ()> tmf, int tm_msec)
+void Scheduler::execFunction(AlhoSequence * caller, function<void ()>schf, function<void ()> tmf,
+               int tm_msec, const QString& tag_name, const QString& func_name)
 {
     //qDebug () << "1: exec function! caller: " << caller->objectName();
 
@@ -152,17 +155,22 @@ void Scheduler::execFunction(AlhoSequence * caller, function<void ()>schf, funct
     s.setExternalCoro(caller);
     connect(&s.timeout_timer, SIGNAL(timeout()), this, SLOT(onTimeoutTimer()));
 
-    startNewCoro(s, true, true, false);
+    startNewCoro(s, true, true, false, tag_name, func_name);
 
     //qDebug() << "2: !!!!!!!!! exec function: afterStartNewCoro!!!!: " << caller->objectName();
 
-    if (current_coro.coro && current_coro.coro->status() == Coroutine::Stopped ) {
+    while (current_coro.coro && current_coro.coro->status() == Coroutine::Stopped ) {
         //qDebug() << "before yield!!!!! " << caller->objectName();
-        s.yield();  //we will return here when finished !!!
+        //qDebug() << "scheduler "<< tag_name << " func: "<< func_name <<  " wants to sleep! because " << current_coro.tag_name << " "
+        //         << current_coro.func_name << " works" ;
+        s.yield();
+        //qDebug() << "scheduler wake up ... status: " <<
+        if (current_coro.coro && current_coro.coro->status() == Coroutine::Stopped) {
+            qWarning() << "ATTANTION!!! Bad wakeup for: " << current_coro.tag_name << " "
+                       << " func: " << current_coro.func_name;
+        }
+
         //qDebug() << "after yyyyy "<<caller->objectName();
-    }
-    else {
-        //qDebug() << "not running!!"<<caller->objectName();
     }
 
     //qDebug () << "3: !!!!!!!!!!! URAAA exec function! exit for : " << caller->objectName();
@@ -188,7 +196,8 @@ void Scheduler::onTimeoutTimer()
     //qDebug() << "exit from onTimeoutTimer!";
 }
 
-void Scheduler::startNewCoro(Schedul & s, bool important, bool activate_on_finish, bool cyclic)
+void Scheduler::startNewCoro(Schedul & s, bool important, bool activate_on_finish, bool cyclic, const QString& tag_name,
+                             const QString& func_name)
 {
     waitForFree(s, important);
 
@@ -196,6 +205,8 @@ void Scheduler::startNewCoro(Schedul & s, bool important, bool activate_on_finis
     current_coro.activate_on_finish = activate_on_finish;
     current_coro.cyclic = cyclic;
     current_coro.coro->createStack(65535*4);
+    current_coro.tag_name = tag_name;
+    current_coro.func_name = func_name;
 
     //qDebug() << "start coro: " << device.data()->deviceName();
 

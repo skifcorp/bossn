@@ -27,7 +27,7 @@ public:
                         message_logs_initialized(false),
                         cur_prot_work (new prot_work), init(true)
     {
-
+        //async_func_.setShowDebugInfo(true);
     }
 
     ~ProtTask()  {}

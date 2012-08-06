@@ -20,7 +20,7 @@ void Hbm2108::readWeight(QVariant & ret, uint & err)
         yield();
     }
 
-    QByteArray answ = io_device()->read(frame_size);
+    QByteArray answ = io_device()->readAll();
 
     ret = parseWeightFrameAnswer(answ, err);
 }
@@ -45,6 +45,10 @@ int Hbm2108::parseWeightFrameAnswer(const QByteArray& ba, uint & err) const
     if (parseAddress(ba) != address) {
         //throw WeightFrameExceptionBadAddress();
         err = PorterFrameBadAddress; return -1;
+    }
+    const uchar frame_size = 17;
+    if (ba.size() != frame_size) {
+        err = PorterFrameCorrupted; return -1;
     }
 
     QByteArray ret = ba.left(8);

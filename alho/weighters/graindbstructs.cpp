@@ -1,4 +1,5 @@
-#include "dbstructs.h"
+
+#include "graindbstructs.h"
 #include "cardstructs.h"
 //#include "datetimehack.h"
 //#include "precompiled.h"
@@ -17,16 +18,69 @@ QX_REGISTER_CPP_EXPORT_DLL(t_field)
 QX_REGISTER_CPP_EXPORT_DLL(t_const)
 QX_REGISTER_CPP_EXPORT_DLL(t_bum_state_log)
 QX_REGISTER_CPP_EXPORT_DLL(t_action_log)
+QX_REGISTER_CPP_EXPORT_DLL(t_prikaz)
+QX_REGISTER_CPP_EXPORT_DLL(t_ttno)
 
 t_ttn::t_ttn():num_nakl(-1), date_time(timeShitToDateTime(0)), car(0), field(0), real_field(0), loader(0), dt_of_load(timeShitToDateTime(0)),
                 driver(0),  brutto(0), dt_of_brutto(timeShitToDateTime(0)),
                 tara(0), dt_of_tara(timeShitToDateTime(0)), bum(0), real_bum(0), kagat(0), dt_of_unload(timeShitToDateTime(0)),
-    routed_to_lab(0), was_in_lab(0), copy(0), time_return(timeShitToDateTime(0)),
+    routed_to_lab(0), was_in_lab(0), copy(1), time_return(timeShitToDateTime(0)),
                trailer(0), real_loader(0), err(0), bum_platforma(0), rup_tara(0), real_rup_tara(0),
     brutto_platforma(0), tara_platforma(0), field_from_car(0), culture(0),sort(0),repr(0)
 {
 
 }
+
+t_ttn::t_ttn(long id):num_nakl(id), date_time(timeShitToDateTime(0)), car(0), field(0), real_field(0), loader(0), dt_of_load(timeShitToDateTime(0)),
+                driver(0),  brutto(0), dt_of_brutto(timeShitToDateTime(0)),
+                tara(0), dt_of_tara(timeShitToDateTime(0)), bum(0), real_bum(0), kagat(0), dt_of_unload(timeShitToDateTime(0)),
+    routed_to_lab(0), was_in_lab(0), copy(1), time_return(timeShitToDateTime(0)),
+               trailer(0), real_loader(0), err(0), bum_platforma(0), rup_tara(0), real_rup_tara(0),
+    brutto_platforma(0), tara_platforma(0), field_from_car(0), culture(0),sort(0),repr(0)
+{
+
+}
+
+
+
+t_prikaz::t_prikaz(long id):num_nakl(id), date_time( timeShitToDateTime(0) ),
+    lim(0), rest(0), place_out(0), place_in(0), copy(true),
+    sort(0), repr(0)
+{
+
+}
+
+
+t_prikaz::t_prikaz():num_nakl(0), date_time( timeShitToDateTime(0) ),
+    lim(0), rest(0), place_out(0), place_in(0), copy(true),
+    sort(0), repr(0)
+{
+
+}
+
+
+t_ttno::t_ttno(long id) : date_time(timeShitToDateTime(0)),
+    num_nakl(id),  car(0),  prikaz(0), place_out(0), place_in(0),
+    driver(0),  brutto(0),  dt_of_brutto(timeShitToDateTime(0)),
+    tara(0),  dt_of_tara(timeShitToDateTime(0)),  copy(1),
+    trailer(0),   sort(0),  repr(0)
+{
+
+}
+
+t_ttno::t_ttno() : date_time(timeShitToDateTime(0)),
+    num_nakl(-1),  car(0),  prikaz(0), place_out(0), place_in(0),
+    driver(0),  brutto(0),  dt_of_brutto(timeShitToDateTime(0)),
+    tara(0),  dt_of_tara(timeShitToDateTime(0)),  copy(1),
+    trailer(0),   sort(0),  repr(0)
+{
+
+}
+
+
+
+
+
 
 namespace qx {
     template <> void register_class(QxClass<t_ttn> & t)
@@ -67,7 +121,7 @@ namespace qx {
         t.data(&t_ttn::culture , "culture");
         t.data(&t_ttn::sort , "sort");
         t.data(&t_ttn::repr , "repr");
-
+        t.data(&t_ttn::culture_name , "culture_name");
 
     }
 
@@ -94,6 +148,9 @@ namespace qx {
 
         t.data(&t_bum::state , "state");
         t.data(&t_bum::queue , "queue");
+        t.data(&t_bum::heavyweight, "heavyweight");
+        t.data(&t_bum::client, "client");
+        t.data(&t_bum::field, "field");
     }
 
 
@@ -120,6 +177,11 @@ namespace qx {
         t.data(&t_cars::start_time , "start_time");
         t.data(&t_cars::amount_of_car_for_middle_tara , "amount_of_car_for_middle_tara");
         t.data(&t_cars::vremja_na_hodku , "vremja_na_hodku");
+
+        t.data(&t_cars::copy, "copy");
+        t.data(&t_cars::fl_perimetr, "fl_perimetr");
+        t.data(&t_cars::smena, "smena");
+
     }
 
     template <> void register_class(QxClass<t_kagat> & t)
@@ -139,6 +201,7 @@ namespace qx {
         t.data(&t_kontr::period , "period");
         t.data(&t_kontr::car_in_period , "car_in_period");
         t.data(&t_kontr::type , "type");
+        t.data(&t_kontr::firstcar, "firstcar");
     }
 
 
@@ -179,6 +242,43 @@ namespace qx {
         t.data(&t_action_log::time , "time");
         t.data(&t_action_log::type , "type");
         t.data(&t_action_log::ind , "ind");
+    }
+
+    template <> void register_class(QxClass<t_prikaz>& t  )
+    {
+        t.id  ( &t_prikaz::num_nakl  , "num_nakl" );
+
+        t.data( &t_prikaz::date_time , "date_time" );
+        t.data( &t_prikaz::lim       , "lim" );
+        t.data( &t_prikaz::rest      , "rest" );
+        t.data( &t_prikaz::place_out , "place_out" );
+        t.data( &t_prikaz::place_in  , "place_in" );
+        t.data( &t_prikaz::copy      , "copy" );
+        t.data( &t_prikaz::culture   , "culture" );
+        t.data( &t_prikaz::sort      , "sort" );
+        t.data( &t_prikaz::repr      , "repr" );
+        t.data( &t_prikaz::virtual_rest, "virtual_rest" );
+    }
+
+    template <> void register_class(QxClass<t_ttno>& t  )
+    {
+        t.id  ( &t_ttno::num_nakl    , "num_nakl" );
+        t.data( &t_ttno::date_time   , "date_time" );
+        t.data( &t_ttno::car         , "car" );
+        t.data( &t_ttno::prikaz      , "prikaz" );
+        t.data( &t_ttno::place_out   , "place_out" );
+        t.data( &t_ttno::place_in    , "place_in" );
+        t.data( &t_ttno::driver      , "driver" );
+        t.data( &t_ttno::brutto      , "brutto" );
+        t.data( &t_ttno::dt_of_brutto, "dt_of_brutto" );
+        t.data( &t_ttno::tara        , "tara" );
+        t.data( &t_ttno::dt_of_tara  , "dt_of_tara" );
+        t.data( &t_ttno::num_kart    , "num_kart" );
+        t.data( &t_ttno::copy        , "copy" );
+        t.data( &t_ttno::trailer     , "trailer" );
+        t.data( &t_ttno::culture     , "culture" );
+        t.data( &t_ttno::sort        , "sort" );
+        t.data( &t_ttno::repr        , "repr" );
     }
 
 }

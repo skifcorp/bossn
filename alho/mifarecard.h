@@ -14,6 +14,8 @@ using std::function;
 #include "cardstructs.h"
 #include "readersettings.h"
 #include "alhosequence.h"
+#include "mifarecarddata.h"
+#include "mainsequencesettings.h"
 
 class MifareCardException
 {
@@ -29,6 +31,23 @@ private:
 
 };
 
+class MifareCardReadException : public MifareCardException
+{
+public:
+    MifareCardReadException(const QString& msg):MifareCardException(msg){}
+
+    virtual ~MifareCardReadException() {}
+};
+
+class MifareCardWriteException : public MifareCardException
+{
+public:
+    MifareCardWriteException(const QString& msg):MifareCardException(msg){}
+
+    virtual ~MifareCardWriteException() {}
+};
+
+
 class MifareCardAuthException : public MifareCardException
 {
 public:
@@ -40,16 +59,21 @@ private:
 class MifareCard
 {
 public:
-    MifareCard(Tag::WeakPointer r , const ActivateCardISO14443A&, const ReaderTagMethods&, AlhoSequence& c );
+    MifareCard( const ActivateCardISO14443A&, ReaderTagMethods& );
 
     ~MifareCard(){}
 
     bool active() const {return activate_card.active();}
 
     void autorize( const QByteArray& , int block ) throw (MifareCardException, MifareCardAuthException);
-    QVariantMap readStruct(const StructConf& conf) throw (MifareCardException);
+    //QByteArray readByteArray(const StructConf& conf) throw (MifareCardException);
+    QByteArray readByteArray(const BlocksConf& ) throw (MifareCardException);
+    MifareCardData readStruct(const QByteArray&, const StructConf& conf) throw (MifareCardException);
 
-    void writeStruct(const StructConf& conf, const QVariantMap& s) throw (MifareCardException);
+
+    void writeStruct(const StructConf& conf, const MifareCardData& s, const BlocksConf& ) throw (MifareCardException);
+    QString toString( const StructConf& conf, const MifareCardData& s )const throw ();
+    QString toBigString(const StructConf& conf, const MifareCardData& s) const throw();
 
     QByteArray uid() const {return activate_card.uid;}  
     static uchar passwordBlock(uchar block)
@@ -69,14 +93,14 @@ public:
     }
 
 private:
-    Tag::WeakPointer reader;
+    //Tag::WeakPointer reader;
     ActivateCardISO14443A activate_card;
 
     QVariant readMember (const StructMemberConf& , const QByteArray& ) const throw (MifareCardException);
     void     writeMember(const StructMemberConf& , const QVariant&, QByteArray& ) const throw (MifareCardException);
 
-    const ReaderTagMethods& reader_settings;
-    AlhoSequence& caller;
+    ReaderTagMethods& reader_settings;
+    //AlhoSequence& caller;
 };
 
 
