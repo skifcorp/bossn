@@ -93,6 +93,8 @@ private:
     int seq_id;
     //QString platform_type;
     QString printer_name;
+    bool uses_photo;
+
 
     QTimer wake_timer;
 

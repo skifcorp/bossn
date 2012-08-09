@@ -57,6 +57,17 @@ void MainSequence::setSettings(const QVariantMap & s)
 
     //platform_type                       = get_setting<QString>("platform_type", s);
     printer_name                        = get_setting<QString>("printer_name", s);
+    uses_photo                          = get_setting<bool>("uses_photo", s);
+
+    QVariantMap exit_photo              = get_setting<QVariantMap>("exit_photo", s);
+    QVariantMap input_photo             = get_setting<QVariantMap>("input_photo", s);
+
+    qDebug() << exit_photo["channel_num"] << " ";
+    qDebug() << exit_photo["channel_alias"] << "\n";
+
+    qDebug() << input_photo["channel_num"] <<  " ";
+    qDebug() << input_photo["channel_alias"] << "\n";
+
 
 #if 0
     database = QSqlDatabase::addDatabase(get_setting<QString>("database_driver", s), "sequ_" + QString::number(seq_id));
@@ -278,6 +289,8 @@ void MainSequence::run()
             MifareCardData bill;
             WeighterConf& weighter_conf = readStruct(card, bill);
 
+
+
             checkForStealedCard(cur_act, act); cur_act = act;
 
 
@@ -296,6 +309,9 @@ void MainSequence::run()
 
             weighter->checkCardBanned( byteArrayToString(card.uid()) );
             weighter->processWeighting(bill, card, weighter_conf);
+
+
+
 
 
             sleepnb( get_setting<int>("brutto_finish_pause", app_settings) );
