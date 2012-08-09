@@ -1,8 +1,7 @@
 #ifndef DBSTRUCTS_H
 #define DBSTRUCTS_H
 
-#include <QxOrm.h>
-#include <QxMemLeak.h>
+#include "qxorm_pch.h"
 
 #include <QtGlobal>
 #include <QDateTime>

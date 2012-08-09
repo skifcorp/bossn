@@ -1,7 +1,7 @@
 #ifndef GENERICDBSTRUCTS_H
 #define GENERICDBSTRUCTS_H
 
-#include <QxOrm.h>
+#include "qxorm_pch.h"
 
 struct bad_cards
 {

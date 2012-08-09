@@ -8,7 +8,7 @@
 #include <QSharedPointer>
 #include <QSqlDatabase>
 
-#include "QxOrm.h"
+#include "qxorm_pch.h"
 
 #include "bossnexception.h"
 #include "mifarecarddata.h"

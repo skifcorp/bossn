@@ -1,9 +1,7 @@
 #ifndef PROTDB_H
 #define PROTDB_H
 
-
-#include <QxOrm.h>
-#include <QxMemLeak.h>
+#include "qxorm_pch.h"
 
 
 #include <QString>
