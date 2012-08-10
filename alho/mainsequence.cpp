@@ -321,7 +321,7 @@ void MainSequence::run()
                 QString str_exit = QString::number(cur_num_nakl) + "_" + weighter->detectPlatformType(bill) + "_" + exit_photo["channel_alias"].toString();
                 QString str_input = QString::number(cur_num_nakl) + "_" + weighter->detectPlatformType(bill) + "_" + input_photo["channel_alias"].toString();
 
-                wchar_t wstr_exit[str_exit.size()];
+                wchar_t wstr_exit[str_exit.size()] = {'0'};
                 wchar_t wstr_input[str_input.size()];
                 wstr_exit[0] = '\0';
                 wstr_input[0] = '\0';
