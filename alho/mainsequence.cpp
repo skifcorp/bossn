@@ -11,6 +11,8 @@
 
 //#include "mysql.h"
 
+#include "photograb/photomaker.h"
+
 #include <QBitArray>
 
 
@@ -59,14 +61,14 @@ void MainSequence::setSettings(const QVariantMap & s)
     printer_name                        = get_setting<QString>("printer_name", s);
     uses_photo                          = get_setting<bool>("uses_photo", s);
 
-    QVariantMap exit_photo              = get_setting<QVariantMap>("exit_photo", s);
-    QVariantMap input_photo             = get_setting<QVariantMap>("input_photo", s);
+    exit_photo                          = get_setting<QVariantMap>("exit_photo", s);
+    input_photo                         = get_setting<QVariantMap>("input_photo", s);
 
-    qDebug() << exit_photo["channel_num"] << " ";
-    qDebug() << exit_photo["channel_alias"] << "\n";
+    qDebug() << "channel_num = " << exit_photo["channel_num"] << "\n";
+    qDebug() <<"channel_alias = " << exit_photo["channel_alias"] << "\n";
 
-    qDebug() << input_photo["channel_num"] <<  " ";
-    qDebug() << input_photo["channel_alias"] << "\n";
+    qDebug() << "channel_num = " << input_photo["channel_num"] << "n";
+    qDebug() << "channel_alias = " << input_photo["channel_alias"] << "\n";
 
 
 #if 0
@@ -133,6 +135,7 @@ void MainSequence::initWeightersConf(const QVariantMap& s)
         //WeighterConf::initCardStruct(wc);
 
         weighters_conf.push_back(wc);
+        qDebug() << m.take("photo_type").toString();
     }
 }
 
@@ -279,6 +282,9 @@ void MainSequence::run()
         try {
             printOnTablo(tr(processing_message));
 
+            //grabPhoto("_" + (weighter->detectPlatformType()) + "_" + exit_photo["channel_alias"], exit_photo["channel_num"]);
+
+
 /*            if ( !database.isOpen() ) {
                 if ( !async_func_ptr->async_call( [this]{return database.open();}) )
                     throw MainSequenceException(tr(error_database_lost), "Error database lost!!!");
@@ -310,9 +316,22 @@ void MainSequence::run()
             weighter->checkCardBanned( byteArrayToString(card.uid()) );
             weighter->processWeighting(bill, card, weighter_conf);
 
+            if(uses_photo)
+            {
+                QString str_exit = QString::number(cur_num_nakl) + "_" + weighter->detectPlatformType(bill) + "_" + exit_photo["channel_alias"].toString();
+                QString str_input = QString::number(cur_num_nakl) + "_" + weighter->detectPlatformType(bill) + "_" + input_photo["channel_alias"].toString();
 
+                wchar_t wstr_exit[str_exit.size()];
+                wchar_t wstr_input[str_input.size()];
+                wstr_exit[0] = '\0';
+                wstr_input[0] = '\0';
 
+                str_exit.toWCharArray(wstr_exit);
+                str_exit.toWCharArray(wstr_input);
 
+                grabPhoto(wstr_exit, exit_photo["channel_num"].toInt());
+                grabPhoto(wstr_input, input_photo["channel_num"].toInt());
+            }
 
             sleepnb( get_setting<int>("brutto_finish_pause", app_settings) );
             printOnTablo( tr(apply_card_message) );

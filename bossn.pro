@@ -90,7 +90,8 @@ SOURCES += main.cpp \
     alho/weighters/grainshipmentweighter.cpp \
     alho/weighters/baseshipmentweighter.cpp \
     alho/weighters/weighterconf.cpp \
-    alho/weighters/genericdbstructs.cpp
+    alho/weighters/genericdbstructs.cpp \
+    photograb/photomaker.cpp
 
 HEADERS += \    
     tools/func.h \
@@ -158,7 +159,8 @@ HEADERS += \
     alho/weighters/grainshipmentweighter.h \
     alho/weighters/weighterconf.h \
     alho/weighters/genericdbstructs.h \
-    qxorm_pch.h
+    qxorm_pch.h \
+    photograb/photomaker.h
 	
 
 
