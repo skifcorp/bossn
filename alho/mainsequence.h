@@ -95,7 +95,7 @@ private:
     QString printer_name;
     bool uses_photo;
     QVariantMap exit_photo;
-    QVariantMap input_photo;
+    QVariantMap enter_photo;
 
 
     QTimer wake_timer;
@@ -154,6 +154,8 @@ private:
     }
 
     virtual void run();
+
+    void makePhotoIfNeeded(long, const QString& , const WeighterConf& );
 };
 
 

@@ -61,14 +61,16 @@ void MainSequence::setSettings(const QVariantMap & s)
     printer_name                        = get_setting<QString>("printer_name", s);
     uses_photo                          = get_setting<bool>("uses_photo", s);
 
-    exit_photo                          = get_setting<QVariantMap>("exit_photo", s);
-    input_photo                         = get_setting<QVariantMap>("input_photo", s);
+    if (uses_photo) {
+        exit_photo                          = get_setting<QVariantMap>("exit_photo", s);
+        enter_photo                         = get_setting<QVariantMap>("enter_photo", s);
+    }
 
-    qDebug() << "channel_num = " << exit_photo["channel_num"] << "\n";
+/*    qDebug() << "channel_num = " << exit_photo["channel_num"] << "\n";
     qDebug() <<"channel_alias = " << exit_photo["channel_alias"] << "\n";
 
     qDebug() << "channel_num = " << input_photo["channel_num"] << "n";
-    qDebug() << "channel_alias = " << input_photo["channel_alias"] << "\n";
+    qDebug() << "channel_alias = " << input_photo["channel_alias"] << "\n"; */
 
 
 #if 0
@@ -176,7 +178,7 @@ int MainSequence::getWeight()  throw (MainSequenceException)
 #endif
 
 MainSequence::MainSequence(Tags & t, const QVariantMap& s)
-    :init(true),tags(t), app_settings(s), alho_settings(*this, tags) ,on_weight(false), seq_id(0), wake_timer(this)
+    :init(true),tags(t), app_settings(s), alho_settings(*this, tags) ,on_weight(false), seq_id(0), uses_photo(false), wake_timer(this)
 {
     qx::QxSqlDatabase::getSingleton()->setTraceSqlQuery(false);
     qx::QxSqlDatabase::getSingleton()->setTraceSqlRecord(false);
@@ -229,16 +231,24 @@ WeighterConf& MainSequence::readStruct(MifareCard & card, MifareCardData& d) thr
     return wc;
 }
 
+
+void MainSequence::makePhotoIfNeeded(long num_nakl, const QString& platform_type, const WeighterConf& wc)
+{
+    if (!uses_photo) return;
+
+    QString str_exit  = get_setting<QString>("photo_dir", wc) + "\\" + QString::number(num_nakl) + "_" + platform_type + "_" + exit_photo["channel_alias"].toString();
+    QString str_input = get_setting<QString>("photo_dir", wc) + "\\" + QString::number(num_nakl) + "_" + platform_type + "_" + enter_photo["channel_alias"].toString();
+
+    grabPhoto(str_exit.toStdWString().c_str()  , exit_photo["channel_num"].toInt() );
+    grabPhoto(str_input.toStdWString().c_str() , enter_photo["channel_num"].toInt() );
+}
+
 void MainSequence::run()
 {
     if ( init ) {
-        //qDebug() << "\n\n\nmain_sequence!!!!!!!!!!! init begin";
         printOnTablo(tr(greeting_message));
-        //qDebug() << "2222";
         setLightsToGreen();
-        //qDebug() << "3333";
         init = false;
-        //qDebug() << "main_sequence!!!!!!!!!!! init finished\n\n\n\n\n";
         return;
     }
 
@@ -316,22 +326,7 @@ void MainSequence::run()
             weighter->checkCardBanned( byteArrayToString(card.uid()) );
             weighter->processWeighting(bill, card, weighter_conf);
 
-            if(uses_photo)
-            {
-                QString str_exit = QString::number(cur_num_nakl) + "_" + weighter->detectPlatformType(bill) + "_" + exit_photo["channel_alias"].toString();
-                QString str_input = QString::number(cur_num_nakl) + "_" + weighter->detectPlatformType(bill) + "_" + input_photo["channel_alias"].toString();
-
-                wchar_t wstr_exit[str_exit.size()] = {'0'};
-                wchar_t wstr_input[str_input.size()];
-                wstr_exit[0] = '\0';
-                wstr_input[0] = '\0';
-
-                str_exit.toWCharArray(wstr_exit);
-                str_exit.toWCharArray(wstr_input);
-
-                grabPhoto(wstr_exit, exit_photo["channel_num"].toInt());
-                grabPhoto(wstr_input, input_photo["channel_num"].toInt());
-            }
+            makePhotoIfNeeded(cur_num_nakl, weighter->detectPlatformType(bill), weighter_conf );
 
             sleepnb( get_setting<int>("brutto_finish_pause", app_settings) );
             printOnTablo( tr(apply_card_message) );
