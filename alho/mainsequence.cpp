@@ -236,11 +236,13 @@ void MainSequence::makePhotoIfNeeded(long num_nakl, const QString& platform_type
 {
     if (!uses_photo) return;
 
-    QString str_exit  = get_setting<QString>("photo_dir", wc) + "\\" + QString::number(num_nakl) + "_" + platform_type + "_" + exit_photo["channel_alias"].toString();
-    QString str_input = get_setting<QString>("photo_dir", wc) + "\\" + QString::number(num_nakl) + "_" + platform_type + "_" + enter_photo["channel_alias"].toString();
+    QString str_exit  = get_setting<QString>("photo_dir", wc) + "\\" + QString::number(num_nakl) + "_"
+            + platform_type + "_" + get_setting<QString>("channel_alias", exit_photo);
+    QString str_input = get_setting<QString>("photo_dir", wc) + "\\" + QString::number(num_nakl) + "_"
+            + platform_type + "_" + get_setting<QString>("channel_alias", enter_photo);
 
-    capture.grabPhoto(str_exit.toStdWString().c_str()  , exit_photo["channel_num"].toInt() );
-    capture.grabPhoto(str_input.toStdWString().c_str() , enter_photo["channel_num"].toInt() );
+    capture.grabPhoto(str_exit.toStdWString().c_str()  , get_setting<QString>("channel_num", exit_photo ).toInt());
+    capture.grabPhoto(str_input.toStdWString().c_str() , get_setting<QString>("channel_num", enter_photo).toInt());
 }
 
 void MainSequence::run()
