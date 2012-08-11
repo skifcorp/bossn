@@ -253,7 +253,11 @@ void MainSequence::run()
     }
 
 
+
     seqDebug() << "something appeared on weight!!!! id" << seq_id;
+
+    //capture.grabPhoto(L"D:\\SkifGate\\BazaDBF\\CH0_test_1", 0);
+
     on_weight = true;
 
     printOnTablo(tr(apply_card_message));
