@@ -17,7 +17,7 @@ TEMPLATE = app
 INCLUDEPATH    += ../qextserialport/src/ db alho serial weight generic iodevicewrapper scheduler   .          \
                     porter task dido perimeter tools reader  reports ../coroutine/src/ ../QxOrm/include       \
                                         $$(BOOST_ROOT) ../ismm/ settings stable prot  $$(MYSQL_DIR)/include   \
-                                        QtSources/4.8.1/include alho/weighters alho/direction
+                                        QtSources/4.8.1/include alho/weighters alho/direction photograb
 
 QMAKE_CXXFLAGS += -std=c++0x #-m32
 #QMAKE_LFLAGS   += -m32

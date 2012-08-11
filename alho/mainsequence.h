@@ -29,6 +29,7 @@
 #include "cardstructs.h"
 #include "mifarecard.h"
 #include "weighterconf.h"
+#include "photomaker.h"
 
 class MifareCard;
 
@@ -156,6 +157,7 @@ private:
     virtual void run();
 
     void makePhotoIfNeeded(long, const QString& , const WeighterConf& );
+    CapturePhoto capture;
 };
 
 

@@ -239,8 +239,8 @@ void MainSequence::makePhotoIfNeeded(long num_nakl, const QString& platform_type
     QString str_exit  = get_setting<QString>("photo_dir", wc) + "\\" + QString::number(num_nakl) + "_" + platform_type + "_" + exit_photo["channel_alias"].toString();
     QString str_input = get_setting<QString>("photo_dir", wc) + "\\" + QString::number(num_nakl) + "_" + platform_type + "_" + enter_photo["channel_alias"].toString();
 
-    grabPhoto(str_exit.toStdWString().c_str()  , exit_photo["channel_num"].toInt() );
-    grabPhoto(str_input.toStdWString().c_str() , enter_photo["channel_num"].toInt() );
+    capture.grabPhoto(str_exit.toStdWString().c_str()  , exit_photo["channel_num"].toInt() );
+    capture.grabPhoto(str_input.toStdWString().c_str() , enter_photo["channel_num"].toInt() );
 }
 
 void MainSequence::run()
