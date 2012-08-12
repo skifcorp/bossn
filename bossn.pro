@@ -1,4 +1,4 @@
-  #-------------------------------------------------
+#-------------------------------------------------
 #
 # Project created by QtCreator 2012-03-13T16:01:34
 #
@@ -9,18 +9,20 @@ QT       += core xml sql script gui
 CONFIG   += uitools console
 
 TARGET   = bossn
-CONFIG   += console
+CONFIG   += console precompile_header
 CONFIG   -= app_bundle
 DESTDIR  = build
 
 TEMPLATE = app
-INCLUDEPATH    += ../qextserialport/src/ db alho serial weight generic iodevicewrapper scheduler              \
+INCLUDEPATH    += ../qextserialport/src/ db alho serial weight generic iodevicewrapper scheduler   .          \
                     porter task dido perimeter tools reader  reports ../coroutine/src/ ../QxOrm/include       \
                                         $$(BOOST_ROOT) ../ismm/ settings stable prot  $$(MYSQL_DIR)/include   \
-                                        $$(QTSDK_DIR)/QtSources/4.8.1/include alho/weighters alho/direction
+                                        QtSources/4.8.1/include alho/weighters alho/direction
 
 QMAKE_CXXFLAGS += -std=c++0x #-m32
 #QMAKE_LFLAGS   += -m32
+
+PRECOMPILED_HEADER = qxorm_pch.h
 
 CONFIG(debug, debug|release) {
 LIBS           +=   -L../qextserialport_build/src/build/ -lqextserialportd               \
@@ -155,7 +157,8 @@ HEADERS += \
     alho/weighters/grainacceptanceweighter.h \
     alho/weighters/grainshipmentweighter.h \
     alho/weighters/weighterconf.h \
-    alho/weighters/genericdbstructs.h
+    alho/weighters/genericdbstructs.h \
+    qxorm_pch.h
 	
 
 

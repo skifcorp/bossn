@@ -8,10 +8,7 @@
 
 #include <QMessageBox>
 
-#include <QxRegister/QxClassX.h>
-#include <QxRegister/IxClass.h>
-#include <QxDataMember/IxDataMemberX.h>
-#include <QxDataMember/IxDataMember.h>
+#include "qxorm_pch.h"
 
 using qx::QxClassX;
 using qx::IxClass;

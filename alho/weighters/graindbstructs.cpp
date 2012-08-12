@@ -3,8 +3,7 @@
 #include "cardstructs.h"
 //#include "datetimehack.h"
 //#include "precompiled.h"
-#include <QxOrm.h>
-#include <QxMemLeak.h>
+#include "qxorm_pch.h"
 #include "func.h"
 
 QX_REGISTER_CPP_EXPORT_DLL(t_ttn)

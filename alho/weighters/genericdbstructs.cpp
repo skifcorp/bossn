@@ -1,7 +1,6 @@
 #include "genericdbstructs.h"
 
-#include <QxOrm.h>
-#include <QxMemLeak.h>
+#include "qxorm_pch.h"
 #include "func.h"
 
 QX_REGISTER_CPP_EXPORT_DLL(bad_cards)

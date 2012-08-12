@@ -6,7 +6,7 @@
 #include <QtConcurrentRun>
 #include <QFutureWatcher>
 
-#include <QxOrm.h>
+#include "qxorm_pch.h"
 
 #include "bossnexception.h"
 #include "coroutine.h"
