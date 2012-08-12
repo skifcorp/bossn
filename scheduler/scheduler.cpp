@@ -10,6 +10,8 @@
 
 void CoroContext::clear()
 {
+    coro.clear();
+
     if (activate_on_finish && schedul->running()) {
         //qDebug() << "!!!!!!!!!!!!!GOT activate_on_finish!!!!: status: ";
         schedul->cont();
@@ -17,7 +19,7 @@ void CoroContext::clear()
     }
     //qDebug() << "cleared !!!!";
     schedul = nullptr;
-    coro.clear();
+    // coro.clear();
     tag_name = func_name = QString();
 }
 
