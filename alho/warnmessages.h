@@ -47,6 +47,23 @@ static const char * weights_dont_work                      = QT_TRANSLATE_NOOP("
 static const char * error_make_new_task                    = QT_TRANSLATE_NOOP("MainSequence", "Cant make new task!");
 static const char * error_database_lost                    = QT_TRANSLATE_NOOP("MainSequence", "Lost connection to database!!!");
 static const char * processing_message                     = QT_TRANSLATE_NOOP("MainSequence", "Processing card!!!");
+static const char * cant_use_database                      = QT_TRANSLATE_NOOP("MainSequence", "Cant use database!!!");
+static const char * cant_retara_after_leaving_weights      = QT_TRANSLATE_NOOP("MainSequence", "Cant retara after leaving weights");
+static const char * cant_rebrutto_after_leaving_weights    = QT_TRANSLATE_NOOP("MainSequence", "Cant rebrutto after leaving weights");
+static const char * cant_fetch_prikaz                      = QT_TRANSLATE_NOOP("MainSequence", "Cant get prikaz");
+static const char * prikaz_already_closed                  = QT_TRANSLATE_NOOP("MainSequence", "Prikaz already closed");
+static const char * fake_ttn_creation_error                = QT_TRANSLATE_NOOP("MainSequence", "Fake ttn creation error");
+static const char * cant_update_prikaz                     = QT_TRANSLATE_NOOP("MainSequence", "Cant update prikaz");
+static const char * prikaz_creation_error                  = QT_TRANSLATE_NOOP("MainSequence", "Prikaz creation error");
+static const char * car_netto_too_big_for_prikaz           = QT_TRANSLATE_NOOP("MainSequence", "Netto too big for your prikaz");
+static const char * car_has_netto_overlimit                = QT_TRANSLATE_NOOP("MainSequence", "Car has netto overlimit");
+static const char * cant_get_ttn_with_max_netto            = QT_TRANSLATE_NOOP("MainSequence", "Cant get ttn with max netto");
+static const char * your_card_is_banned                    = QT_TRANSLATE_NOOP("MainSequence", "Your card is banned");
+static const char * cant_get_virtual_netto                 = QT_TRANSLATE_NOOP("MainSequence", "Cant get virtual netto");
+
+static const char * brutto_finish_weight_message                  = QT_TRANSLATE_NOOP("MainSequence", "%1 kg");
+static const char * brutto_finish_lab_message                     = QT_TRANSLATE_NOOP("MainSequence", "Lab(%1)");
+static const char * brutto_finish_bum_message                     = QT_TRANSLATE_NOOP("MainSequence", "BUM %1");
 
 
 
@@ -97,6 +114,25 @@ inline void remove_unsued_warning()
     Q_UNUSED(error_make_new_task);
     Q_UNUSED(error_database_lost);
     Q_UNUSED(processing_message);
+    Q_UNUSED(cant_use_database);
+
+    Q_UNUSED(cant_retara_after_leaving_weights);
+    Q_UNUSED(cant_rebrutto_after_leaving_weights);
+
+    Q_UNUSED(cant_fetch_prikaz);
+    Q_UNUSED(prikaz_already_closed);
+    Q_UNUSED(fake_ttn_creation_error);
+    Q_UNUSED(cant_update_prikaz);
+    Q_UNUSED(prikaz_creation_error);
+    Q_UNUSED(cant_get_virtual_netto);
+    Q_UNUSED(car_netto_too_big_for_prikaz);
+    Q_UNUSED(car_has_netto_overlimit);
+    Q_UNUSED(cant_get_ttn_with_max_netto);
+    Q_UNUSED(your_card_is_banned);
+    Q_UNUSED(brutto_finish_weight_message);
+    Q_UNUSED(brutto_finish_lab_message);
+    Q_UNUSED(brutto_finish_bum_message);
+
 }
 
 #endif // WARNMESSAGES_H

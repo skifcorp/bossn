@@ -25,18 +25,21 @@ public:
     }
     virtual void clear()
     {
-        if (!isDeviceOpened() ) return;
+        //if (!isDeviceOpened() ) return;
         //serial_port.reset();
         //serial_port.flush();
         //qDebug() << "start clearing COMPORT!!!!!!";
-
-        auto m = serial_port.openMode();
-
+        QByteArray ba = readAll();
+        Q_UNUSED(ba);
+        //qDebug() << ba.size() << " bytes cleared in port: " << deviceName();
+        /*auto m = serial_port.openMode();
+        serial_port.flush();
         //qDebug() << "comport 1";
         serial_port.close();
         //qDebug() << "comport 2";
         serial_port.open(m);
         //qDebug() << "comport 3";
+        serial_port.flush();*/
     }
 
     static IoDeviceWrapper * create()

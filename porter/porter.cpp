@@ -64,16 +64,20 @@ void Porter::setScheduled(bool s)
 void Porter::addTagToSchedule(Drivers::size_type driver_index, const QString& tag_name)
 {
     scheduler.addFunction(
-            [drivers, driver_index, &methods, tag_name] {
+            [drivers, driver_index, &methods, tag_name, this] {
                 MethodInfo & mi = methods[tag_name];
 
                 QMetaObject::invokeMethod(drivers[driver_index].data(), mi.method.toAscii().data(),
                                           Q_ARG(QVariant&, mi.value), Q_ARG(uint&, mi.error));
+                if (mi.error) {
+                    qWarning() << "got error in porter device!!!!: code: "<<mi.error << "device: "<<device->deviceName();
+                }
             },
             [&device, &drivers, driver_index, &methods, tag_name] {
                 MethodInfo & mi = methods[tag_name];
                 mi.value  = 0; mi.error = PorterDriver::PorterFrameNotAnswer;
                 qDebug () << device->deviceName() << " dont answered!";
+                device->clear();
             }, 500, 1000);
 }
 
@@ -123,8 +127,11 @@ QVariant Porter::exec(const QString& tag_name,  AlhoSequence * caller, QGenericA
                 [&device, &mi]{
                     qWarning()<<"device: "<<device->deviceName()<<" not answered!!!!";
                     mi.error = PorterDriver::PorterFrameNotAnswer;
+                    device->clear();
                 },
-                500);
+                500,
+                tag_name,
+                func_name  );
 
 
     if (mi.error)   return QVariant();
@@ -161,8 +168,11 @@ QVariant Porter::value (const QString& n,  AlhoSequence * caller,
                 [&device, &mi]{
                     qWarning()<<"device: "<<device->deviceName()<<" not answered!!!!";
                     mi.error = PorterDriver::PorterFrameNotAnswer;
+                    device->clear();
                 },
-                500);
+                500,
+                n,
+                mi.method);
 
 
     if (mi.error)  return QVariant();
