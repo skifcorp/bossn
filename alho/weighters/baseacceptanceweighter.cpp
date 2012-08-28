@@ -2,7 +2,7 @@
 #include "mainsequence.h"
 
 
-void BaseAcceptanceWeighter::processWeighting(MifareCardData& bill, MifareCard& card,
+void BaseAcceptanceWeighter::processWeighting(MifareCardData& bill, MifareCardBlock& card,
                 const WeighterConf& weighter_conf ) throw ( MainSequenceException , MifareCardException)
 {
 

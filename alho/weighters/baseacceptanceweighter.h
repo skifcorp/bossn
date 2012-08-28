@@ -32,7 +32,7 @@ public:
     virtual bool isPureTaraWeight(const MifareCardData& ) const throw (MainSequenceException) = 0;
 
 
-    virtual void processWeighting(MifareCardData&, MifareCard&, const  WeighterConf&  ) throw (MainSequenceException, MifareCardException);
+    virtual void processWeighting(MifareCardData&, MifareCardBlock&, const  WeighterConf&  ) throw (MainSequenceException, MifareCardException);
 protected:
 
     template <class Tttn>

@@ -31,7 +31,7 @@
 #include "weighterconf.h"
 #include "photomaker.h"
 
-class MifareCard;
+class MifareCardBlock;
 
 
 
@@ -129,7 +129,7 @@ private:
     //const WeighterConf& findWeighterConf(const MifareCardData&) const throw (MainSequenceException);
     WeighterConf& findWeighterConf(int) throw (MainSequenceException);
 
-    WeighterConf& readStruct(MifareCard&, MifareCardData& d ) throw (MifareCardException, MainSequenceException);
+    WeighterConf& readStruct(MifareCardBlock&, MifareCardData& d ) throw (MifareCardException, MainSequenceException);
 
 
 

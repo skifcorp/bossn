@@ -214,7 +214,7 @@ void MainSequence::onAppearOnWeight(const QString& , AlhoSequence *)
     }
 }
 
-WeighterConf& MainSequence::readStruct(MifareCard & card, MifareCardData& d) throw (MifareCardException, MainSequenceException)
+WeighterConf& MainSequence::readStruct(MifareCardBlock & card, MifareCardData& d) throw (MifareCardException, MainSequenceException)
 {
     QByteArray card_bytes = card.readByteArray( CardStructs::blocks_conf() );
 
@@ -283,7 +283,7 @@ void MainSequence::run()
 
         //ActivateCardISO14443A act = tags[alho_settings.reader.name]->func(alho_settings.reader.activate_idle, this).value<ActivateCardISO14443A>();
         ActivateCardISO14443A act = alho_settings.reader.activate_idle.func().value<ActivateCardISO14443A>();
-        MifareCard card(act, alho_settings.reader);
+        MifareCardBlock card(act, alho_settings.reader, card_code, data_block);
 
         if ( !card.active() ) {
             //seqDebug() << "card not active!!!";
@@ -306,7 +306,7 @@ void MainSequence::run()
                     throw MainSequenceException(tr(error_database_lost), "Error database lost!!!");
             }*/
 
-            card.autorize(card_code, data_block);
+            card.autorize();
 
             MifareCardData bill;
             WeighterConf& weighter_conf = readStruct(card, bill);
