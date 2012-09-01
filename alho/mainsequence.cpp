@@ -73,18 +73,6 @@ void MainSequence::setSettings(const QVariantMap & s)
     qDebug() << "channel_alias = " << input_photo["channel_alias"] << "\n"; */
 
 
-#if 0
-    database = QSqlDatabase::addDatabase(get_setting<QString>("database_driver", s), "sequ_" + QString::number(seq_id));
-
-    database.setHostName(get_setting<QString>("database_host", s));
-    database.setDatabaseName(get_setting<QString>("database_name", s));
-    database.setUserName(get_setting<QString>("database_user", s));
-    database.setPassword(get_setting<QString>("database_password", s));
-    database.setConnectOptions( get_setting<QString>("connection_options", s, QString() ));
-
-    async_func_ptr     = async_func::pointer( new  async_func(database, *this) );
-    convience_func_ptr = convience_func::pointer( new convience_func (*async_func_ptr) );
-#endif
     setObjectName( "MainSequence num: " + QString::number(seq_id) );
 
     //weighters_conf = get_setting<QVariantList>("weighters_conf", s);
