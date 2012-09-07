@@ -172,9 +172,31 @@ uint BeetAcceptanceWeighter::countCarsFromFieldForDayExcludeCurrent(uint ttn_num
     return 0;
 }
 
+bool BeetAcceptanceWeighter::analysisEnabled()
+{
+    qx::dao::ptr<t_const_beet> enab_analysis;
+    try {
+        enab_analysis = convienceFunc()->getConst<t_const_beet>(seq.appSetting<QString>("analysis_enabled", "0"));
+    }
+    catch (MainSequenceException& ex) {
+        return true;
+    }
+
+    if (!enab_analysis) return "true"; //this must always be true here
+
+    bool ok = false;
+
+    int ret = enab_analysis->value.toInt(&ok);
+
+    if(!ok) return true;
+
+    return ret;
+}
 
 void BeetAcceptanceWeighter::processChemicalAnalysis(MifareCardData & bill, qx::dao::ptr<t_ttn_beet> ttn ) throw()
 {
+    if ( !analysisEnabled() ) return;
+
     long count   = countCarsFromFieldForDayExcludeCurrent(ttn->num_nakl,
                                                           kontrCodeFromField( bill.memberValue<uint>("realNumField") ) );
 

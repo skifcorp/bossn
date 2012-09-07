@@ -72,6 +72,12 @@ public:
         return get_setting<T>(n, app_settings);
     }
 
+    template <class T>
+    T appSetting(const QString& n, const T& def) const
+    {
+        return get_setting<T>(n, app_settings, def);
+    }
+
     //QString platformType() const {return platform_type;}
     QString printerName() const {return printer_name;}
     void printOnTablo(const QString& ) ;
