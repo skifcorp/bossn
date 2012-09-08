@@ -111,13 +111,19 @@ void MifareCardBlock::writeStruct(const StructConf &conf, const MifareCardData &
 
          if (!ret.toBool()) {
              for (int j = 0; j<10; ++j) {
-                 reader_settings.do_off.func();
-                 reader_settings.do_on.func();
-                 reader_settings.activate_idle.func();
-                 autorize();
-                 ret = write_func();
-                 if (ret.toBool())
-                   break;
+                 qDebug () << "try rewrite...";
+                 try {
+                    reader_settings.do_off.func();
+                    reader_settings.do_on.func();
+                    reader_settings.activate_idle.func();
+                    autorize();
+                    ret = write_func();
+                    if (ret.toBool())
+                        break;
+                 }
+                 catch (...) {
+                     qDebug()<<"try rewrite FAILED";
+                 }
              }
          }
 

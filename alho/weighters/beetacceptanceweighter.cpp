@@ -176,19 +176,29 @@ bool BeetAcceptanceWeighter::analysisEnabled()
 {
     qx::dao::ptr<t_const_beet> enab_analysis;
     try {
-        enab_analysis = convienceFunc()->getConst<t_const_beet>(seq.appSetting<QString>("analysis_enabled", "0"));
+        enab_analysis = convienceFunc()->getConst<t_const_beet>(seq.appSetting<QString>("enable_analysis", "enable_analysis"));
     }
     catch (MainSequenceException& ex) {
+        qDebug () << "cant get enable_analysis!!!!";
+
         return true;
     }
 
-    if (!enab_analysis) return "true"; //this must always be true here
+    if (!enab_analysis) {
+        qDebug() << "enable_analysis is NULL!!";
+        return true; //this must always be true here
+    }
 
     bool ok = false;
 
     int ret = enab_analysis->value.toInt(&ok);
 
-    if(!ok) return true;
+    if(!ok) {
+        qDebug() << "cant convert enable_analysis to int!!!";
+        return true;
+    }
+
+    qDebug () << "enable_analysis : " << ret;
 
     return ret;
 }

@@ -58,8 +58,8 @@ void MainSequence::setSettings(const QVariantMap & s)
     seq_id                              = get_setting<int>("id", s);
 
     //platform_type                       = get_setting<QString>("platform_type", s);
-    printer_name                        = get_setting<QString>("printer_name", s);
-    uses_photo                          = get_setting<bool>("uses_photo", s);
+    printer_name                        = get_setting<QString>("printer_name", s, QString());
+    uses_photo                          = get_setting<bool>("uses_photo", s, false);
 
     if (uses_photo) {
         exit_photo                          = get_setting<QVariantMap>("exit_photo", s);
