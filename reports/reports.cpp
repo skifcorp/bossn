@@ -62,9 +62,10 @@ bool Reports::print(const QVariantMap & m)
     //delete report;
 
     QPrinter printer(QPrinter::HighResolution);
+    //printer.
     //printer.setR
     //printer.setPaperSize(QSize(148, 72), QPrinter::Millimeter);
-    //printer.setPrinterName(printer_name);
+    printer.setPrinterName(printer_name);
     //printer.setResolution(72);
 
     QPainter painter(&printer);
