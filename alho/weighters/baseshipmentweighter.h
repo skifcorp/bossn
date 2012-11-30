@@ -13,7 +13,7 @@ public:
         :BaseWeighter(as, db), current_tara_is_pure(false),
           current_brutto_is_pure(false){}
 
-    virtual void processWeighting(MifareCardData&, MifareCard&, const WeighterConf&  ) throw (MainSequenceException, MifareCardException) ;
+    virtual void processWeighting(MifareCardData&, MifareCardBlock&, const WeighterConf&  ) throw (MainSequenceException, MifareCardException) ;
 
     virtual ~BaseShipmentWeighter() {}
 

@@ -65,18 +65,18 @@ void BaseWeighter::setCardBanned(const QString & uid) throw()
 {   
     //asyncFunc() -> setShowDebugInfo(true);
 
-    qx::dao::ptr<bad_cards> bk(new bad_cards);
+ /*   qx::dao::ptr<bad_cards> bk(new bad_cards);
     bk->uid = uid;
     wrap_async([this, &bk]{
                asyncFunc()->async_insert(bk, false, "bad_cards");
-    });
+    }); */
 }
 
 
 void BaseWeighter::checkCardBanned(const QString & uid) throw (MainSequenceException)
 {
 
-    qx::dao::ptr<bad_cards> bk;
+    /*qx::dao::ptr<bad_cards> bk;
 
     bk = wrap_async([this, &bk, &uid]{return asyncFunc()->async_exec_query<bad_cards>(
                  "select * from bad_cards where uid='" + uid + "'", false);});
@@ -84,7 +84,7 @@ void BaseWeighter::checkCardBanned(const QString & uid) throw (MainSequenceExcep
 
     if (bk) {
         throw MainSequenceException (tr(your_card_is_banned), "card :" + uid + " is in banned");
-    }
+    }*/
 }
 
 bool BaseWeighter::transaction()

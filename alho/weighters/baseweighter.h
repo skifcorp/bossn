@@ -33,7 +33,7 @@ public:
 
     virtual ~BaseWeighter() {}
 
-    virtual void processWeighting(MifareCardData&, MifareCard&, const WeighterConf&  ) throw (MainSequenceException, MifareCardException) = 0 ;
+    virtual void processWeighting(MifareCardData&, MifareCardBlock&, const WeighterConf&  ) throw (MainSequenceException, MifareCardException) = 0 ;
     virtual QString detectPlatformType(const MifareCardData& ) const throw (MainSequenceException) = 0;
 
     void checkBruttoDeltaForReweights(int prev_weight, int cur_weight ) const throw(MainSequenceException);

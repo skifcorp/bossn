@@ -13,7 +13,7 @@ QString BaseShipmentWeighter::platformType(const MifareCardData& bill,
 }
 
 void BaseShipmentWeighter::processWeighting(MifareCardData& bill,
-                             MifareCard& card, const WeighterConf& weighter_conf) throw (MainSequenceException, MifareCardException)
+                             MifareCardBlock& card, const WeighterConf& weighter_conf) throw (MainSequenceException, MifareCardException)
 {
     //qDebug() << "11111";
 

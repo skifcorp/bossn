@@ -91,7 +91,7 @@ public:
 
         auto iter = this->find(k);
         if ( iter == this->end() ) {
-            qWarning() << "cant find in safemap: " << k;
+            //qWarning() << "cant find in safemap: " << k;
             //qFatal("Exiting");
         }
         return QMap<K, T>::operator [](k);

@@ -55,6 +55,8 @@ private:
     void updateBruttoValues(MifareCardData& bill, qx::dao::ptr<t_ttn_beet> ttn) throw(MainSequenceException);
     void updateTaraValues(MifareCardData&, qx::dao::ptr<t_ttn_beet>, qx::dao::ptr<t_cars_beet>, bool pure_weight) throw(MainSequenceException);
 
+    bool analysisEnabled() ;
+
     qx::dao::ptr<t_ttn_beet> current_ttn;
     qx::dao::ptr<t_cars_beet> current_car;
 

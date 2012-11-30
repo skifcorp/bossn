@@ -29,8 +29,9 @@
 #include "cardstructs.h"
 #include "mifarecard.h"
 #include "weighterconf.h"
+#include "photomaker.h"
 
-class MifareCard;
+class MifareCardBlock;
 
 
 
@@ -71,6 +72,12 @@ public:
         return get_setting<T>(n, app_settings);
     }
 
+    template <class T>
+    T appSetting(const QString& n, const T& def) const
+    {
+        return get_setting<T>(n, app_settings, def);
+    }
+
     //QString platformType() const {return platform_type;}
     QString printerName() const {return printer_name;}
     void printOnTablo(const QString& ) ;
@@ -93,6 +100,10 @@ private:
     int seq_id;
     //QString platform_type;
     QString printer_name;
+    bool uses_photo;
+    QVariantMap exit_photo;
+    QVariantMap enter_photo;
+
 
     QTimer wake_timer;
 
@@ -124,7 +135,7 @@ private:
     //const WeighterConf& findWeighterConf(const MifareCardData&) const throw (MainSequenceException);
     WeighterConf& findWeighterConf(int) throw (MainSequenceException);
 
-    WeighterConf& readStruct(MifareCard&, MifareCardData& d ) throw (MifareCardException, MainSequenceException);
+    WeighterConf& readStruct(MifareCardBlock&, MifareCardData& d ) throw (MifareCardException, MainSequenceException);
 
 
 
@@ -150,6 +161,9 @@ private:
     }
 
     virtual void run();
+
+    void makePhotoIfNeeded(long, const QString& , const WeighterConf& );
+    CapturePhoto capture;
 };
 
 

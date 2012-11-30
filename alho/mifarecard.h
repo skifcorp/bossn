@@ -56,22 +56,23 @@ public:
 private:
 };
 
-class MifareCard
+class MifareCardBlock
 {
 public:
-    MifareCard( const ActivateCardISO14443A&, ReaderTagMethods& );
+    MifareCardBlock( const ActivateCardISO14443A&, ReaderTagMethods&, const QByteArray& cd, uint db );
 
-    ~MifareCard(){}
+    ~MifareCardBlock(){}
 
     bool active() const {return activate_card.active();}
 
-    void autorize( const QByteArray& , int block ) throw (MifareCardException, MifareCardAuthException);
+    void autorize(  ) throw (MifareCardException, MifareCardAuthException);
     //QByteArray readByteArray(const StructConf& conf) throw (MifareCardException);
     QByteArray readByteArray(const BlocksConf& ) throw (MifareCardException);
     MifareCardData readStruct(const QByteArray&, const StructConf& conf) throw (MifareCardException);
 
 
-    void writeStruct(const StructConf& conf, const MifareCardData& s, const BlocksConf& ) throw (MifareCardException);
+    void writeStruct(const StructConf& conf, const MifareCardData& s,
+                     const BlocksConf& ) throw (MifareCardException);
     QString toString( const StructConf& conf, const MifareCardData& s )const throw ();
     QString toBigString(const StructConf& conf, const MifareCardData& s) const throw();
 
@@ -100,6 +101,8 @@ private:
     void     writeMember(const StructMemberConf& , const QVariant&, QByteArray& ) const throw (MifareCardException);
 
     ReaderTagMethods& reader_settings;
+    QByteArray card_key;
+    uint data_block;
     //AlhoSequence& caller;
 };
 

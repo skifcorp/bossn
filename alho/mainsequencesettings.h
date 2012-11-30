@@ -7,7 +7,8 @@
 #include "tags.h"
 
 
-struct CallableTagMethod : public TagMethod, public TagFuncHelper<true>
+struct CallableTagMethod : public TagMethod,
+                           public TagFuncHelper<true>
 {
     CallableTagMethod(AlhoSequence& s, Tags & t) :
         TagMethod(), TagFuncHelper(TagMethod::tag_name, TagMethod::method_name, s, t)
@@ -37,20 +38,21 @@ struct ReaderTagMethods
     }
 };
 
-struct MainSequenceSettings
+template <class TagMethodType, class ReaderMethodsType>
+struct BaseMainSequenceSettings
 {
-    CallableTagMethod weight_tag;
-    CallableTagMethod tablo_tag;
-    CallableTagMethod weight_stable;
-    CallableTagMethod red_light;
-    CallableTagMethod green_light;
-    CallableTagMethod perim_in;
-    CallableTagMethod perim_out;
-    CallableTagMethod logging;
+    TagMethodType weight_tag;
+    TagMethodType tablo_tag;
+    TagMethodType weight_stable;
+    TagMethodType red_light;
+    TagMethodType green_light;
+    TagMethodType perim_in;
+    TagMethodType perim_out;
+    TagMethodType logging;
 
-    ReaderTagMethods reader;
+    ReaderMethodsType reader;
 
-    MainSequenceSettings(AlhoSequence& s, Tags & t):weight_tag(s, t),
+    BaseMainSequenceSettings(AlhoSequence& s, Tags & t):weight_tag(s, t),
         tablo_tag(s, t), weight_stable(s, t), red_light(s, t),
         green_light(s, t), perim_in(s, t), perim_out(s, t), logging(s, t),
         reader(s, t)
@@ -59,6 +61,6 @@ struct MainSequenceSettings
     }
 };
 
-
+typedef BaseMainSequenceSettings<CallableTagMethod, ReaderTagMethods> MainSequenceSettings;
 
 #endif // MAINSEQUENCESETTINGS_H

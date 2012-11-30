@@ -17,7 +17,7 @@ TEMPLATE = app
 INCLUDEPATH    += ../qextserialport/src/ db alho serial weight generic iodevicewrapper scheduler   .          \
                     porter task dido perimeter tools reader  reports ../coroutine/src/ ../QxOrm/include       \
                                         $$(BOOST_ROOT) ../ismm/ settings stable prot  $$(MYSQL_DIR)/include   \
-                                        QtSources/4.8.1/include alho/weighters alho/direction
+                                        QtSources/4.8.1/include alho/weighters alho/direction photograb
 
 QMAKE_CXXFLAGS += -std=c++0x #-m32
 #QMAKE_LFLAGS   += -m32
@@ -90,7 +90,8 @@ SOURCES += main.cpp \
     alho/weighters/grainshipmentweighter.cpp \
     alho/weighters/baseshipmentweighter.cpp \
     alho/weighters/weighterconf.cpp \
-    alho/weighters/genericdbstructs.cpp
+    alho/weighters/genericdbstructs.cpp \
+    photograb/photomaker.cpp
 
 HEADERS += \    
     tools/func.h \
@@ -158,7 +159,8 @@ HEADERS += \
     alho/weighters/grainshipmentweighter.h \
     alho/weighters/weighterconf.h \
     alho/weighters/genericdbstructs.h \
-    qxorm_pch.h
+    qxorm_pch.h \
+    photograb/photomaker.h
 	
 
 

@@ -32,7 +32,7 @@ public:
     virtual bool isPureTaraWeight(const MifareCardData& ) const throw (MainSequenceException) = 0;
 
 
-    virtual void processWeighting(MifareCardData&, MifareCard&, const  WeighterConf&  ) throw (MainSequenceException, MifareCardException);
+    virtual void processWeighting(MifareCardData&, MifareCardBlock&, const  WeighterConf&  ) throw (MainSequenceException, MifareCardException);
 protected:
 
     template <class Tttn>
@@ -56,7 +56,9 @@ protected:
         else {
             count = QString::number( car->amount_of_car_for_middle_tara );
         }
-
+        if ( count.isEmpty() ) {
+            qDebug() << "mid_count_of_cars is empty!!!!";
+        }
 
         int mid_tara = wrap_async_ex( tr(error_getting_mid_tara_message), "error getting mid tara",
                                         [this, &ttn, &car, &count]{  return asyncFunc()->async_call_query<int>(
