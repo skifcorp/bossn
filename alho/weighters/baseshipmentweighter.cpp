@@ -28,13 +28,13 @@ void BaseShipmentWeighter::processWeighting(MifareCardData& bill,
     if (platform_type == "brutto" ) {
         bool pure_brutto = processBrutto(bill);
 
-        bool new_ttn = false;
+        //bool new_ttn = false;
 
         ReportContext finish_report_context = finishReport();
         QString brutto_message              = bruttoFinishMessage(bill);
 
         if (pure_brutto) {
-            new_ttn = makeNewTask(bill);
+            /*new_ttn = */makeNewTask(bill);
         }
 
         card.writeStruct(CardStructs::bill_conf( weighter_conf.weighter_name ), bill,

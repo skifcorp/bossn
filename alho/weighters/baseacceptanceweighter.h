@@ -3,7 +3,7 @@
 
 #include "baseweighter.h"
 #include "mainsequence.h"
-
+#include "func.h"
 
 class BaseAcceptanceWeighter : public BaseWeighter
 {

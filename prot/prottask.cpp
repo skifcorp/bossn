@@ -304,7 +304,8 @@ void ProtTask::exec()
 
 void ProtTask::initTagsValues()
 {
-    for (const TagProtConf & tpc : tag_prot_confs) {
+    //for (const TagProtConf & tpc : tag_prot_confs) {
+    for (int i = 0; i<tag_prot_confs.count(); ++i) {
         tags_values.push_back(TagValues());
         last_values.push_back(prot_values{QDateTime::currentDateTimeUtc(), NAN});
     }
@@ -338,7 +339,7 @@ void ProtTask::onSaveTimer()
         names.push_back(tpc.NameVar);
     }
 
-    QtConcurrent::run( [tags_values, names, &database, &saving_now, &cur_prot_work, message_logs]() mutable {
+    QtConcurrent::run( [this,  names]() mutable {
         saving_now.ref();
         cur_prot_work->work_till = QDateTime::currentDateTime().toUTC();
         QSqlError err2 = qx::dao::update_optimized(cur_prot_work, &database, "prot_work");

@@ -64,7 +64,7 @@ void Porter::setScheduled(bool s)
 void Porter::addTagToSchedule(Drivers::size_type driver_index, const QString& tag_name)
 {
     scheduler.addFunction(
-            [drivers, driver_index, &methods, tag_name, this] {
+            [this, driver_index, tag_name] {
                 MethodInfo & mi = methods[tag_name];
 
                 QMetaObject::invokeMethod(drivers[driver_index].data(), mi.method.toAscii().data(),
@@ -73,7 +73,7 @@ void Porter::addTagToSchedule(Drivers::size_type driver_index, const QString& ta
                     qWarning() << "got error in porter device!!!!: code: "<<mi.error << "device: "<<device->deviceName();
                 }
             },
-            [&device, &drivers, driver_index, &methods, tag_name] {
+            [this,   driver_index, tag_name] {
                 MethodInfo & mi = methods[tag_name];
                 mi.value  = 0; mi.error = PorterDriver::PorterFrameNotAnswer;
                 qDebug () << device->deviceName() << " dont answered!";
@@ -92,8 +92,9 @@ inline Ret generic_arg_cast(QGenericArgument arg)
 
     QVariant var = *reinterpret_cast<QVariant *>(arg.data());
 
-    if (var.type() != qMetaTypeId<Ret>() ) {
-        qWarning() << "generic_arg_cast: passed argument is not of type you want to convert from QVariant !!!"<<var.type();
+    if ( static_cast<int> (var.type()) != qMetaTypeId<Ret>() ) {
+        qWarning() << "generic_arg_cast: passed argument is not of type you want to convert from QVariant !!!"<<
+                      static_cast<int>(var.type());
         Q_ASSERT(0);
         return Ret();
     }
@@ -114,7 +115,7 @@ QVariant Porter::exec(const QString& tag_name,  AlhoSequence * caller, QGenericA
     QVariant ret;
 
     scheduler.execFunction(caller,
-                [&drivers, &mi, &ret, &val0, &val1, &val2, &val3, &val4, &val5, &val6, &val7, &func_name]{
+                [this, &mi, &ret, &val0, &val1, &val2, &val3, &val4, &val5, &val6, &val7, &func_name]{
                     bool res = QMetaObject::invokeMethod( drivers[mi.driver_idx].data(),
                                  func_name.toAscii().data(), Q_RETURN_ARG(QVariant, ret),
                                     val0, val1, val2, val3, val4, val5, val6, val7 );
@@ -124,7 +125,7 @@ QVariant Porter::exec(const QString& tag_name,  AlhoSequence * caller, QGenericA
                     }
 
                 },
-                [&device, &mi]{
+                [this, &mi]{
                     qWarning()<<"device: "<<device->deviceName()<<" not answered!!!!";
                     mi.error = PorterDriver::PorterFrameNotAnswer;
                     device->clear();
@@ -155,7 +156,7 @@ QVariant Porter::value (const QString& n,  AlhoSequence * caller,
     QVariant ret;
 
     scheduler.execFunction(caller,
-                [&drivers, &mi, &ret, &val0, &val1, &val2, &val3, &val4, &val5, &val6, &val7, &val8]{
+                [this, &mi, &ret, &val0, &val1, &val2, &val3, &val4, &val5, &val6, &val7, &val8]{
                     bool res = QMetaObject::invokeMethod( drivers[mi.driver_idx].data(),
                                  mi.method.toAscii().data(), Q_RETURN_ARG(QVariant, ret),
                                     val0, val1, val2, val3, val4, val5, val6, val7, val8 );
@@ -165,7 +166,7 @@ QVariant Porter::value (const QString& n,  AlhoSequence * caller,
                     }
 
                 },
-                [&device, &mi]{
+                [this, &mi]{
                     qWarning()<<"device: "<<device->deviceName()<<" not answered!!!!";
                     mi.error = PorterDriver::PorterFrameNotAnswer;
                     device->clear();

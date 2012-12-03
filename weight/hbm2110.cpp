@@ -50,7 +50,7 @@ int Hbm2110::parseWeightFrameAnswer(const QByteArray& ba, uint & err) const
 
     QByteArray ret = ba.mid(4,7);
     bool ok = false;
-    int ret = ret.toInt(&ok);
+    int iret = ret.toInt(&ok);
     //qDebug () << "getWeight: " << fret;
 
     if (!ok) {
@@ -58,7 +58,7 @@ int Hbm2110::parseWeightFrameAnswer(const QByteArray& ba, uint & err) const
         err = PorterFrameCorrupted; return -1;
     }
     err = 0;
-    return ret;
+    return iret;
 }
 
 

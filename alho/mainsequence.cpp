@@ -250,9 +250,6 @@ void MainSequence::run()
         try {
             printOnTablo(tr(processing_message));
 
-            grabPhoto("_" + (weighter->detectPlatformType()) + "_" + exit_photo["channel_alias"], exit_photo["channel_num"]);
-
-
 /*            if ( !database.isOpen() ) {
                 if ( !async_func_ptr->async_call( [this]{return database.open();}) )
                     throw MainSequenceException(tr(error_database_lost), "Error database lost!!!");

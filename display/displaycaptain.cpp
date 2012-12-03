@@ -79,7 +79,7 @@ MifareRequestFrame DisplayCaptain::scrollTextFrame() const
 
 bool DisplayCaptain::processAnswer(const MifareRequestFrame &req_frame)
 {
-    const uchar ret_frame_length = 8;
+    //const uchar ret_frame_length = 8;
 
     while (true) {
         QByteArray tmp = io_device()->peek(MifareRequestFrame::paramsBuffLen);

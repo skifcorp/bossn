@@ -314,7 +314,8 @@ bool GrainShipmentWeighter::makeNewTask(MifareCardData &bill) throw (MainSequenc
     current_ttn->prikaz         = current_prikaz->num_nakl;
 
 
-    wrap_async_ex(tr(error_make_new_task), "error make new task", [this, &current_ttn]{return asyncFunc()->async_insert(current_ttn, false, t_ttn_name);});
+    wrap_async_ex(tr(error_make_new_task), "error make new task",
+                    [this]{return asyncFunc()->async_insert(current_ttn, false, t_ttn_name);});
 
     bill.setMemberValue("billNumber", current_ttn->num_nakl);
 

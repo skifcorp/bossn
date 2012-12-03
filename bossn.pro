@@ -28,14 +28,14 @@ CONFIG(debug, debug|release) {
 LIBS           +=   -L../qextserialport_build/src/build/ -lqextserialportd               \
                     -L../coroutine_build/src/build/ -lcoroutined                         \
                     -L../QxOrm_build/build/ -lqxormd                                     \
-                    -L $$(BOOST_ROOT)/stage/lib -llibboost_serialization-mgw46-mt-d-1_48 \
+                    -lboost_serialization \
                     -L $$(MYSQL_DIR)/lib -llibmysql                                      \
                     -L ../ismm/ -lismm
 } else {
 LIBS           +=   -L../qextserialport_build/src/build/ -lqextserialport               \
                     -L../coroutine_build/src/build/ -lcoroutine                         \
                     -L../QxOrm_build/build/ -lqxorm                                     \
-                    -L $$(BOOST_ROOT)/stage/lib -llibboost_serialization-mgw46-mt-1_48  \
+                    -lboost_serialization \
                     -L $$(MYSQL_DIR)/lib -llibmysql                                     \
                     -L ../ismm/ -lismm
 }

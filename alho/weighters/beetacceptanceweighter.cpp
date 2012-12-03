@@ -523,7 +523,8 @@ bool BeetAcceptanceWeighter::makeNewTask(MifareCardData& bill) throw (MainSequen
 
     //qx::dao::insert(ttn, &database);
 
-    wrap_async_ex(tr(error_make_new_task), "error make new task", [this, &current_ttn]{return asyncFunc()->async_insert(current_ttn, false, t_ttn_name);});
+    wrap_async_ex(tr(error_make_new_task), "error make new task",
+                  [this]{return asyncFunc()->async_insert(current_ttn, false, t_ttn_name);});
 
     bill.setMemberValue("billNumber", current_ttn->num_nakl);
     bill.setMemberValue("numField"  , current_ttn->field);
@@ -537,7 +538,7 @@ ReportContext BeetAcceptanceWeighter::makeReportContext(qx::dao::ptr<t_cars_beet
     qx::dao::ptr<t_kontr_beet> kontr = wrap_async_ex(
           QObject::tr(cant_get_kontr_when_printing),
           "cant get kontr when printing: " + QString::number(kontrCodeFromField( field->id )),
-          [&current_ttn, &field, this]{return asyncFunc()->async_fetch<t_kontr_beet>(
+          [&field, this]{return asyncFunc()->async_fetch<t_kontr_beet>(
                       kontrCodeFromField( field->id ), t_kontr_name ); });
 
 
@@ -562,7 +563,7 @@ ReportContext BeetAcceptanceWeighter::finishReport() throw(MainSequenceException
     qx::dao::ptr<t_field_beet> field = wrap_async_ex(tr(cant_get_field_when_printing),
          "finishReport: cant get field " + QString::number(current_ttn->real_field) +
          " when printing for passed ttn: " + QString::number(current_ttn->num_nakl),
-         [&current_ttn, this]{return asyncFunc()->async_fetch<t_field_beet>(
+         [this]{return asyncFunc()->async_fetch<t_field_beet>(
              current_ttn->real_field, t_field_name ); });
     return makeReportContext(current_car, field);
 }
@@ -572,7 +573,7 @@ ReportContext BeetAcceptanceWeighter::startReport() throw(MainSequenceException)
     qx::dao::ptr<t_field_beet> field = wrap_async_ex(tr(cant_get_field_when_printing),
       "startReport: cant get field " + QString::number(current_ttn->field) +
       " when printing for passed ttn: " + QString::number(current_ttn->num_nakl),
-      [&current_ttn, this]{return asyncFunc()->async_fetch<t_field_beet>(
+      [this]{return asyncFunc()->async_fetch<t_field_beet>(
                current_ttn->field, t_field_name ); });
 
     return makeReportContext(current_car, field);
@@ -634,6 +635,6 @@ void BeetAcceptanceWeighter::fetchCar(const MifareCardData& bill) throw (MainSeq
 
 void BeetAcceptanceWeighter::checkPerimetr() throw (MainSequenceException)
 {
-    if (current_car->fl_perimetr==false)
+    //if (current_car->fl_perimetr==false)
         seq.processPerimeter();
 }

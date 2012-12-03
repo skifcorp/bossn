@@ -219,7 +219,7 @@ bool GrainAcceptanceWeighter::makeNewTask(MifareCardData& bill) throw (MainSeque
 
     //qx::dao::insert(ttn, &database);
 
-    wrap_async_ex(tr(error_make_new_task), "error make new task", [this, &current_ttn]{return asyncFunc()->async_insert(current_ttn, false, t_ttn_name);});
+    wrap_async_ex(tr(error_make_new_task), "error make new task", [this]{return asyncFunc()->async_insert(current_ttn, false, t_ttn_name);});
 
     bill.setMemberValue("billNumber", current_ttn->num_nakl);
     bill.setMemberValue("numField"  , current_ttn->field);
@@ -231,7 +231,7 @@ ReportContext GrainAcceptanceWeighter::makeReportContext(qx::dao::ptr<t_cars> ca
 {
 
 	qx::dao::ptr<t_kontr> kontr = wrap_async_ex(QObject::tr(cant_get_kontr_when_printing), "cant get kontr when printing",
-         [&current_ttn, &field, this]{return asyncFunc()->async_fetch<t_kontr>(
+         [&field, this]{return asyncFunc()->async_fetch<t_kontr>(
                kontrCodeFromField( field->id  ), t_kontr_name ); });
 
 
@@ -254,7 +254,7 @@ ReportContext GrainAcceptanceWeighter::makeReportContext(qx::dao::ptr<t_cars> ca
 ReportContext GrainAcceptanceWeighter::finishReport() throw(MainSequenceException)
 {
 	qx::dao::ptr<t_field> field = wrap_async_ex(tr(cant_get_field_when_printing), "finishReport: cant get field " + QString::number(current_ttn->real_field) + " when printing for passed ttn: " + QString::number(current_ttn->num_nakl),
-          [&current_ttn, this]{return asyncFunc()->async_fetch<t_field>(
+          [this]{return asyncFunc()->async_fetch<t_field>(
                current_ttn->real_field, t_field_name ); });
     return makeReportContext(current_car, field);
 }
@@ -264,7 +264,7 @@ ReportContext GrainAcceptanceWeighter::startReport() throw(MainSequenceException
 	qx::dao::ptr<t_field> field = wrap_async_ex(tr(cant_get_field_when_printing),
 	  "startReport: cant get field " + QString::number(current_ttn->field) +
 	  " when printing for passed ttn: " + QString::number(current_ttn->num_nakl),
-      [&current_ttn, this]{return asyncFunc()->async_fetch<t_field>(
+      [this]{return asyncFunc()->async_fetch<t_field>(
               current_ttn->field, t_field_name ); });
 
     return makeReportContext(current_car, field);

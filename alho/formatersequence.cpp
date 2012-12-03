@@ -13,7 +13,7 @@ void FormaterSequence::start()
     QByteArray default_card_code = get_setting<QByteArray>("default_card_code", options);
     QByteArray card_code         = get_setting<QByteArray>("card_code"        , options);
     uint data_block              = get_setting<uint>("data_block", options);
-    uint sleepnb_timeout         = get_setting<uint>("sleepnb_timeout", options, 100);
+    //uint sleepnb_timeout         = get_setting<uint>("sleepnb_timeout", options, 100);
     uint password_block          = MifareCardBlock::passwordBlock(data_block);
     qDebug() << "password block: "<<password_block;
 
