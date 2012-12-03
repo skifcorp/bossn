@@ -11,6 +11,7 @@
 
 #include "sharedfromthis.h"
 #include "alhosequence.h"
+#include "settingstool.h"
 
 class FuncContext;
 
@@ -49,6 +50,14 @@ public:
 
 
     void appendArgument (const QString& fn, const QVariant& arg);
+    void setProperty (const QString& prop, const QVariant& val);
+
+    template <class T>
+    T getProperty (const QString& prop) const
+    {
+        return get_setting<T>(prop, properties);
+    }
+    bool containsProp (const QString& prop) const ;
 private:    
 
     struct FuncContext {
@@ -74,6 +83,7 @@ private:
     QString tag_name;
     void call_as_proc(FuncContext& func, AlhoSequence * caller, const QList<QGenericArgument>& args);
     QVariant call_as_func(FuncContext& func, AlhoSequence * caller, const QList<QGenericArgument>& args);
+    QVariantMap properties;
 };
 
 template <class K, class T>

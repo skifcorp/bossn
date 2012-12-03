@@ -57,6 +57,10 @@ int BaseWeighter::getWeight()  throw (MainSequenceException)
 
     if (!v.isValid())
         throw MainSequenceException(tr(weights_dont_work), "weights dont work!");
+    // Ваня 290912
+    //int min_weight = 300;
+    //if ( v.toInt() < min_weight)
+    //    throw MainSequenceException(tr(weights_dont_work), "weights dont work!");
 
     return v.toInt();
 }

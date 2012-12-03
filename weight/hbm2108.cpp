@@ -42,9 +42,6 @@ QByteArray Hbm2108::weightRequestFrame() const
 
 int Hbm2108::parseWeightFrameAnswer(const QByteArray& ba, uint & err) const
 {
-/*    if (parseAddress(ba) != address) {
-        err = PorterFrameBadAddress; return -1;
-    } */
 
     const uchar frame_size = 16;
     if (ba.size() != frame_size) {
@@ -61,7 +58,7 @@ int Hbm2108::parseWeightFrameAnswer(const QByteArray& ba, uint & err) const
         err = PorterFrameCorrupted; return -1;
     }
 
-    qDebug () << "getWeight: " << fret;
+    //qDebug () << "getWeight: " << fret;
     err = 0;
     return fret;
 }

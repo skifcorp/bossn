@@ -10,9 +10,7 @@
 #include "conviencefuncs.h"
 
 //#include "mysql.h"
-
 #include "photograb/photomaker.h"
-
 #include <QBitArray>
 
 
@@ -66,12 +64,8 @@ void MainSequence::setSettings(const QVariantMap & s)
         enter_photo                         = get_setting<QVariantMap>("enter_photo", s);
     }
 
-/*    qDebug() << "channel_num = " << exit_photo["channel_num"] << "\n";
-    qDebug() <<"channel_alias = " << exit_photo["channel_alias"] << "\n";
-
-    qDebug() << "channel_num = " << input_photo["channel_num"] << "n";
-    qDebug() << "channel_alias = " << input_photo["channel_alias"] << "\n"; */
-
+    current_card_tag = get_setting<QString>("current_card_tag", s);
+    current_card_prop = get_setting<QString>("current_card_prop", s);
 
     setObjectName( "MainSequence num: " + QString::number(seq_id) );
 
@@ -125,7 +119,6 @@ void MainSequence::initWeightersConf(const QVariantMap& s)
         //WeighterConf::initCardStruct(wc);
 
         weighters_conf.push_back(wc);
-        qDebug() << m.take("photo_type").toString();
     }
 }
 
@@ -136,8 +129,6 @@ void MainSequence::printOnTablo(const QString & s)
 {
     tags[alho_settings.tablo_tag.tag_name]->func(alho_settings.tablo_tag.method_name, this, Q_ARG(const QVariant&, QVariant(s)));
 }
-
-
 
 MainSequence::MainSequence(Tags & t, const QVariantMap& s)
     :init(true),tags(t), app_settings(s), alho_settings(*this, tags) ,on_weight(false), seq_id(0), uses_photo(false), wake_timer(this)
@@ -150,11 +141,17 @@ MainSequence::MainSequence(Tags & t, const QVariantMap& s)
 }
 
 
-void MainSequence::checkForStealedCard(const ActivateCardISO14443A& prev_card, const ActivateCardISO14443A& card) const throw (MainSequenceException)
+void MainSequence::checkForStealedCard(const ActivateCardISO14443A& card) throw (MainSequenceException)
 {
-    if ( prev_card.uid.isEmpty() ) return;
+    if ( !tags[current_card_tag]->containsProp(current_card_prop) ||
+         !tags[current_card_tag]->getProperty<ActivateCardISO14443A>(current_card_prop).active() ) {
+        tags[current_card_tag]->setProperty(current_card_prop,
+              QVariant::fromValue<ActivateCardISO14443A>(card));
+        return;
+    }
 
-    if ( prev_card.uid == card.uid ) return;
+    if ( tags[current_card_tag]->getProperty<ActivateCardISO14443A>(current_card_prop).uid ==
+         card.uid) return;
 
     throw MainSequenceException(tr(stealed_card_message), "You used stealed card!");
 }
@@ -193,7 +190,6 @@ WeighterConf& MainSequence::readStruct(MifareCardBlock & card, MifareCardData& d
     return wc;
 }
 
-
 void MainSequence::makePhotoIfNeeded(long num_nakl, const QString& platform_type, const WeighterConf& wc)
 {
     if (!uses_photo) return;
@@ -217,10 +213,7 @@ void MainSequence::run()
     }
 
 
-
     seqDebug() << "something appeared on weight!!!! id" << seq_id;
-
-    //capture.grabPhoto(L"D:\\SkifGate\\BazaDBF\\CH0_test_1", 0);
 
     on_weight = true;
 
@@ -228,15 +221,12 @@ void MainSequence::run()
 
     setLightsToRed();
 
-
-    //tags["reader1"]->func("doOn");
-    //tags[ alho_settings.reader.name]->func( alho_settings.reader.do_on , this);
     alho_settings.reader.do_on.func();
 
     QByteArray card_code = get_setting<QByteArray>("card_code" , app_settings);
     uint data_block      = get_setting<uint>      ("data_block", app_settings);
 
-    ActivateCardISO14443A cur_act;
+    //ActivateCardISO14443A cur_act;
 
     BaseWeighter::Pointer weighter;
 
@@ -260,7 +250,7 @@ void MainSequence::run()
         try {
             printOnTablo(tr(processing_message));
 
-            //grabPhoto("_" + (weighter->detectPlatformType()) + "_" + exit_photo["channel_alias"], exit_photo["channel_num"]);
+            grabPhoto("_" + (weighter->detectPlatformType()) + "_" + exit_photo["channel_alias"], exit_photo["channel_num"]);
 
 
 /*            if ( !database.isOpen() ) {
@@ -273,14 +263,9 @@ void MainSequence::run()
             MifareCardData bill;
             WeighterConf& weighter_conf = readStruct(card, bill);
 
+            checkForStealedCard( act );
 
-
-            checkForStealedCard(cur_act, act); cur_act = act;
-
-
-
-
-            processPerimeter();
+            //processPerimeter();
 
             if (/*!bill.checkMember("billNumber", 0) ||*/ !bill.checkMember("driver", 0) ) {
                 throw MainSequenceException(tr(card_is_empty_error_message), "bill is empty");
@@ -332,11 +317,10 @@ void MainSequence::run()
 
     printOnTablo(tr(greeting_message));
     setLightsToGreen();
+    tags[current_card_tag]->setProperty(current_card_prop,
+                                       QVariant::fromValue<ActivateCardISO14443A>(ActivateCardISO14443A()));
     alho_settings.reader.do_off.func();
 }
-
-
-
 
 void MainSequence::onDisappearOnWeight(const QString&, AlhoSequence * )
 {

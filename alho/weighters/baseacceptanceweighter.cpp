@@ -1,13 +1,13 @@
 #include "baseacceptanceweighter.h"
 #include "mainsequence.h"
-
+#include "settingstool.h"
 
 void BaseAcceptanceWeighter::processWeighting(MifareCardData& bill, MifareCardBlock& card,
                 const WeighterConf& weighter_conf ) throw ( MainSequenceException , MifareCardException)
 {
 
     fetchCar(bill);
-
+    checkPerimetr();
     QString platform_type = platformType(bill, weighter_conf);
 
 

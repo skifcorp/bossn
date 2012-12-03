@@ -19,7 +19,7 @@ void CoroContext::clear()
     }
     //qDebug() << "cleared !!!!";
     schedul = nullptr;
-    // coro.clear();
+
     tag_name = func_name = QString();
 }
 

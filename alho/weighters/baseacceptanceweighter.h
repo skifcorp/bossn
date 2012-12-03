@@ -13,7 +13,7 @@ public:
 
 
     virtual void fetchCar(const MifareCardData& ) throw (MainSequenceException) = 0;
-
+    virtual void checkPerimetr() throw (MainSequenceException){}
     virtual void brutto(int, MifareCardData& ) throw (MainSequenceException) = 0;
     virtual void tara(int, MifareCardData&) throw (MainSequenceException) = 0;
 

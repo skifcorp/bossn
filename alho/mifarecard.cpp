@@ -135,6 +135,7 @@ void MifareCardBlock::writeStruct(const StructConf &conf, const MifareCardData &
 
         offset_in_data += bc[i].blockSize;
     }
+
 }
 
 QString MifareCardBlock::toString(const StructConf &conf, const MifareCardData &s) const throw()

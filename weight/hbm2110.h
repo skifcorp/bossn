@@ -41,8 +41,8 @@ protected:
     uchar parseAddress(const QByteArray& ba) const
     {
         QByteArray ret(2, 0);
-        ret[0] = ba[9];
-        ret[1] = ba[10];
+        ret[0] = ba[12];
+        ret[1] = ba[13];
         return static_cast<uchar>(ret.toUInt(nullptr, 10));
     }
 

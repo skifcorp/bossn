@@ -33,7 +33,9 @@ QString BeetAcceptanceWeighter::bruttoFinishMessage(const MifareCardData& bill )
 
 QString BeetAcceptanceWeighter::taraFinishMessage(const MifareCardData& )const
 {
-    return QString::number(current_ttn->tara);
+    QString ret;
+    ret = tr(brutto_finish_weight_message).arg( current_ttn->tara );
+    return ret;
 }
 
 
@@ -95,12 +97,10 @@ void BeetAcceptanceWeighter::tara(int w, MifareCardData& bill) throw (MainSequen
     processTaraRupture<t_ttn_beet, t_cars_beet, t_const_beet>(current_ttn, current_car);
 
     updateTaraValues(bill, current_ttn, current_car, true);
-    //chtenie bum i factBum - proveka cho oni estj
-    //porverka was_in_lab
-    // - kagat
-    // - num
-    // - repar bum cor
-    //ne zabytj pro soobscheie na tablo
+
+    bill.setMemberValue("taraWeight", w);
+    bill.setMemberValue("dateOfTara", QDateTime::currentDateTime());
+
 }
 
 void BeetAcceptanceWeighter::reBrutto(int w, MifareCardData& bill) throw (MainSequenceException)
@@ -148,6 +148,9 @@ void BeetAcceptanceWeighter::reTara(int w, MifareCardData& bill) throw (MainSequ
     processTaraRupture<t_ttn_beet, t_cars_beet, t_const_beet>(current_ttn, current_car);
 
     updateTaraValues(bill, current_ttn, current_car, false);
+
+    bill.setMemberValue("taraWeight", w);
+    bill.setMemberValue("dateOfTara", QDateTime::currentDateTime());
 }
 
 
@@ -627,4 +630,10 @@ void BeetAcceptanceWeighter::fetchCar(const MifareCardData& bill) throw (MainSeq
     if (current_car->block) {
         throw MainSequenceException(tr(car_blocked_message), "car is blocked!!!");
     }
+}
+
+void BeetAcceptanceWeighter::checkPerimetr() throw (MainSequenceException)
+{
+    if (current_car->fl_perimetr==false)
+        seq.processPerimeter();
 }

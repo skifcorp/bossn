@@ -1,5 +1,6 @@
 #include "tags.h"
 #include <QDebug>
+#include "settingstool.h"
 
 int __id_bindable      = qRegisterMetaType<TagBindable>("TagBindable");
 int __id_placeholder   = qRegisterMetaType<TagPlaceholder>("TagPlaceholder");
@@ -226,4 +227,18 @@ QVariant Tag::func (const QString& func_name, AlhoSequence* caller,
 
     return execObject(*iter, caller, passed_args);
 }
+void Tag::setProperty(const QString &prop, const QVariant &val)
+{
+    properties[prop]=val;
+}
+/*
+QVariant Tag::getProperty(const QString &prop) const
+{
+    return
+}*/
 
+bool Tag::containsProp(const QString &prop) const
+{
+    auto iter = properties.find(prop);
+    return iter!=properties.end();
+}

@@ -285,7 +285,9 @@ void ProtTask::exec()
                  ( last_value_iter->value != last_value_iter->value /*isnan*/) ||
                  ( tpc.dz_type == TagProtConf::DzNone && !qFuzzyCompare(fval, last_value_iter->value) ) ||
                  ( tpc.dz_type == TagProtConf::DzAbs && qAbs(fval - last_value_iter->value) > tpc.dz.toFloat() ) ) {
-                //qDebug () << "IN DEADZONE!!!";
+                //
+
+                //qDebug () << "IN DEADZONE!!!" << QDateTime::currentDateTime().toUTC();
                 *last_value_iter = prot_values{ QDateTime::currentDateTime().toUTC(), val.toFloat() };
 
                 iter->push_back( *last_value_iter );

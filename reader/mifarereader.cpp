@@ -4,7 +4,7 @@
 
 #include "mifarecard.h"
 #include "func.h"
-
+#include "settingstool.h"
 using std::cout;
 
 
@@ -289,8 +289,9 @@ QString MifareReader::errorMessage(uchar e)
 
 MifareReader::MifareReader(const QVariantMap& conf)
 {
-    bool ok = false;
-    address = static_cast<uchar> ( conf["address"].toUInt(&ok) ); Q_ASSERT(ok) ;
+
+    address = get_setting<int>("address", conf);//static_cast<uchar> ( conf["address"].toUInt(&ok) );
+
 
     qDebug () << "MifareReader CREATED!";
 }
@@ -333,7 +334,7 @@ QVariant MifareReader::doOn()
 
     //qDebug() << "doOn finished correctrly";
 
-    //qDebug() << "} Mifare 1 end";
+   // qDebug() << "} Mifare 1 end";
 
     return QVariant(true);
 }

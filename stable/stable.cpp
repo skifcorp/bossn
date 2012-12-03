@@ -64,8 +64,7 @@ BossnFactoryRegistrator<StableTask> StableTask::registrator("StableTask");
 
 void StableTask::run()
 {
-#if 0
-    //qDebug() << "stable run!!!";
+
 
     is_busy = true;
 
@@ -82,62 +81,17 @@ void StableTask::run()
 
     if (values.size() < 2 ) {is_stable = false; is_busy = false; return;}
 
-    VariantFixedQueue::const_iterator iter1 , iter2;
-    iter1 = iter2 = values.begin();
+    QVariant min_val = values.first() , max_val = values.first();
 
-
-    ++iter1;
-
-
-    is_stable = true;
-    QVariant max_delta = count_delta( *iter1, *iter2 );
-
-    for ( ; iter1 != values.end();  ++iter1, ++iter2 ) {
-     //   qDebug () << "i1: "<<*iter1 << " i2: "<<*iter2;
-        QVariant cur_delta = count_delta( *iter1, *iter2 );
-        if ( grater_than(cur_delta, max_delta).toBool() ) {
-            max_delta = cur_delta;
-        }
+    for ( int i = 0; i<values.count(); ++i) {
+        QVariant val = values[i];
+        if ( greater_than(min_val, val).toBool() ) min_val = val;
+        if ( smaller_than(max_val, val).toBool() ) max_val = val;
     }
 
-
-    is_stable = grater_than( delta, max_delta ).toBool();
+    is_stable = greater_than( delta, count_delta(max_val, min_val) ).toBool();
 
     is_busy = false;
-
-    //qDebug () << "stable: " << is_stable << "\n";
-#endif
-
-
-    //qDebug() << "stable run!!!";
-
-     is_busy = true;
-
-     QVariant v = tags[controlled_tag_name]->func(controlled_tag_func, this);
-
-     if ( !v.isValid() ) {
-         //qDebug() << "stable not valid!!!";
-         is_stable = false;
-         is_busy = false;
-         return;
-     }
-
-     values.enqueue( v );
-
-     if (values.size() < 2 ) {is_stable = false; is_busy = false; return;}
-
-
-     QVariant min_val = values.first() , max_val = values.first();
-
-     for ( int i = 0; i<values.count(); ++i) {
-         QVariant val = values[i];
-         if ( greater_than(min_val, val).toBool() ) min_val = val;
-         if ( smaller_than(max_val, val).toBool() ) max_val = val;
-     }
-
-     is_stable = greater_than( delta, count_delta(max_val, min_val) ).toBool();
-
-     is_busy = false;
 }
 
 

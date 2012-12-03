@@ -45,6 +45,7 @@ public:
 
     ~MainSequence() {}
 
+    void processPerimeter()  throw (MainSequenceException);
 
     Q_INVOKABLE void onAppearOnWeight(const QString&, AlhoSequence*);
     Q_INVOKABLE void onDisappearOnWeight(const QString&, AlhoSequence*);
@@ -128,8 +129,8 @@ private:
     void setLightsToRed();
     void setLightsToGreen();
 
-    void processPerimeter()  throw (MainSequenceException);
-    void checkForStealedCard(const ActivateCardISO14443A&, const ActivateCardISO14443A& ) const throw (MainSequenceException);
+
+    void checkForStealedCard(const ActivateCardISO14443A& ) throw (MainSequenceException);
 
     void initWeightersConf(const QVariantMap& s);
     //const WeighterConf& findWeighterConf(const MifareCardData&) const throw (MainSequenceException);
@@ -164,6 +165,8 @@ private:
 
     void makePhotoIfNeeded(long, const QString& , const WeighterConf& );
     CapturePhoto capture;
+    QString current_card_tag;
+    QString current_card_prop;
 };
 
 

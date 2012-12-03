@@ -103,7 +103,6 @@ private:
     ReaderTagMethods& reader_settings;
     QByteArray card_key;
     uint data_block;
-    //AlhoSequence& caller;
 };
 
 
