@@ -1,5 +1,7 @@
-#ifndef BASEWEIGHTER_H
-#define BASEWEIGHTER_H
+#ifndef CULTURE_H
+#define CULTURE_H
+
+
 
 #include <QApplication>
 
@@ -13,39 +15,41 @@
 #include "bossnexception.h"
 #include "mifarecarddata.h"
 //#include "dbstructs.h"
-#include "factory.h"
-#include "reportsmanager.h"
+
+//#include "reportsmanager.h"
 #include "async_func.h"
 #include "mifarecard.h"
 //#include "mainsequence.h"
 
+
 class MainSequence;
 class WeighterConf;
 
-class BaseWeighter : //public QObject,
-        public BossnFactory<BaseWeighter, MainSequence&, QSqlDatabase& >
+namespace alho { namespace common {
+
+class Culture
 {
 public:
-    typedef QSharedPointer<BaseWeighter> Pointer;
+    Culture(MainSequence & as, QSqlDatabase& db);
+    Culture(const Culture & ) = delete;       
 
-    BaseWeighter(MainSequence & as, QSqlDatabase& db);
-    BaseWeighter(const BaseWeighter & ) = delete;       
-
-    virtual ~BaseWeighter() {}
-
-    virtual void processWeighting(MifareCardData&, MifareCardBlock&, const WeighterConf&  ) throw (MainSequenceException, MifareCardException) = 0 ;
-    virtual QString detectPlatformType(const MifareCardData& ) const throw (MainSequenceException) = 0;
-
+    virtual ~Culture() {}	
+		
     void checkBruttoDeltaForReweights(int prev_weight, int cur_weight ) const throw(MainSequenceException);
     void checkTaraDeltaForReweights(int prev_weight, int cur_weight ) const throw(MainSequenceException);
 
-    QString tr(const char * txt) const
-    {
-        return qApp->translate("MainSequence", txt);
-    }
+    QString tr(const char * txt) const   {return qApp->translate("MainSequence", txt);}
 
-    async_func * asyncFunc() {return &async_;}                //pointers for easier refactoring
-    convience_func * convienceFunc() {return &convience_;}
+    async_func     & asyncFunc()     {return async_    ;}
+    convience_func & convienceFunc() {return convience_;}
+    QSqlDatabase   & database()      {return database_ ;}
+    MainSequence   & seq()           {return seq_      ;}
+
+    const async_func     & asyncFunc() const     {return async_    ;}
+    const convience_func & convienceFunc() const {return convience_;}
+    const QSqlDatabase   & database() const      {return database_ ;}
+    const MainSequence   & seq() const           {return seq_      ;}
+
 
     template <class Tttn>
     void checkTaraByBrutto(int tara, qx::dao::ptr<Tttn> ttn) const throw (MainSequenceException)
@@ -65,30 +69,20 @@ public:
                 "brutto smaller than tara ttn: " + QString::number(ttn->num_nakl) +
                 "brutto: " + QString::number(brutto)   +
                 "tara: "   + QString::number(ttn->tara) );
-    }
-
-
-    QString platformType(const MifareCardData & bill, const WeighterConf& ) const throw (MainSequenceException);
+    }	
+	
     void checkWeightCorrectess(int w) throw (MainSequenceException);
     int getWeight()  throw (MainSequenceException);
-    void setCardBanned(const QString& ) throw();
-    void checkCardBanned(const QString& ) throw(MainSequenceException);
-    bool transaction();
-    bool commit();
-    bool rollback();
-protected:
-    MainSequence& seq;
-    QSqlDatabase database;
+ 
+  	
+
+private:
+    MainSequence& seq_;
+    QSqlDatabase database_;
     async_func async_;
     convience_func convience_;
-    //template <class Tttn, class Tcars, class Tconst>
-    //void processTaraRupture(qx::dao::ptr<Tttn> ttn, qx::dao::ptr<Tcars> car )  throw (MainSequenceException);
 };
 
+} }
 
-
-
-
-
-
-#endif // BASEWEIGHTER_H
+#endif

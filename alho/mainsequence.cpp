@@ -1,20 +1,17 @@
+#include <QBitArray>
+
 #include "mainsequence.h"
 #include "mifarecard.h"
 #include "settingstool.h"
 #include "func.h"
 
-//#include "dbstructs.h"
+
 #include "warnmessages.h"
 #include "reportsmanager.h"
 #include "codeshacks.h"
 #include "conviencefuncs.h"
 
-//#include "mysql.h"
-#include "photograb/photomaker.h"
-#include <QBitArray>
-
-
-
+#include "photomaker.h"
 
 
 void MainSequence::setSettings(const QVariantMap & s)
@@ -141,7 +138,7 @@ MainSequence::MainSequence(Tags & t, const QVariantMap& s)
 }
 
 
-void MainSequence::checkForStealedCard(const ActivateCardISO14443A& card) throw (MainSequenceException)
+void MainSequence::checkForStealedCard(const ActivateCardISO14443A& card)
 {
     if ( !tags[current_card_tag]->containsProp(current_card_prop) ||
          !tags[current_card_tag]->getProperty<ActivateCardISO14443A>(current_card_prop).active() ) {
@@ -173,7 +170,7 @@ void MainSequence::onAppearOnWeight(const QString& , AlhoSequence *)
     }
 }
 
-WeighterConf& MainSequence::readStruct(MifareCardBlock & card, MifareCardData& d) throw (MifareCardException, MainSequenceException)
+WeighterConf& MainSequence::readStruct(MifareCardBlock & card, MifareCardData& d)
 {
     QByteArray card_bytes = card.readByteArray( CardStructs::blocks_conf() );
 
@@ -228,7 +225,7 @@ void MainSequence::run()
 
     //ActivateCardISO14443A cur_act;
 
-    BaseWeighter::Pointer weighter;
+    alho::common::Weighter::Pointer weighter;
 
     while(on_weight) {
         long cur_num_nakl = 0;
@@ -271,12 +268,12 @@ void MainSequence::run()
             cur_num_nakl = bill.memberValue<int>("billNumber");
 
             if (!weighter)
-                weighter = weighter_conf.createWeighter(*this);
+                weighter = createWeighter(weighter_conf);
 
             weighter->checkCardBanned( byteArrayToString(card.uid()) );
             weighter->processWeighting(bill, card, weighter_conf);
 
-            makePhotoIfNeeded(cur_num_nakl, weighter->detectPlatformType(bill), weighter_conf );
+            //makePhotoIfNeeded(cur_num_nakl, weighter->detectPlatformType(bill), weighter_conf );
 
             sleepnb( get_setting<int>("brutto_finish_pause", app_settings) );
             printOnTablo( tr(apply_card_message) );
@@ -378,7 +375,7 @@ void MainSequence::setLightsToGreen()
 
 
 
-void MainSequence::processPerimeter() throw (MainSequenceException)
+void MainSequence::processPerimeter()
 {
     if ( !get_setting<bool>("perimeter_control", app_settings) ) return;
 
@@ -396,7 +393,7 @@ void MainSequence::processPerimeter() throw (MainSequenceException)
     return findWeighterConf( bill.memberValue<int>( "material" ) );
 }*/
 
-WeighterConf& MainSequence::findWeighterConf(int material) throw (MainSequenceException)
+WeighterConf& MainSequence::findWeighterConf(int material)
 {    
     for (int i = 0; i<weighters_conf.count(); ++i) {
         if ( weighters_conf[i].material == material )

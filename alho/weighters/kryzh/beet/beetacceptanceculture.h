@@ -1,18 +1,22 @@
 #ifndef __BEETWEIGHTERS_H_
 #define __BEETWEIGHTERS_H_
 
-#include "baseacceptanceweighter.h"
+#include "acceptanceculture.h"
 #include "beetdbstructs.h"
 #include "reportsmanager.h"
 
-class BeetAcceptanceWeighter : public BaseAcceptanceWeighter
+namespace alho  { namespace kryzh {
+
+using alho::common::AcceptanceCulture;
+
+class BeetAcceptanceCulture : public AcceptanceCulture
 {
 public:
-    BeetAcceptanceWeighter(MainSequence& as, QSqlDatabase& db) : BaseAcceptanceWeighter(as, db)
+    BeetAcceptanceCulture(MainSequence& as, QSqlDatabase& db) : AcceptanceCulture(as, db)
     {
     }
 
-    ~BeetAcceptanceWeighter() {}
+    ~BeetAcceptanceCulture() {}
     virtual void fetchCar(const MifareCardData& ) throw (MainSequenceException);
     virtual void checkPerimetr() throw (MainSequenceException);
     virtual void brutto(int, MifareCardData& ) throw (MainSequenceException);
@@ -34,10 +38,6 @@ public:
     virtual bool isPureTaraWeight(const MifareCardData& ) const throw (MainSequenceException) ;
 
 
-    static BaseWeighter * create(MainSequence& s, QSqlDatabase& db )
-    {
-        return new BeetAcceptanceWeighter(s, db);
-    }
 private:
     void processChemicalAnalysis(MifareCardData&, qx::dao::ptr<t_ttn_beet> )  throw();
     void processFreeBum(MifareCardData & bill, qx::dao::ptr<t_ttn_beet> ttn, qx::dao::ptr<t_cars_beet> car ) throw(MainSequenceException);
@@ -62,7 +62,7 @@ private:
 
     ReportContext makeReportContext(qx::dao::ptr<t_cars_beet>, qx::dao::ptr<t_field_beet>) ;
 
-    static BossnFactoryRegistrator<BeetAcceptanceWeighter> registrator;
+
 
     static const QString t_ttn_name;
     static const QString t_cars_name;
@@ -75,6 +75,6 @@ private:
 };
 
 
-
+} }
 
 #endif

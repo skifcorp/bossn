@@ -16,40 +16,9 @@
 #include "formatersequence.h"
 #include "alhosequence.h"
 #include "tasksettings.h"
+#include "constructweighters.h"
 
 
-
-#if 0
-
-void initTasks(TaskExec & tasks, Tags & tags, MainSequence & seq )
-{
-
-
-    PerimeterTask::Pointer perim (new PerimeterTask(tags));
-    QMap<QString, QVariant> perim_settings;
-    perim_settings["PerimeterType"] = "PerimeterControlByWeight";
-    perim_settings["weightName"]    = "weight1_1";
-    perim_settings["minWeight"]     = 50;
-    perim_settings["method"]        = "readMethod";
-
-
-
-    /*perim_settings["PerimeterType"] = "PerimeterControlByDi";
-    perim_settings["AppearDi"]      = "di1";
-    perim_settings["DisappearDi"]   = "di2";
-    perim_settings["method"]        = "readMethod";*/
-
-
-    //QObject::connect(perim.data(), SIGNAL(appeared()), &seq, SLOT(onAppearOnWeight()), Qt::QueuedConnection );
-    //QObject::connect(perim.data(), SIGNAL(disappeared()), &seq, SLOT(onDisappearOnWeight()), Qt::QueuedConnection);
-
-
-    perim->setSettings(perim_settings);
-
-    tasks.addTask(500, perim.staticCast<BaseTask::Pointer::Type>());
-}
-
-#endif
 
 int main(int argc, char *argv[])
 {  

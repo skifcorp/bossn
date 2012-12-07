@@ -1,8 +1,7 @@
 #ifndef BASEWEIGHTERINSTANTIAION_H
 #define BASEWEIGHTERINSTANTIAION_H
 
-#include "baseweighter.h"
-//#include "mainsequence.h"
+#include "weighter.h"
 #include "cardstructs.h"
 
 #include <QVariantMap>
@@ -13,13 +12,11 @@ struct WeighterConf : public QVariantMap
 public:
     int material;
     QString weighter_name;
-
+    QString platform_type;
 
     QSqlDatabase database;
 
     StructConf struct_conf;
-
-    BaseWeighter::Pointer createWeighter (MainSequence& seq);
 
     template <class T>
     T member(const QString& name) const
@@ -32,8 +29,6 @@ public:
 
         return iter->value<T>();
     }
-
-    QString platform_type;
 };
 
 #endif // BASEWEIGHTERINSTANTIAION_H

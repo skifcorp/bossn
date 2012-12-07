@@ -2,19 +2,24 @@
 #define GRAINWEIGHTERS_H
 
 
-#include "baseacceptanceweighter.h"
-#include "baseshipmentweighter.h"
-#include "graindbstructs.h"
-//#include "baseweighterinstantiaion.h"
 
-class GrainAcceptanceWeighter : public BaseAcceptanceWeighter
+#include "graindbstructs.h"
+#include "acceptanceculture.h"
+#include "reportsmanager.h"
+
+
+namespace alho { namespace kryzh {
+
+using alho::common::AcceptanceCulture;
+
+class GrainAcceptanceCulture : public AcceptanceCulture
 {
 public:
-    GrainAcceptanceWeighter(MainSequence& as, QSqlDatabase& db) : BaseAcceptanceWeighter(as, db)
+    GrainAcceptanceCulture(MainSequence& as, QSqlDatabase& db) : AcceptanceCulture(as, db)
     {
     }
 
-    ~GrainAcceptanceWeighter() {}
+    ~GrainAcceptanceCulture() {}
     virtual void fetchCar(const MifareCardData& ) throw (MainSequenceException);
     virtual void brutto(int, MifareCardData& ) throw (MainSequenceException);
     virtual void tara(int, MifareCardData&) throw (MainSequenceException);
@@ -32,14 +37,10 @@ public:
     virtual QString detectPlatformType(const MifareCardData& ) const throw (MainSequenceException);
     virtual bool isPureBruttoWeight(const MifareCardData& ) const throw (MainSequenceException);
     virtual bool isPureTaraWeight(const MifareCardData& ) const throw (MainSequenceException);
-
-    static BaseWeighter * create(MainSequence& s, QSqlDatabase& db )
-    {
-        return new GrainAcceptanceWeighter(s, db);
-    }
+    void checkPerimetr(){}
 private:
     void checkBum( const MifareCardData& )const throw(MainSequenceException);
-    void checkLaboratory( qx::dao::ptr<t_ttn> )const throw(MainSequenceException);
+    void checkLaboratory( qx::dao::ptr< t_ttn > )const throw(MainSequenceException);
     void updateBruttoValues(MifareCardData& bill, qx::dao::ptr<t_ttn> ttn) throw(MainSequenceException);
     void updateTaraValues(MifareCardData&, qx::dao::ptr<t_ttn>, qx::dao::ptr<t_cars>, bool pure_weight) throw(MainSequenceException);
 
@@ -49,7 +50,7 @@ private:
     qx::dao::ptr<t_ttn> current_ttn;
     qx::dao::ptr<t_cars> current_car;    
 
-    static BossnFactoryRegistrator<GrainAcceptanceWeighter> registrator;
+
 
     static const QString t_ttn_name;
     static const QString t_cars_name;
@@ -62,6 +63,6 @@ private:
 };
 
 
-
+} }
 
 #endif // GRAINWEIGHTERS_H

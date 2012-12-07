@@ -17,7 +17,8 @@ TEMPLATE = app
 INCLUDEPATH    += ../qextserialport/src/ db alho serial weight generic iodevicewrapper scheduler              \
                     porter task dido perimeter tools reader  reports ../coroutine/src/ ../QxOrm/include       \
                                         $$(BOOST_ROOT) ../ismm/ settings stable prot  $$(MYSQL_DIR)/include   \
-                                        QtSources/4.8.1/include alho/weighters alho/direction photograb
+                                        QtSources/4.8.1/include alho/weighters alho/direction photograb       \
+                                        alho/weighters/common
 
 QMAKE_CXXFLAGS += -std=c++0x #-m32
 #QMAKE_LFLAGS   += -m32
@@ -66,8 +67,6 @@ SOURCES += main.cpp \
     alho/formatersequence.cpp \
     alho/alhosequence.cpp \
     alho/cardstructs.cpp \
-    alho/weighters/graindbstructs.cpp \
-	alho/weighters/beetdbstructs.cpp \
     reports/reports.cpp \
     iodevicewrapper/ismmdevice.cpp \
     alho/reportsmanager.cpp \
@@ -82,18 +81,21 @@ SOURCES += main.cpp \
     alho/mifarecarddata.cpp \
     alho/tagfunchelper.cpp \
     alho/seqdebug.cpp \
-    alho/weighters/baseweighter.cpp \
     alho/initcardstructs.cpp \
-    alho/weighters/baseacceptanceweighter.cpp \
-    alho/weighters/beetacceptanceweighter.cpp \
-    alho/weighters/grainacceptanceweighter.cpp \
-    alho/weighters/grainshipmentweighter.cpp \
-    alho/weighters/baseshipmentweighter.cpp \
-    alho/weighters/weighterconf.cpp \
-    alho/weighters/genericdbstructs.cpp \
     photograb/photomaker.cpp \
     reader/mifarereaderlist.cpp \
-    weight/mettlertoledo8530_stream.cpp
+    weight/mettlertoledo8530_stream.cpp \
+    alho/weighters/common/weighterconf.cpp \
+    alho/weighters/common/weighter.cpp \
+    alho/weighters/common/genericdbstructs.cpp \
+    alho/weighters/common/culture.cpp \
+    alho/weighters/kryzh/beet/beetdbstructs.cpp \
+    alho/weighters/kryzh/beet/beetacceptanceculture.cpp \
+    alho/weighters/kryzh/grain/grainshipmentculture.cpp \
+    alho/weighters/kryzh/grain/graindbstructs.cpp \
+    alho/weighters/kryzh/grain/grainacceptanceculture.cpp \
+    alho/weighters/kryzh/weighter/shipmentweighter.cpp \
+    alho/weighters/kryzh/weighter/acceptanceweighter.cpp
 
 
 HEADERS += \    
@@ -147,25 +149,27 @@ HEADERS += \
     prot/prottask.h \
     prot/protdb.h \
     weight/hbm2108.h \
-    weight/hbm2110.h \
-    alho/weighters/baseweighter.h \
+    weight/hbm2110.h \    
     alho/mifarecarddata.h \
     alho/tagfunchelper.h \
     alho/mainsequencesettings.h \
-    alho/seqdebug.h \
-    alho/weighters/graindbstructs.h \
-	alho/weighters/beetdbstructs.h \
-    alho/weighters/baseacceptanceweighter.h \
-    alho/weighters/baseshipmentweighter.h \
-    alho/weighters/beetacceptanceweighter.h \
-    alho/weighters/grainacceptanceweighter.h \
-    alho/weighters/grainshipmentweighter.h \
-    alho/weighters/weighterconf.h \
-    alho/weighters/genericdbstructs.h \
+    alho/seqdebug.h \   	
     qxorm_pch.h \
     photograb/photomaker.h \ 
     reader/mifarereaderlist.h \
-    weight/mettlertoledo8530_stream.h
+    weight/mettlertoledo8530_stream.h \
+    alho/weighters/common/weighterconf.h \
+    alho/weighters/common/weighter.h \
+    alho/weighters/common/shipmentculture.h \
+    alho/weighters/common/genericdbstructs.h \
+    alho/weighters/common/culture.h \
+    alho/weighters/common/acceptanceculture.h \
+    alho/weighters/kryzh/beet/beetdbstructs.h \
+    alho/weighters/kryzh/beet/beetacceptanceculture.h \
+    alho/weighters/kryzh/grain/grainshipmentculture.h \
+    alho/weighters/kryzh/grain/graindbstructs.h \
+    alho/weighters/kryzh/grain/grainacceptanceculture.h \
+    alho/weighters/kryzh/weighter/shipmentweighter.h \
+    alho/weighters/kryzh/weighter/acceptanceweighter.h \
+    alho/weighters/constructweighters.h
 	
-
-

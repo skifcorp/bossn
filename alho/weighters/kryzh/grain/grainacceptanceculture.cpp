@@ -1,37 +1,39 @@
-#include "grainacceptanceweighter.h"
+#include "grainacceptanceculture.h"
 #include "warnmessages.h"
 #include "mainsequence.h"
 #include "codeshacks.h"
 
-BossnFactoryRegistrator<GrainAcceptanceWeighter> GrainAcceptanceWeighter::registrator("GrainAcceptanceWeighter");
-
-const QString GrainAcceptanceWeighter::t_cars_name("t_cars");
-const QString GrainAcceptanceWeighter::t_ttn_name("t_ttn");
-const QString GrainAcceptanceWeighter::t_const_name("t_const");
-const QString GrainAcceptanceWeighter::t_kontr_name("t_kontr");
-const QString GrainAcceptanceWeighter::t_bum_name("t_bum");
-const QString GrainAcceptanceWeighter::t_kagat_name("t_kagat");
-const QString GrainAcceptanceWeighter::t_field_name("t_field");
+namespace alho { namespace kryzh {
 
 
-QString GrainAcceptanceWeighter::bruttoFinishMessage(const MifareCardData& bill )const
+
+const QString GrainAcceptanceCulture::t_cars_name("t_cars");
+const QString GrainAcceptanceCulture::t_ttn_name("t_ttn");
+const QString GrainAcceptanceCulture::t_const_name("t_const");
+const QString GrainAcceptanceCulture::t_kontr_name("t_kontr");
+const QString GrainAcceptanceCulture::t_bum_name("t_bum");
+const QString GrainAcceptanceCulture::t_kagat_name("t_kagat");
+const QString GrainAcceptanceCulture::t_field_name("t_field");
+
+
+QString GrainAcceptanceCulture::bruttoFinishMessage(const MifareCardData& bill )const
 {
     return tr(brutto_finish_weight_message).arg( bill.memberValue<QString>("bruttoWeight") );
 }
 
-QString GrainAcceptanceWeighter::taraFinishMessage(const MifareCardData& )const
+QString GrainAcceptanceCulture::taraFinishMessage(const MifareCardData& )const
 {
     return QString::number(current_ttn->tara);
 }
 
 
-void GrainAcceptanceWeighter::brutto(int w, MifareCardData& bill ) throw (MainSequenceException)
+void GrainAcceptanceCulture::brutto(int w, MifareCardData& bill ) throw (MainSequenceException)
 {
     current_ttn = wrap_async_ex(tr(fetch_ttn_error_message), "fetching ttn failed!!!",
-               [&bill, this]{return asyncFunc()->async_fetch<t_ttn>(
+               [&bill, this]{return asyncFunc().async_fetch<t_ttn>(
                    bill["billNumber"].toUInt(), t_ttn_name);});
 
-    seq.seqDebug() << "GrainAcceptance: brutto weight!, ttn: " << current_ttn->num_nakl;
+    seq().seqDebug() << "GrainAcceptance: brutto weight!, ttn: " << current_ttn->num_nakl;
 
     repairFieldCodeCorrectnessIfNeeded<t_ttn, t_field>(bill, current_ttn, t_field_name);
 
@@ -51,13 +53,13 @@ void GrainAcceptanceWeighter::brutto(int w, MifareCardData& bill ) throw (MainSe
     updateBruttoValues(bill, current_ttn);
 }
 
-void GrainAcceptanceWeighter::tara(int w, MifareCardData& bill) throw (MainSequenceException)
+void GrainAcceptanceCulture::tara(int w, MifareCardData& bill) throw (MainSequenceException)
 {
     current_ttn = wrap_async_ex(tr(fetch_ttn_error_message), "fetching ttn failed!!!",
-                              [&bill, this]{return asyncFunc()->async_fetch<t_ttn>(
+                              [&bill, this]{return asyncFunc().async_fetch<t_ttn>(
                   bill["billNumber"].toUInt(), t_ttn_name);});
 
-    seq.seqDebug() << "GrainAcceptance: tara weight!, ttn: " << current_ttn->num_nakl;
+    seq().seqDebug() << "GrainAcceptance: tara weight!, ttn: " << current_ttn->num_nakl;
 
     checkTaraByBrutto(w, current_ttn);
 
@@ -83,13 +85,13 @@ void GrainAcceptanceWeighter::tara(int w, MifareCardData& bill) throw (MainSeque
 
 
 
-void GrainAcceptanceWeighter::reBrutto(int w, MifareCardData& bill) throw (MainSequenceException)
+void GrainAcceptanceCulture::reBrutto(int w, MifareCardData& bill) throw (MainSequenceException)
 {
     current_ttn = wrap_async_ex(tr(fetch_ttn_error_message), "fetching ttn failed!!!",
-        [&bill, this]{return asyncFunc()->async_fetch<t_ttn>(
+        [&bill, this]{return asyncFunc().async_fetch<t_ttn>(
            bill["billNumber"].toUInt(), t_ttn_name);});
 
-    seq.seqDebug() << "GrainAcceptance: rebrutto weight!, ttn: " << current_ttn->num_nakl;
+    seq().seqDebug() << "GrainAcceptance: rebrutto weight!, ttn: " << current_ttn->num_nakl;
 
     checkBruttoDeltaForReweights(bill.memberValue<uint>("bruttoWeight"), w);
 
@@ -101,11 +103,11 @@ void GrainAcceptanceWeighter::reBrutto(int w, MifareCardData& bill) throw (MainS
     updateBruttoValues(bill, current_ttn);
 }
 
-void GrainAcceptanceWeighter::reTara(int w, MifareCardData& bill) throw (MainSequenceException)
+void GrainAcceptanceCulture::reTara(int w, MifareCardData& bill) throw (MainSequenceException)
 {
     current_ttn = ttnByDriver<t_ttn>( bill.memberValue<uint>("driver") );
 
-    seq.seqDebug() << "GrainAcceptance: retara weight!, ttn: " << current_ttn->num_nakl;
+    seq().seqDebug() << "GrainAcceptance: retara weight!, ttn: " << current_ttn->num_nakl;
 
     checkTaraByBrutto(w, current_ttn);
 
@@ -127,7 +129,7 @@ void GrainAcceptanceWeighter::reTara(int w, MifareCardData& bill) throw (MainSeq
 
 
 
-void GrainAcceptanceWeighter::checkBum( const MifareCardData& bill )const throw(MainSequenceException)
+void GrainAcceptanceCulture::checkBum( const MifareCardData& bill )const throw(MainSequenceException)
 {
     if (bill.memberValue<uint>("bum") != 99 && bill.memberValue<uint>("bumFact") == 0 )
         throw MainSequenceException( tr(car_has_not_been_unloaded),
@@ -136,7 +138,7 @@ void GrainAcceptanceWeighter::checkBum( const MifareCardData& bill )const throw(
             " bum: "      + bill.memberValue<QString>("bum") );
 }
 
-void GrainAcceptanceWeighter::checkLaboratory( qx::dao::ptr<t_ttn> ttn)const throw(MainSequenceException)
+void GrainAcceptanceCulture::checkLaboratory( qx::dao::ptr<t_ttn> ttn)const throw(MainSequenceException)
 {
     if (ttn->was_in_lab == 0)
         throw MainSequenceException( tr(car_dont_was_in_lab),
@@ -147,7 +149,7 @@ void GrainAcceptanceWeighter::checkLaboratory( qx::dao::ptr<t_ttn> ttn)const thr
 
 
 
-void GrainAcceptanceWeighter::updateBruttoValues(MifareCardData& bill, qx::dao::ptr<t_ttn> ttn) throw(MainSequenceException)
+void GrainAcceptanceCulture::updateBruttoValues(MifareCardData& bill, qx::dao::ptr<t_ttn> ttn) throw(MainSequenceException)
 {
     ttn->real_field       = bill.memberValue<int>("realNumField");
     ttn->loader           = bill.memberValue<int>("numLoader");
@@ -160,17 +162,17 @@ void GrainAcceptanceWeighter::updateBruttoValues(MifareCardData& bill, qx::dao::
     ttn->num_kart         = byteArrayToString (bill.uid());
     ttn->copy             = 0;
     ttn->time_of_brutto   = ttn->dt_of_brutto.time().toString("hh:mm:ss");
-    ttn->brutto_platforma = seq.seqId();
+    ttn->brutto_platforma = seq().seqId();
 
 /*    QStringList lst;
     ttn.isDirty(lst);
     qDebug() << "brutto: isDirty: " << lst;
 */
     wrap_async_ex( tr(update_ttn_error_message), "Error updating ttn brutto",
-        [&ttn, this]{ asyncFunc()->async_update(ttn, t_ttn_name); });
+        [&ttn, this]{ asyncFunc().async_update(ttn, t_ttn_name); });
 }
 
-void GrainAcceptanceWeighter::updateTaraValues(MifareCardData& bill, qx::dao::ptr<t_ttn> ttn, qx::dao::ptr<t_cars> car, bool pure_weight) throw (MainSequenceException)
+void GrainAcceptanceCulture::updateTaraValues(MifareCardData& bill, qx::dao::ptr<t_ttn> ttn, qx::dao::ptr<t_cars> car, bool pure_weight) throw (MainSequenceException)
 {
     if ( pure_weight ) {
         ttn->real_bum      = bill.memberValue<int>("bumFact");
@@ -183,7 +185,7 @@ void GrainAcceptanceWeighter::updateTaraValues(MifareCardData& bill, qx::dao::pt
 
     ttn->copy            = 0;
     ttn->time_of_tara    = ttn->dt_of_tara.time().toString("hh:mm:ss");
-    ttn->tara_platforma  = seq.seqId();
+    ttn->tara_platforma  = seq().seqId();
     ttn->field_from_car  = car->num_field;
 
     //seqDebug () << "real_rup_tara: " << ttn->real_rup_tara;
@@ -193,12 +195,12 @@ void GrainAcceptanceWeighter::updateTaraValues(MifareCardData& bill, qx::dao::pt
 */
     wrap_async_ex( tr(update_ttn_error_message),
          "Error updating ttn tara: ttn_num: " + QString::number(ttn->num_nakl),
-           [&ttn, this]{ asyncFunc()->async_update(ttn, t_ttn_name); });
+           [&ttn, this]{ asyncFunc().async_update(ttn, t_ttn_name); });
 }
 
 
 
-bool GrainAcceptanceWeighter::makeNewTask(MifareCardData& bill) throw (MainSequenceException)
+bool GrainAcceptanceCulture::makeNewTask(MifareCardData& bill) throw (MainSequenceException)
 {
     bill.clear();
 
@@ -219,7 +221,7 @@ bool GrainAcceptanceWeighter::makeNewTask(MifareCardData& bill) throw (MainSeque
 
     //qx::dao::insert(ttn, &database);
 
-    wrap_async_ex(tr(error_make_new_task), "error make new task", [this]{return asyncFunc()->async_insert(current_ttn, false, t_ttn_name);});
+    wrap_async_ex(tr(error_make_new_task), "error make new task", [this]{return asyncFunc().async_insert(current_ttn, false, t_ttn_name);});
 
     bill.setMemberValue("billNumber", current_ttn->num_nakl);
     bill.setMemberValue("numField"  , current_ttn->field);
@@ -227,17 +229,17 @@ bool GrainAcceptanceWeighter::makeNewTask(MifareCardData& bill) throw (MainSeque
     return true;
 }
 
-ReportContext GrainAcceptanceWeighter::makeReportContext(qx::dao::ptr<t_cars> car, qx::dao::ptr<t_field> field)
+ReportContext GrainAcceptanceCulture::makeReportContext(qx::dao::ptr<t_cars> car, qx::dao::ptr<t_field> field)
 {
 
 	qx::dao::ptr<t_kontr> kontr = wrap_async_ex(QObject::tr(cant_get_kontr_when_printing), "cant get kontr when printing",
-         [&field, this]{return asyncFunc()->async_fetch<t_kontr>(
+         [&field, this]{return asyncFunc().async_fetch<t_kontr>(
                kontrCodeFromField( field->id  ), t_kontr_name ); });
 
 
-    qx::dao::ptr<t_const> base_firm         = convienceFunc()->getConst<t_const>(seq.appSetting<QString>("base_firm_name"));
-    qx::dao::ptr<t_const> dont_check_time   = convienceFunc()->getConst<t_const>(seq.appSetting<QString>("dont_check_time_name"));
-    qx::dao::ptr<t_const> disp_phone        = convienceFunc()->getConst<t_const>(seq.appSetting<QString>("disp_phone_name"));
+    qx::dao::ptr<t_const> base_firm         = convienceFunc().getConst<t_const>(seq().appSetting<QString>("base_firm_name"));
+    qx::dao::ptr<t_const> dont_check_time   = convienceFunc().getConst<t_const>(seq().appSetting<QString>("dont_check_time_name"));
+    qx::dao::ptr<t_const> disp_phone        = convienceFunc().getConst<t_const>(seq().appSetting<QString>("disp_phone_name"));
 
 	QList<ReportsManager::var_instance> vars = QList<ReportsManager::var_instance>{
 		ReportsManager::var_instance{"t_ttn", "t_ttn", current_ttn.data()},
@@ -251,27 +253,27 @@ ReportContext GrainAcceptanceWeighter::makeReportContext(qx::dao::ptr<t_cars> ca
 	 return ReportsManager::makeReportContext(vars);
 }
 
-ReportContext GrainAcceptanceWeighter::finishReport() throw(MainSequenceException)
+ReportContext GrainAcceptanceCulture::finishReport() throw(MainSequenceException)
 {
 	qx::dao::ptr<t_field> field = wrap_async_ex(tr(cant_get_field_when_printing), "finishReport: cant get field " + QString::number(current_ttn->real_field) + " when printing for passed ttn: " + QString::number(current_ttn->num_nakl),
-          [this]{return asyncFunc()->async_fetch<t_field>(
+          [this]{return asyncFunc().async_fetch<t_field>(
                current_ttn->real_field, t_field_name ); });
     return makeReportContext(current_car, field);
 }
 
-ReportContext GrainAcceptanceWeighter::startReport() throw(MainSequenceException)
+ReportContext GrainAcceptanceCulture::startReport() throw(MainSequenceException)
 {
 	qx::dao::ptr<t_field> field = wrap_async_ex(tr(cant_get_field_when_printing),
 	  "startReport: cant get field " + QString::number(current_ttn->field) +
 	  " when printing for passed ttn: " + QString::number(current_ttn->num_nakl),
-      [this]{return asyncFunc()->async_fetch<t_field>(
+      [this]{return asyncFunc().async_fetch<t_field>(
               current_ttn->field, t_field_name ); });
 
     return makeReportContext(current_car, field);
 
 }
 
-QString GrainAcceptanceWeighter::detectPlatformType(const MifareCardData& bill) const throw (MainSequenceException)
+QString GrainAcceptanceCulture::detectPlatformType(const MifareCardData& bill) const throw (MainSequenceException)
 {
     if (!bill.checkMember("bruttoWeight", 0) &&
         !bill.checkMember("dateOfBrutto", timeShitToDateTime(0)))
@@ -290,7 +292,7 @@ QString GrainAcceptanceWeighter::detectPlatformType(const MifareCardData& bill) 
     throw MainSequenceException(tr(autodetect_platform_type_error_message) ,"something terrible happens!!! cant detect platform type. Maybe bill corrupted :(" );
 }
 
-bool GrainAcceptanceWeighter::isPureBruttoWeight(const MifareCardData& bill) const throw (MainSequenceException)
+bool GrainAcceptanceCulture::isPureBruttoWeight(const MifareCardData& bill) const throw (MainSequenceException)
 {
     if ( bill.memberValue<uint>("bruttoWeight") == 0 ) return true;
     if ( bill.memberValue<uint>("bumFact") == 0 ) return false;
@@ -298,7 +300,7 @@ bool GrainAcceptanceWeighter::isPureBruttoWeight(const MifareCardData& bill) con
     throw MainSequenceException(tr(confuse_brutto_tara_error_message), "confused brutto with tara");
 }
 
-bool GrainAcceptanceWeighter::isPureTaraWeight(const MifareCardData& bill) const throw (MainSequenceException)
+bool GrainAcceptanceCulture::isPureTaraWeight(const MifareCardData& bill) const throw (MainSequenceException)
 {
     if ( bill.memberValue<int>("bruttoWeight") > 0 ) return true;
     if ( bill.memberValue<int>("realNumField") == 0 ) return false;
@@ -306,16 +308,18 @@ bool GrainAcceptanceWeighter::isPureTaraWeight(const MifareCardData& bill) const
     throw MainSequenceException(tr(forget_brutto_on_tara_error_message), "forget for brutto!" );
 }
 
-void GrainAcceptanceWeighter::fetchCar(const MifareCardData& bill) throw (MainSequenceException)
+void GrainAcceptanceCulture::fetchCar(const MifareCardData& bill) throw (MainSequenceException)
 {
-    qDebug() << "database_name:"<< async_.database.databaseName();
+    qDebug() << "database_name:"<< asyncFunc().database.databaseName();
 
     current_car = wrap_async_ex(tr(fetch_car_error_message),
            "fetching car failed!!!: driver: " + bill.memberValue<QString>("driver"),
-      [&bill, this]{return async_.async_fetch<t_cars>(
+      [&bill, this]{return asyncFunc().async_fetch<t_cars>(
        carCodeFromDriver( bill.memberValue<uint>("driver") ), t_cars_name );});
 
     if (current_car->block) {
         throw MainSequenceException(tr(car_blocked_message), "car is blocked!!!");
     }
 }
+
+} }

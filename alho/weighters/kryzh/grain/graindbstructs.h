@@ -1,5 +1,5 @@
-#ifndef DBSTRUCTS_H
-#define DBSTRUCTS_H
+#ifndef GRAIN_DBSTRUCTS_H
+#define GRAIN_DBSTRUCTS_H
 
 #include "qxorm_pch.h"
 

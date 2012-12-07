@@ -1,17 +1,23 @@
 #ifndef GRAINSHIPMENTWEIGHTER_H
 #define GRAINSHIPMENTWEIGHTER_H
 
-#include "baseshipmentweighter.h"
+#include "weighter.h"
 #include "graindbstructs.h"
+#include "shipmentculture.h"
+#include "reportsmanager.h"
 
-class GrainShipmentWeighter : public BaseShipmentWeighter
+namespace alho { namespace kryzh {
+
+using alho::common::ShipmentCulture;
+
+class GrainShipmentCulture : public ShipmentCulture
 {
 public:
-    GrainShipmentWeighter(MainSequence& as, QSqlDatabase& db) : BaseShipmentWeighter(as, db)
+    GrainShipmentCulture(MainSequence& as, QSqlDatabase& db) : ShipmentCulture(as, db)
     {
     }
 
-    ~GrainShipmentWeighter() {}
+    ~GrainShipmentCulture() {}
 
     virtual void fetchCar(const MifareCardData& ) throw (MainSequenceException);
     virtual void brutto(int, MifareCardData& ) throw (MainSequenceException);
@@ -32,10 +38,6 @@ public:
     //virtual ReportContext fakeReport( ) throw(MainSequenceException);
     virtual ReportContext startReport( ) throw(MainSequenceException);
 
-    static BaseWeighter * create(MainSequence& s, QSqlDatabase& db )
-    {
-        return new GrainShipmentWeighter(s, db);
-    }
 private:
     void updateBruttoValues(MifareCardData& bill, qx::dao::ptr<t_ttno> ttn) throw(MainSequenceException);
     void updateTaraValues(MifareCardData&, qx::dao::ptr<t_ttno>) throw(MainSequenceException);
@@ -61,25 +63,18 @@ private:
 
     qx::dao::ptr<t_ttno> current_ttn;
     qx::dao::ptr<t_cars> current_car;
-    //qx::dao::ptr<t_ttno> fake_ttn;
+
     qx::dao::ptr<t_prikaz> current_prikaz;
 
-    //qx::dao::ptr<t_prikaz> new_prikaz;
-    //qx::dao::ptr<t_ttn> new_order_ttn;
-
-    static BossnFactoryRegistrator<GrainShipmentWeighter> registrator;
 
     static const QString t_ttn_name;
     static const QString t_cars_name;
     static const QString t_const_name;
     static const QString t_kontr_name;
-    //static const QString t_bum_name;
-    //static const QString t_kagat_name;
-    //static const QString t_field_name;
     static const QString t_prikaz_name;
 
 };
 
-
+} }
 
 #endif // GRAINSHIPMENTWEIGHTER_H
