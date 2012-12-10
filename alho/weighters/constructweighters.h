@@ -11,6 +11,9 @@
 
 #include "factory.h"
 
+#include "mpllibs/metaparse/string.hpp"
+#define _S(X) MPLLIBS_STRING(X)
+
 namespace alho {
     //namespace kryzh = alho::kryzh;
 
@@ -19,12 +22,14 @@ namespace alho {
     using KryzhGrainShipment   = kryzh::ShipmentWeighter<kryzh::GrainShipmentCulture>;
 
     namespace {
-    BossnFactoryRegistrator2<KryzhBeetAcceptance>  r1("KryzhBeetAcceptance");
-    BossnFactoryRegistrator2<KryzhGrainAcceptance> r2("KryzhGrainAcceptance");
-    BossnFactoryRegistrator2<KryzhGrainShipment>   r3("KryzhGrainShipment");
+        BossnFactoryRegistrator2<KryzhBeetAcceptance , _S("KryzhBeetAcceptance" )>  r1;
+        BossnFactoryRegistrator2<KryzhGrainAcceptance, _S("KryzhGrainAcceptance")>  r2;
+        BossnFactoryRegistrator2<KryzhGrainShipment  , _S("KryzhGrainShipment"  )>  r3;
     }
 
 }
+
+#undef _S
 
 
 #endif // CONSTRUCTWEIGHTERS_H

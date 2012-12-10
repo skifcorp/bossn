@@ -12,6 +12,11 @@ using std::function;
 using std::conditional;
 using std::is_base_of;
 
+
+#include "boost/mpl/string.hpp"
+
+namespace mpl = boost::mpl;
+
 template <class T>
 class BossnFactoryRegistrator
 {
@@ -26,7 +31,7 @@ template <class T, class ... Args>
 class BossnFactory
 {
     template <class C> friend class BossnFactoryRegistrator;
-    template <class T1, class T2> friend class BossnFactoryRegistrator2_impl;
+    template <class T1, class T2, class N> friend class BossnFactoryRegistrator2_impl;
 public:
     using Pointer  = QSharedPointer<T>;
     using ThisType = BossnFactory<T, Args...>;
@@ -59,16 +64,16 @@ struct BossnFactoryRegistrator2 :
 
 };*/
 
-template <class T, class T2>
+template <class T, class T2, class N>
 struct BossnFactoryRegistrator2_impl;
 
-template <class Derived, class Base, class ... Args>
-class BossnFactoryRegistrator2_impl< Derived, BossnFactory<Base, Args ...> >
+template <class Derived, class Base, int ... N, class ... Args>
+class BossnFactoryRegistrator2_impl< Derived, BossnFactory<Base, Args ...>, mpl::string<N...> >
 {
 public:
-    BossnFactoryRegistrator2_impl(const QString& class_name)
+    BossnFactoryRegistrator2_impl()
     {
-        Base::factory_map().insert(class_name, create);
+        Base::factory_map().insert(mpl::c_str<mpl::string<N...>>::value, create);
     }
 
     static Base * create ( Args ... args  )
@@ -80,10 +85,11 @@ public:
 
 
 
-template <class T>
-struct BossnFactoryRegistrator2 : BossnFactoryRegistrator2_impl<T, typename T::ThisType>
+template <class T, class N>
+struct BossnFactoryRegistrator2 : BossnFactoryRegistrator2_impl<T, typename T::ThisType, N>
 {
-    BossnFactoryRegistrator2(const QString& n) : BossnFactoryRegistrator2_impl<T, typename T::ThisType>(n) {}
+    using ParentType = BossnFactoryRegistrator2_impl<T, typename T::ThisType, N>;
+    BossnFactoryRegistrator2() : ParentType() {}
 };
 
 

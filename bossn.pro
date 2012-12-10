@@ -14,11 +14,11 @@ CONFIG   -= app_bundle
 DESTDIR  = build
 
 TEMPLATE = app
-INCLUDEPATH    += ../qextserialport/src/ db alho serial weight generic iodevicewrapper scheduler              \
-                    porter task dido perimeter tools reader  reports ../coroutine/src/ ../QxOrm/include       \
-                                        $$(BOOST_ROOT) ../ismm/ settings stable prot  $$(MYSQL_DIR)/include   \
-                                        QtSources/4.8.1/include alho/weighters alho/direction photograb       \
-                                        alho/weighters/common
+INCLUDEPATH    += db alho serial weight generic iodevicewrapper scheduler           \
+                  porter task dido perimeter tools reader  reports                  \
+                  settings stable prot                                              \
+                  QtSources/4.8.1/include alho/weighters alho/direction photograb   \
+                  alho/weighters/common
 
 QMAKE_CXXFLAGS += -std=c++0x #-m32
 #QMAKE_LFLAGS   += -m32
@@ -26,19 +26,19 @@ QMAKE_CXXFLAGS += -std=c++0x #-m32
 PRECOMPILED_HEADER = qxorm_pch.h
 
 CONFIG(debug, debug|release) {
-LIBS           +=   -L../qextserialport_build/src/build/ -lqextserialportd               \
-                    -L../coroutine_build/src/build/ -lcoroutined                         \
-                    -L../QxOrm_build/build/ -lqxormd                                     \
-                    -lboost_serialization \
-                    -L $$(MYSQL_DIR)/lib -llibmysql                                      \
-                    -L ../ismm/ -lismm
+LIBS           +=   -lqextserialportd               \
+                    -lcoroutined                    \
+                    -lqxormd                        \
+                    -lboost_serialization           \
+                    -llibmysql                      \
+                    -lismm
 } else {
-LIBS           +=   -L../qextserialport_build/src/build/ -lqextserialport               \
-                    -L../coroutine_build/src/build/ -lcoroutine                         \
-                    -L../QxOrm_build/build/ -lqxorm                                     \
-                    -lboost_serialization \
-                    -L $$(MYSQL_DIR)/lib -llibmysql                                     \
-                    -L ../ismm/ -lismm
+LIBS           +=   -lqextserialport                \
+                    -lcoroutine                     \
+                    -lqxorm                         \
+                    -lboost_serialization           \
+                    -llibmysql                      \
+                    -lismm
 }
 
 TRANSLATIONS = bossn_ua.ts
