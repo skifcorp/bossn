@@ -17,7 +17,7 @@ TEMPLATE = app
 INCLUDEPATH    += db alho serial weight generic iodevicewrapper scheduler           \
                   porter task dido perimeter tools reader  reports                  \
                   settings stable prot                                              \
-                  QtSources/4.8.1/include alho/weighters alho/direction photograb   \
+                  alho/weighters alho/direction photograb                           \
                   alho/weighters/common
 
 QMAKE_CXXFLAGS += -std=c++0x #-m32
@@ -32,13 +32,17 @@ LIBS           +=   -lqextserialportd               \
                     -lboost_serialization           \
                     -llibmysql                      \
                     -lismm
-} else {
+#message("1111")
+}
+
+CONFIG(release, debug|release) {
 LIBS           +=   -lqextserialport                \
                     -lcoroutine                     \
                     -lqxorm                         \
                     -lboost_serialization           \
                     -llibmysql                      \
                     -lismm
+#message("2222")
 }
 
 TRANSLATIONS = bossn_ua.ts

@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
 
     app.installTranslator(&translator);
 
-    printOnDisplay("Hello");
+    //printOnDisplay("Hello");
 
     const QString settings_file_name = "proj/settings.xml";
 
