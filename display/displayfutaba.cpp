@@ -11,7 +11,7 @@ using std::cout;
 BossnFactoryRegistrator<DisplayFutaba> DisplayFutaba::registator("DisplayFutaba");
 uchar DisplayFutaba::frame_ident(0);
 
-DisplayFutaba::DisplayFutaba(const QVariantMap& p)//:address(0)
+DisplayFutaba::DisplayFutaba(const QVariantMap& )//:address(0)
 {
   /*if (!get_setting("address", p, address) ) {
     qWarning()<<"address for DisplayFutaba NOT SET!!!";
@@ -25,7 +25,7 @@ QVariant DisplayFutaba::printText(const QVariant & txt)
     int kvoSymb;
     //screen mode
     QByteArray command;
-    //очистити екран
+    //clear screen
     command.append(0x1b);
     command.append(0x5b);
     command.append(0x32);
@@ -66,12 +66,12 @@ QVariant DisplayFutaba::printText(const QVariant & txt)
         else if ( kvo == (kvoSymb+kvoSymb+kvoSymb+kvoSymb) ) {
           command.append(0xA);
           command.append(0xD);
-        } // Перево строки
+        } 
 
       int t1 = RusToFutaba(text.at(i));
       //qDebug() << "symB:"<< t1;
       kvo = kvo + 1;
-      if ( t1 == 127 ) { //англійський текст
+      if ( t1 == 127 ) { //english text
         //Double size on
         command.append(0x1b);
         command.append(0x23);
@@ -83,14 +83,14 @@ QVariant DisplayFutaba::printText(const QVariant & txt)
         }
         command.append(text.at(i));
       }
-      else if ( t1 == 105 ) { // для укр букв "i"
+      else if ( t1 == 105 ) { // ukrainian i
         command.append(0x1b);
         command.append(0x23);
         command.append(0x35);
         command.append( t1 );
       }
 
-      else { //російський текст
+      else { //russian text
         //Double size off
         command.append(0x1b);
         command.append(0x23);
@@ -126,11 +126,11 @@ int DisplayFutaba::RusToFutaba(QChar s)
    else if (cod >= 1086 && cod < 1104 ) {
      return cod - 958;
    }
-   //ураїнська і
+   //ukrainian i
    else if ( cod == 1110 ) {
      return 105;
    }
-   //ураїнська I
+   //ukrainian I
    else if ( cod == 1030 ) {
      return 73;
    }

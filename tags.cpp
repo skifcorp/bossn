@@ -91,7 +91,7 @@ QVariant Tag::call_as_func(FuncContext& func, AlhoSequence * caller, const QList
     };
 
     if (!invoke_ret) {
-        qWarning()<<"Tag::func: function "<<func.method <<" failed to invoke!!";
+        qWarning()<< tag_name << "Tag::func: function "<<func.method <<" failed to invoke!!";
     }
     return ret;
 }
@@ -163,7 +163,7 @@ void Tag::call_as_proc(FuncContext& func, AlhoSequence * caller, const QList<QGe
     };
 
     if (!invoke_ret) {
-        qWarning()<<"Tag::func: function "<<func.method <<" failed to invoke!!";
+        qWarning()<< tag_name <<"Tag::func: function "<<func.method <<" failed to invoke!!";
     }
 }
 
@@ -198,7 +198,7 @@ QVariant Tag::func (const QString& func_name, AlhoSequence* caller, const QList<
     auto iter = funcs.find(func_name);
 
     if (iter == funcs.end()) {
-        qWarning()<<"Tag::func: Cant find func: " <<func_name; return QVariant();
+        qWarning()<< tag_name <<"Tag::func: Cant find func: " <<func_name; return QVariant();
     }
 
     return execObject(*iter, caller, external_args);
@@ -212,7 +212,7 @@ QVariant Tag::func (const QString& func_name, AlhoSequence* caller,
     auto iter = funcs.find(func_name);
 
     if (iter == funcs.end()) {
-        qWarning()<<"Tag::func: Cant find func: " <<func_name; return QVariant();
+        qWarning()<< tag_name <<"Tag::func: Cant find func: " <<func_name; return QVariant();
     }
 
     QList<QGenericArgument> passed_args;

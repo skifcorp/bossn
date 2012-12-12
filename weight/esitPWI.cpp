@@ -58,7 +58,7 @@ float EsitPWI::parseWeightFrameAnswerM1(const QByteArray& ba, uint & err) const
             }
             *iter = ba[i];
             for (int j = 1; j<7; ++j) {
-                if (ba[i+j]>=0xB0) {
+                if (static_cast<uchar>(ba[i+j])>=0xB0) {
                     *iter = ba[i+j] - 0x80; ++iter;
                     *iter = '.'; ++iter;
                 }
@@ -98,7 +98,7 @@ float EsitPWI::parseWeightFrameAnswerM3(const QByteArray& ba, uint & err) const
     }
 
     for (int i=1; i<7; ++i) {
-      if (ba[i]>=0xB0) {
+      if (static_cast<uchar>(ba[i])>=0xB0) {
         *iter = ba[i]-0x80; ++iter;
         *iter = '.'       ; ++iter;
       }

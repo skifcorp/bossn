@@ -4,7 +4,7 @@
 
 namespace alho { namespace common {
 
-void Weighter::setCardBanned(const QString & uid)
+void Weighter::setCardBanned(const QString & )
 {   
     //asyncFunc() -> setShowDebugInfo(true);
 
@@ -16,7 +16,7 @@ void Weighter::setCardBanned(const QString & uid)
 }
 
 
-void Weighter::checkCardBanned(const QString & uid)
+void Weighter::checkCardBanned(const QString & )
 {
 
     /*qx::dao::ptr<bad_cards> bk;

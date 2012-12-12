@@ -13,7 +13,7 @@ void TaskSettings::initAlhos (QVector<AlhoSequence::Pointer> &alhos, Tags &tags,
 
     //AlhoSequence::setSettings(getDynamicSettings(el));
 
-    QDomElement maybe_alho_elem = el.firstChild().toElement();
+    QDomElement maybe_alho_elem = el.firstChildElement();
 
     while (!maybe_alho_elem.isNull()) {
         if ( maybe_alho_elem.nodeName() == "alho" ) {
@@ -29,6 +29,6 @@ void TaskSettings::initAlhos (QVector<AlhoSequence::Pointer> &alhos, Tags &tags,
                 qFatal("exit");
             }
         }
-        maybe_alho_elem = maybe_alho_elem.nextSibling().toElement();
+        maybe_alho_elem = maybe_alho_elem.nextSiblingElement();
     }
 }

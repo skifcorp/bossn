@@ -55,7 +55,7 @@ public:
         return QByteArray(1, ret);
     }
 
-    QByteArray virtual peek ( qint64 maxSize )
+    QByteArray virtual peek ( qint64  )
     {
         return readAll();
     }

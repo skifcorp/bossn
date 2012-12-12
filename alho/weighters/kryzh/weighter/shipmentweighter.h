@@ -125,7 +125,7 @@ private:
     bool current_tara_is_pure;
     bool current_brutto_is_pure;
 
-    QString platformType(const MifareCardData& bill, const WeighterConf& wc )
+    QString platformType(const MifareCardData& , const WeighterConf&  )
     {
         Q_ASSERT(0);
         QString ret;// = C::platformType(bill, wc);

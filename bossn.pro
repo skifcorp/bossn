@@ -25,25 +25,23 @@ QMAKE_CXXFLAGS += -std=c++0x #-m32
 
 PRECOMPILED_HEADER = qxorm_pch.h
 
-CONFIG(debug, debug|release) {
-LIBS           +=   -lqextserialportd               \
-                    -lcoroutined                    \
-                    -lqxormd                        \
-                    -lboost_serialization           \
-                    -llibmysql                      \
-                    -lismm
-#message("1111")
-}
+#CONFIG(debug, debug|release) {
+#LIBS           +=   -lqextserialportd               \
+#                    -lcoroutined                    \
+#                    -lqxormd                        \
+#                    -lboost_serialization           \
+#                    -llibmysql                      \
+#                    -lismm
+#}
 
-CONFIG(release, debug|release) {
+#CONFIG(release, debug|release) {
 LIBS           +=   -lqextserialport                \
                     -lcoroutine                     \
                     -lqxorm                         \
                     -lboost_serialization           \
                     -llibmysql                      \
                     -lismm
-#message("2222")
-}
+#}
 
 TRANSLATIONS = bossn_ua.ts
 
@@ -102,7 +100,7 @@ SOURCES += main.cpp \
     alho/weighters/kryzh/weighter/acceptanceweighter.cpp
 
 
-HEADERS += \    
+HEADERS +=  \
     tools/func.h \
     weight/mettlertoledo8530.h \
     weight/mettlertoledo310.h \
@@ -175,5 +173,9 @@ HEADERS += \
     alho/weighters/kryzh/grain/grainacceptanceculture.h \
     alho/weighters/kryzh/weighter/shipmentweighter.h \
     alho/weighters/kryzh/weighter/acceptanceweighter.h \
-    alho/weighters/constructweighters.h
+    alho/weighters/constructweighters.h \
+    perimeter/systemtrayiconreceiver_p.h
 	
+
+RESOURCES += \
+    bossn.qrc

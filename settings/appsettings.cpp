@@ -59,11 +59,11 @@ QVariant AppSettings::convertToType(const QDomNode &value_node) const
 
         QVariantList list;
 
-        QDomNode list_node = value_node.firstChild();
+        QDomNode list_node = value_node.firstChildElement();
         while(!list_node.isNull()) {
             list.push_back( convertToType(list_node) );
 
-            list_node = list_node.nextSibling();
+            list_node = list_node.nextSiblingElement();
         }
         return list;
     }
@@ -72,14 +72,14 @@ QVariant AppSettings::convertToType(const QDomNode &value_node) const
         //qDebug() << "MAP!!!!!!!!!!!!!!!!\n";
 
         QVariantMap map;
-        //QDomNode map_node = value_node.firstChild();
+
         fillVariantMap(map, value_node);
 
         return map;
     }
 
 
-    const QString value = simpleValueFromPropertyNode(value_node);//par_node.firstChild().nodeValue();
+    const QString value = simpleValueFromPropertyNode(value_node);
 
     if ( type_name == "QByteArray" ) {
         QByteArray arr;
@@ -103,14 +103,6 @@ QVariant AppSettings::convertToType(const QDomNode &value_node) const
 
 void AppSettings::fillVariantMap(QVariantMap & map, const QDomNode & node) const
 {
-/*    QDomNode prop_node = node.firstChild();
-    while (!prop_node.isNull()) {
-        QDomElement prop_elem = prop_node.toElement();
-
-        map[ prop_elem.attribute("name") ] = convertToType( prop_elem.firstChild() ) ;
-
-        prop_node = prop_node.nextSibling();
-    }*/
     map = getDynamicSettings(node);
 }
 
@@ -125,15 +117,15 @@ void AppSettings::initProgOptions(QVariantMap & opts)
 
 QVariantMap AppSettings::getDynamicSettings( const QDomNode& par_node) const
 {
-    QDomNode n = par_node.firstChild();
+    QDomNode n = par_node.firstChildElement();
     QVariantMap ret;
     while ( !n.isNull() ) {
         if (n.nodeName() == "property") {
             QDomElement el = n.toElement();
 
-            ret[el.attribute("name")] = convertToType( n.firstChild() );
+            ret[el.attribute("name")] = convertToType( n.firstChildElement() );
         }
-        n = n.nextSibling();
+        n = n.nextSiblingElement();
     }
     return ret;
 }

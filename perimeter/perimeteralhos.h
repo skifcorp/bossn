@@ -9,39 +9,9 @@
 #include "tags.h"
 #include "perimtercontrol.h"
 
-#if 0
-class PerimeterControlByDi : public PerimeterControl
-{
-public:
-    ~PerimeterControlByDi(){}
+#include <memory.h>
 
-    virtual void setSettings( const QMap<QString, QVariant>& );
-    virtual bool appeared(AlhoSequence *);
-    virtual bool disappeared(AlhoSequence *);
-
-    static PerimeterControl * create(Tags & t)
-    {
-        return new PerimeterControlByDi(t);
-    }
-protected:
-    PerimeterControlByDi(Tags & t) : PerimeterControl(t), prev_appear_di(false),
-                                                          prev_disappear_di(false),
-                                                          appear_di_value(true),
-                                                          disappear_di_value(true) { }
-private:
-    static BossnFactoryRegistrator<PerimeterControlByDi> registator;
-
-    bool prev_appear_di;
-    bool prev_disappear_di;
-
-    QString appear_di_name;
-    QString disappear_di_name;
-    bool appear_di_value;
-    bool disappear_di_value;
-
-    QString method;
-};
-#endif
+using std::unique_ptr;
 
 class PerimeterControlByWeight : public PerimeterControl
 {
@@ -68,6 +38,33 @@ private:
     QString get_weight_method;
 };
 
+class SystemTrayIconEventsReceiver;
 
+struct SystemTrayIconEventsReceiverDeleter
+{
+    void operator() (SystemTrayIconEventsReceiver *);
+};
+
+class PerimeterControlManualEmulator : public PerimeterControl
+{
+public:
+    ~PerimeterControlManualEmulator(){}
+
+    virtual void setSettings( const QMap<QString, QVariant>& );
+    virtual bool appeared(AlhoSequence *);
+    virtual bool disappeared(AlhoSequence *);
+
+    static PerimeterControl * create(Tags & t)
+    {
+        return new PerimeterControlManualEmulator(t);
+    }
+protected:
+    PerimeterControlManualEmulator(Tags & t);
+private:
+    static BossnFactoryRegistrator<PerimeterControlManualEmulator> registator;
+
+    unique_ptr<SystemTrayIconEventsReceiver, SystemTrayIconEventsReceiverDeleter> tray;
+    bool was_on_weights;
+};
 
 #endif // PERIMETERCONTROL_H

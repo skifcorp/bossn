@@ -1,44 +1,6 @@
 #include "perimeteralhos.h"
 #include "settingstool.h"
 
-#if 0
-BossnFactoryRegistrator<PerimeterControlByDi> PerimeterControlByDi::registator("PerimeterControlByDi");
-
-
-
-void PerimeterControlByDi::setSettings( const QMap<QString, QVariant>& s)
-{
-
-    appear_di_name    = get_setting<QString>("AppearDi"   , s);
-    disappear_di_name = get_setting<QString>("DisappearDi", s);
-    method            = get_setting<QString>("method"     , s);
-
-    appear_di_value    = get_setting("AppearDiValue"     , s, true);
-    disappear_di_value = get_setting("DisappearDiValue"  , s, true);
-
-    //initializing prev_di_values
-    prev_appear_di      = tags_[appear_di_name]->func(method).toBool();
-    prev_disappear_di   = tags_[disappear_di_name]->func(method).toBool();
-}
-
-bool PerimeterControlByDi::appeared()
-{
-    bool ret = tags_[appear_di_name]->func(method) == appear_di_value && prev_appear_di != appear_di_value;
-    prev_appear_di = tags_[appear_di_name]->func(method).toBool();
-    return ret;
-}
-
-bool PerimeterControlByDi::disappeared()
-{
-    //qDebug() << "disappear val:"<<tags_[disappear_di_name]->func(method);
-
-    bool ret = tags_[disappear_di_name]->func(method) == disappear_di_value && prev_disappear_di != disappear_di_value;
-    prev_disappear_di = tags_[disappear_di_name]->func(method).toBool();
-    return ret;
-}
-
-
-#endif
 
 BossnFactoryRegistrator<PerimeterControlByWeight> PerimeterControlByWeight::registator("PerimeterControlByWeight");
 
@@ -82,7 +44,56 @@ bool PerimeterControlByWeight::disappeared(AlhoSequence * caller)
     return ret;
 }
 
+#include "systemtrayiconreceiver_p.h"
+
+void SystemTrayIconEventsReceiver::onWeightOn()
+{
+    something_on_weights = true;
+}
+
+void SystemTrayIconEventsReceiver::onWeightOff()
+{
+    something_on_weights = false;
+}
+
+void SystemTrayIconEventsReceiverDeleter::operator ()(SystemTrayIconEventsReceiver * s)
+{
+    delete s;
+}
 
 
+BossnFactoryRegistrator<PerimeterControlManualEmulator> PerimeterControlManualEmulator::registator("PerimeterControlManualEmulator");
+
+PerimeterControlManualEmulator::PerimeterControlManualEmulator(Tags & t) : PerimeterControl(t),
+    tray(new SystemTrayIconEventsReceiver, SystemTrayIconEventsReceiverDeleter()), was_on_weights(false)
+{
+
+}
+
+
+
+void PerimeterControlManualEmulator::setSettings( const QMap<QString, QVariant>& )
+{
+
+}
+
+bool PerimeterControlManualEmulator::appeared(AlhoSequence * )
+{
+    if (!was_on_weights && tray->somethingOnWeights()) {
+        was_on_weights = true;
+        return true;
+    }
+    return false;
+}
+
+bool PerimeterControlManualEmulator::disappeared(AlhoSequence * )
+{
+    if ( !tray->somethingOnWeights() && was_on_weights ) {
+        was_on_weights = false;
+        return true;
+    }
+
+    return false;
+}
 
 
