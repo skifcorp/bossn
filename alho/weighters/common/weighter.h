@@ -7,7 +7,7 @@
 
 class WeighterConf;
 class MifareCardData;
-class MifareCardBlock;
+class MifareCardSector;
 class MainSequence;
 
 namespace alho { namespace common {
@@ -22,7 +22,7 @@ public:
 
     virtual ~Weighter() {}
 
-    virtual void processWeighting(MifareCardData&, MifareCardBlock&, const WeighterConf&  ) = 0 ;
+    virtual void processWeighting(MifareCardData&, MifareCardSector&, const WeighterConf&  ) = 0 ;
    // virtual QString detectPlatformType(const MifareCardData& ) const throw (MainSequenceException) = 0;
    // QString platformType(const MifareCardData & bill, const WeighterConf& ) const throw (MainSequenceException);
 	

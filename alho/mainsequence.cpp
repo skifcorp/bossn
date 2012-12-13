@@ -170,7 +170,7 @@ void MainSequence::onAppearOnWeight(const QString& , AlhoSequence *)
     }
 }
 
-WeighterConf& MainSequence::readStruct(MifareCardBlock & card, MifareCardData& d)
+WeighterConf& MainSequence::readStruct(MifareCardSector & card, MifareCardData& d)
 {
     QByteArray card_bytes = card.readByteArray( CardStructs::blocks_conf() );
 
@@ -232,7 +232,7 @@ void MainSequence::run()
 
         //ActivateCardISO14443A act = tags[alho_settings.reader.name]->func(alho_settings.reader.activate_idle, this).value<ActivateCardISO14443A>();
         ActivateCardISO14443A act = alho_settings.reader.activate_idle.func().value<ActivateCardISO14443A>();
-        MifareCardBlock card(act, alho_settings.reader, card_code, data_block);
+        MifareCardSector card(act, alho_settings.reader, card_code, data_block);
 
         if ( !card.active() ) {
             //seqDebug() << "card not active!!!";
@@ -303,6 +303,11 @@ void MainSequence::run()
         catch (MainSequenceException& ex) {
             seqWarning()<<"sequence_exception: " << ex.adminMessage() << " curNumNakl: "<< cur_num_nakl << " sys: " + ex.systemMessage();
             sleepnbtmerr(ex.userMessage(), tr(apply_card_message));
+            continue;
+        }
+        catch (MifareCardException& ex) {
+            seqWarning()<<"mifare_card_exception: " << ex.message();
+            sleepnbtmerr(ex.message(), tr(apply_card_message));
             continue;
         }
     }

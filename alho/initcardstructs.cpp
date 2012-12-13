@@ -19,9 +19,6 @@ const  BlocksConf& CardStructs::blocks_conf()
 
 const StructConf& CardStructs::bill_conf(const QString& class_name)
 {
-/*    if (!initialized)
-        initialize();*/
-
     QMap<QString, StructConf>::const_iterator iter = bill_classes.find(class_name);
     if (iter == bill_classes.end()) {
         qWarning() << "cant find bill_conf with class_name: " <<class_name;
@@ -38,10 +35,6 @@ bool CardStructs::initialize()
     default_blocks_conf.append(BlockConf(128 + 2, 16));
 
     StructConf beet_acceptance;
-
-    //beet_acceptance.blocks.append(BlockConf(128 + 0, 16));
-    //beet_acceptance.blocks.append(BlockConf(128 + 1, 16));
-    //beet_acceptance.blocks.append(BlockConf(128 + 3, 16));
 
     beet_acceptance.members_conf.append(StructMemberConf("billNumber"    , "uint"     ,     0 + 0, 3));
     beet_acceptance.members_conf.append(StructMemberConf("flags"         , "boolarr"  ,     3 + 0, 2));

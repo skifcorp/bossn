@@ -45,7 +45,8 @@ LIBS           +=   -lqextserialport                \
 
 TRANSLATIONS = bossn_ua.ts
 
-SOURCES += main.cpp \
+SOURCES += reader/mifarereaderemulator.cpp \
+    main.cpp \
     weight/mettlertoledo8530.cpp \
     weight/mettlertoledo310.cpp \
     weight/esitPWI.cpp \
@@ -174,7 +175,8 @@ HEADERS +=  \
     alho/weighters/kryzh/weighter/shipmentweighter.h \
     alho/weighters/kryzh/weighter/acceptanceweighter.h \
     alho/weighters/constructweighters.h \
-    perimeter/systemtrayiconreceiver_p.h
+    perimeter/systemtrayiconreceiver_p.h \
+    reader/mifarereaderemulator.h
 	
 
 RESOURCES += \

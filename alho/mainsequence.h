@@ -25,7 +25,7 @@
 #include "weighterconf.h"
 #include "photomaker.h"
 
-class MifareCardBlock;
+class MifareCardSector;
 
 
 
@@ -105,7 +105,7 @@ private:
 
     WeighterConf& findWeighterConf(int) ;
 
-    WeighterConf& readStruct(MifareCardBlock&, MifareCardData& d );
+    WeighterConf& readStruct(MifareCardSector&, MifareCardData& d );
     alho::common::Weighter::Pointer createWeighter (WeighterConf& wc)
     {
         return alho::common::Weighter::create( wc.weighter_name, *this, wc.database );

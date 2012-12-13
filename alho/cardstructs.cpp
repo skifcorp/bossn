@@ -10,15 +10,9 @@
 
 StructMemberConf::TypesFactoryForRead StructMemberConf::typesFactoryForRead;
 StructMemberConf::TypesFactoryForWrite StructMemberConf::typesFactoryForWrite;
+StructMemberConf::TypesFactoryForDefaultValue StructMemberConf::typesFactoryForDefaultValue;
 
 bool types_registered = StructMemberConf::registerTypes();
-
-
-/*
-uint StructConf::size() const
-{
-}
-*/
 
 bool StructMemberConf::registerTypes()
 {
@@ -32,7 +26,6 @@ bool StructMemberConf::registerTypes()
 
     typesFactoryForRead.insert("boolarr", [](const QByteArray& arr){
                             QDataStream st(arr); st.setByteOrder(QDataStream::LittleEndian);
-                            //QBitArray ret;
                             ushort val;
                             QBitArray ret(16);
                             st >> val;
@@ -109,12 +102,51 @@ bool StructMemberConf::registerTypes()
 
                             ulong tmp = dateTimeToTimeShit(val.toDateTime());
 
-                            //qDebug () << "datetime: "<<val.toDateTime()<<" shit_date_time: "<<tmp;
-
                             st.writeRawData(reinterpret_cast<char *>(&tmp), 3);
                             return ret;
                         });
 
 
+
+
+
+    typesFactoryForDefaultValue.insert("uint", [](){
+                            return QVariant(0u);
+                        });
+
+
+    typesFactoryForDefaultValue.insert("boolarr", [](){
+                            return QVariant(QBitArray(16));
+                        });
+
+    typesFactoryForDefaultValue.insert("ushort", [](){
+                            return QVariant( static_cast<ushort> (0));
+                        });
+
+    typesFactoryForDefaultValue.insert("uchar", [](){
+                            return QVariant( static_cast<uchar> (0));
+                        });
+
+    typesFactoryForDefaultValue.insert("datetimeshit", []() {
+                            return QVariant(timeShitToDateTime(0));
+                        });
+
+
+
     return true;
+}
+
+
+
+
+
+const StructMemberConf& StructConf::findByMember(const QString & member_name) const
+{
+    for ( auto iter = members_conf.begin(); iter != members_conf.end(); ++iter) {
+        if (iter->memberName == member_name) return *iter;
+    }
+
+    qWarning() << "SructConf::findByMember cant find member with name: " << member_name;
+    qFatal("Exiting");
+    return *members_conf.end();
 }

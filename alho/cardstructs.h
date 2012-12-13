@@ -11,8 +11,18 @@
 
 using std::function;
 
-struct StructMemberConf
+class FuncNotFoundException
 {
+public:
+    FuncNotFoundException(const QString& fn) : func_name(fn) {}
+    QString funcName() const {return func_name;}
+private:
+    QString func_name;
+};
+
+class StructMemberConf
+{
+public:
     QString memberName;
     QString typeName;
     uint offset;
@@ -21,15 +31,43 @@ struct StructMemberConf
         :memberName(mn), typeName(tn), offset(offs), length(len) {}
 
     StructMemberConf():offset(0), length(0){}
+    QVariant defaultValue() const
+    {
+        return getFactoryFunction(typeName, typesFactoryForDefaultValue)();
+    }
 
     typedef QMap<QString, function<QVariant   (const QByteArray& )> > TypesFactoryForRead;
     typedef QMap<QString, function<QByteArray (const QVariant&   )> > TypesFactoryForWrite;
+    typedef QMap<QString, function<QVariant   ( )                 > > TypesFactoryForDefaultValue;
 
-    static TypesFactoryForRead  typesFactoryForRead;
-    static TypesFactoryForWrite typesFactoryForWrite;
+    static function<QVariant   (const QByteArray& ) > functionForRead (const QString& type_name)
+    {
+        return getFactoryFunction(type_name, typesFactoryForRead);
+    }
+
+    static function<QByteArray (const QVariant&   ) > functionForWrite(const QString& type_name)
+    {
+        return getFactoryFunction(type_name, typesFactoryForWrite);
+    }
 
     static bool registerTypes();
-    //uint offset() const {return offset + baseOffsetInData;}
+
+private:
+    static TypesFactoryForRead         typesFactoryForRead;
+    static TypesFactoryForWrite        typesFactoryForWrite;
+    static TypesFactoryForDefaultValue typesFactoryForDefaultValue;
+
+
+
+    template <class FuncContainer>
+    static typename FuncContainer::mapped_type getFactoryFunction(const QString& type_name, const FuncContainer& cont)
+    {
+        auto iter = cont.find(type_name);
+        if ( iter != cont.end() )
+            return *iter;
+
+        throw FuncNotFoundException(type_name);
+    }
 };
 
 struct BlockConf
@@ -65,6 +103,7 @@ struct StructConf
     MembersConf  members_conf;
 
     bool empty () const {return members_conf.empty();}
+    const StructMemberConf& findByMember(const QString& ) const;
 //    uint size() const;
 };
 

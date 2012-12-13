@@ -22,7 +22,7 @@ public:
           current_brutto_is_pure(false){}
 
     virtual void processWeighting(MifareCardData& bill,
-                                  MifareCardBlock& card, const WeighterConf& weighter_conf  )
+                                  MifareCardSector& card, const WeighterConf& weighter_conf  )
     {
         C::fetchCar(bill);
 

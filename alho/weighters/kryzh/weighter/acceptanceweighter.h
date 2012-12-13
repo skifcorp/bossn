@@ -18,7 +18,7 @@ public:
     AcceptanceWeighter( MainSequence & as, QSqlDatabase& db ):Weighter(), C(as, db){}
     ~AcceptanceWeighter() {}
 
-    virtual void processWeighting(MifareCardData& bill, MifareCardBlock& card, const  WeighterConf& weighter_conf )
+    virtual void processWeighting(MifareCardData& bill, MifareCardSector& card, const  WeighterConf& weighter_conf )
     {
         C::fetchCar(bill);
         C::checkPerimetr();

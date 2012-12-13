@@ -24,20 +24,14 @@ public:
 
     void setMemberValue(const QString& mn, int bit_num, bool val)
     {
-        //qDebug() << "member: " <<mn << " bit: "<<bit_num << " val: " <<val;
         auto iter = find(mn);
         if (iter == end()) {
             qFatal(  qPrintable("setMemberValue: cant find: " + mn) );
         }
 
-        //QBitArray arr(bit_num + 1);
-        //arr.setBit(bit_num, val);
-
         QBitArray cur_arr = iter->toBitArray();
         cur_arr.setBit(bit_num, val);
         *iter =  cur_arr; //QVariant::fromValue<T>(v);
-
-        //qDebug() << "bitArray-size: " << iter->toBitArray().size();
     }
 
 
@@ -57,7 +51,6 @@ public:
         return memberValue<T>(mn) != def_val;
     }
 
-    //template <>
     bool checkMember(const QString& mn, float def_val) const
     {
         return !qFuzzyCompare( memberValue<float>(mn) , def_val );

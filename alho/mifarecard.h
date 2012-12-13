@@ -56,12 +56,12 @@ public:
 private:
 };
 
-class MifareCardBlock
+class MifareCardSector
 {
 public:
-    MifareCardBlock( const ActivateCardISO14443A&, ReaderTagMethods&, const QByteArray& cd, uint db );
+    MifareCardSector( const ActivateCardISO14443A&, ReaderTagMethods&, const QByteArray& cd, uint db );
 
-    ~MifareCardBlock(){}
+    ~MifareCardSector(){}
 
     bool active() const {return activate_card.active();}
 
