@@ -2,15 +2,15 @@
 #define CONSTRUCTWEIGHTERS_H
 
 
-#include "kryzh/grain/grainacceptanceculture.h"
-#include "kryzh/beet/beetacceptanceculture.h"
-#include "kryzh/grain/grainshipmentculture.h"
+#include "kryzh/grain/kryzhgrainacceptanceculture.h"
+#include "kryzh/beet/kryzhbeetacceptanceculture.h"
+#include "kryzh/grain/kryzhgrainshipmentculture.h"
 
-#include "kryzh/weighter/acceptanceweighter.h"
-#include "kryzh/weighter/shipmentweighter.h"
+#include "kryzh/weighter/kryzhacceptanceweighter.h"
+#include "kryzh/weighter/kryzhshipmentweighter.h"
 
-#include "mria/beet/beetacceptanceculture.h"
-#include "mria/weighter/acceptanceweighter.h"
+#include "mria/beet/mriabeetacceptanceculture.h"
+#include "mria/weighter/mriaacceptanceweighter.h"
 
 #include "factory.h"
 
@@ -31,7 +31,7 @@ namespace alho {
         BossnFactoryRegistrator2<KryzhGrainAcceptance, _S("KryzhGrainAcceptance")>  r2;
         BossnFactoryRegistrator2<KryzhGrainShipment  , _S("KryzhGrainShipment"  )>  r3;
 
-        BossnFactoryRegistrator2<MriaBeetAcceptance  , _S("MriaBeetAcceptance")>    r4;
+        BossnFactoryRegistrator2<MriaBeetAcceptance  , _S("MriaBeetAcceptance"  )>   r4;
     }
 
 }

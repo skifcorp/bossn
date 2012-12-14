@@ -92,18 +92,18 @@ SOURCES += reader/mifarereaderemulator.cpp \
     alho/weighters/common/weighter.cpp \
     alho/weighters/common/genericdbstructs.cpp \
     alho/weighters/common/culture.cpp \
-    alho/weighters/kryzh/beet/beetdbstructs.cpp \
-    alho/weighters/kryzh/beet/beetacceptanceculture.cpp \
-    alho/weighters/kryzh/grain/grainshipmentculture.cpp \
-    alho/weighters/kryzh/grain/graindbstructs.cpp \
-    alho/weighters/kryzh/grain/grainacceptanceculture.cpp \
-    alho/weighters/kryzh/weighter/shipmentweighter.cpp \
-    alho/weighters/kryzh/weighter/acceptanceweighter.cpp \
     iodevicewrapper/iodeviceconsole.cpp \
     iodevicewrapper/iodeviceemulator.cpp \
-    alho/weighters/mria/beet/beetdbstructs.cpp \
-    alho/weighters/mria/beet/beetacceptanceculture.cpp \
-    alho/weighters/mria/weighter/acceptanceweighter.cpp
+    alho/weighters/kryzh/beet/kryzhbeetacceptanceculture.cpp \
+    alho/weighters/kryzh/beet/kryzhbeetdbstructs.cpp \
+    alho/weighters/kryzh/grain/kryzhgrainacceptanceculture.cpp \
+    alho/weighters/kryzh/grain/kryzhgraindbstructs.cpp \
+    alho/weighters/kryzh/grain/kryzhgrainshipmentculture.cpp \
+    alho/weighters/kryzh/weighter/kryzhacceptanceweighter.cpp \
+    alho/weighters/kryzh/weighter/kryzhshipmentweighter.cpp \
+    alho/weighters/mria/beet/mriabeetacceptanceculture.cpp \
+    alho/weighters/mria/beet/mriabeetdbstructs.cpp \
+    alho/weighters/mria/weighter/mriaacceptanceweighter.cpp
 
 
 HEADERS +=  \
@@ -172,21 +172,21 @@ HEADERS +=  \
     alho/weighters/common/genericdbstructs.h \
     alho/weighters/common/culture.h \
     alho/weighters/common/acceptanceculture.h \
-    alho/weighters/kryzh/beet/beetdbstructs.h \
-    alho/weighters/kryzh/beet/beetacceptanceculture.h \
-    alho/weighters/kryzh/grain/grainshipmentculture.h \
-    alho/weighters/kryzh/grain/graindbstructs.h \
-    alho/weighters/kryzh/grain/grainacceptanceculture.h \
-    alho/weighters/kryzh/weighter/shipmentweighter.h \
-    alho/weighters/kryzh/weighter/acceptanceweighter.h \
     alho/weighters/constructweighters.h \
     perimeter/systemtrayiconreceiver_p.h \
     reader/mifarereaderemulator.h \
     iodevicewrapper/iodeviceconsole.h \
     iodevicewrapper/iodeviceemulator.h \
-    alho/weighters/mria/beet/beetdbstructs.h \
-    alho/weighters/mria/beet/beetacceptanceculture.h \
-    alho/weighters/mria/weighter/acceptanceweighter.h
+    alho/weighters/kryzh/beet/kryzhbeetdbstructs.h \
+    alho/weighters/kryzh/beet/kryzhbeetacceptanceculture.h \
+    alho/weighters/kryzh/grain/kryzhgrainacceptanceculture.h \
+    alho/weighters/kryzh/grain/kryzhgraindbstructs.h \
+    alho/weighters/kryzh/grain/kryzhgrainshipmentculture.h \
+    alho/weighters/kryzh/weighter/kryzhacceptanceweighter.h \
+    alho/weighters/kryzh/weighter/kryzhshipmentweighter.h \
+    alho/weighters/mria/beet/mriabeetacceptanceculture.h \
+    alho/weighters/mria/beet/mriabeetdbstructs.h \
+    alho/weighters/mria/weighter/mriaacceptanceweighter.h
 	
 
 RESOURCES += \
