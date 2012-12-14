@@ -60,7 +60,7 @@ bool CardStructs::initialize()
     beet_acceptance.members_conf.append(StructMemberConf("dateOfUnload"  , "datetimeshit" , 9 + 32, 3));
     beet_acceptance.members_conf.append(StructMemberConf("material"      , "uchar"        ,15 + 32, 1));
 
-    bill_classes["BeetAcceptanceWeighter"] = beet_acceptance;
+    bill_classes["KryzhBeetAcceptance"] = beet_acceptance;
 
 
     StructConf grain_acceptance;
@@ -96,11 +96,11 @@ bool CardStructs::initialize()
     grain_acceptance.members_conf.append(StructMemberConf("prefixcar"     , "uchar"        ,14 + 32, 1));
     grain_acceptance.members_conf.append(StructMemberConf("material"      , "uchar"        ,15 + 32, 1));
 
-    bill_classes["GrainAcceptanceWeighter"] = grain_acceptance;
+    bill_classes["KryzhGrainAcceptance"] = grain_acceptance;
 
     StructConf grain_shipment = grain_acceptance;
 
-    bill_classes["GrainShipmentWeighter"] = grain_shipment;
+    bill_classes["KryzhGrainShipment"] = grain_shipment;
 
     return true;
 }
