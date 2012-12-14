@@ -100,7 +100,10 @@ SOURCES += reader/mifarereaderemulator.cpp \
     alho/weighters/kryzh/weighter/shipmentweighter.cpp \
     alho/weighters/kryzh/weighter/acceptanceweighter.cpp \
     iodevicewrapper/iodeviceconsole.cpp \
-    iodevicewrapper/iodeviceemulator.cpp
+    iodevicewrapper/iodeviceemulator.cpp \
+    alho/weighters/mria/beet/beetdbstructs.cpp \
+    alho/weighters/mria/beet/beetacceptanceculture.cpp \
+    alho/weighters/mria/weighter/acceptanceweighter.cpp
 
 
 HEADERS +=  \
@@ -180,7 +183,10 @@ HEADERS +=  \
     perimeter/systemtrayiconreceiver_p.h \
     reader/mifarereaderemulator.h \
     iodevicewrapper/iodeviceconsole.h \
-    iodevicewrapper/iodeviceemulator.h
+    iodevicewrapper/iodeviceemulator.h \
+    alho/weighters/mria/beet/beetdbstructs.h \
+    alho/weighters/mria/beet/beetacceptanceculture.h \
+    alho/weighters/mria/weighter/acceptanceweighter.h
 	
 
 RESOURCES += \

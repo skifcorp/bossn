@@ -9,6 +9,9 @@
 #include "kryzh/weighter/acceptanceweighter.h"
 #include "kryzh/weighter/shipmentweighter.h"
 
+#include "mria/beet/beetacceptanceculture.h"
+#include "mria/weighter/acceptanceweighter.h"
+
 #include "factory.h"
 
 #include "mpllibs/metaparse/string.hpp"
@@ -21,10 +24,14 @@ namespace alho {
     using KryzhGrainAcceptance = kryzh::AcceptanceWeighter<kryzh::GrainAcceptanceCulture>;
     using KryzhGrainShipment   = kryzh::ShipmentWeighter<kryzh::GrainShipmentCulture>;
 
+    using MriaBeetAcceptance   = mria::AcceptanceWeighter<mria::BeetAcceptanceCulture>;
+
     namespace {
         BossnFactoryRegistrator2<KryzhBeetAcceptance , _S("KryzhBeetAcceptance" )>  r1;
         BossnFactoryRegistrator2<KryzhGrainAcceptance, _S("KryzhGrainAcceptance")>  r2;
         BossnFactoryRegistrator2<KryzhGrainShipment  , _S("KryzhGrainShipment"  )>  r3;
+
+        BossnFactoryRegistrator2<MriaBeetAcceptance  , _S("MriaBeetAcceptance")>    r4;
     }
 
 }
