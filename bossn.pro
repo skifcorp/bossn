@@ -98,7 +98,9 @@ SOURCES += reader/mifarereaderemulator.cpp \
     alho/weighters/kryzh/grain/graindbstructs.cpp \
     alho/weighters/kryzh/grain/grainacceptanceculture.cpp \
     alho/weighters/kryzh/weighter/shipmentweighter.cpp \
-    alho/weighters/kryzh/weighter/acceptanceweighter.cpp
+    alho/weighters/kryzh/weighter/acceptanceweighter.cpp \
+    iodevicewrapper/iodeviceconsole.cpp \
+    iodevicewrapper/iodeviceemulator.cpp
 
 
 HEADERS +=  \
@@ -176,7 +178,9 @@ HEADERS +=  \
     alho/weighters/kryzh/weighter/acceptanceweighter.h \
     alho/weighters/constructweighters.h \
     perimeter/systemtrayiconreceiver_p.h \
-    reader/mifarereaderemulator.h
+    reader/mifarereaderemulator.h \
+    iodevicewrapper/iodeviceconsole.h \
+    iodevicewrapper/iodeviceemulator.h
 	
 
 RESOURCES += \
