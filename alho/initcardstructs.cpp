@@ -102,5 +102,36 @@ bool CardStructs::initialize()
 
     bill_classes["KryzhGrainShipment"] = grain_shipment;
 
+    StructConf mria_beet_acceptance;
+    mria_beet_acceptance.members_conf.append(StructMemberConf("billNumber"    , "uint"     ,     0 + 0, 3));
+    mria_beet_acceptance.members_conf.append(StructMemberConf("flags"         , "boolarr"  ,     3 + 0, 2));
+    mria_beet_acceptance.members_conf.append(StructMemberConf("numField"      , "ushort"   ,     5 + 0, 2));
+    mria_beet_acceptance.members_conf.append(StructMemberConf("realNumField"  , "ushort"   ,     7 + 0, 2));
+    mria_beet_acceptance.members_conf.append(StructMemberConf("numLoader"     , "uchar"    ,     9 + 0, 1));
+    mria_beet_acceptance.members_conf.append(StructMemberConf("dateOfLoad"    , "datetimeshit", 10 + 0, 3));
+    mria_beet_acceptance.members_conf.append(StructMemberConf("driver"        , "ushort"   ,    13 + 0, 2));
+    mria_beet_acceptance.members_conf.append(StructMemberConf("pointOfAnal"   , "uchar"    ,    15 + 0, 1));
+
+    mria_beet_acceptance.members_conf.append(StructMemberConf("bruttoWeight"  , "ushort"       , 0 + 16, 2));
+    mria_beet_acceptance.members_conf.append(StructMemberConf("dateOfBrutto"  , "datetimeshit" , 2 + 16, 3));
+    mria_beet_acceptance.members_conf.append(StructMemberConf("taraWeight"    , "ushort"       , 5 + 16, 2));
+    mria_beet_acceptance.members_conf.append(StructMemberConf("normTaraWeight", "ushort"       , 7 + 16, 2));
+    mria_beet_acceptance.members_conf.append(StructMemberConf("dateOfTara"    , "datetimeshit" , 9 + 16, 3));
+
+    mria_beet_acceptance.members_conf.append(StructMemberConf("impurity"      , "ushort"       , 0 + 32, 2));
+    mria_beet_acceptance.members_conf.append(StructMemberConf("shugarContent" , "ushort"       , 2 + 32, 2));
+    mria_beet_acceptance.members_conf.append(StructMemberConf("greenWeight"   , "ushort"       , 4 + 32, 2));
+    mria_beet_acceptance.members_conf.append(StructMemberConf("bum"           , "uchar"        , 6 + 32, 1));
+    mria_beet_acceptance.members_conf.append(StructMemberConf("bumFact"       , "uchar"        , 7 + 32, 1));
+    mria_beet_acceptance.members_conf.append(StructMemberConf("kagat"         , "uchar"        , 8 + 32, 1));
+    mria_beet_acceptance.members_conf.append(StructMemberConf("kagatFact"     , "uchar"        , 9 + 32, 1));
+    mria_beet_acceptance.members_conf.append(StructMemberConf("dateOfUnload"  , "datetimeshit" ,10 + 32, 3));
+    mria_beet_acceptance.members_conf.append(StructMemberConf("reserv2"       , "uchar"        ,13 + 32, 1));
+    mria_beet_acceptance.members_conf.append(StructMemberConf("prefixcar"     , "uchar"        ,14 + 32, 1));
+    mria_beet_acceptance.members_conf.append(StructMemberConf("material"      , "uchar"        ,15 + 32, 1));
+
+    bill_classes["MriaBeetAcceptance"]    = mria_beet_acceptance;
+    bill_classes["GlobinoBeetAcceptance"] = mria_beet_acceptance;
+
     return true;
 }
