@@ -3,6 +3,7 @@
 
 #include <QFile>
 #include "iodevicewrapper.h"
+#include "settingstool.h"
 
 class IoDeviceFile : public IoDeviceWrapper
 {
@@ -10,9 +11,8 @@ public:
     ~IoDeviceFile() {}
 
     virtual void setSettings(const QMap<QString, QVariant>& s)
-    {
-        auto iter = s.find("fileName");
-        if (iter != s.end()) file.setFileName(iter->toString());
+    {        
+        file.setFileName( get_setting<QString>("fileName", s) );
     }
 
     virtual QString deviceName() const

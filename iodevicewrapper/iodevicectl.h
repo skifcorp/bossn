@@ -92,7 +92,7 @@ public:
             (char *)&lpMsgBuf,
             1000, NULL );
 
-        QTextCodec * c = QTextCodec::codecForName("Windows-1251");
+        QTextCodec * c = QTextCodec::codecForName("IBM866");
 
         QString s = c->toUnicode(lpMsgBuf);
         return s;
