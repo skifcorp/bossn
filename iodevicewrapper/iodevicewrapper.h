@@ -42,13 +42,7 @@ public:
 
     qint64 virtual write ( const QByteArray& data )
     {
-        //qDebug() << "write !!!!";
         quint64 ret = internalGetDevice()->write(data);
-        if (ret == 0) {
-            //qWarning() << "data did not wroted!!!: "<<internalGetDevice()->metaObject()->className();
-            //bool res = internalGetDevice()->waitForBytesWritten(10000);
-            //qDebug() << res;
-        }
         return ret;
     }
 
@@ -89,20 +83,14 @@ public:
     }
 
 protected:
-    //typedef QMap<QString, function<IoDeviceWrapper * ()> > FactoryMap;
     IoDeviceWrapper():is_opened(false) {}
-    /*static FactoryMap & factory_map()
-    {
-        static FactoryMap map;
-        return map;
-    }*/
     bool is_opened;
 private:
 
     virtual QIODevice * internalGetDevice() = 0;
     virtual const QIODevice * internalGetDevice() const = 0;
 
-    void connectSignals()
+    virtual void connectSignals()
     {
         if ( internalGetDevice() )
             connect(internalGetDevice(), SIGNAL(readyRead()), this, SIGNAL(readyRead()));
