@@ -160,7 +160,7 @@ void BeetAcceptanceCulture::updateBruttoValues(MifareCardData& bill, qx::dao::pt
     ttn->dt_of_load       = bill.memberValue<QDateTime>("dateOfLoad");
     ttn->brutto           = bill.memberValue<int>("bruttoWeight");
     ttn->dt_of_brutto     = bill.memberValue<QDateTime>("dateOfBrutto");
-    ttn->driver           = bill.memberValue<int>("driver");//carCodeFromDriver( memberValue<int>("driver", bill) ) ;
+    ttn->driver           = bill.memberValue<int>("driver");
     ttn->bum              = bill.memberValue<int>("bum");
     ttn->routed_to_lab    = bill.memberValue<QBitArray>("flags").at(2);
     ttn->num_kart         = byteArrayToString (bill.uid());
@@ -321,7 +321,7 @@ void BeetAcceptanceCulture::fetchCar(const MifareCardData& bill) throw (MainSequ
     current_car = wrap_async_ex(tr(fetch_car_error_message),
            "fetching car failed!!!: driver: " + bill.memberValue<QString>("driver"),
             [&bill, this]{return asyncFunc().async_fetch<t_cars_beet_mria>(
-                           carCodeFromDriver( bill.memberValue<uint>("driver") ), t_cars_name  );});
+                           bill.memberValue<uint>("driver"), t_cars_name  );});
 
     if (current_car->block) {
         throw MainSequenceException(tr(car_blocked_message), "car is blocked!!!");
@@ -333,5 +333,8 @@ void BeetAcceptanceCulture::checkPerimetr() throw (MainSequenceException)
     //if (current_car->fl_perimetr==false)
         seq().processPerimeter();
 }
+
+
+
 
 } }

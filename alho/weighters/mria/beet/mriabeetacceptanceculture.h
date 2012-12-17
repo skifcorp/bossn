@@ -38,6 +38,9 @@ public:
     virtual bool isPureTaraWeight(const MifareCardData& ) const throw (MainSequenceException) ;
 
 
+    //QString detectPlatformType(const MifareCardData& bill) const throw (MainSequenceException);
+
+
 private:
 
 

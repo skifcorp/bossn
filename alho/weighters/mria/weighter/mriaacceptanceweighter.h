@@ -22,9 +22,10 @@ public:
     {
         C::fetchCar(bill);
         C::checkPerimetr();
-        Q_ASSERT(0);
-        QString platform_type;// = C::platformType(bill, weighter_conf);
 
+        QString platform_type = weighter_conf.platform_type == "auto" ?
+                                    C::detectPlatformType(bill) :
+                                    weighter_conf.platform_type;
 
         if (platform_type == "brutto" ) {
             processBrutto(bill);

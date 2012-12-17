@@ -125,10 +125,11 @@ private:
     bool current_tara_is_pure;
     bool current_brutto_is_pure;
 
-    QString platformType(const MifareCardData& , const WeighterConf&  )
-    {
-        Q_ASSERT(0);
-        QString ret;// = C::platformType(bill, wc);
+    QString platformType(const MifareCardData& bill, const WeighterConf& weighter_conf )
+    {        
+        QString ret = weighter_conf.platform_type == "auto" ?
+                                    C::detectPlatformType(bill) :
+                                    weighter_conf.platform_type;
 
         if ( current_platform_type.isEmpty() )
             current_platform_type = ret;
