@@ -35,6 +35,7 @@ class BossnFactory
 public:
     using Pointer  = QSharedPointer<T>;
     using ThisType = BossnFactory<T, Args...>;
+    using FuncType = function<T * (Args...)>;
 
     static Pointer create(const QString& n, Args... args)
     {       
@@ -44,8 +45,13 @@ public:
         }
         return Pointer((*iter)(args ...));
     }
+    static bool insertFunc(const QString& n, FuncType && f)
+    {
+        factory_map().insert(n, f); return true;
+    }
+
 protected:
-    typedef QMap<QString, function<T * (Args...)> > FactoryMap;
+    typedef QMap<QString,  FuncType> FactoryMap;
     static FactoryMap& factory_map()
     {
         static FactoryMap map;
@@ -73,7 +79,8 @@ class BossnFactoryRegistrator2_impl< Derived, BossnFactory<Base, Args ...>, mpl:
 public:
     BossnFactoryRegistrator2_impl()
     {
-        Base::factory_map().insert(mpl::c_str<mpl::string<N...>>::value, create);
+        //Base::factory_map().insert(mpl::c_str<mpl::string<N...>>::value, create);
+        Base::insertFunc(mpl::c_str<mpl::string<N...>>::value, create);
     }
 
     static Base * create ( Args ... args  )

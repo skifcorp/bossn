@@ -34,7 +34,7 @@ void Porter::setDevice(const QString& n, const QMap<QString, QVariant> & setting
     device = IoDeviceWrapper::create(n);
 
     device->setSettings(settings);
-    qDebug () << "opening port: " << device->deviceName();
+    //qDebug () << "opening port: " << device->deviceName();
     if  (!device->open(QIODevice::ReadWrite) ) {
         qWarning() << "cant open device!!!!: " <<device->deviceName();
     }

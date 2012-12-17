@@ -1,5 +1,5 @@
-#ifndef BEET_DBSTRUCTS_H
-#define BEET_DBSTRUCTS_H
+#ifndef MRIA_BEET_DBSTRUCTS_H
+#define MRIA_BEET_DBSTRUCTS_H
 
 #include "qxorm_pch.h"
 
