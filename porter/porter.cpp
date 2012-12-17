@@ -11,7 +11,7 @@ using std::bind;
 
 
 
-void Porter::addDriver(const QString & n, const QMap<QString, QVariant>& drv_conf, const QList<TagMethod> &tags_methods)
+void Porter::addDriver(const QString & n, const QMap<QString, QVariant>& drv_conf, const QList<TagMethod<false>> &tags_methods)
 {    
     PorterDriver::Pointer d = PorterDriver::create(n, drv_conf); Q_ASSERT(!d.isNull());
     d->setIoDevice(device);
@@ -19,7 +19,7 @@ void Porter::addDriver(const QString & n, const QMap<QString, QVariant>& drv_con
     drivers.append( d );
     auto idx = drivers.size() - 1;
 
-    for (QList<TagMethod>::const_iterator iter = tags_methods.begin(); iter != tags_methods.end(); ++iter) {
+    for (QList<TagMethod<false>>::const_iterator iter = tags_methods.begin(); iter != tags_methods.end(); ++iter) {
         methods.insert(iter->tag_name, MethodInfo(iter->method_name, idx));
         if ( scheduled ) {
             addTagToSchedule( idx, iter->tag_name );

@@ -34,7 +34,7 @@ public:
     bool isScheduled() const {return scheduled;}
 
     void setDevice(const QString& n, const QMap<QString, QVariant> & settings );
-    void addDriver(const QString&, const QMap<QString, QVariant>& drv_conf, const QList<TagMethod>& );
+    void addDriver(const QString&, const QMap<QString, QVariant>& drv_conf, const QList<TagMethod<false>>& );
 
     Q_INVOKABLE QVariant value (const QString& n, AlhoSequence *,
                    QGenericArgument val0 = QGenericArgument(),

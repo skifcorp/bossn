@@ -123,9 +123,9 @@ void PorterSettings::bindTags(const QDomNode & driver_node, Tags & tags, QObject
     }
 }
 
-QList<TagMethod> PorterSettings::getTagMethods(const QDomNode& driver_node, const Tags& tags) const
+QList<TagMethod<false>> PorterSettings::getTagMethods(const QDomNode& driver_node, const Tags& tags) const
 {
-    QList<TagMethod> tag_methods;
+    QList<TagMethod<false>> tag_methods;
 
     QDomNode maybe_tag_node = driver_node.firstChildElement();
 
@@ -133,7 +133,7 @@ QList<TagMethod> PorterSettings::getTagMethods(const QDomNode& driver_node, cons
         if (maybe_tag_node.nodeName() == "tag") {
             QDomElement el = maybe_tag_node.toElement();
 
-            TagMethod tm( tags[el.attribute("name")]->tagName(), el.attribute("func", QString()) );
+            TagMethod<false> tm( tags[el.attribute("name")]->tagName(), el.attribute("func", QString()) );
             tag_methods.push_back(tm);
 
         }

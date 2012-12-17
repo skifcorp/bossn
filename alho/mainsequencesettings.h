@@ -6,12 +6,13 @@
 #include "alhosequence.h"
 #include "tags.h"
 
-
-struct CallableTagMethod : public TagMethod,
+template <bool WithCompareValue>
+struct CallableTagMethod : public TagMethod<WithCompareValue>,
                            public TagFuncHelper<true>
 {
     CallableTagMethod(AlhoSequence& s, Tags & t) :
-        TagMethod(), TagFuncHelper(TagMethod::tag_name, TagMethod::method_name, s, t)
+        TagMethod<WithCompareValue>(),
+        TagFuncHelper(TagMethod<WithCompareValue>::tag_name, TagMethod<WithCompareValue>::method_name, s, t)
     {}
 
     CallableTagMethod(const CallableTagMethod&) = delete;
@@ -38,17 +39,17 @@ struct ReaderTagMethods
     }
 };
 
-template <class TagMethodType, class ReaderMethodsType>
+template <template <bool WithCompare> class TagMethodType, class ReaderMethodsType>
 struct BaseMainSequenceSettings
 {
-    TagMethodType weight_tag;
-    TagMethodType tablo_tag;
-    TagMethodType weight_stable;
-    TagMethodType red_light;
-    TagMethodType green_light;
-    TagMethodType perim_in;
-    TagMethodType perim_out;
-    TagMethodType logging;
+    TagMethodType<false> weight_tag;
+    TagMethodType<false> tablo_tag;
+    TagMethodType<false> weight_stable;
+    TagMethodType<true> red_light;
+    TagMethodType<true> green_light;
+    TagMethodType<true> perim_in;
+    TagMethodType<true> perim_out;
+    TagMethodType<false> logging;
 
     ReaderMethodsType reader;
 

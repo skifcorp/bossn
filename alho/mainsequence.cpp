@@ -18,18 +18,22 @@ void MainSequence::setSettings(const QVariantMap & s)
 {    
     alho_settings.green_light.tag_name = get_setting<QString>("green_light_tag", s);
     alho_settings.green_light.method_name = get_setting<QString>("green_light_method", s);
+    alho_settings.green_light.value = get_setting<QVariant>("green_light_on_value", s);
 
     alho_settings.red_light.tag_name = get_setting<QString>("red_light_tag", s);
     alho_settings.red_light.method_name = get_setting<QString>("red_light_method", s);
+    alho_settings.red_light.value = get_setting<QVariant>("red_light_on_value", s);
 
     alho_settings.tablo_tag.tag_name = get_setting<QString>("tablo_tag", s);
     alho_settings.tablo_tag.method_name = get_setting<QString>("tablo_method", s);
 
     alho_settings.perim_in.tag_name = get_setting<QString>("perim_in_tag", s);
     alho_settings.perim_in.method_name = get_setting<QString>("perim_in_method", s);
+    alho_settings.perim_in.value = get_setting<QVariant>("perim_in_on_value", s);
 
     alho_settings.perim_out.tag_name = get_setting<QString>("perim_out_tag", s);
     alho_settings.perim_out.method_name = get_setting<QString>("perim_out_method", s);
+    alho_settings.perim_out.value = get_setting<QVariant>("perim_out_on_value", s);
 
     alho_settings.weight_tag.tag_name = get_setting<QString>("weight_tag", s);
     alho_settings.weight_tag.method_name = get_setting<QString>("weight_method", s);
@@ -338,65 +342,28 @@ void MainSequence::onDisappearOnWeight(const QString&, AlhoSequence * )
     //qDebug( )     << "3";
 
     qDebug() << "disappear finished!!!";
-
-    //qDebug( )     << "4";
-
-    //tags[alho_settings.reader.name]->func( alho_settings.reader.do_off, this );
-
-    //qDebug( )     << "5";
-
-    //async_func_ptr->terminate();
-    //qDebug( )     << "3";
-
-    //qDebug( )     << "6";
-
-//    printOnTablo(greeting_message);
-//    setLightsToGreen();
 }
-
-
-
-
-
 
 void MainSequence::setLightsToRed()
 {
-    //tags["do1"]->func("writeMethod", Q_ARG(QVariant, 1));
-    //tags["do2"]->func("writeMethod", Q_ARG(QVariant, 0));
-
-    tags[alho_settings.red_light.tag_name]->func(alho_settings.red_light.method_name, this, Q_ARG(QVariant, 1));
-    tags[alho_settings.green_light.tag_name]->func(alho_settings.green_light.method_name, this, Q_ARG(QVariant, 0));
-
+    alho_settings.red_light.func(Q_ARG(QVariant,  alho_settings.red_light.value.toBool() ));
+    alho_settings.green_light.func(Q_ARG(QVariant, !alho_settings.green_light.value.toBool()));
 }
 
 void MainSequence::setLightsToGreen()
 {
-//    tags["do1"]->func("writeMethod", Q_ARG(QVariant, 0));
-//    tags["do2"]->func("writeMethod", Q_ARG(QVariant, 1));
-    tags[alho_settings.red_light.tag_name]->func(alho_settings.red_light.method_name, this, Q_ARG(QVariant, 0));
-    tags[alho_settings.green_light.tag_name]->func(alho_settings.green_light.method_name, this, Q_ARG(QVariant, 1));
+    alho_settings.red_light.func(Q_ARG(QVariant, !alho_settings.red_light.value.toBool()));
+    alho_settings.green_light.func(Q_ARG(QVariant, alho_settings.green_light.value.toBool()));
 }
-
-
-
 
 void MainSequence::processPerimeter()
 {
     if ( !get_setting<bool>("perimeter_control", app_settings) ) return;
 
-//    if ( tags["di1"]->func("readMethod").toBool() || tags["di2"]->func("readMethod").toBool() )
-//        throw MainSequenceException(perimeter_control_failed, "perimeter_control_failed!");
-
-    if ( tags[ alho_settings.perim_in.tag_name ]->func(alho_settings.perim_in.method_name, this).toBool() ||
-         tags[ alho_settings.perim_out.tag_name ]->func(alho_settings.perim_out.method_name, this).toBool() )
+    if ( alho_settings.perim_in.func().toBool() == alho_settings.perim_in.value.toBool() ||
+         alho_settings.perim_out.func().toBool() == alho_settings.perim_out.value.toBool() )
         throw MainSequenceException(tr(perimeter_control_failed), "perimeter_control_failed!");
-
 }
-
-/*const WeighterConf& MainSequence::findWeighterConf(const MifareCardData& bill)const throw (MainSequenceException)
-{
-    return findWeighterConf( bill.memberValue<int>( "material" ) );
-}*/
 
 WeighterConf& MainSequence::findWeighterConf(int material)
 {    
