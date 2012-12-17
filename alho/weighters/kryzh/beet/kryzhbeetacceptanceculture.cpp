@@ -628,10 +628,5 @@ void BeetAcceptanceCulture::fetchCar(const MifareCardData& bill) throw (MainSequ
     }
 }
 
-void BeetAcceptanceCulture::checkPerimetr() throw (MainSequenceException)
-{
-    //if (current_car->fl_perimetr==false)
-        seq().processPerimeter();
-}
 
 } }

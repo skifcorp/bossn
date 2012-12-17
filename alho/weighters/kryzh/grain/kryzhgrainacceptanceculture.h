@@ -37,7 +37,7 @@ public:
     virtual QString detectPlatformType(const MifareCardData& ) const throw (MainSequenceException);
     virtual bool isPureBruttoWeight(const MifareCardData& ) const throw (MainSequenceException);
     virtual bool isPureTaraWeight(const MifareCardData& ) const throw (MainSequenceException);
-    void checkPerimetr(){}
+    //void checkPerimetr(){}
 private:
     void checkBum( const MifareCardData& )const throw(MainSequenceException);
     void checkLaboratory( qx::dao::ptr< t_ttn > )const throw(MainSequenceException);

@@ -21,8 +21,9 @@ public:
     virtual void processWeighting(MifareCardData& bill, MifareCardSector& card, const  WeighterConf& weighter_conf )
     {
         C::fetchCar(bill);
-        C::checkPerimetr();
-        //Q_ASSERT(0);
+
+        C::seq().processPerimeter();
+
         QString platform_type = weighter_conf.platform_type == "auto" ?
                                     C::detectPlatformType(bill) :
                                     weighter_conf.platform_type;

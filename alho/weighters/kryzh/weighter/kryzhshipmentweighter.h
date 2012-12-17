@@ -26,6 +26,8 @@ public:
     {
         C::fetchCar(bill);
 
+        C::seq().processPerimeter();
+
         QString platform_type = platformType(bill, weighter_conf);
 
         if (platform_type == "brutto" ) {

@@ -18,7 +18,7 @@ public:
 
     ~BeetAcceptanceCulture() {}
     virtual void fetchCar(const MifareCardData& ) throw (MainSequenceException);
-    virtual void checkPerimetr() throw (MainSequenceException);
+    //virtual void checkPerimetr() throw (MainSequenceException);
     virtual void brutto(int, MifareCardData& ) throw (MainSequenceException);
     virtual void tara(int, MifareCardData&) throw (MainSequenceException);
     virtual void reBrutto(int, MifareCardData&) throw (MainSequenceException);
