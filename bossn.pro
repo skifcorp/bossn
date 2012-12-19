@@ -40,7 +40,8 @@ LIBS           +=   -lqextserialport                \
                     -lqxorm                         \
                     -lboost_serialization           \
                     -llibmysql                      \
-                    -lismm
+                    -lismm                          \
+                    librdb
 #}
 
 TRANSLATIONS = bossn_ua.ts
