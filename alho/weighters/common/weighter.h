@@ -2,6 +2,7 @@
 #define BASEWEIGHTER_H
 
 #include <QSharedPointer>
+#include <QSqlDatabase>
 
 #include "factory.h"
 

@@ -1,6 +1,7 @@
 #include "kryzhbeetacceptanceculture.h"
 #include "mainsequence.h"
 #include "codeshacks.h"
+#include "kryzhbeettables.h"
 
 namespace alho  { namespace kryzh {
 
@@ -616,16 +617,23 @@ bool BeetAcceptanceCulture::isPureTaraWeight(const MifareCardData& bill) const t
 
 void BeetAcceptanceCulture::fetchCar(const MifareCardData& bill) throw (MainSequenceException)
 {
-    //qDebug() << "database_name:"<< async_.database.databaseName();
-
-    current_car = wrap_async_ex(tr(fetch_car_error_message),
+/*    current_car = wrap_async_ex(tr(fetch_car_error_message),
            "fetching car failed!!!: driver: " + bill.memberValue<QString>("driver"),
             [&bill, this]{return asyncFunc().async_fetch<t_cars_beet>(
                            carCodeFromDriver( bill.memberValue<uint>("driver") ), t_cars_name  );});
 
+
     if (current_car->block) {
         throw MainSequenceException(tr(car_blocked_message), "car is blocked!!!");
-    }
+    }*/
+    cout << as_string(sql::select( cars_table.column_pointers ).from(cars_table)) << "\n";
+
+    sql::mysql_database db("localhost", "testdb", "root", "123456");
+    current_car_data = db.execute(
+                    sql::select( cars_table.column_pointers ).from(cars_table)
+                ).all();
+
+
 }
 
 

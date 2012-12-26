@@ -23,18 +23,18 @@ INCLUDEPATH    += db alho serial weight generic iodevicewrapper scheduler       
 QMAKE_CXXFLAGS += -std=c++0x #-m32
 #QMAKE_LFLAGS   += -m32
 
-PRECOMPILED_HEADER = qxorm_pch.h
 
-#CONFIG(debug, debug|release) {
-#LIBS           +=   -lqextserialportd               \
-#                    -lcoroutined                    \
-#                    -lqxormd                        \
-#                    -lboost_serialization           \
-#                    -llibmysql                      \
-#                    -lismm
-#}
 
-#CONFIG(release, debug|release) {
+#PRECOMPILED_HEADER = qxorm_pch.h
+
+DEFINES += FUSION_MAX_VECTOR_SIZE=30                          \
+           BOOST_FUSION_INVOKE_MAX_ARITY=30                   \
+           BOOST_MPL_LIMIT_VECTOR_SIZE=30                    \
+           BOOST_RESULT_OF_NUM_ARGS=30                       \
+           BOOST_MULTI_INDEX_LIMIT_INDEXED_BY_SIZE=30        \
+           BOOST_MULTI_INDEX_LIMIT_TAG_SIZE=30               \
+           BOOST_MPL_CFG_NO_PREPROCESSED_HEADERS=1
+
 LIBS           +=   -lqextserialport                \
                     -lcoroutine                     \
                     -lqxorm                         \
@@ -42,12 +42,10 @@ LIBS           +=   -lqextserialport                \
                     -llibmysql                      \
                     -lismm                          \
                     librdb
-#}
 
 TRANSLATIONS = bossn_ua.ts
 
-SOURCES += reader/mifarereaderemulator.cpp \
-    main.cpp \
+SOURCES += main.cpp \
     weight/mettlertoledo8530.cpp \
     weight/mettlertoledo310.cpp \
     weight/esitPWI.cpp \
@@ -104,10 +102,10 @@ SOURCES += reader/mifarereaderemulator.cpp \
     alho/weighters/kryzh/weighter/kryzhshipmentweighter.cpp \
     alho/weighters/mria/beet/mriabeetacceptanceculture.cpp \
     alho/weighters/mria/beet/mriabeetdbstructs.cpp \
-    alho/weighters/mria/weighter/mriaacceptanceweighter.cpp
+    alho/weighters/mria/weighter/mriaacceptanceweighter.cpp \
+    reader/mifarereaderemulator.cpp
 
-
-HEADERS +=  \
+HEADERS +=   reader/mifarereaderemulator.h \
     tools/func.h \
     weight/mettlertoledo8530.h \
     weight/mettlertoledo310.h \
@@ -174,8 +172,7 @@ HEADERS +=  \
     alho/weighters/common/culture.h \
     alho/weighters/common/acceptanceculture.h \
     alho/weighters/constructweighters.h \
-    perimeter/systemtrayiconreceiver_p.h \
-    reader/mifarereaderemulator.h \
+    perimeter/systemtrayiconreceiver_p.h \   
     iodevicewrapper/iodeviceconsole.h \
     iodevicewrapper/iodeviceemulator.h \
     alho/weighters/kryzh/beet/kryzhbeetdbstructs.h \
@@ -187,8 +184,8 @@ HEADERS +=  \
     alho/weighters/kryzh/weighter/kryzhshipmentweighter.h \
     alho/weighters/mria/beet/mriabeetacceptanceculture.h \
     alho/weighters/mria/beet/mriabeetdbstructs.h \
-    alho/weighters/mria/weighter/mriaacceptanceweighter.h
-	
+    alho/weighters/mria/weighter/mriaacceptanceweighter.h \
+    alho/weighters/kryzh/beet/kryzhbeettables.h
 
-RESOURCES += \
-    bossn.qrc
+
+RESOURCES += bossn.qrc
