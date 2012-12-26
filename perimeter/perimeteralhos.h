@@ -9,7 +9,7 @@
 #include "tags.h"
 #include "perimtercontrol.h"
 
-#include <memory.h>
+#include <memory>
 
 using std::unique_ptr;
 
