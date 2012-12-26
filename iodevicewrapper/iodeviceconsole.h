@@ -33,6 +33,7 @@ public:
     qint64 virtual write ( const QByteArray& data )
     {
         quint64 ret = file_cout.write(data.toPercentEncoding(QByteArray(), QByteArray(), ' '));
+        file_cout.flush();
         return ret;
     }
 
