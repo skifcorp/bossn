@@ -17,37 +17,14 @@ using qx::IxClass;
 using qx::IxDataMemberX;
 using qx::IxDataMember;
 
-//#include "mainsequence.h"
 #include "warnmessages.h"
-//#include "dbstructs.h"
 
-class async_func : public QObject
-
+class async_func_base : public QObject
 {
     Q_OBJECT
-
-private slots:
-    void onFutureFinished()
-    {
-        if (show_debug_info_)
-            qDebug() << "FINISHED FUTURE!";
-        //qDebug () << "before cont!";
-        coro.cont();
-        if (show_debug_info_)
-            qDebug () << "after cont!";
-    }
-
 public:
-    typedef QSharedPointer<async_func> pointer;
+    async_func_base( Coroutine & c ) : coro(c), very_busy_(false), show_debug_info_(false) {}
 
-    async_func(const async_func& ) = delete;
-    async_func(QSqlDatabase& db, Coroutine & c ):database(db), coro(c),
-        very_busy_(false), show_debug_info_(false) {}
-
-    QSqlDatabase &database;
-    Coroutine    & coro;
-
-    //void setTableName(const QString& tn) {table_name = tn;}
 
     template <class T, class Callable>
     struct Ret;
@@ -107,6 +84,36 @@ public:
         return f.result();
     }
 
+    void setShowDebugInfo(bool d) {show_debug_info_ = d;}
+private:
+    Coroutine & coro;
+    bool very_busy_;
+    bool show_debug_info_;
+private slots:
+    void onFutureFinished()
+    {
+        if (show_debug_info_)
+            qDebug() << "FINISHED FUTURE!";
+
+        coro.cont();
+
+        if (show_debug_info_)
+            qDebug () << "after cont!";
+    }
+};
+
+class async_func : public async_func_base
+
+{
+    Q_OBJECT
+public:
+    typedef QSharedPointer<async_func> pointer;
+
+    async_func(const async_func& ) = delete;
+    async_func(QSqlDatabase& db, Coroutine & c ):
+            async_func_base(c), database(db)
+         {}
+
 
     template <class T, class ID>
     qx::dao::ptr<T> async_fetch(const ID& id, const QString& table_name,  bool ex_on_no_data = true) throw (MysqlException)
@@ -115,39 +122,17 @@ public:
 
         QSqlError err = async_call([&p, this, &table_name]{return qx::dao::fetch_by_id(p, &database, table_name);});
 
-        //qDebug()  << "after async_call!";
-
         if (err.isValid() && err.number() == 1111 && !ex_on_no_data) {
             return  qx::dao::ptr<T>();
         }
 
-        if  (err.isValid()) {
-            //qDebug()  << "throwing exeption!";
+        if  (err.isValid()) {           
             throw MysqlException(err.databaseText(),
                                  err.driverText());
         }
         return p;
     }
 
-/*    template <class T>
-    qx::dao::ptr<T> async_fetch_by_query(const qx_query& q, const QString& table_name, bool ex_on_no_data = true) throw (MysqlException)
-    {
-        qx::dao::ptr<T> p = qx::dao::ptr<T>( new T() );
-
-        QSqlError err = async_call([&p, &q, this, &table_name]{return qx::dao::fetch_by_query(q, p, &database);});
-
-        if (err.isValid() && err.number() == 1111 && !ex_on_no_data) {
-            return  qx::dao::ptr<T>();
-        }
-
-        if  (err.isValid()) {
-            throw MysqlException(database.lastError().databaseText() ,
-                                 database.lastError().driverText());
-
-        }
-        return p;
-    }
-*/
     template <class T>
     void async_update(qx::dao::ptr<T> p, const QString& table_name) throw (MysqlException)
     {
@@ -197,7 +182,6 @@ public:
         { return qx::dao::execute_query(q, t, &database); });
 
         if (err.isValid() && err.number() == 1111 && !ex_on_no_data) {
-            //qDebug()  << "bacause value is empty but is not error: we returning: " << (qx::dao::ptr<T>() != 0);
             return  qx::dao::ptr<T>();
         }
 
@@ -266,10 +250,13 @@ public:
         return err;
     }
 
-    void setShowDebugInfo(bool d) {show_debug_info_ = d;}
+    QString databaseName() const
+    {
+        return database.databaseName();
+    }
+
 private:
-    bool very_busy_;
-    bool show_debug_info_;
+    QSqlDatabase database;
 };
 
 template <class Func, class ... Params>
@@ -315,4 +302,5 @@ struct convience_func
 
 };
 
-#endif // ASYNC_FUNC_H
+#endif
+
