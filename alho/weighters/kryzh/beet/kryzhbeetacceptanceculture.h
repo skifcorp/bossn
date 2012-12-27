@@ -10,6 +10,8 @@ namespace alho  { namespace kryzh {
 
 using alho::common::AcceptanceCulture;
 
+namespace sql = boost::rdb::mysql;
+
 class BeetAcceptanceCulture : public AcceptanceCulture
 {
 public:
@@ -18,25 +20,25 @@ public:
     }
 
     ~BeetAcceptanceCulture() {}
-    virtual void fetchCar(const MifareCardData& ) throw (MainSequenceException);
+    void fetchCar(const MifareCardData& ) throw (MainSequenceException);
     //virtual void checkPerimetr() throw (MainSequenceException);
-    virtual void brutto(int, MifareCardData& ) throw (MainSequenceException);
-    virtual void tara(int, MifareCardData&) throw (MainSequenceException);
-    virtual void reBrutto(int, MifareCardData&) throw (MainSequenceException);
-    virtual void reTara(int, MifareCardData&) throw (MainSequenceException);
+    void brutto(int, MifareCardData& ) throw (MainSequenceException);
+    void tara(int, MifareCardData&) throw (MainSequenceException);
+    void reBrutto(int, MifareCardData&) throw (MainSequenceException);
+    void reTara(int, MifareCardData&) throw (MainSequenceException);
 
-    virtual QString bruttoFinishMessage(const MifareCardData& )const;
-    virtual QString taraFinishMessage(const MifareCardData& )const;
+    QString bruttoFinishMessage(const MifareCardData& )const;
+    QString taraFinishMessage(const MifareCardData& )const;
 
-    virtual bool makeNewTask(MifareCardData& ) throw (MainSequenceException);
+    bool makeNewTask(MifareCardData& ) throw (MainSequenceException);
 
-    virtual ReportContext finishReport( ) throw(MainSequenceException);
-    virtual ReportContext startReport( ) throw(MainSequenceException);
+    ReportContext finishReport( ) throw(MainSequenceException);
+    ReportContext startReport( ) throw(MainSequenceException);
 
-    virtual QString detectPlatformType(const MifareCardData& ) const throw (MainSequenceException);
+    QString detectPlatformType(const MifareCardData& ) const throw (MainSequenceException);
 
-    virtual bool isPureBruttoWeight(const MifareCardData& ) const throw (MainSequenceException) ;
-    virtual bool isPureTaraWeight(const MifareCardData& ) const throw (MainSequenceException) ;
+    bool isPureBruttoWeight(const MifareCardData& ) const throw (MainSequenceException) ;
+    bool isPureTaraWeight(const MifareCardData& ) const throw (MainSequenceException) ;
 
 
 private:
