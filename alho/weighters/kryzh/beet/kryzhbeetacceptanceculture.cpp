@@ -626,12 +626,18 @@ void BeetAcceptanceCulture::fetchCar(const MifareCardData& bill) throw (MainSequ
     if (current_car->block) {
         throw MainSequenceException(tr(car_blocked_message), "car is blocked!!!");
     }*/
-    cout << as_string(sql::select( cars_table.column_pointers ).from(cars_table)) << "\n";
+    //cout << as_string(sql::select( cars_table.all ).from(cars_table)) << "\n";
 
     sql::mysql_database db("localhost", "testdb", "root", "123456");
-    current_car_data = db.execute(
-                    sql::select( cars_table.column_pointers ).from(cars_table)
-                ).all();
+
+    /*current_car_data = wrap_async_ex( tr(fetch_car_error_message),
+           "fetching car failed!!!: driver: " + bill.memberValue<QString>("driver"),
+            [this]{return asyncFunc(). }
+
+            db.execute(
+                sql::select( cars_table.all ).from(cars_table).where(cars_table.id
+                    == carCodeFromDriver( bill.memberValue<uint>("driver")))
+                ).all()};*/
 
 
 }

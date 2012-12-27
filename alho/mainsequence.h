@@ -1,6 +1,10 @@
 #ifndef MAINSEQUENCE_H
 #define MAINSEQUENCE_H
 
+#include <vector>
+
+using std::vector;
+
 #include <QObject>
 #include <QDebug>
 #include <QTime>
@@ -93,7 +97,7 @@ private:
 
     QTimer wake_timer;
 
-    QVector<WeighterConf> weighters_conf;
+    std::vector<WeighterConf> weighters_conf;
 
     void setLightsToRed();
     void setLightsToGreen();

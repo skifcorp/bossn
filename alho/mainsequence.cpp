@@ -97,8 +97,6 @@ void MainSequence::initWeightersConf(const QVariantMap& s)
         wc.material      = m.take("material").toInt(&ok);
         wc.weighter_name = m.take("weighter").toString();
         wc.platform_type = m.take("platform_type").toString();
-        //wc.finish_report = weighters_conf_list[i].toMap()["finish_report"].toString();
-        //wc.start_report  = weighters_conf_list[i].toMap()["start_report"].toString();
 
         wc.database.setHostName(m.take("database_host").toString());
         wc.database.setDatabaseName(m.take("database").toString());
@@ -106,6 +104,8 @@ void MainSequence::initWeightersConf(const QVariantMap& s)
         wc.database.setPassword(m.take("database_password").toString());
         wc.database.setConnectOptions(m.take("connection_options").toString() );
 
+
+        //wc.db.open();
 
         for ( QVariantMap::const_iterator iter =  m.constBegin(); iter != m.constEnd(); ++iter){
             //qDebug() << "k: " << iter.key() << " " << *iter;
@@ -119,7 +119,7 @@ void MainSequence::initWeightersConf(const QVariantMap& s)
 
         //WeighterConf::initCardStruct(wc);
 
-        weighters_conf.push_back(wc);
+        weighters_conf.push_back( std::move(wc) );
     }
 }
 
@@ -367,7 +367,7 @@ void MainSequence::processPerimeter()
 
 WeighterConf& MainSequence::findWeighterConf(int material)
 {    
-    for (int i = 0; i<weighters_conf.count(); ++i) {
+    for (uint i = 0; i<weighters_conf.size(); ++i) {
         if ( weighters_conf[i].material == material )
             return weighters_conf[i];
     }
