@@ -309,9 +309,7 @@ bool GrainAcceptanceCulture::isPureTaraWeight(const MifareCardData& bill) const 
 }
 
 void GrainAcceptanceCulture::fetchCar(const MifareCardData& bill) throw (MainSequenceException)
-{
-    qDebug() << "database_name:"<< asyncFunc().database.databaseName();
-
+{    
     current_car = wrap_async_ex(tr(fetch_car_error_message),
            "fetching car failed!!!: driver: " + bill.memberValue<QString>("driver"),
       [&bill, this]{return asyncFunc().async_fetch<t_cars>(
