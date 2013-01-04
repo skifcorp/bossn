@@ -10,7 +10,10 @@
 
 #include "bossnexception.h"
 #include "coroutine.h"
+
 #include <QSharedPointer>
+
+#include <string>
 
 using qx::QxClassX;
 using qx::IxClass;
@@ -18,6 +21,8 @@ using qx::IxDataMemberX;
 using qx::IxDataMember;
 
 #include "warnmessages.h"
+
+#include <boost/rdb/mysql_database.hpp>
 
 class async_func_base : public QObject
 {
@@ -38,7 +43,7 @@ public:
     template <class Callable>
     struct Ret<bool, Callable>
     {
-        static int value() {return false;}
+        static bool value() {return false;}
     };
 
     template<class Callable>
@@ -101,6 +106,7 @@ private slots:
             qDebug () << "after cont!";
     }
 };
+
 
 class async_func : public async_func_base
 
