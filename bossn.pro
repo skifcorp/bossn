@@ -20,7 +20,7 @@ INCLUDEPATH    += db alho serial weight generic iodevicewrapper scheduler       
                   alho/weighters alho/direction photograb                           \
                   alho/weighters/common
 
-QMAKE_CXXFLAGS += -std=c++0x #-m32
+QMAKE_CXXFLAGS += -std=gnu++0x
 #QMAKE_LFLAGS   += -m32
 
 
@@ -41,11 +41,14 @@ LIBS           +=   -lqextserialport                \
                     -lboost_serialization           \
                     -llibmysql                      \
                     -lismm                          \
+                    -llibboost_system               \
+                    -llibboost_thread               \
                     librdb
 
 TRANSLATIONS = bossn_ua.ts
 
-SOURCES += main.cpp \
+SOURCES += alho/weighters/kryzh/beet/kryzhbeetacceptanceculture.cpp \
+        main.cpp \
     weight/mettlertoledo8530.cpp \
     weight/mettlertoledo310.cpp \
     weight/esitPWI.cpp \
@@ -92,8 +95,7 @@ SOURCES += main.cpp \
     alho/weighters/common/genericdbstructs.cpp \
     alho/weighters/common/culture.cpp \
     iodevicewrapper/iodeviceconsole.cpp \
-    iodevicewrapper/iodeviceemulator.cpp \
-    alho/weighters/kryzh/beet/kryzhbeetacceptanceculture.cpp \
+    iodevicewrapper/iodeviceemulator.cpp \   
     alho/weighters/kryzh/beet/kryzhbeetdbstructs.cpp \
     alho/weighters/kryzh/grain/kryzhgrainacceptanceculture.cpp \
     alho/weighters/kryzh/grain/kryzhgraindbstructs.cpp \
@@ -185,7 +187,9 @@ HEADERS +=   reader/mifarereaderemulator.h \
     alho/weighters/mria/beet/mriabeetacceptanceculture.h \
     alho/weighters/mria/beet/mriabeetdbstructs.h \
     alho/weighters/mria/weighter/mriaacceptanceweighter.h \
-    alho/weighters/kryzh/beet/kryzhbeettables.h
+    alho/weighters/kryzh/beet/kryzhbeettables.h \
+    alho/bossnasync.h \
+    alho/async_func2.h
 
 
 RESOURCES += bossn.qrc
