@@ -9,8 +9,11 @@
 class IoDeviceConsole : public IoDeviceWrapper
 {
 public:
+    virtual void setSettings(const QMap<QString, QVariant>& s)
+    {
+        realy_write_to_console = get_setting<bool>("write_to_console", s, false);
+    }
 
-    virtual void setSettings(const QMap<QString, QVariant>& ) {}
     virtual QString deviceName() const {return QString();}
 
     virtual void clear() {}
@@ -32,6 +35,9 @@ public:
 
     qint64 virtual write ( const QByteArray& data )
     {
+        if (!realy_write_to_console)
+            return 0;
+
         quint64 ret = file_cout.write(data.toPercentEncoding(QByteArray(), QByteArray(), ' '));
         file_cout.flush();
         return ret;
@@ -72,6 +78,7 @@ private:
 
     static const int stdin_num  = 0;
     static const int stdout_num = 1;
+    bool realy_write_to_console = false;
 };
 
 
