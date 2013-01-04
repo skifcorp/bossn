@@ -13,7 +13,7 @@ using alho::common::ShipmentCulture;
 class GrainShipmentCulture : public ShipmentCulture
 {
 public:
-    GrainShipmentCulture(MainSequence& as, QSqlDatabase& db) : ShipmentCulture(as, db)
+    GrainShipmentCulture(MainSequence& as, QSqlDatabase& db, boost::rdb::mysql::mysql_database& db2) : ShipmentCulture(as, db, db2)
     {
     }
 

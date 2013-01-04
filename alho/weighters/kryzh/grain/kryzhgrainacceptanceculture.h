@@ -15,7 +15,7 @@ using alho::common::AcceptanceCulture;
 class GrainAcceptanceCulture : public AcceptanceCulture
 {
 public:
-    GrainAcceptanceCulture(MainSequence& as, QSqlDatabase& db) : AcceptanceCulture(as, db)
+    GrainAcceptanceCulture(MainSequence& as, QSqlDatabase& db, boost::rdb::mysql::mysql_database& db2) : AcceptanceCulture(as, db, db2)
     {
     }
 

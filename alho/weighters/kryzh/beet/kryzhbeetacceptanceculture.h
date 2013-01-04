@@ -1,10 +1,14 @@
 #ifndef __BEETWEIGHTERS_H_
 #define __BEETWEIGHTERS_H_
 
+#include "qxorm_pch.h"
+
 #include "acceptanceculture.h"
 #include "kryzhbeetdbstructs.h"
 #include "reportsmanager.h"
 #include "kryzhbeettables.h"
+
+
 
 namespace alho  { namespace kryzh {
 
@@ -15,7 +19,7 @@ namespace sql = boost::rdb::mysql;
 class BeetAcceptanceCulture : public AcceptanceCulture
 {
 public:
-    BeetAcceptanceCulture(MainSequence& as, QSqlDatabase& db) : AcceptanceCulture(as, db)
+    BeetAcceptanceCulture(MainSequence& as, QSqlDatabase& db, boost::rdb::mysql::mysql_database& db2) : AcceptanceCulture(as, db, db2)
     {        
     }
 
@@ -77,7 +81,7 @@ private:
     static const QString t_kagat_name;
     static const QString t_field_name;
 
-    typename sql::table_result_set<t_cars_beet_table>::type current_car_data;
+    typename sql::table_result_set<t_cars_beet_table>::type::value_type current_car_data;
 
     t_cars_beet_table cars_table {"t_cars"}; 
 };

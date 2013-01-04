@@ -4,7 +4,10 @@
 #include <QSharedPointer>
 #include <QSqlDatabase>
 
+#include "qxorm_pch.h"
+
 #include "factory.h"
+
 
 class WeighterConf;
 class MifareCardData;
@@ -14,7 +17,7 @@ class MainSequence;
 namespace alho { namespace common {
 
 
-class Weighter : public BossnFactory<Weighter, MainSequence&, QSqlDatabase& >
+class Weighter : public BossnFactory<Weighter, MainSequence&, QSqlDatabase&, boost::rdb::mysql::mysql_database& >
 {
 public:
 

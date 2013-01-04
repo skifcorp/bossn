@@ -12,4 +12,10 @@
 #include <QxDataMember/IxDataMember.h>
 
 
+#include <boost/rdb/mysql_database.hpp>
+
+#include <boost/rdb/mysql.hpp>
+#include <boost/rdb/mysql_database.hpp>
+#include <boost/rdb/mysql/datetime.hpp>
+
 #endif // QXORM_PCH_H

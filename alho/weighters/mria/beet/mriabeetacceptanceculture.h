@@ -12,7 +12,7 @@ using alho::common::AcceptanceCulture;
 class BeetAcceptanceCulture : public AcceptanceCulture
 {
 public:
-    BeetAcceptanceCulture(MainSequence& as, QSqlDatabase& db) : AcceptanceCulture(as, db)
+    BeetAcceptanceCulture(MainSequence& as, QSqlDatabase& db, boost::rdb::mysql::mysql_database& db2) : AcceptanceCulture(as, db, db2)
     {
     }
 

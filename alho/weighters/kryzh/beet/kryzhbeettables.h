@@ -1,10 +1,6 @@
 #ifndef KRYZHBEETTABLES_H
 #define KRYZHBEETTABLES_H
 
-#include <boost/rdb/mysql.hpp>
-#include <boost/rdb/mysql_database.hpp>
-#include <boost/rdb/mysql/datetime.hpp>
-
 
 BOOST_RDB_BEGIN_TABLE(t_ttn_beet_table)
     BOOST_RDB_COLUMN(num_nakl     ,integer     )  //not null

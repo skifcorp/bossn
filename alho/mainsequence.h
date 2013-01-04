@@ -112,7 +112,7 @@ private:
     WeighterConf& readStruct(MifareCardSector&, MifareCardData& d );
     alho::common::Weighter::Pointer createWeighter (WeighterConf& wc)
     {
-        return alho::common::Weighter::create( wc.weighter_name, *this, wc.database );
+        return alho::common::Weighter::create( wc.weighter_name, *this, wc.database, wc.db );
     }
 
 

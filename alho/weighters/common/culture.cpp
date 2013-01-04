@@ -8,8 +8,8 @@
 
 namespace alho { namespace common {
 
-Culture::Culture(MainSequence & as, QSqlDatabase& db) : seq_(as),
-    database_(db), async_(database_, as), convience_(async_) {}
+Culture::Culture(MainSequence & as, QSqlDatabase& db, boost::rdb::mysql::mysql_database& db2) : seq_(as),
+    database_(db), async_(database_, as), convience_(async_), async2_(db2, as) {}
 
 
 void Culture::checkBruttoDeltaForReweights(int prev_weight, int weight) const throw(MainSequenceException)

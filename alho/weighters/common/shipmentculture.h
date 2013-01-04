@@ -9,7 +9,7 @@ namespace alho { namespace common {
 class ShipmentCulture : public Culture
 {
 public:
-    ShipmentCulture(MainSequence & as, QSqlDatabase& db) : Culture(as, db){}
+    ShipmentCulture(MainSequence & as, QSqlDatabase& db, boost::rdb::mysql::mysql_database& db2) : Culture(as, db, db2){}
 
     template <class Tttn>
     qx::dao::ptr<Tttn> ttnByDriver( int drv ) throw (MainSequenceException)

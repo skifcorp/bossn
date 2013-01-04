@@ -7,7 +7,7 @@
 #include <QVariantMap>
 
 
-#include <boost/rdb/mysql_database.hpp>
+#include "qxorm_pch.h"
 
 
 struct WeighterConf : public QVariantMap
@@ -51,12 +51,12 @@ public:
     {
         QVariantMap::operator =(other);
 
-        material  = std::move(other.material );
-        weighter_name= std::move( other.weighter_name);
-        platform_type= std::move( other.platform_type );
-        database= std::move( other.database );
-        db = std::move( other.db);
-        struct_conf= std::move(other.struct_conf );
+        material      = std::move( other.material );
+        weighter_name = std::move( other.weighter_name);
+        platform_type = std::move( other.platform_type );
+        database      = std::move( other.database );
+        db            = std::move( other.db);
+        struct_conf   = std::move( other.struct_conf );
 
         return *this;
     }

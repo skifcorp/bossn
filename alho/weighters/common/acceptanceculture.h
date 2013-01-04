@@ -11,7 +11,7 @@ namespace alho { namespace common {
 class AcceptanceCulture : public Culture
 {
 public:    
-    AcceptanceCulture(MainSequence & as, QSqlDatabase& db) : Culture(as, db){}
+    AcceptanceCulture(MainSequence & as, QSqlDatabase& db, boost::rdb::mysql::mysql_database& db2) : Culture(as, db, db2){}
 
     template <class Tttn>
     qx::dao::ptr<Tttn> ttnByDriver( int drv ) throw (MainSequenceException)

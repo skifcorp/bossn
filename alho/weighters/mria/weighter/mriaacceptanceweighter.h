@@ -15,7 +15,7 @@ class AcceptanceWeighter : public Weighter,
                            protected C
 {
 public:
-    AcceptanceWeighter( MainSequence & as, QSqlDatabase& db ):Weighter(), C(as, db){}
+    AcceptanceWeighter( MainSequence & as, QSqlDatabase& db, boost::rdb::mysql::mysql_database& db2 ):Weighter(), C(as, db, db2){}
     ~AcceptanceWeighter() {}
 
     virtual void processWeighting(MifareCardData& bill, MifareCardSector& card, const  WeighterConf& weighter_conf )

@@ -16,8 +16,8 @@ class ShipmentWeighter : public Weighter,
                          public C
 {
 public:
-    ShipmentWeighter(MainSequence & as, QSqlDatabase& db )
-        :Weighter(), C(as, db) ,
+    ShipmentWeighter(MainSequence & as, QSqlDatabase& db, boost::rdb::mysql::mysql_database& db2 )
+        :Weighter(), C(as, db, db2) ,
           current_tara_is_pure(false),
           current_brutto_is_pure(false){}
 
