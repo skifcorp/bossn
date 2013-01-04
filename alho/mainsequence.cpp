@@ -75,7 +75,7 @@ void MainSequence::setSettings(const QVariantMap & s)
     initWeightersConf( s );
 
     restart();
-    createStack(65535*8);
+    createStack(65535*16);
     cont();  //for initializing tablo and do
 
 }
@@ -105,7 +105,10 @@ void MainSequence::initWeightersConf(const QVariantMap& s)
         wc.database.setConnectOptions(m.take("connection_options").toString() );
 
 
-        //wc.db.open();
+        wc.db.setHost(wc.database.hostName().toStdString());
+        wc.db.setDatabase(wc.database.databaseName().toStdString());
+        wc.db.setUser(wc.database.userName().toStdString());
+        wc.db.setPassword(wc.database.password().toStdString());
 
         for ( QVariantMap::const_iterator iter =  m.constBegin(); iter != m.constEnd(); ++iter){
             //qDebug() << "k: " << iter.key() << " " << *iter;
@@ -120,6 +123,7 @@ void MainSequence::initWeightersConf(const QVariantMap& s)
         //WeighterConf::initCardStruct(wc);
 
         weighters_conf.push_back( std::move(wc) );
+
     }
 }
 
