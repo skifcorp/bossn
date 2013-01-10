@@ -7,7 +7,7 @@ class WeightFromFile : public PorterDriver
 {
     Q_OBJECT
 public:
-    virtual void readWeight(float & ret, uint &);
+    Q_INVOKABLE void readWeight(QVariant & ret, uint &);
     virtual void zero(uint &);
 
     static WeightFromFile * create (const QMap<QString, QVariant>& drv_conf)

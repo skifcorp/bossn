@@ -9,7 +9,7 @@
 class FormaterSequence : public AlhoSequence
 {
 public:
-    FormaterSequence(Tags & t, const QVariantMap& opts):tags(t), options(opts) {}
+    FormaterSequence(Tags & t, const QVariantMap& opts):AlhoSequence("FormaterSequence"), tags(t), options(opts) {}
     ~FormaterSequence() {}
 
     void start();

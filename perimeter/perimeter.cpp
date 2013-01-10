@@ -3,7 +3,7 @@
 
 BossnFactoryRegistrator<PerimeterTask> PerimeterTask::registrator("PerimeterTask");
 
-PerimeterTask::PerimeterTask(Tags & t):tags(t), is_busy(false)
+PerimeterTask::PerimeterTask(Tags & t):BaseTask("PerimeterTask"), tags(t), is_busy(false)
 {
 
 }

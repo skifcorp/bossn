@@ -11,7 +11,7 @@ class AlhoSequence : public QObject, public Coroutine
 public:
     typedef QSharedPointer<AlhoSequence> Pointer;
 
-    AlhoSequence();
+    AlhoSequence(const QString& n);
     virtual ~AlhoSequence() {}
 
     virtual void setSettings(const QVariantMap& ) = 0;

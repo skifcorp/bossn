@@ -19,7 +19,7 @@ class BaseTask : public AlhoSequence,
 public:
     typedef QSharedPointer<BaseTask> Pointer;
 
-    BaseTask() {}
+    BaseTask(const QString& n):AlhoSequence(n) {}
 
     virtual ~BaseTask(){}
     void exec()

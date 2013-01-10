@@ -75,9 +75,10 @@ void MainSequence::setSettings(const QVariantMap & s)
     initWeightersConf( s );
 
     restart();
-    createStack(65535*16);
-    cont();  //for initializing tablo and do
 
+
+    createStack(65535*8);
+    cont();  //for initializing tablo and do
 }
 
 void MainSequence::initWeightersConf(const QVariantMap& s)
@@ -136,7 +137,7 @@ void MainSequence::printOnTablo(const QString & s)
 }
 
 MainSequence::MainSequence(Tags & t, const QVariantMap& s)
-    :init(true),tags(t), app_settings(s), alho_settings(*this, tags) ,on_weight(false), seq_id(0), uses_photo(false), wake_timer(this)
+    :AlhoSequence("MainSequence"), init(true),tags(t), app_settings(s), alho_settings(*this, tags) ,on_weight(false), seq_id(0), uses_photo(false), wake_timer(this)
 {
     qx::QxSqlDatabase::getSingleton()->setTraceSqlQuery(false);
     qx::QxSqlDatabase::getSingleton()->setTraceSqlRecord(false);
@@ -163,7 +164,7 @@ void MainSequence::checkForStealedCard(const ActivateCardISO14443A& card)
 
 
 void MainSequence::wakeUp()
-{
+{   
     cont();
 }
 

@@ -18,7 +18,7 @@ class ProtTask : public BaseTask
 {
     Q_OBJECT
 public:
-    ProtTask(Tags & t):tags(t),
+    ProtTask(Tags & t):BaseTask("ProtTask"),tags(t),
                        async_func_(database, *this),
                        config_async_func_( config_database, *this ),
                        viewer_prot_initialized(false),

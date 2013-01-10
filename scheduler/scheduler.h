@@ -26,17 +26,9 @@ class Schedul : public QObject
 public:
     typedef QSharedPointer<Schedul> Pointer;
 
-    Schedul(Scheduler & s, function<void ()> schf, function<void ()> tmf, int schedul_msec, int timeout_msec)
-        :num(0), schedule_func(schf), timeout_func(tmf), scheduler(s)
-    {
-        schedule_timer.setSingleShot(true);
-        schedule_timer.setInterval(schedul_msec);
+    Schedul(Scheduler & s, function<void ()> schf, function<void ()> tmf, int schedul_msec, int timeout_msec);
+    ~Schedul();
 
-        timeout_timer.setSingleShot(true);
-        timeout_timer.setInterval(timeout_msec);
-
-        connect(&schedule_timer,SIGNAL(timeout()), this, SLOT(onScheduleTimer()) );
-    }
     int num;
     Schedul(const Schedul& ) = delete;
 
@@ -44,7 +36,7 @@ public:
     function<void ()> timeout_func;
     QTimer timeout_timer;
 
-    void startScheduleTimer();
+    void startScheduleTimer(const QString& );
     static void coro_deleter(Coroutine *);
     static void coro_deleter_for_external_coro(Coroutine *);
 
@@ -61,6 +53,12 @@ public:
     {
         return coro->status() == Coroutine::Stopped;
     }
+
+    Coroutine::Status status() const
+    {
+        return coro->status();
+    }
+
 protected:
     //virtual void run();
 private:
@@ -127,7 +125,7 @@ public:
     Scheduler ();
     ~Scheduler(){}
 
-    void addFunction( function<void ()>, function<void ()>, int schedul_msec, int timeout_msec );
+    void addFunction( function<void ()>, function<void ()>, int schedul_msec, int timeout_msec, const QString& func_name );
 
     void execFunction(AlhoSequence * caller, function<void ()>, function<void ()>, int timeout_msec,
                       const QString& tag_name, const QString& func_name);

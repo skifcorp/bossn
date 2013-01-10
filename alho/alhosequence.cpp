@@ -1,5 +1,8 @@
 #include "alhosequence.h"
 
-AlhoSequence::AlhoSequence()
+#include <QDebug>
+
+AlhoSequence::AlhoSequence(const QString& n): Coroutine( "asasas" )
 {
+
 }

@@ -634,6 +634,7 @@ void BeetAcceptanceCulture::fetchCar(const MifareCardData& bill) throw (MainSequ
                         == (int)carCodeFromDriver( bill.memberValue<uint>("driver"))),
                     tr(fetch_car_error_message)
                   );
+
      if ( current_car_data.value( cars_table.block ) ) {
          throw MainSequenceException(tr(car_blocked_message), "car is blocked!!!");
      }

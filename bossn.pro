@@ -25,18 +25,19 @@ QMAKE_CXXFLAGS += -std=gnu++0x
 
 
 
+
+DEFINES += FUSION_MAX_VECTOR_SIZE=30                          #\
+#           BOOST_FUSION_INVOKE_MAX_ARITY=30                   \
+#           BOOST_MPL_LIMIT_VECTOR_SIZE=30                    \
+#           BOOST_RESULT_OF_NUM_ARGS=30                       \
+#           BOOST_MULTI_INDEX_LIMIT_INDEXED_BY_SIZE=30        \
+#           BOOST_MULTI_INDEX_LIMIT_TAG_SIZE=30               \
+#           BOOST_MPL_CFG_NO_PREPROCESSED_HEADERS=1
+
 #PRECOMPILED_HEADER = qxorm_pch.h
 
-DEFINES += FUSION_MAX_VECTOR_SIZE=30                          \
-           BOOST_FUSION_INVOKE_MAX_ARITY=30                   \
-           BOOST_MPL_LIMIT_VECTOR_SIZE=30                    \
-           BOOST_RESULT_OF_NUM_ARGS=30                       \
-           BOOST_MULTI_INDEX_LIMIT_INDEXED_BY_SIZE=30        \
-           BOOST_MULTI_INDEX_LIMIT_TAG_SIZE=30               \
-           BOOST_MPL_CFG_NO_PREPROCESSED_HEADERS=1
-
 LIBS           +=   -lqextserialport                \
-                    -lcoroutine                     \
+                    -lcoroutined                    \
                     -lqxorm                         \
                     -lboost_serialization           \
                     -llibmysql                      \
@@ -189,7 +190,8 @@ HEADERS +=   reader/mifarereaderemulator.h \
     alho/weighters/mria/weighter/mriaacceptanceweighter.h \
     alho/weighters/kryzh/beet/kryzhbeettables.h \
     alho/bossnasync.h \
-    alho/async_func2.h
+    alho/async_func2.h \
+    tools/deleterlater.h
 
 
 RESOURCES += bossn.qrc

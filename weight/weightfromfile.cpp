@@ -5,11 +5,12 @@
 
 BossnFactoryRegistrator<WeightFromFile> WeightFromFile::registrator("WeightFromFile");
 
-void WeightFromFile::readWeight(float & ret, uint & err)
+void WeightFromFile::readWeight(QVariant & ret, uint & err)
 {
     QByteArray ba = io_device()->readAll();
 
     ret = parseWeightFrameAnswer(ba, err);
+
 }
 
 void WeightFromFile::zero(uint &)
@@ -25,8 +26,7 @@ float WeightFromFile::parseWeightFrameAnswer(const QByteArray& ba, uint & err) c
 {
     bool ok = false;
     float fret = ba.toFloat(&ok);
-    if (!ok) {
-        //throw WeightFrameExceptionCorrupted();
+    if (!ok) {        
         err = PorterFrameCorrupted; return NAN;
     }
     err = 0;
