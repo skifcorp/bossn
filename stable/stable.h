@@ -40,7 +40,7 @@ class StableTask : public BaseTask
 public:
     typedef QSharedPointer<StableTask> Pointer;
 
-    StableTask(Tags & t):BaseTask("StableTask"), tags(t), is_stable(false) {}
+    StableTask(Tags & t):BaseTask("StableTask"), tags(t), is_stable(false), is_busy(false) {}
     ~StableTask() {}
 
     //virtual void exec();
