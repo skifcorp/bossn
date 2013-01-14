@@ -39,7 +39,12 @@ void Culture::checkTaraDeltaForReweights(int prev_weight, int weight) const thro
 
 void Culture::checkWeightCorrectess(int w)  throw (MainSequenceException)
 {
-    if ( w < 0 || !seq().alhoSettings().weight_stable.func().toBool() )
+    if ( w < 0 ) {
+        throw MainSequenceException(tr(weight_not_stable_message),
+                                    "weights dont stable!: " + QString::number(w) );
+    }
+
+    if (  !seq().alhoSettings().weight_stable.func().toBool() )
         throw MainSequenceException(tr(weight_not_stable_message),
                                     "weights dont stable!" );
 }

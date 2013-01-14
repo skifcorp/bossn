@@ -4,12 +4,20 @@
 #
 #-------------------------------------------------
 
+#QMAKE_CXX = clang++
+#
+#INCLUDEPATH += d:/users/andigor/prg/mingw-x64-4.7.2-release-posix-sjlj-rev6.7/lib/gcc/x86_64-w64-mingw32/4.7.2/include/c++/ \
+#               d:/users/andigor/prg/mingw-x64-4.7.2-release-posix-sjlj-rev6.7/lib/gcc/x86_64-w64-mingw32/4.7.2/include/c++/x86_64-w64-mingw32 \
+#               d:/users/andigor/prg/mingw-x64-4.7.2-release-posix-sjlj-rev6.7/lib/gcc/x86_64-w64-mingw32/4.7.2/include/c++/tr1/
+
+
+
 
 QT       += core xml sql script gui
 CONFIG   += uitools console
 
 TARGET   = bossn
-CONFIG   += console precompile_header
+CONFIG   += console #precompile_header
 CONFIG   -= app_bundle
 DESTDIR  = build
 
@@ -20,13 +28,10 @@ INCLUDEPATH    += db alho serial weight generic iodevicewrapper scheduler       
                   alho/weighters alho/direction photograb                           \
                   alho/weighters/common
 
-QMAKE_CXXFLAGS += -std=gnu++0x
-#QMAKE_LFLAGS   += -m32
+QMAKE_CXXFLAGS += -std=gnu++0x -O # --param ggc-min-expand=10 --param ggc-min-heapsize=65535 -O
 
 
-
-
-DEFINES += FUSION_MAX_VECTOR_SIZE=30                          #\
+DEFINES += FUSION_MAX_VECTOR_SIZE=40                          #\
 #           BOOST_FUSION_INVOKE_MAX_ARITY=30                   \
 #           BOOST_MPL_LIMIT_VECTOR_SIZE=30                    \
 #           BOOST_RESULT_OF_NUM_ARGS=30                       \

@@ -22,12 +22,12 @@ QByteArray WeightFromFile::weightRequestFrame() const
 {
     return QByteArray( );
 }
-float WeightFromFile::parseWeightFrameAnswer(const QByteArray& ba, uint & err) const
+int WeightFromFile::parseWeightFrameAnswer(const QByteArray& ba, uint & err) const
 {
     bool ok = false;
-    float fret = ba.toFloat(&ok);
+    int fret = ba.toInt(&ok);
     if (!ok) {        
-        err = PorterFrameCorrupted; return NAN;
+        err = PorterFrameCorrupted; return 0;
     }
     err = 0;
     return fret;

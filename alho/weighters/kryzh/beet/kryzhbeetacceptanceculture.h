@@ -82,8 +82,12 @@ private:
     static const QString t_field_name;
 
     typename sql::table_result_set<t_cars_beet_table>::type::value_type current_car_data;
+    typename sql::table_result_set<t_ttn_beet_table>::type::value_type current_ttn_data;
 
-    t_cars_beet_table cars_table {"t_cars"}; 
+
+    t_cars_beet_table  cars_table {"t_cars"};
+    t_ttn_beet_table   ttn_table{"t_ttn"};
+    t_field_beet_table field_table{"t_def_field"};
 };
 
 

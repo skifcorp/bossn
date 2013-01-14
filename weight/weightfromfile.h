@@ -25,7 +25,7 @@ protected:
     }*/
 
     virtual QByteArray weightRequestFrame() const;
-    virtual float parseWeightFrameAnswer(const QByteArray& ba, uint &) const;
+    virtual int parseWeightFrameAnswer(const QByteArray& ba, uint &) const;
 
     //static bool registered;
     static BossnFactoryRegistrator<WeightFromFile> registrator;

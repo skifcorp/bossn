@@ -5,8 +5,11 @@
 #include "mainsequence.h"
 #include "func.h"
 
+#include "qxorm_pch.h"
+
 namespace alho { namespace common {
 
+namespace sql = boost::rdb::mysql;
 
 class AcceptanceCulture : public Culture
 {
@@ -57,7 +60,24 @@ public:
 			ttn->real_field = bill.memberValue<uint>("numField");
 		}	
 	}
-	
+
+    template<class Tttn, class Tttn_data, class Tfield>
+    void repairFieldCodeCorrectnessIfNeeded2(MifareCardData &bill,
+        const Tfield& field_table, const Tttn& ttn_table, Tttn_data & ttn_data)
+    {
+        auto q = sql::select( sql::count() ).from(field_table).where( field_table.num_field ==
+                                                                      bill.memberValue<int>("realNumField") );
+
+        qDebug() << "count is: " << async2().fetch( q, "fetching field_table failed!") ;
+
+        if ( bill.memberValue<uint>("realNumField") == 0 || async2().fetch( q, "fetching field_table failed!") )
+        {
+            bill.setMemberValue("realNumField", bill.memberValue<int>("numField"));
+            //ttn_data.value( ttn_table.real_field ) = bill.memberValue<int>("numField");
+        }
+    }
+
+
     template <class Tttn, class Tcars, class Tconst>
     void processTaraRupture(qx::dao::ptr<Tttn> ttn, qx::dao::ptr<Tcars> car )  throw (MainSequenceException)
     {

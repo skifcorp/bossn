@@ -65,7 +65,6 @@ BossnFactoryRegistrator<StableTask> StableTask::registrator("StableTask");
 void StableTask::run()
 {
 
-
     is_busy = true;
 
     QVariant v = tags[controlled_tag_name]->func(controlled_tag_func, this);

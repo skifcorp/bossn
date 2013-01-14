@@ -65,4 +65,10 @@ BOOST_RDB_BEGIN_TABLE(t_cars_beet_table)
     BOOST_RDB_COLUMN(smena                        ,varchar<20>)
 BOOST_RDB_END_TABLE(t_cars_beet_table)
 
+BOOST_RDB_BEGIN_TABLE(t_field_beet_table)
+    BOOST_RDB_COLUMN(num_field                    ,integer    )
+    BOOST_RDB_COLUMN(num_loader                   ,integer    )
+BOOST_RDB_END_TABLE(t_field_beet_table)
+
+
 #endif // KRYZHBEETTABLES_H

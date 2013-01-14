@@ -43,15 +43,22 @@ void BeetAcceptanceCulture::brutto(int w, MifareCardData& bill) throw (MainSeque
 {
 
 
-    current_ttn = wrap_async_ex(tr(fetch_ttn_error_message), "fetching ttn failed!!!",
+    /*current_ttn = wrap_async_ex(tr(fetch_ttn_error_message), "fetching ttn failed!!!",
                            [&bill, this]{return asyncFunc().async_fetch<t_ttn_beet>(bill["billNumber"].toUInt(), t_ttn_name);});
+*/
+    current_ttn_data = async2().fetch(
+                sql::select( ttn_table.all ).from(ttn_table).where( ttn_table.num_nakl ==  bill["billNumber"].toInt()),
+                tr(fetch_ttn_error_message) );
 
-    seq().seqDebug() << "BeetAcceptance: brutto weight!, ttn: " << current_ttn->num_nakl;
+    //seq().seqDebug() << "BeetAcceptance: brutto weight!, ttn: " << current_ttn->num_nakl;
+
+    //seq().seqDebug() << "BeetAcceptance: brutto weight!, ttn: " << current_ttn_data.value( ttn_table.num_nakl );
 
     bill.setMemberValue("bruttoWeight", w);
     bill.setMemberValue("dateOfBrutto", QDateTime::currentDateTime());
 
-    repairFieldCodeCorrectnessIfNeeded<t_ttn_beet, t_field_beet>(bill, current_ttn, t_field_name);
+    repairFieldCodeCorrectnessIfNeeded2(bill, field_table, ttn_table, current_ttn_data);
+
     processChemicalAnalysis( bill, current_ttn );
     processFreeBum( bill, current_ttn, current_car );
 
