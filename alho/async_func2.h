@@ -1,6 +1,8 @@
 #ifndef ASYNC_FUNC2_H
 #define ASYNC_FUNC2_H
 
+#include <boost/mpl/if.hpp>
+
 #include <string>
 
 #include "qxorm_pch.h"
@@ -90,6 +92,42 @@ private slots:
 };
 
 
+namespace result_of {
+
+    template <class Seq>
+    struct fetch : mpl::if_c <
+                Seq::size::value == 1,
+                typename std::remove_reference<
+                    typename Seq::template type_of_c<0>::type
+                >::type,
+                Seq
+            >
+    {
+
+    };
+}
+
+template <int Size>
+struct return_fetch_result
+{
+    template <class Seq>
+    static typename std::remove_reference<Seq>::type value( Seq && s )
+    {
+        return std::move( s );
+    }
+};
+
+template <>
+struct return_fetch_result<1>
+{
+    template <class Seq>
+    static auto value (Seq && s) -> typename std::remove_reference<decltype ( s.template get<0>() )>::type
+    {
+        return std::move( s.template get<0>() );
+    }
+};
+
+
 class async_func2 : public async_func_base2
 {
 private:
@@ -116,9 +154,13 @@ public:
 
     }
 
+
+
     template <class Q>
     auto fetch(Q && q, const QString& user_message) ->
-        typename std::remove_reference<decltype( database.execute(q).all().front() )>::type
+        typename result_of::fetch<
+            typename std::remove_reference<decltype( database.execute(q).all().front() )>::type
+        >::type
     {
         auto deq = async_exec(
                     [this, q]  {
@@ -136,7 +178,9 @@ public:
                 QString::fromStdString("query: " + as_string( std::forward<Q>(q) ) + " is empty!!!"));
         }
 
-        return std::move(deq.front());
+        using nullable_type = typename std::remove_reference<decltype(deq.front())>::type;
+
+        return std::move( return_fetch_result< nullable_type::size::value >::value( deq.front() ) );
         //return data;
     }
 };
