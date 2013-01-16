@@ -71,4 +71,6 @@ BOOST_RDB_BEGIN_TABLE(t_field_beet_table)
 BOOST_RDB_END_TABLE(t_field_beet_table)
 
 
+
+
 #endif // KRYZHBEETTABLES_H

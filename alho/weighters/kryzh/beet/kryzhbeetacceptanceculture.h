@@ -48,7 +48,7 @@ public:
 private:
     void processChemicalAnalysis(MifareCardData&, qx::dao::ptr<t_ttn_beet> )  throw();
     void processFreeBum(MifareCardData & bill, qx::dao::ptr<t_ttn_beet> ttn, qx::dao::ptr<t_cars_beet> car ) throw(MainSequenceException);
-    uint countCarsFromFieldForDayExcludeCurrent(uint ttn_num, uint field_num)  throw();
+    uint countCarsFromFieldForDayExcludeCurrent(int ttn_num, int field_num)  throw();
     bool checkForNeedDatabaseConstAnalisys(long count, long kontrag)  throw ();
     uint getAnalisysPeriodFromStorage(uint typ) throw(MysqlException, MainSequenceException);
     bool checkForNeedDiscreteAnalisys(long count) const throw();
@@ -85,9 +85,11 @@ private:
     typename sql::table_result_set<t_ttn_beet_table>::type::value_type current_ttn_data;
 
 
+
     t_cars_beet_table  cars_table {"t_cars"};
     t_ttn_beet_table   ttn_table{"t_ttn"};
     t_field_beet_table field_table{"t_def_field"};
+
 };
 
 

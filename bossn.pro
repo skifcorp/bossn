@@ -10,7 +10,7 @@
 #               d:/users/andigor/prg/mingw-x64-4.7.2-release-posix-sjlj-rev6.7/lib/gcc/x86_64-w64-mingw32/4.7.2/include/c++/x86_64-w64-mingw32 \
 #               d:/users/andigor/prg/mingw-x64-4.7.2-release-posix-sjlj-rev6.7/lib/gcc/x86_64-w64-mingw32/4.7.2/include/c++/tr1/
 
-
+#INCLUDEPATH += d:/users/andigor/prg/STLport-5.2.1/stlport/
 
 
 QT       += core xml sql script gui
@@ -28,7 +28,7 @@ INCLUDEPATH    += db alho serial weight generic iodevicewrapper scheduler       
                   alho/weighters alho/direction photograb                           \
                   alho/weighters/common
 
-QMAKE_CXXFLAGS += -std=gnu++0x -O # --param ggc-min-expand=10 --param ggc-min-heapsize=65535 -O
+QMAKE_CXXFLAGS += -std=gnu++0x -O #--param ggc-min-expand=10 --param ggc-min-heapsize=65535 -O
 
 
 DEFINES += FUSION_MAX_VECTOR_SIZE=40                          #\
@@ -196,7 +196,8 @@ HEADERS +=   reader/mifarereaderemulator.h \
     alho/weighters/kryzh/beet/kryzhbeettables.h \
     alho/bossnasync.h \
     alho/async_func2.h \
-    tools/deleterlater.h
+    tools/deleterlater.h \
+    alho/weighters/common/generictables.h
 
 
 RESOURCES += bossn.qrc

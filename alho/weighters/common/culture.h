@@ -76,14 +76,31 @@ public:
     void checkWeightCorrectess(int w) throw (MainSequenceException);
     int getWeight()  throw (MainSequenceException);
  
-  	
+    void fillConstants();
 
+    template <class T>
+    T constantValue( const QString& n ) const
+    {
+        auto iter = constants.find( n );
+        if ( iter == constants.end() )
+            throw MainSequenceException( tr(requested_constant_not_exists) + " " + n, "requested_constant_not_exists " + n );
+        QVariant v( *iter );
+        return v.value<T>();
+    }
+
+    bool containsConstant( const QString& n ) const
+    {
+        return constants.contains(n);
+    }
 private:
     MainSequence& seq_;
     QSqlDatabase database_;
     async_func async_;   
     convience_func convience_;
     async_func2 async2_;
+
+private:
+    QMap<QString, QString> constants;
 };
 
 } }

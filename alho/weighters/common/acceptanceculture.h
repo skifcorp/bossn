@@ -66,14 +66,14 @@ public:
         const Tfield& field_table, const Tttn& ttn_table, Tttn_data & ttn_data)
     {
         auto q = sql::select( sql::count() ).from(field_table).where( field_table.num_field ==
-                                                                      bill.memberValue<int>("realNumField") );
-
-        qDebug() << "count is: " << async2().fetch( q, "fetching field_table failed!") ;
+                                                                      bill.memberValue<int>("realNumField") );       
 
         if ( bill.memberValue<uint>("realNumField") == 0 || async2().fetch( q, "fetching field_table failed!") )
         {
             bill.setMemberValue("realNumField", bill.memberValue<int>("numField"));
-            //ttn_data.value( ttn_table.real_field ) = bill.memberValue<int>("numField");
+            ttn_data.replace( ttn_table.real_field, bill.memberValue<int>("numField") );
+            qDebug() << "INFO: t_ttn: " << ttn_data[ttn_table.num_nakl] << " realNumField: " << bill.memberValue<uint>("realNumField")
+                     << " will be changed to " << bill.memberValue<int>("numField");
         }
     }
 

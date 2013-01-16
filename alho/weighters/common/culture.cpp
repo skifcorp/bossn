@@ -5,6 +5,9 @@
 #include "async_func.h"
 #include "genericdbstructs.h"
 
+#include "generictables.h"
+
+#include <boost/fusion/include/at_c.hpp>
 
 namespace alho { namespace common {
 
@@ -61,6 +64,23 @@ int Culture::getWeight()  throw (MainSequenceException)
     //    throw MainSequenceException(tr(weights_dont_work), "weights dont work!");
 
     return v.toInt();
+}
+
+namespace sql = boost::rdb::mysql;
+
+void Culture::fillConstants()
+{
+    t_const_table t_const{"t_const"};
+    typename sql::table_result_set<t_const_table>::type deq;
+
+    deq = async2().exec( sql::select( t_const.all ).from( t_const ), cant_get_const_message ).all();
+
+    constants.clear();
+
+    for ( const auto & val : deq ) {
+        constants[ QString::fromStdString( val[t_const.id] ) ] =
+                QString::fromStdString(val[t_const.value]);
+    }
 }
 
 } }

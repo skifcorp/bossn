@@ -20,6 +20,8 @@ public:
 
     virtual void processWeighting(MifareCardData& bill, MifareCardSector& card, const  WeighterConf& weighter_conf )
     {
+        C::fillConstants();
+
         C::fetchCar(bill);
 
         C::seq().processPerimeter();

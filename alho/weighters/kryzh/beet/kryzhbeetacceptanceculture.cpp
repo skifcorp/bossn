@@ -159,22 +159,33 @@ void BeetAcceptanceCulture::reTara(int w, MifareCardData& bill) throw (MainSeque
 }
 
 
-uint BeetAcceptanceCulture::countCarsFromFieldForDayExcludeCurrent(uint ttn_num, uint field_num)  throw()
+uint BeetAcceptanceCulture::countCarsFromFieldForDayExcludeCurrent(int ttn_num, int field_num)  throw()
 {
     try {
         QDate workDate = QTime::currentTime().hour()<8 ? QDate::currentDate().addDays(-1) : QDate::currentDate();
 
-        qx_query q("where floor(real_field/100) = "  + QString::number( field_num ) +
+/*        qx_query q("where floor(real_field/100) = "  + QString::number( field_num ) +
                    " and dt_of_brutto>='" + workDate.toString("yyyy.MM.dd") + " 08:00:00'"                            \
                    " and dt_of_brutto<='" + workDate.addDays(1).toString("yyyy.MM.dd") + " 08:00:00' and num_nakl <> " +
                    QString::number(ttn_num) );
         long count = 0;
         asyncFunc().async_count<t_ttn_beet>( count, q, t_ttn_name);
 
-        return count;
+        return count;*/
+
+        auto q = sql::select( sql::count() ).from( ttn_table ).where ( sql::floor( ttn_table.real_field / 100 ) == field_num &&
+            ttn_table.dt_of_brutto >= (workDate.toString("yyyy.MM.dd") + " 08:00:00").toAscii().constData() &&
+            ttn_table.dt_of_brutto <= (workDate.addDays(1).toString("yyyy.MM.dd") + " 08:00:00").toAscii().constData() &&
+            ttn_table.num_nakl != ttn_num );
+
+
+
+        qDebug() << "WOW!!! " << QString::fromStdString(as_string(q));
+
+        return async2().fetch( q, "counting cars failed!" );
     }
-    catch (MysqlException& ex) {
-        seq().seqWarning() << "cant get count of ttns for chemical analysis!!! field: "<<field_num;
+    catch (MainSequenceException & ex) {
+        seq().seqWarning() << "cant get count of ttns for chemical analysis!!! field: "<<field_num << " msg: " << ex.adminMessage();
     }
 
     return 0;
@@ -182,7 +193,7 @@ uint BeetAcceptanceCulture::countCarsFromFieldForDayExcludeCurrent(uint ttn_num,
 
 bool BeetAcceptanceCulture::analysisEnabled()
 {
-    qx::dao::ptr<t_const_beet> enab_analysis;
+/*    qx::dao::ptr<t_const_beet> enab_analysis;
     try {
         enab_analysis = convienceFunc().getConst<t_const_beet>(seq().appSetting<QString>("enable_analysis", "enable_analysis"));
     }
@@ -206,16 +217,19 @@ bool BeetAcceptanceCulture::analysisEnabled()
         return true;
     }
 
-    qDebug () << "enable_analysis : " << ret;
+    qDebug () << "enable_analysis : " << ret;*/
 
-    return ret;
+    if (!containsConstant(seq().appSetting<QString>("enable_analysis", "enable_analysis")))
+        return true;
+
+    return constantValue<bool>( seq().appSetting<QString>("enable_analysis", "enable_analysis"));
 }
 
 void BeetAcceptanceCulture::processChemicalAnalysis(MifareCardData & bill, qx::dao::ptr<t_ttn_beet> ttn ) throw()
 {
     if ( !analysisEnabled() ) return;
 
-    long count   = countCarsFromFieldForDayExcludeCurrent(ttn->num_nakl,
+    long count   = countCarsFromFieldForDayExcludeCurrent( current_ttn_data[ttn_table.num_nakl] /* ttn->num_nakl, */,
                                                           kontrCodeFromField( bill.memberValue<uint>("realNumField") ) );
 
     QString alho = seq().appSetting<QString>("common_algorithm_of_analysis");
@@ -642,7 +656,7 @@ void BeetAcceptanceCulture::fetchCar(const MifareCardData& bill) throw (MainSequ
                     tr(fetch_car_error_message)
                   );
 
-     if ( current_car_data.value( cars_table.block ) ) {
+     if ( current_car_data[cars_table.block] ) {
          throw MainSequenceException(tr(car_blocked_message), "car is blocked!!!");
      }
 }
