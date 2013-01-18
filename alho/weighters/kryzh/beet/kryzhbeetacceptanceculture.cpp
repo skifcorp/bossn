@@ -1,5 +1,3 @@
-#include "qxorm_pch.h"
-
 #include "kryzhbeetacceptanceculture.h"
 #include "mainsequence.h"
 #include "codeshacks.h"
@@ -32,21 +30,22 @@ QString BeetAcceptanceCulture::bruttoFinishMessage(const MifareCardData& bill )c
 QString BeetAcceptanceCulture::taraFinishMessage(const MifareCardData& )const
 {
     QString ret;
-    ret = tr(brutto_finish_weight_message).arg( current_ttn->tara );
+    //ret = tr(brutto_finish_weight_message).arg( current_ttn->tara );
+    ret = tr(brutto_finish_weight_message).arg( current_ttn[ttn_table.tara] );
     return ret;
 }
 
 
 
 
-void BeetAcceptanceCulture::brutto(int w, MifareCardData& bill) throw (MainSequenceException)
+void BeetAcceptanceCulture::brutto(int w, MifareCardData& bill)
 {
 
 
     /*current_ttn = wrap_async_ex(tr(fetch_ttn_error_message), "fetching ttn failed!!!",
                            [&bill, this]{return asyncFunc().async_fetch<t_ttn_beet>(bill["billNumber"].toUInt(), t_ttn_name);});
 */
-    current_ttn_data = async2().fetch(
+    current_ttn = async2().fetch(
                 sql::select( ttn_table.all ).from(ttn_table).where( ttn_table.num_nakl ==  bill["billNumber"].toInt()),
                 tr(fetch_ttn_error_message) );
 
@@ -57,10 +56,10 @@ void BeetAcceptanceCulture::brutto(int w, MifareCardData& bill) throw (MainSeque
     bill.setMemberValue("bruttoWeight", w);
     bill.setMemberValue("dateOfBrutto", QDateTime::currentDateTime());
 
-    repairFieldCodeCorrectnessIfNeeded2(bill, field_table, ttn_table, current_ttn_data);
+    repairFieldCodeCorrectnessIfNeeded2(bill, field_table, ttn_table, current_ttn);
 
-    processChemicalAnalysis( bill, current_ttn );
-    processFreeBum( bill, current_ttn, current_car );
+    processChemicalAnalysis( bill );
+    processFreeBum( bill );
 
 //    if ( bill.memberValue<QBitArray>("flags").at(2) )
 //        bill.setMemberValue("flags", 3, true);
@@ -71,49 +70,51 @@ void BeetAcceptanceCulture::brutto(int w, MifareCardData& bill) throw (MainSeque
     //current_ttn->culture = bill.memberValue<int>("culture");
     //current_ttn->repr = bill.memberValue<int>("repr");
 
-    updateBruttoValues(bill, current_ttn);
+    updateBruttoValues(bill);
     //culture, repr, sort - v bazu
     // - bum
     // rouuted_to_lab = 1
 }
 
-void BeetAcceptanceCulture::tara(int w, MifareCardData& bill) throw (MainSequenceException)
+void BeetAcceptanceCulture::tara(int w, MifareCardData& bill)
 {
-    current_ttn = wrap_async_ex(tr(fetch_ttn_error_message), "fetching ttn failed!!!",
-                              [&bill, this]{return asyncFunc().async_fetch<t_ttn_beet>(bill["billNumber"].toUInt(), t_ttn_name);});
+    current_ttn = async2().fetch(
+                sql::select( ttn_table.all ).from(ttn_table).where( ttn_table.num_nakl ==  bill["billNumber"].toInt()),
+                tr(fetch_ttn_error_message) );
 
-    seq().seqDebug() << "BeetAcceptance: tara weight!, ttn: " << current_ttn->num_nakl;
+    seq().seqDebug() << "BeetAcceptance: tara weight!, ttn: " << current_ttn[ttn_table.num_nakl];
 
-    checkTaraByBrutto(w, current_ttn);
+    checkTaraByBrutto2(w, ttn_table, current_ttn);
 
-    current_ttn->tara = w;
-    current_ttn->dt_of_tara = QDateTime::currentDateTime();
+    current_ttn[ttn_table.tara]       = w;
+    current_ttn[ttn_table.dt_of_tara] = boost::posix_time::from_time_t( QDateTime::currentDateTime().toTime_t() );
 
     checkBum(bill);
-    checkLaboratory(bill, current_car);
+    checkLaboratory(bill);
     checkKagat(bill);
 
-    clearBumQueue(current_ttn);
+    clearBumQueue();
 
-    processDrivingTime(current_ttn, current_car);
+    processDrivingTime2(ttn_table, current_ttn, cars_table, current_car  );
 
-    repairBumCorrectnessIfNeeded(current_ttn);
+    repairBumCorrectnessIfNeeded();
 
-    processTaraRupture<t_ttn_beet, t_cars_beet, t_const_beet>(current_ttn, current_car);
+    processTaraRupture2(ttn_table, current_ttn, cars_table, current_car);
 
-    updateTaraValues(bill, current_ttn, current_car, true);
+    updateTaraValues(bill, true);
 
     bill.setMemberValue("taraWeight", w);
     bill.setMemberValue("dateOfTara", QDateTime::currentDateTime());
 
 }
 
-void BeetAcceptanceCulture::reBrutto(int w, MifareCardData& bill) throw (MainSequenceException)
+void BeetAcceptanceCulture::reBrutto(int w, MifareCardData& bill)
 {
-    current_ttn = wrap_async_ex(tr(fetch_ttn_error_message), "fetching ttn failed!!!",
-                           [&bill, this]{return asyncFunc().async_fetch<t_ttn_beet>(bill["billNumber"].toUInt(),t_ttn_name);});
+    current_ttn = async2().fetch(
+                sql::select( ttn_table.all ).from(ttn_table).where( ttn_table.num_nakl ==  bill["billNumber"].toInt()),
+                tr(fetch_ttn_error_message) );
 
-    seq().seqDebug() << "BeetAcceptance: rebrutto weight!, ttn: " << current_ttn->num_nakl;
+    seq().seqDebug() << "BeetAcceptance: rebrutto weight!, ttn: " << current_ttn[ttn_table.num_nakl];
 
     checkBruttoDeltaForReweights(bill.memberValue<uint>("bruttoWeight"), w);
 
@@ -128,38 +129,38 @@ void BeetAcceptanceCulture::reBrutto(int w, MifareCardData& bill) throw (MainSeq
         bill.setMemberValue("flags", 3, false);
     }*/
 
-    updateBruttoValues(bill, current_ttn);
+    updateBruttoValues(bill);
 }
 
-void BeetAcceptanceCulture::reTara(int w, MifareCardData& bill) throw (MainSequenceException)
+void BeetAcceptanceCulture::reTara(int w, MifareCardData& bill)
 {
     qDebug() << "ttn_by_driver";
 
-    current_ttn = ttnByDriver<t_ttn_beet>(  bill.memberValue<uint>("driver") );
+    current_ttn = ttnByDriver2< decltype(current_ttn) >(  bill.memberValue<int>("driver"), ttn_table );
 
-    seq().seqDebug() << "BeetAcceptance: retara weight!, ttn: " << current_ttn->num_nakl;
+    seq().seqDebug() << "BeetAcceptance: retara weight!, ttn: " << current_ttn[ttn_table.num_nakl];
 
-    checkTaraByBrutto(w, current_ttn);
+    checkTaraByBrutto2(w, ttn_table, current_ttn);
 
-    checkTaraDeltaForReweights(current_ttn->tara, w);
+    checkTaraDeltaForReweights(current_ttn[ttn_table.tara], w);
 
-    current_ttn->tara = w;
-    current_ttn->dt_of_tara = QDateTime::currentDateTime();
+    current_ttn[ttn_table.tara] = w;
+    current_ttn[ttn_table.dt_of_tara] = boost::posix_time::from_time_t( QDateTime::currentDateTime().toTime_t() );
 
-    repairBumCorrectnessIfNeeded(current_ttn);
+    repairBumCorrectnessIfNeeded();
 
-    processDrivingTime(current_ttn, current_car);
+    processDrivingTime2(ttn_table, current_ttn, cars_table, current_car);
 
-    processTaraRupture<t_ttn_beet, t_cars_beet, t_const_beet>(current_ttn, current_car);
+    processTaraRupture2(ttn_table, current_ttn, cars_table, current_car);
 
-    updateTaraValues(bill, current_ttn, current_car, false);
+    updateTaraValues(bill, false);
 
     bill.setMemberValue("taraWeight", w);
     bill.setMemberValue("dateOfTara", QDateTime::currentDateTime());
 }
 
 
-uint BeetAcceptanceCulture::countCarsFromFieldForDayExcludeCurrent(int ttn_num, int field_num)  throw()
+uint BeetAcceptanceCulture::countCarsFromFieldForDayExcludeCurrent(int field_num)
 {
     try {
         QDate workDate = QTime::currentTime().hour()<8 ? QDate::currentDate().addDays(-1) : QDate::currentDate();
@@ -172,7 +173,7 @@ uint BeetAcceptanceCulture::countCarsFromFieldForDayExcludeCurrent(int ttn_num, 
         asyncFunc().async_count<t_ttn_beet>( count, q, t_ttn_name);
 
         return count;*/
-
+        int ttn_num = current_ttn[ ttn_table.num_nakl ];
         auto q = sql::select( sql::count() ).from( ttn_table ).where ( sql::floor( ttn_table.real_field / 100 ) == field_num &&
             ttn_table.dt_of_brutto >= (workDate.toString("yyyy.MM.dd") + " 08:00:00").toAscii().constData() &&
             ttn_table.dt_of_brutto <= (workDate.addDays(1).toString("yyyy.MM.dd") + " 08:00:00").toAscii().constData() &&
@@ -225,12 +226,11 @@ bool BeetAcceptanceCulture::analysisEnabled()
     return constantValue<bool>( seq().appSetting<QString>("enable_analysis", "enable_analysis"));
 }
 
-void BeetAcceptanceCulture::processChemicalAnalysis(MifareCardData & bill, qx::dao::ptr<t_ttn_beet> ttn ) throw()
+void BeetAcceptanceCulture::processChemicalAnalysis(MifareCardData & bill )
 {
     if ( !analysisEnabled() ) return;
 
-    long count   = countCarsFromFieldForDayExcludeCurrent( current_ttn_data[ttn_table.num_nakl] /* ttn->num_nakl, */,
-                                                          kontrCodeFromField( bill.memberValue<uint>("realNumField") ) );
+    long count   = countCarsFromFieldForDayExcludeCurrent( kontrCodeFromField( bill.memberValue<uint>("realNumField") ) );
 
     QString alho = seq().appSetting<QString>("common_algorithm_of_analysis");
 
@@ -255,13 +255,13 @@ void BeetAcceptanceCulture::processChemicalAnalysis(MifareCardData & bill, qx::d
 }
 
 
-bool BeetAcceptanceCulture::checkForNeedDiscreteAnalisys(long count) const throw()
+bool BeetAcceptanceCulture::checkForNeedDiscreteAnalisys(long count) const
 {
     uint num_in_group = (count + 1) % seq().appSetting<uint>("common_size_of_group");
     return num_in_group == seq().appSetting<uint>("common_number_from_group");
 }
 
-uint BeetAcceptanceCulture::getAnalisysPeriodFromStorage(uint typ) throw(MysqlException, MainSequenceException)
+uint BeetAcceptanceCulture::getAnalisysPeriodFromStorage(uint typ)
 {
     qx::dao::ptr<t_const_beet> const_;
 
@@ -280,7 +280,7 @@ uint BeetAcceptanceCulture::getAnalisysPeriodFromStorage(uint typ) throw(MysqlEx
     return const_->value.toUInt();
 }
 
-bool BeetAcceptanceCulture::checkForNeedDatabaseConstAnalisys(long count, long kontrag)  throw ()
+bool BeetAcceptanceCulture::checkForNeedDatabaseConstAnalisys(long count, long kontrag)
 {
     if (count + 1 == 1) return true; //first car always go for analysis
 
@@ -320,22 +320,22 @@ bool BeetAcceptanceCulture::checkForNeedDatabaseConstAnalisys(long count, long k
 
 
 
-void BeetAcceptanceCulture::processFreeBum(MifareCardData & bill, qx::dao::ptr<t_ttn_beet> ttn, qx::dao::ptr<t_cars_beet> car) throw(MainSequenceException)
+void BeetAcceptanceCulture::processFreeBum(MifareCardData & bill)
 {
-    QString bums_where_clause = getBumsClause(bill, car);
+    QString bums_where_clause = getBumsClause(bill);
 
     const QString q1 =  "select * from t_bum where state=1 and queue=(select min(queue) from t_bum where state=1 and ("+bums_where_clause+")) and ("+bums_where_clause +");";
     const QString q2 =  "select * from t_bum where queue=(select min(queue) from t_bum where ("+bums_where_clause+")) and ("+bums_where_clause +");";
 
     qx::dao::ptr<t_bum_beet> bum = wrap_async_ex(tr(get_free_bum_error),
-                "Error getting free bum1: ttn: " + QString::number(ttn->num_nakl),
+                "Error getting free bum1: ttn: " + QString::number( current_ttn[ttn_table.num_nakl] ),
                 [&bums_where_clause, &q1, this]{ return asyncFunc().async_exec_query<t_bum_beet>(q1, false);});
 
 
 
     if ( !bum ) {
         bum = wrap_async_ex(tr(get_free_bum_error),
-                "Error getting free bum2 ttn: " + QString::number(ttn->num_nakl),
+                "Error getting free bum2 ttn: " + QString::number(current_ttn[ttn_table.num_nakl]),
                 [&bums_where_clause, &q2, this]{ return asyncFunc().async_exec_query<t_bum_beet>(q2);});
     }
 
@@ -345,44 +345,40 @@ void BeetAcceptanceCulture::processFreeBum(MifareCardData & bill, qx::dao::ptr<t
 
 
     wrap_async_ex( tr(update_bum_queue_error),
-                   "Error updating bum queue... ttn: " + QString::number(ttn->num_nakl) +
+                   "Error updating bum queue... ttn: " + QString::number(current_ttn[ttn_table.num_nakl]) +
                    "bum: " + QString::number(bum->id)  +
                    " queue: " + QString::number(bum->queue),
                    [&bum, this]{ asyncFunc().async_update(bum, t_bum_name); });
 
     if ( bum->id != 99 ) {
-        ttn->bum_platforma = bum->id % 10;
-        ttn->bum           = bum->id / 10;
+        current_ttn[ttn_table.bum_platforma] = bum->id % 10;
+        current_ttn[ttn_table.bum]           = bum->id / 10;
                 //wrap_async_ex( update_ttn_platform_error, "Error updating ttn platform", [&ttn]{ async_update(ttn); });
-        bill.setMemberValue("bum", ttn->bum);
+        bill.setMemberValue("bum", current_ttn[ttn_table.bum]);
      }
      else {
-        ttn->bum           = bum->id;
+        current_ttn[ttn_table.bum]           = bum->id;
 
         bill.setMemberValue("bum", bum->id);
      }
 }
 
 
-QString BeetAcceptanceCulture::getBumsClause(const MifareCardData & bill, qx::dao::ptr<t_cars_beet> car) throw(MainSequenceException)
+QString BeetAcceptanceCulture::getBumsClause(const MifareCardData & bill)
 {
     QStringList ret;
-    if (car->dump_body_truck) {
+    if (current_car[cars_table.dump_body_truck]) {
         ret.append("id = 99");
     }
 
-    if (car->side_board) {
+    if (current_car[cars_table.side_board]) {
         ret.append("(id % 10) = 2");
     }
 
-    if (car->back_board) {
-        qx::dao::ptr<t_const_beet> const_ = wrap_async_ex(tr(get_backboard_bum_weight_const_error),
-            "error getting const for backboard bum by key: " +
-                seq().appSetting<QString>("bum11_name"),
-                    [this]{return asyncFunc().async_fetch<t_const_beet>(
-                        seq().appSetting<QString>("bum11_name"), t_const_name);});
+    if (current_car[cars_table.back_board]) {
+        int backboard_max = constantValue<int>( seq().appSetting<QString>("bum11_name") );
 
-        if ( bill.memberValue<int>("bruttoWeight") > const_->value.toInt() ) {
+        if ( bill.memberValue<int>("bruttoWeight") > backboard_max ) {
             ret.append("id = 11");
         }
         else {
@@ -394,21 +390,21 @@ QString BeetAcceptanceCulture::getBumsClause(const MifareCardData & bill, qx::da
 }
 
 
-void BeetAcceptanceCulture::repairBumCorrectnessIfNeeded(qx::dao::ptr<t_ttn_beet> ttn) throw (MainSequenceException)
+void BeetAcceptanceCulture::repairBumCorrectnessIfNeeded()
 {
-    if ( ttn->bum == ttn->real_bum ) return;
+    if ( current_ttn[ttn_table.bum] == current_ttn[ ttn_table.real_bum ] ) return;
 
     int bum = 99;
-    if (ttn->bum != 99)
-        bum = ttn->bum * 10 + ttn->bum_platforma;
+    if (current_ttn[ttn_table.bum] != 99)
+        bum = current_ttn[ttn_table.bum] * 10 + current_ttn[ttn_table.bum_platforma];
 
-    if ( !checkBumWorks(ttn->dt_of_brutto, ttn->dt_of_tara, bum) ) {
-        ttn->bum = ttn->real_bum;
+    if ( !checkBumWorks( ptime_to_qt(current_ttn[ttn_table.dt_of_brutto]), ptime_to_qt(current_ttn[ttn_table.dt_of_tara]), bum) ) {
+        current_ttn[ttn_table.bum] = current_ttn[ttn_table.real_bum];
     }
 }
 
 
-bool BeetAcceptanceCulture::checkBumWorks(const QDateTime & date_from, const QDateTime & date_to, long bum) throw(MainSequenceException)
+bool BeetAcceptanceCulture::checkBumWorks(const QDateTime & date_from, const QDateTime & date_to, long bum)
 {
     //qx_query q;
     //q.where("date_time").isGreaterThanOrEqualTo(date_from).and_("date_time").isLessThanOrEqualTo(date_to).and_("bum").isEqualTo(QVariant::fromValue<long>(bum));
@@ -430,7 +426,7 @@ bool BeetAcceptanceCulture::checkBumWorks(const QDateTime & date_from, const QDa
 
 
 
-void BeetAcceptanceCulture::checkBum( MifareCardData& bill )const throw(MainSequenceException)
+void BeetAcceptanceCulture::checkBum( MifareCardData& bill )const
 {
     if ( bill.memberValue<int>("bum") == 99 && bill.memberValue<int>("bumFact") == 0 ) {
         bill.setMemberValue("bumFact", 99);
@@ -439,18 +435,21 @@ void BeetAcceptanceCulture::checkBum( MifareCardData& bill )const throw(MainSequ
     }
 }
 
-void BeetAcceptanceCulture::checkLaboratory( const MifareCardData& bill , qx::dao::ptr<t_cars_beet> car)throw(MainSequenceException)
+void BeetAcceptanceCulture::checkLaboratory( const MifareCardData& bill )
 {
     if ( bill.memberValue<QBitArray>("flags").at(2) && !bill.memberValue<QBitArray>("flags").at(3) ) {
-        car->block = 1;
-        wrap_async_ex( tr(blocking_car_for_lab_error), "Error blocking car which wasnt in lab",
+        current_car[cars_table.block] = 1;
+#if 0
+            wrap_async_ex( tr(blocking_car_for_lab_error), "Error blocking car which wasnt in lab",
                        [&car, this]{ asyncFunc().async_update(car, t_cars_name); });
+#endif
+#warning Need correct update query here!!!
 
         throw MainSequenceException (tr(car_dont_was_in_lab), "car dont was in lab");
     }
 }
 
-void BeetAcceptanceCulture::checkKagat(const MifareCardData& bill) throw(MainSequenceException)
+void BeetAcceptanceCulture::checkKagat(const MifareCardData& bill)
 {
     if ( bill.memberValue<int>("kagat") ==0 )
         throw MainSequenceException(tr(car_has_not_been_unloaded), "car was not unloaded!");
@@ -464,21 +463,25 @@ void BeetAcceptanceCulture::checkKagat(const MifareCardData& bill) throw(MainSeq
 }
 
 
-void BeetAcceptanceCulture::clearBumQueue(qx::dao::ptr<t_ttn_beet> ttn) throw(MainSequenceException)
+void BeetAcceptanceCulture::clearBumQueue()
 {
-    int bum = ttn->bum;
+    int bum = current_ttn[ttn_table.bum];
 
     if (bum != 99) {
-        bum = bum * 10 + ttn->bum_platforma;
+        bum = bum * 10 + current_ttn[ttn_table.bum_platforma];
     }
 
+#if 0
     wrap_async_ex(tr(clear_bum_queue_error), "clear bum queue error",
                 [&ttn, this, &bum]{ asyncFunc().async_call_query("update t_bum set queue = GREATEST(queue - 1, 0) where id=" + QString::number(bum) + ";") ;});
 
+#endif
+#warning Need correct update query here!!!
 }
 
-void BeetAcceptanceCulture::updateBruttoValues(MifareCardData& bill, qx::dao::ptr<t_ttn_beet> ttn) throw(MainSequenceException)
+void BeetAcceptanceCulture::updateBruttoValues(MifareCardData& bill)
 {
+#if 0
     ttn->real_field       = bill.memberValue<int>("realNumField");
     ttn->loader           = bill.memberValue<int>("numLoader");
     ttn->dt_of_load       = bill.memberValue<QDateTime>("dateOfLoad");
@@ -495,10 +498,13 @@ void BeetAcceptanceCulture::updateBruttoValues(MifareCardData& bill, qx::dao::pt
 
     wrap_async_ex( tr(update_ttn_error_message),
             "Error updating ttn brutto", [&ttn, this]{ asyncFunc().async_update(ttn, t_ttn_name); });
+#endif
+#warning Need correct update query here!!!
 }
 
-void BeetAcceptanceCulture::updateTaraValues(MifareCardData& bill, qx::dao::ptr<t_ttn_beet> ttn, qx::dao::ptr<t_cars_beet> car, bool pure_weight) throw (MainSequenceException)
+void BeetAcceptanceCulture::updateTaraValues(MifareCardData& bill, bool pure_weight)
 {
+#if 0
     if ( pure_weight ) {
         ttn->real_bum      = bill.memberValue<int>("bumFact");
         ttn->kagat         = bill.memberValue<int>("kagat");
@@ -518,16 +524,19 @@ void BeetAcceptanceCulture::updateTaraValues(MifareCardData& bill, qx::dao::ptr<
     wrap_async_ex( tr(update_ttn_error_message),
       "Error updating ttn tara: ttn_num: " + QString::number(ttn->num_nakl),
                    [&ttn, this]{ asyncFunc().async_update(ttn, t_ttn_name); });
+#endif
+
+#warning Need correct update query here!!!
 }
 
 
-bool BeetAcceptanceCulture::makeNewTask(MifareCardData& bill) throw (MainSequenceException)
+bool BeetAcceptanceCulture::makeNewTask(MifareCardData& bill)
 {
     bill.clear();
 
-    if (current_car->num_field == 0) return false;
-
-    QDateTime end_time = timeShitToDateTime( current_car->vremja_na_hodku*60 + dateTimeToTimeShit(QDateTime::currentDateTime())  );
+    if (current_car[cars_table.num_field] == 0) return false;
+#if 0
+    QDateTime end_time = timeShitToDateTime( current_car[cars_table.vremja_na_hodku]*60 + dateTimeToTimeShit(QDateTime::currentDateTime())  );
 
     current_ttn = qx::dao::ptr<t_ttn_beet>(new t_ttn_beet);
 
@@ -540,20 +549,21 @@ bool BeetAcceptanceCulture::makeNewTask(MifareCardData& bill) throw (MainSequenc
     current_ttn->time_of_return = end_time.toString("hh:mm:ss");
     current_ttn->loader         = current_car->num_loader;
 
-    //qx::dao::insert(ttn, &database);
+
 
     wrap_async_ex(tr(error_make_new_task), "error make new task",
                   [this]{return asyncFunc().async_insert(current_ttn, false, t_ttn_name);});
 
     bill.setMemberValue("billNumber", current_ttn->num_nakl);
     bill.setMemberValue("numField"  , current_ttn->field);
-
+#endif
+#warning Need correct insert query here!!!
     return true;
 }
 
 ReportContext BeetAcceptanceCulture::makeReportContext(qx::dao::ptr<t_cars_beet> car, qx::dao::ptr<t_field_beet> field)
 {
-
+#if 0
     qx::dao::ptr<t_kontr_beet> kontr = wrap_async_ex(
           QObject::tr(cant_get_kontr_when_printing),
           "cant get kontr when printing: " + QString::number(kontrCodeFromField( field->id )),
@@ -575,31 +585,41 @@ ReportContext BeetAcceptanceCulture::makeReportContext(qx::dao::ptr<t_cars_beet>
         ReportsManager::var_instance{"disp_phone", "t_const_beet", disp_phone.data()}
      };
      return ReportsManager::makeReportContext(vars);
+#endif
+#warning Insert correct reflection here!!!
+    return  ReportContext();
 }
 
-ReportContext BeetAcceptanceCulture::finishReport() throw(MainSequenceException)
+ReportContext BeetAcceptanceCulture::finishReport()
 {
+#if 0
     qx::dao::ptr<t_field_beet> field = wrap_async_ex(tr(cant_get_field_when_printing),
          "finishReport: cant get field " + QString::number(current_ttn->real_field) +
          " when printing for passed ttn: " + QString::number(current_ttn->num_nakl),
          [this]{return asyncFunc().async_fetch<t_field_beet>(
              current_ttn->real_field, t_field_name ); });
     return makeReportContext(current_car, field);
+#endif
+#warning Insert correct reflection here!!!
+    return ReportContext();
 }
 
-ReportContext BeetAcceptanceCulture::startReport() throw(MainSequenceException)
+ReportContext BeetAcceptanceCulture::startReport()
 {
+#if 0
     qx::dao::ptr<t_field_beet> field = wrap_async_ex(tr(cant_get_field_when_printing),
       "startReport: cant get field " + QString::number(current_ttn->field) +
       " when printing for passed ttn: " + QString::number(current_ttn->num_nakl),
       [this]{return asyncFunc().async_fetch<t_field_beet>(
                current_ttn->field, t_field_name ); });
-
     return makeReportContext(current_car, field);
+#endif
+#warning Insert correct reflection here!!!
 
+    return ReportContext();
 }
 
-QString BeetAcceptanceCulture::detectPlatformType(const MifareCardData& bill) const throw (MainSequenceException)
+QString BeetAcceptanceCulture::detectPlatformType(const MifareCardData& bill) const
 {
     if (!bill.checkMember("bruttoWeight", 0) &&
         !bill.checkMember("dateOfBrutto", timeShitToDateTime(0)))
@@ -621,7 +641,7 @@ QString BeetAcceptanceCulture::detectPlatformType(const MifareCardData& bill) co
 
 }
 
-bool BeetAcceptanceCulture::isPureBruttoWeight(const MifareCardData& bill) const throw (MainSequenceException)
+bool BeetAcceptanceCulture::isPureBruttoWeight(const MifareCardData& bill) const
 {
     if ( bill.memberValue<uint>("bruttoWeight") == 0 ) return true;
     if ( bill.memberValue<uint>("kagat") == 0 ) return false;
@@ -629,7 +649,7 @@ bool BeetAcceptanceCulture::isPureBruttoWeight(const MifareCardData& bill) const
     throw MainSequenceException(tr(confuse_brutto_tara_error_message), "confused brutto with tara");
 }
 
-bool BeetAcceptanceCulture::isPureTaraWeight(const MifareCardData& bill) const throw (MainSequenceException)
+bool BeetAcceptanceCulture::isPureTaraWeight(const MifareCardData& bill) const
 {
     if ( bill.memberValue<int>("bruttoWeight") > 0 ) return true;
     if ( bill.memberValue<int>("realNumField") == 0 ) return false;
@@ -638,7 +658,7 @@ bool BeetAcceptanceCulture::isPureTaraWeight(const MifareCardData& bill) const t
 
 }
 
-void BeetAcceptanceCulture::fetchCar(const MifareCardData& bill) throw (MainSequenceException)
+void BeetAcceptanceCulture::fetchCar(const MifareCardData& bill)
 {
 /*    current_car = wrap_async_ex(tr(fetch_car_error_message),
            "fetching car failed!!!: driver: " + bill.memberValue<QString>("driver"),
@@ -650,13 +670,13 @@ void BeetAcceptanceCulture::fetchCar(const MifareCardData& bill) throw (MainSequ
         throw MainSequenceException(tr(car_blocked_message), "car is blocked!!!");
     }*/
 
-     current_car_data = async2().fetch(
+     current_car = async2().fetch(
                 sql::select( cars_table.all ).from(cars_table).where(cars_table.id
                         == (int)carCodeFromDriver( bill.memberValue<uint>("driver"))),
                     tr(fetch_car_error_message)
                   );
 
-     if ( current_car_data[cars_table.block] ) {
+     if ( current_car[cars_table.block] ) {
          throw MainSequenceException(tr(car_blocked_message), "car is blocked!!!");
      }
 }

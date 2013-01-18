@@ -1,7 +1,9 @@
 #ifndef __BEETWEIGHTERS_H_
 #define __BEETWEIGHTERS_H_
 
-#include "qxorm_pch.h"
+//#include "qxorm_pch.h"
+
+#include "rdb_pch.h"
 
 #include "acceptanceculture.h"
 #include "kryzhbeetdbstructs.h"
@@ -24,48 +26,46 @@ public:
     }
 
     ~BeetAcceptanceCulture() {}
-    void fetchCar(const MifareCardData& ) throw (MainSequenceException);
+    void fetchCar(const MifareCardData& );
     //virtual void checkPerimetr() throw (MainSequenceException);
-    void brutto(int, MifareCardData& ) throw (MainSequenceException);
-    void tara(int, MifareCardData&) throw (MainSequenceException);
-    void reBrutto(int, MifareCardData&) throw (MainSequenceException);
-    void reTara(int, MifareCardData&) throw (MainSequenceException);
+    void brutto(int, MifareCardData& );
+    void tara(int, MifareCardData&);
+    void reBrutto(int, MifareCardData&);
+    void reTara(int, MifareCardData&) ;
 
     QString bruttoFinishMessage(const MifareCardData& )const;
     QString taraFinishMessage(const MifareCardData& )const;
 
-    bool makeNewTask(MifareCardData& ) throw (MainSequenceException);
+    bool makeNewTask(MifareCardData& ) ;
 
-    ReportContext finishReport( ) throw(MainSequenceException);
-    ReportContext startReport( ) throw(MainSequenceException);
+    ReportContext finishReport( ) ;
+    ReportContext startReport( ) ;
 
-    QString detectPlatformType(const MifareCardData& ) const throw (MainSequenceException);
+    QString detectPlatformType(const MifareCardData& ) const ;
 
-    bool isPureBruttoWeight(const MifareCardData& ) const throw (MainSequenceException) ;
-    bool isPureTaraWeight(const MifareCardData& ) const throw (MainSequenceException) ;
-
-
+    bool isPureBruttoWeight(const MifareCardData& ) const  ;
+    bool isPureTaraWeight(const MifareCardData& ) const  ;
 private:
-    void processChemicalAnalysis(MifareCardData&, qx::dao::ptr<t_ttn_beet> )  throw();
-    void processFreeBum(MifareCardData & bill, qx::dao::ptr<t_ttn_beet> ttn, qx::dao::ptr<t_cars_beet> car ) throw(MainSequenceException);
-    uint countCarsFromFieldForDayExcludeCurrent(int ttn_num, int field_num)  throw();
-    bool checkForNeedDatabaseConstAnalisys(long count, long kontrag)  throw ();
-    uint getAnalisysPeriodFromStorage(uint typ) throw(MysqlException, MainSequenceException);
-    bool checkForNeedDiscreteAnalisys(long count) const throw();
-    QString getBumsClause(const MifareCardData & bill, qx::dao::ptr<t_cars_beet> car) throw(MainSequenceException);
-    void repairBumCorrectnessIfNeeded( qx::dao::ptr<t_ttn_beet> ) throw (MainSequenceException);
-    bool checkBumWorks(const QDateTime& , const QDateTime&, long) throw (MainSequenceException);
-    void checkLaboratory( const MifareCardData& , qx::dao::ptr<t_cars_beet>)throw(MainSequenceException);
-    void checkKagat(const MifareCardData&) throw(MainSequenceException);
-    void checkBum(MifareCardData&) const throw(MainSequenceException);
-    void clearBumQueue(qx::dao::ptr<t_ttn_beet> ttn) throw (MainSequenceException);
-    void updateBruttoValues(MifareCardData& bill, qx::dao::ptr<t_ttn_beet> ttn) throw(MainSequenceException);
-    void updateTaraValues(MifareCardData&, qx::dao::ptr<t_ttn_beet>, qx::dao::ptr<t_cars_beet>, bool pure_weight) throw(MainSequenceException);
+    void processChemicalAnalysis(MifareCardData& ) ;
+    void processFreeBum(MifareCardData & bill );
+    uint countCarsFromFieldForDayExcludeCurrent(int field_num);
+    bool checkForNeedDatabaseConstAnalisys(long count, long kontrag)  ;
+    uint getAnalisysPeriodFromStorage(uint typ);
+    bool checkForNeedDiscreteAnalisys(long count) const;
+    QString getBumsClause(const MifareCardData & bill);
+    void repairBumCorrectnessIfNeeded(  ) ;
+    bool checkBumWorks(const QDateTime& , const QDateTime&, long) ;
+    void checkLaboratory( const MifareCardData& );
+    void checkKagat(const MifareCardData&) ;
+    void checkBum(MifareCardData&) const ;
+    void clearBumQueue() ;
+    void updateBruttoValues(MifareCardData& bill) ;
+    void updateTaraValues(MifareCardData&, bool pure_weight) ;
 
     bool analysisEnabled() ;
 
-    qx::dao::ptr<t_ttn_beet> current_ttn;
-    qx::dao::ptr<t_cars_beet> current_car;
+    //qx::dao::ptr<t_ttn_beet> current_ttn;
+    //qx::dao::ptr<t_cars_beet> current_car;
 
 
 
@@ -81,8 +81,8 @@ private:
     static const QString t_kagat_name;
     static const QString t_field_name;
 
-    typename sql::table_result_set<t_cars_beet_table>::type::value_type current_car_data;
-    typename sql::table_result_set<t_ttn_beet_table>::type::value_type current_ttn_data;
+    typename sql::table_result_set<t_cars_beet_table>::type::value_type current_car;
+    typename sql::table_result_set<t_ttn_beet_table>::type::value_type current_ttn;
 
 
 

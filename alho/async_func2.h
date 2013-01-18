@@ -70,7 +70,7 @@ public:
             throw MainSequenceException( user_message, admin_message + "unkonwn exception!!!! in asyn_exec!" );
         }
 
-        return decltype(bf.get())() ;
+        //return decltype(bf.get())() ;
     }
 
     void setShowDebugInfo(bool d) {show_debug_info_ = d;}

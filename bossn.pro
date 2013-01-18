@@ -197,7 +197,8 @@ HEADERS +=   reader/mifarereaderemulator.h \
     alho/bossnasync.h \
     alho/async_func2.h \
     tools/deleterlater.h \
-    alho/weighters/common/generictables.h
+    alho/weighters/common/generictables.h \
+    rdb_pch.h
 
 
 RESOURCES += bossn.qrc

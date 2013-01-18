@@ -72,7 +72,29 @@ public:
                 "brutto: " + QString::number(brutto)   +
                 "tara: "   + QString::number(ttn->tara) );
     }	
-	
+
+
+    template <class Table, class TableData>
+    void checkTaraByBrutto2(int tara, const Table& t, const TableData& ttn) const throw (MainSequenceException)
+    {
+        if ( tara >= ttn [t.brutto] )
+            throw MainSequenceException( tr(brutto_smaller_than_tara_message),
+                "brutto smaller than tara ttn: " + QString::number( ttn[t.num_nakl]) +
+                "brutto: " + QString::number( ttn[t.brutto])   +
+                "tara: "   + QString::number(tara) );
+    }
+
+    template <class Table, class TableData>
+    void checkBruttoByTara2(int brutto, const Table& t, const TableData& ttn) const throw (MainSequenceException)
+    {
+        if ( brutto <= ttn[t.tara] )
+            throw MainSequenceException( tr(brutto_smaller_than_tara_message),
+                "brutto smaller than tara ttn: " + QString::number(ttn[t.num_nakl]) +
+                "brutto: " + QString::number(brutto)   +
+                "tara: "   + QString::number( ttn[t.tara] ) );
+    }
+
+
     void checkWeightCorrectess(int w) throw (MainSequenceException);
     int getWeight()  throw (MainSequenceException);
  

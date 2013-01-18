@@ -13,6 +13,9 @@
 
 using std::cout;
 
+#include <ctime>
+#include <boost/date_time/posix_time/posix_time_types.hpp>
+
 inline void printOnDisplay(const QString& str)
 {
     //QTextCodec *codec = QTextCodec::codecForName("IBM 866");
@@ -76,5 +79,18 @@ inline ulong dateTimeToTimeShit(const QDateTime& dt)
     return temp;
 }
 
+inline std::time_t toTime_t( const boost::posix_time::ptime & t )
+{
+    static const boost::posix_time::ptime epoch( boost::gregorian::date(1970,1,1) );
+
+    const boost::posix_time::time_duration::sec_type x((t - epoch).total_seconds() );
+
+    return x;
+}
+
+inline QDateTime ptime_to_qt( const boost::posix_time::ptime & t )
+{
+    return QDateTime::fromTime_t( toTime_t( t ) );
+}
 
 #endif // FUNC_H
