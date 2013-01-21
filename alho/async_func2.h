@@ -2,8 +2,8 @@
 #define ASYNC_FUNC2_H
 
 #include <boost/mpl/if.hpp>
-#include <boost/mpl/equal.hpp>
 #include <boost/mpl/bool.hpp>
+#include <boost/type_traits.hpp>
 
 #include <string>
 
@@ -38,7 +38,7 @@ public:
     RetType<Callable> async_exec(Callable c, const QString& user_message, const QString& admin_message )
     {
         return async_exec_imp( c, user_message, admin_message,
-                               typename boost::mpl::equal<void, RetType<Callable> >::type() );
+                              typename boost::is_same<void, RetType<Callable> >::type() );
     }
 
     void setShowDebugInfo(bool d) {show_debug_info_ = d;}
@@ -55,8 +55,7 @@ private:
     }
 
     template <class Callable >
-    auto async_exec_imp(Callable c, const QString& user_message, const QString& admin_message )->
-        decltype(alho::tools::bossn_async(c, boost::bind(&async_func_base2::disconnector, this)))
+    RetType<Callable> async_exec_imp(Callable c, const QString& user_message, const QString& admin_message, boost::mpl::bool_<false> )
     {
         if (very_busy_) {
             throw std::runtime_error( std::string("THIS IS VERY VERY BAD CALL!!!! for: ") + name_of<Callable>::value() + " " +
@@ -80,14 +79,6 @@ private:
 
         very_busy_ = false;
 
-        return std::move(bf);
-    }
-
-    template <class Callable >
-    RetType<Callable> async_exec_imp(Callable c, const QString& user_message, const QString& admin_message, boost::mpl::bool_<false> )
-    {
-        auto bf = async_exec_imp( c, user_message, admin_message );
-
         try {
             return std::move( bf.get() );
         }
@@ -95,14 +86,44 @@ private:
             throw MainSequenceException( user_message, admin_message + ex.what() );
         }
         catch ( ... ) {
-            throw MainSequenceException( user_message, admin_message + "unkonwn exception!!!! in asyn_exec!" );
+            throw MainSequenceException( user_message, admin_message + "unkonwn exception!!!! in async_exec!" );
         }
     }
 
     template <class Callable >
-    RetType<Callable> async_exec_imp(Callable c, const QString& user_message, const QString& admin_message, boost::mpl::bool_<true> )
+    void async_exec_imp(Callable c, const QString& user_message, const QString& admin_message, boost::mpl::bool_<true> )
     {
-        auto bf = async_exec_imp( c, user_message, admin_message );
+        if (very_busy_) {
+            throw std::runtime_error( std::string("THIS IS VERY VERY BAD CALL!!!! for: ") + name_of<Callable>::value() + " " +
+                                     user_message.toStdString() + " " + admin_message.toStdString());
+        }
+
+        very_busy_ = true;
+
+        auto bf =  alho::tools::bossn_async(c, boost::bind(&async_func_base2::disconnector, this));
+        bf.start();
+
+        while (!bf.isFinished()) {
+            if (show_debug_info_)
+                qDebug() << "need sleep!";
+
+            coro.yield();
+
+            if (show_debug_info_)
+                qDebug()<<"wow!! I with you!";
+        }
+
+        very_busy_ = false;
+
+        try {
+           bf.get();
+        }
+        catch ( std::exception& ex ) {
+            throw MainSequenceException( user_message, admin_message + ex.what() );
+        }
+        catch ( ... ) {
+            throw MainSequenceException( user_message, admin_message + "unkonwn exception!!!! in async_exec!" );
+        }
 
         try {
             bf.get();
@@ -111,7 +132,7 @@ private:
             throw MainSequenceException( user_message, admin_message + ex.what() );
         }
         catch ( ... ) {
-            throw MainSequenceException( user_message, admin_message + "unkonwn exception!!!! in asyn_exec!" );
+            throw MainSequenceException( user_message, admin_message + "unkonwn exception!!!! in async_exec!" );
         }
     }
 

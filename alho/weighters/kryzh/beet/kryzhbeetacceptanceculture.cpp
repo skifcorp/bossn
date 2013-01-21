@@ -441,12 +441,6 @@ void BeetAcceptanceCulture::checkLaboratory( const MifareCardData& bill )
     if ( bill.memberValue<QBitArray>("flags").at(2) && !bill.memberValue<QBitArray>("flags").at(3) ) {
         current_car[cars_table.block] = 1;
 
-#if 0
-            wrap_async_ex( tr(blocking_car_for_lab_error), "Error blocking car which wasnt in lab",
-                       [&car, this]{ asyncFunc().async_update(car, t_cars_name); });
-#endif
-
-
         async2().exec( sql::update(cars_table).set(cars_table.block = true)
                        .where( cars_table.id == current_car[cars_table.id] ),
                         tr(blocking_car_for_lab_error));
@@ -482,7 +476,9 @@ void BeetAcceptanceCulture::clearBumQueue()
                 [&ttn, this, &bum]{ asyncFunc().async_call_query("update t_bum set queue = GREATEST(queue - 1, 0) where id=" + QString::number(bum) + ";") ;});
 
 #endif
-#warning Need correct update query here!!!
+
+    async2().exec( sql::update(bum_table).set( bum_table.queue = sql::greatest( bum_table.queue - 1, 0 ) ).where( bum_table.id == bum ),
+                   tr(clear_bum_queue_error));
 }
 
 void BeetAcceptanceCulture::updateBruttoValues(MifareCardData& bill)
@@ -506,6 +502,23 @@ void BeetAcceptanceCulture::updateBruttoValues(MifareCardData& bill)
             "Error updating ttn brutto", [&ttn, this]{ asyncFunc().async_update(ttn, t_ttn_name); });
 #endif
 #warning Need correct update query here!!!
+    async2().exec(
+                sql::update(ttn_table).set(
+                        ttn_table.real_field       = bill.memberValue<int>("realNumField"),
+                        ttn_table.loader           = bill.memberValue<int>("numLoader"),
+                        ttn_table.dt_of_load       = bill.memberValue<QString>("dateOfLoad").toAscii().constData(),
+                        ttn_table.brutto           = bill.memberValue<int>("bruttoWeight"),
+                        ttn_table.dt_of_brutto     = bill.memberValue<QString>("dateOfBrutto").toAscii().constData(),
+                        ttn_table.driver           = bill.memberValue<int>("driver"),
+                        ttn_table.bum              = bill.memberValue<int>("bum"),
+                        ttn_table.routed_to_lab    = bill.memberValue<QBitArray>("flags").at(2),
+                        ttn_table.num_kart         = byteArrayToString (bill.uid()).toAscii().constData(),
+                        ttn_table.copy             = false,
+                        ttn_table.time_of_brutto   = time_duration_to_string( current_ttn[ttn_table.dt_of_brutto].time_of_day() ).c_str(),
+                        ttn_table.brutto_platforma = seq().seqId()
+                    ).where(ttn_table.num_nakl == bill.memberValue<int>("billNumber")),
+                    tr(update_ttn_error_message)
+                );
 }
 
 void BeetAcceptanceCulture::updateTaraValues(MifareCardData& bill, bool pure_weight)

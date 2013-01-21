@@ -89,6 +89,8 @@ private:
     t_cars_beet_table  cars_table {"t_cars"};
     t_ttn_beet_table   ttn_table{"t_ttn"};
     t_field_beet_table field_table{"t_def_field"};
+    t_kagat_beet_table kagat_table{"t_kagat"};
+    t_bum_beet_table   bum_table{"t_bum"};
 
 };
 
