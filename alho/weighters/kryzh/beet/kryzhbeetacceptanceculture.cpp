@@ -3,6 +3,7 @@
 #include "codeshacks.h"
 #include "kryzhbeettables.h"
 
+
 namespace alho  { namespace kryzh {
 
 const QString BeetAcceptanceCulture::t_cars_name("t_cars");
@@ -439,11 +440,16 @@ void BeetAcceptanceCulture::checkLaboratory( const MifareCardData& bill )
 {
     if ( bill.memberValue<QBitArray>("flags").at(2) && !bill.memberValue<QBitArray>("flags").at(3) ) {
         current_car[cars_table.block] = 1;
+
 #if 0
             wrap_async_ex( tr(blocking_car_for_lab_error), "Error blocking car which wasnt in lab",
                        [&car, this]{ asyncFunc().async_update(car, t_cars_name); });
 #endif
-#warning Need correct update query here!!!
+
+
+        async2().exec( sql::update(cars_table).set(cars_table.block = true)
+                       .where( cars_table.id == current_car[cars_table.id] ),
+                        tr(blocking_car_for_lab_error));
 
         throw MainSequenceException (tr(car_dont_was_in_lab), "car dont was in lab");
     }
