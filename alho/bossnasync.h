@@ -97,7 +97,7 @@ public:
 
     RetType get()
     {
-        return  std::move(fut.get());
+        return fut.get();//std::move(fut.get());
     }
 
     bool isFinished() const

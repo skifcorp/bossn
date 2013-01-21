@@ -2,6 +2,8 @@
 #define ASYNC_FUNC2_H
 
 #include <boost/mpl/if.hpp>
+#include <boost/mpl/equal.hpp>
+#include <boost/mpl/bool.hpp>
 
 #include <string>
 
@@ -14,7 +16,8 @@
 
 #include <boost/rdb/mysql_database.hpp>
 
-#include <boost/exception/all.hpp>
+#include <boost/bind.hpp>
+
 
 
 class async_func_base2 : public QObject
@@ -26,11 +29,34 @@ public:
 
     ~async_func_base2() {}
 
+
+
     template <class Callable>
     using RetType = typename std::result_of<Callable()>::type;
 
     template <class Callable >
     RetType<Callable> async_exec(Callable c, const QString& user_message, const QString& admin_message )
+    {
+        return async_exec_imp( c, user_message, admin_message,
+                               typename boost::mpl::equal<void, RetType<Callable> >::type() );
+    }
+
+    void setShowDebugInfo(bool d) {show_debug_info_ = d;}
+private:
+    Coroutine & coro;
+    bool very_busy_;
+
+    bool show_debug_info_;
+
+    void disconnector()
+    {
+        QObject o;
+        connect(&o, SIGNAL(destroyed()), this, SLOT(onFutureFinished()),Qt::QueuedConnection);
+    }
+
+    template <class Callable >
+    auto async_exec_imp(Callable c, const QString& user_message, const QString& admin_message )->
+        decltype(alho::tools::bossn_async(c, boost::bind(&async_func_base2::disconnector, this)))
     {
         if (very_busy_) {
             throw std::runtime_error( std::string("THIS IS VERY VERY BAD CALL!!!! for: ") + name_of<Callable>::value() + " " +
@@ -39,11 +65,7 @@ public:
 
         very_busy_ = true;
 
-        auto bf =  alho::tools::bossn_async(c,
-            [this]{
-                QObject o;
-                connect(&o, SIGNAL(destroyed()), this, SLOT(onFutureFinished()),Qt::QueuedConnection);
-            }) ;
+        auto bf =  alho::tools::bossn_async(c, boost::bind(&async_func_base2::disconnector, this));
         bf.start();
 
         while (!bf.isFinished()) {
@@ -56,9 +78,15 @@ public:
                 qDebug()<<"wow!! I with you!";
         }
 
-        very_busy_ = false;                
+        very_busy_ = false;
 
+        return std::move(bf);
+    }
 
+    template <class Callable >
+    RetType<Callable> async_exec_imp(Callable c, const QString& user_message, const QString& admin_message, boost::mpl::bool_<false> )
+    {
+        auto bf = async_exec_imp( c, user_message, admin_message );
 
         try {
             return std::move( bf.get() );
@@ -69,15 +97,25 @@ public:
         catch ( ... ) {
             throw MainSequenceException( user_message, admin_message + "unkonwn exception!!!! in asyn_exec!" );
         }
-
-        //return decltype(bf.get())() ;
     }
 
-    void setShowDebugInfo(bool d) {show_debug_info_ = d;}
-private:
-    Coroutine & coro;
-    bool very_busy_;
-    bool show_debug_info_;
+    template <class Callable >
+    RetType<Callable> async_exec_imp(Callable c, const QString& user_message, const QString& admin_message, boost::mpl::bool_<true> )
+    {
+        auto bf = async_exec_imp( c, user_message, admin_message );
+
+        try {
+            bf.get();
+        }
+        catch ( std::exception& ex ) {
+            throw MainSequenceException( user_message, admin_message + ex.what() );
+        }
+        catch ( ... ) {
+            throw MainSequenceException( user_message, admin_message + "unkonwn exception!!!! in asyn_exec!" );
+        }
+    }
+
+
 private slots:
     void onFutureFinished()
     {
@@ -145,15 +183,13 @@ public:
             [this, q]  {
                 if (database.isClosed())
                     database.open();
-                auto ret = database.execute(q);
-                return ret;
+                return database.execute(q);
             },
             user_message,
             QString::fromStdString("query: " + as_string( std::forward<Q>(q) ) + " ")
         );
 
     }
-
 
 
     template <class Q>
@@ -165,9 +201,8 @@ public:
         auto deq = async_exec(
                     [this, q]  {
                         if (database.isClosed())
-                            database.open();
-                        auto ret = database.execute(q);
-                        return ret;
+                            database.open();                        
+                        return database.execute(q);
                     },
                     user_message,
                     QString::fromStdString("query: " + as_string( std::forward<Q>(q) ) + " ")
