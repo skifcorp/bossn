@@ -28,6 +28,7 @@ INCLUDEPATH    += db alho serial weight generic iodevicewrapper scheduler       
                   alho/weighters alho/direction photograb                           \
                   alho/weighters/common
 
+
 QMAKE_CXXFLAGS += -std=gnu++0x -O #--param ggc-min-expand=10 --param ggc-min-heapsize=65535 -O
 
 

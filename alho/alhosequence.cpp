@@ -2,7 +2,7 @@
 
 #include <QDebug>
 
-AlhoSequence::AlhoSequence(const QString& n): Coroutine( "asasas" )
+AlhoSequence::AlhoSequence(const QString& n): Coroutine( n )
 {
 
 }

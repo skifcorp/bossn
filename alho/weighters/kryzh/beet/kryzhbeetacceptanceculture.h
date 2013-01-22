@@ -10,6 +10,7 @@
 #include "reportsmanager.h"
 #include "kryzhbeettables.h"
 
+#include <boost/mpl/bool.hpp>
 
 
 namespace alho  { namespace kryzh {
@@ -60,7 +61,8 @@ private:
     void checkBum(MifareCardData&) const ;
     void clearBumQueue() ;
     void updateBruttoValues(MifareCardData& bill) ;
-    void updateTaraValues(MifareCardData&, bool pure_weight) ;
+    void updateTaraValues(MifareCardData&, boost::mpl::bool_<true>);
+    void updateTaraValues(MifareCardData&, boost::mpl::bool_<false>);
 
     bool analysisEnabled() ;
 
@@ -91,6 +93,7 @@ private:
     t_field_beet_table field_table{"t_def_field"};
     t_kagat_beet_table kagat_table{"t_kagat"};
     t_bum_beet_table   bum_table{"t_bum"};
+    t_kontr_beet_table kontr_table{"t_kontr"};
 
 };
 

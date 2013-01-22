@@ -96,7 +96,7 @@ inline QDateTime ptime_to_qt( const boost::posix_time::ptime & t )
     return QDateTime::fromTime_t( toTime_t( t ) );
 }
 
-std::string time_duration_to_string( const boost::posix_time::time_duration& td )
+inline std::string time_duration_to_string( const boost::posix_time::time_duration& td )
 {
     std::stringstream ss;
     ss<<td;
