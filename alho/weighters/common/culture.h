@@ -104,8 +104,9 @@ public:
     T constantValue( const QString& n ) const
     {
         auto iter = constants.find( n );
-        if ( iter == constants.end() )
+        if ( iter == constants.end() ) {
             throw MainSequenceException( tr(requested_constant_not_exists) + " " + n, "requested_constant_not_exists " + n );
+        }
         QVariant v( *iter );
         return v.value<T>();
     }

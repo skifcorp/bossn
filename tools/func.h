@@ -28,7 +28,14 @@ inline void printOnDisplay(const QString& str)
     //QTextStream s(stdout);
     //s.setCodec("IBM866");
     //s<<str;
-    qDebug() << str;
+    //qDebug() << str;
+
+    QTextStream out(stdout);
+
+    out.setCodec( QTextCodec::codecForName("IBM 866") );
+
+    out <<  str;
+
 }
 
 inline void printByteArray(const QByteArray& ba)

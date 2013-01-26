@@ -3,6 +3,7 @@
 #include "codeshacks.h"
 #include "kryzhbeettables.h"
 
+#include "fusion_tools/make_vvector.h"
 
 namespace alho  { namespace kryzh {
 
@@ -386,17 +387,67 @@ void BeetAcceptanceCulture::processFreeBum(MifareCardData & bill)
         bill.setMemberValue("bum", bum->id);
      }
 #endif
-    auto q1 = sql::select(sql::min(bum_table.queue), bum_table.all).from(bum_table);
-    if (current_car[cars_table.dump_body_truck]) {
-        //ret.append("id = 99");
+    const int backboard_max = constantValue<int>( seq().appSetting<QString>("bum11_name") );
+
+    const bool dbt = current_car[cars_table.dump_body_truck];
+    const bool sb = current_car[cars_table.side_board];
+    const bool bbb = current_car[cars_table.back_board] && bill.memberValue<int>("bruttoWeight") > backboard_max;
+    const bool bbs = current_car[cars_table.back_board] && bill.memberValue<int>("bruttoWeight") <= backboard_max;
+
+
+
+    auto q1 = sql::select(sql::min(bum_table.queue), bum_table.all).from(bum_table).
+            where( ((bum_table.id == 99).if_(dbt) || (bum_table.id % 10 == 2).if_(sb) ||
+                    (bum_table.id == 11).if_(bbb) || (bum_table.id % 10 == 1).if_(bbs)) && (bum_table.state == true) );
+
+
+
+    auto bums = async2().exec(q1, tr(get_free_bum_error)).all();
+
+    if ( bums.size() == 0 ) {
+        auto q2 = sql::select(sql::min(bum_table.queue), bum_table.all).from(bum_table).
+                where( (bum_table.id == 99).if_(dbt) || (bum_table.id % 10 == 2).if_(sb) ||
+                        (bum_table.id == 11).if_(bbb) || (bum_table.id % 10 == 1).if_(bbs));
+
+        bums = async2().exec(q2, tr(get_free_bum_error)).all();
+        if ( bums.size( ) == 0  ) {
+            throw MainSequenceException(tr(get_free_bum_error),
+                      "cant find any bums for ttn: " +
+                     QString::number(current_ttn[ttn_table.num_nakl] ) +
+                    " car: " +
+                    QString::number(current_car[cars_table.id]));
+        }
     }
 
+    auto bum = bums.front();
+
+    async2().exec( sql::update(bum_table).set( bum_table.queue = bum_table.queue + 1 )
+                   .where( bum_table.id == bum[bum_table.id] ), tr(update_bum_queue_error) );
+
+    if ( bum[bum_table.id] != 99 ) {
+        current_ttn[ttn_table.bum_platforma] = bum[bum_table.id] % 10;
+        current_ttn[ttn_table.bum]           = bum[bum_table.id] / 10;
+                //wrap_async_ex( update_ttn_platform_error, "Error updating ttn platform", [&ttn]{ async_update(ttn); });
+        bill.setMemberValue("bum", current_ttn[ttn_table.bum]);
+     }
+     else {
+        current_ttn[ttn_table.bum]           = bum[bum_table.id];
+
+        bill.setMemberValue("bum", bum[bum_table.id]);
+     }
+
+
+
+
+
+    qFatal("exiting...");
 }
 
 
 QString BeetAcceptanceCulture::getBumsClause(const MifareCardData & bill)
 {
     QStringList ret;
+#if 0
     if (current_car[cars_table.dump_body_truck]) {
         ret.append("id = 99");
     }
@@ -415,7 +466,7 @@ QString BeetAcceptanceCulture::getBumsClause(const MifareCardData & bill)
             ret.append("(id % 10) = 1");
         }
     }
-
+#endif
     return  ret.join(" or ");
 }
 

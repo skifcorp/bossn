@@ -29,7 +29,7 @@ INCLUDEPATH    += db alho serial weight generic iodevicewrapper scheduler       
                   alho/weighters/common
 
 
-QMAKE_CXXFLAGS += -std=gnu++0x -O #--param ggc-min-expand=10 --param ggc-min-heapsize=65535 -O
+QMAKE_CXXFLAGS += -std=gnu++0x -O # -ftemplate-depth=40 #--param ggc-min-expand=10 --param ggc-min-heapsize=65535 -O
 
 
 DEFINES += FUSION_MAX_VECTOR_SIZE=40                          #\

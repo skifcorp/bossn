@@ -1,5 +1,6 @@
 #include "seqdebug.h"
 #include "mainsequence.h"
+#include "func.h"
 
 SeqDebug::~SeqDebug()
 {
@@ -23,8 +24,10 @@ SeqDebug::~SeqDebug()
                                         Q_ARG(const QVariant&, QVariant(error_code) ),
                                         Q_ARG(const QVariant&, QVariant(buffer)));
       //  qDebug() << "seqqqqqqqqqqqqqqq155555555555555555555555";
-        if (to_console)
-            qWarning() <<  print_string;
+        if ( to_console ) {
+            //qWarning() <<  print_string;
+            printOnDisplay( print_string );
+        }
     }
     else {
         if (to_console)

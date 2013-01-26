@@ -4,10 +4,13 @@
 #include "codeshacks.h"
 #include "async_func.h"
 #include "genericdbstructs.h"
+#include "func.h"
 
 #include "generictables.h"
 
 #include <boost/fusion/include/at_c.hpp>
+
+#include <QTextCodec>
 
 namespace alho { namespace common {
 
@@ -78,8 +81,16 @@ void Culture::fillConstants()
     constants.clear();
 
     for ( const auto & val : deq ) {
-        constants[ QString::fromStdString( val[t_const.id] ) ] =
-                QString::fromStdString(val[t_const.value]);
+        //cout << "  const id: " << val[t_const.id] << endl;
+
+        //QTextCodec * c = QTextCodec::codecForName("UTF-8");
+
+        //QString s = QString::fromUtf8( val[t_const.id].c_str() );
+
+        //printOnDisplay( "key: " + s );
+
+        constants[  QString::fromUtf8( val[t_const.id].c_str() ) ] =
+                 QString::fromUtf8( val[t_const.value].c_str() );
     }
 }
 
