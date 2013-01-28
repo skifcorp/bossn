@@ -91,7 +91,7 @@ MifareCardData MifareReaderEmulator::defaultDataForBlock(int num) const
 
     for ( auto iter = sc.members_conf.begin(); iter != sc.members_conf.end(); ++iter) {
         if ( (*iter).offset >= offsets.start_offset && (*iter).offset < offsets.finish_offset  ) {
-            qDebug()<< "num: " << num << " foundOffset: " << (*iter).offset;
+            //qDebug()<< "num: " << num << " foundOffset: " << (*iter).offset << " value: "<<iter->defaultValue().toString();
             one_block.insert( iter->memberName, iter->defaultValue() );
         }
     }

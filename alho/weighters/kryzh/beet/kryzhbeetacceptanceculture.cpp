@@ -7,13 +7,13 @@
 
 namespace alho  { namespace kryzh {
 
-const QString BeetAcceptanceCulture::t_cars_name("t_cars");
+/*const QString BeetAcceptanceCulture::t_cars_name("t_cars");
 const QString BeetAcceptanceCulture::t_ttn_name("t_ttn");
 const QString BeetAcceptanceCulture::t_const_name("t_const");
 const QString BeetAcceptanceCulture::t_kontr_name("t_kontr");
 const QString BeetAcceptanceCulture::t_bum_name("t_bum");
 const QString BeetAcceptanceCulture::t_kagat_name("t_kagat");
-const QString BeetAcceptanceCulture::t_field_name("t_field");
+const QString BeetAcceptanceCulture::t_field_name("t_field");*/
 
 
 QString BeetAcceptanceCulture::bruttoFinishMessage(const MifareCardData& bill )const
@@ -53,7 +53,7 @@ void BeetAcceptanceCulture::brutto(int w, MifareCardData& bill)
 
     //seq().seqDebug() << "BeetAcceptance: brutto weight!, ttn: " << current_ttn->num_nakl;
 
-    //seq().seqDebug() << "BeetAcceptance: brutto weight!, ttn: " << current_ttn_data.value( ttn_table.num_nakl );
+    seq().seqDebug() << "BeetAcceptance: brutto weight!, ttn: " << current_ttn[ ttn_table.num_nakl ];
 
     bill.setMemberValue("bruttoWeight", w);
     bill.setMemberValue("dateOfBrutto", QDateTime::currentDateTime());
@@ -70,12 +70,9 @@ void BeetAcceptanceCulture::brutto(int w, MifareCardData& bill)
 
     //current_ttn->sort = bill.memberValue<int>("sort");
     //current_ttn->culture = bill.memberValue<int>("culture");
-    //current_ttn->repr = bill.memberValue<int>("repr");
+    //current_ttn->repr = bill.memberValue<int>("repr");    
 
     updateBruttoValues(bill);
-    //culture, repr, sort - v bazu
-    // - bum
-    // rouuted_to_lab = 1
 }
 
 void BeetAcceptanceCulture::tara(int w, MifareCardData& bill)
@@ -88,8 +85,8 @@ void BeetAcceptanceCulture::tara(int w, MifareCardData& bill)
 
     checkTaraByBrutto2(w, ttn_table, current_ttn);
 
-    current_ttn[ttn_table.tara]       = w;
-    current_ttn[ttn_table.dt_of_tara] = boost::posix_time::from_time_t( QDateTime::currentDateTime().toTime_t() );
+    bill.setMemberValue("taraWeight", w);
+    bill.setMemberValue("dateOfTara", QDateTime::currentDateTime());
 
     checkBum(bill);
     checkLaboratory(bill);
@@ -105,8 +102,6 @@ void BeetAcceptanceCulture::tara(int w, MifareCardData& bill)
 
     updateTaraValues(bill, boost::mpl::true_{});
 
-    bill.setMemberValue("taraWeight", w);
-    bill.setMemberValue("dateOfTara", QDateTime::currentDateTime());
 
 }
 
@@ -146,8 +141,11 @@ void BeetAcceptanceCulture::reTara(int w, MifareCardData& bill)
 
     checkTaraDeltaForReweights(current_ttn[ttn_table.tara], w);
 
-    current_ttn[ttn_table.tara] = w;
-    current_ttn[ttn_table.dt_of_tara] = boost::posix_time::from_time_t( QDateTime::currentDateTime().toTime_t() );
+    //current_ttn[ttn_table.tara] = w;
+    //current_ttn[ttn_table.dt_of_tara] = boost::posix_time::from_time_t( QDateTime::currentDateTime().toTime_t() );
+
+    bill.setMemberValue("taraWeight", w);
+    bill.setMemberValue("dateOfTara", QDateTime::currentDateTime());
 
     repairBumCorrectnessIfNeeded();
 
@@ -156,9 +154,6 @@ void BeetAcceptanceCulture::reTara(int w, MifareCardData& bill)
     processTaraRupture2(ttn_table, current_ttn, cars_table, current_car);
 
     updateTaraValues(bill, boost::mpl::false_{});
-
-    bill.setMemberValue("taraWeight", w);
-    bill.setMemberValue("dateOfTara", QDateTime::currentDateTime());
 }
 
 
@@ -180,10 +175,6 @@ uint BeetAcceptanceCulture::countCarsFromFieldForDayExcludeCurrent(int field_num
             ttn_table.dt_of_brutto >= (workDate.toString("yyyy.MM.dd") + " 08:00:00").toAscii().constData() &&
             ttn_table.dt_of_brutto <= (workDate.addDays(1).toString("yyyy.MM.dd") + " 08:00:00").toAscii().constData() &&
             ttn_table.num_nakl != ttn_num );
-
-
-
-        qDebug() << "WOW!!! " << QString::fromStdString(as_string(q));
 
         return async2().fetch( q, "counting cars failed!" );
     }
@@ -412,10 +403,8 @@ void BeetAcceptanceCulture::processFreeBum(MifareCardData & bill)
         bums = async2().exec(q2, tr(get_free_bum_error)).all();
         if ( bums.size( ) == 0  ) {
             throw MainSequenceException(tr(get_free_bum_error),
-                      "cant find any bums for ttn: " +
-                     QString::number(current_ttn[ttn_table.num_nakl] ) +
-                    " car: " +
-                    QString::number(current_car[cars_table.id]));
+                      "cant find any bums! car: " +
+                      QString::number(current_car[cars_table.id]));
         }
     }
 
@@ -440,7 +429,7 @@ void BeetAcceptanceCulture::processFreeBum(MifareCardData & bill)
 
 
 
-    qFatal("exiting...");
+    //qFatal("exiting...");
 }
 
 
@@ -487,11 +476,8 @@ void BeetAcceptanceCulture::repairBumCorrectnessIfNeeded()
 
 bool BeetAcceptanceCulture::checkBumWorks(const QDateTime & date_from, const QDateTime & date_to, long bum)
 {
-    //qx_query q;
-    //q.where("date_time").isGreaterThanOrEqualTo(date_from).and_("date_time").isLessThanOrEqualTo(date_to).and_("bum").isEqualTo(QVariant::fromValue<long>(bum));
-
-
-    const QString q = "select * from t_bum_state_log where date_time >= '" + date_from.toString("yyyy.MM.dd hh:mm:ss") + "' and date_time <= '" + date_to.toString("yyyy.MM.dd hh:mm:ss") + "' and bum = " + QString::number(bum);
+#if 0
+    const QString q = "select * from t_bum_state_log where date_time >= '" + date_from.toString(rdb_date_time_format) + "' and date_time <= '" + date_to.toString("yyyy.MM.dd hh:mm:ss") + "' and bum = " + QString::number(bum);
     qx::dao::ptr<t_bum_state_log_beet> bum_log = wrap_async_ex( tr(cant_get_bum_state_log_message), "cant get bum state log",
         [&q, this]{ return asyncFunc().async_exec_query<t_bum_state_log_beet>(q, false) ;});
 
@@ -503,6 +489,22 @@ bool BeetAcceptanceCulture::checkBumWorks(const QDateTime & date_from, const QDa
                         [&bum, this]{ return asyncFunc().async_fetch<t_bum_beet>(bum, t_bum_name);});
 
     return static_cast<bool> (bum_ptr->state);
+#endif
+
+    int count = async2().fetch(sql::select(sql::count()).from( t_bum_state_log_table )
+            .where( t_bum_state_log_table.date_time >= date_from.toString(rdb_date_time_format).toAscii().constData() &&
+                    t_bum_state_log_table.date_time <= date_to.toString(rdb_date_time_format).toAscii().constData() &&
+                    t_bum_state_log_table.bum == bum ),
+              tr(cant_get_bum_state_log_message) );
+    if (count == 0)
+        return false;
+
+    auto state = async2().fetch(sql::select(bum_table.state).from(bum_table).where(bum_table.id == bum),
+                              tr(cant_get_bum_message));
+
+    //static_name_of<decltype(b)>  asasas;
+
+    return state;
 }
 
 
@@ -534,10 +536,19 @@ void BeetAcceptanceCulture::checkKagat(const MifareCardData& bill)
     if ( bill.memberValue<int>("kagat") ==0 )
         throw MainSequenceException(tr(car_has_not_been_unloaded), "car was not unloaded!");
 
+#if 0
     qx::dao::ptr<t_kagat_beet> kagat = wrap_async_ex(tr(getting_kagat_error), "cant get kagat: " + bill.memberValue<QString>("kagat"),
        [&bill, this]{ return asyncFunc().async_fetch<t_kagat_beet>(bill.memberValue<int>("kagat"), t_kagat_name) ;});
 
     if (!kagat->state) {
+        throw MainSequenceException(tr(kagat_was_closed_error), "kagat " + bill.memberValue<QString>("kagat") + " was closed!");
+    }
+#endif
+    auto kag = async2().fetch( sql::select( kagat_table.state )
+                               .from(kagat_table).where(kagat_table.id == bill.memberValue<int>("kagat")),
+                               tr(getting_kagat_error) );
+
+    if ( !kag ) {
         throw MainSequenceException(tr(kagat_was_closed_error), "kagat " + bill.memberValue<QString>("kagat") + " was closed!");
     }
 }
@@ -582,51 +593,68 @@ void BeetAcceptanceCulture::updateBruttoValues(MifareCardData& bill)
             "Error updating ttn brutto", [&ttn, this]{ asyncFunc().async_update(ttn, t_ttn_name); });
 #endif
 
+    //qDebug() << "dateOfLoad: " << bill.memberValue<QDateTime>("dateOfLoad").toString("yyyy-MM-dd hh::mm:ss");
+
+    auto v = ::tools::make_vvector(
+                ttn_table.real_field       = bill.memberValue<int>("realNumField"),
+                ttn_table.loader           = bill.memberValue<int>("numLoader"),
+                ttn_table.dt_of_load       = bill.memberValue<QDateTime>("dateOfLoad").toString(rdb_date_time_format).toAscii().constData(),
+                ttn_table.brutto           = bill.memberValue<int>("bruttoWeight"),
+                ttn_table.dt_of_brutto     = bill.memberValue<QDateTime>("dateOfBrutto").toString(rdb_date_time_format).toAscii().constData(),
+                ttn_table.driver           = bill.memberValue<int>("driver"),
+                ttn_table.bum              = bill.memberValue<int>("bum"),
+                ttn_table.routed_to_lab    = bill.memberValue<QBitArray>("flags").at(2),
+                ttn_table.num_kart         = byteArrayToString (bill.uid()).toAscii().constData(),
+                ttn_table.copy             = false,
+                ttn_table.time_of_brutto   = bill.memberValue<QDateTime>("dateOfBrutto").time().toString().toAscii().constData(),
+                ttn_table.brutto_platforma = seq().seqId()
+    );
+
+    current_ttn.set(v);
+
     async2().exec(
-                sql::update(ttn_table).set(
-                        ttn_table.real_field       = bill.memberValue<int>("realNumField"),
-                        ttn_table.loader           = bill.memberValue<int>("numLoader"),
-                        ttn_table.dt_of_load       = bill.memberValue<QString>("dateOfLoad").toAscii().constData(),
-                        ttn_table.brutto           = bill.memberValue<int>("bruttoWeight"),
-                        ttn_table.dt_of_brutto     = bill.memberValue<QString>("dateOfBrutto").toAscii().constData(),
-                        ttn_table.driver           = bill.memberValue<int>("driver"),
-                        ttn_table.bum              = bill.memberValue<int>("bum"),
-                        ttn_table.routed_to_lab    = bill.memberValue<QBitArray>("flags").at(2),
-                        ttn_table.num_kart         = byteArrayToString (bill.uid()).toAscii().constData(),
-                        ttn_table.copy             = false,
-                        ttn_table.time_of_brutto   = time_duration_to_string( current_ttn[ttn_table.dt_of_brutto].time_of_day() ).c_str(),
-                        ttn_table.brutto_platforma = seq().seqId()
-                    ).where(ttn_table.num_nakl == current_ttn[ttn_table.num_nakl]),
+                sql::update(ttn_table).set(v).where(ttn_table.num_nakl == bill.memberValue<int>("billNumber")),
                     tr(update_ttn_error_message)
                 );
 }
 
 void BeetAcceptanceCulture::updateTaraValues(MifareCardData& bill, boost::mpl::bool_<true> /* pure_weight */)
 {
+    auto v = ::tools::make_vvector(
+                ttn_table.real_bum        = bill.memberValue<int>("bumFact"),
+                ttn_table.kagat           = bill.memberValue<int>("kagat"),
+                ttn_table.dt_of_unload    = bill.memberValue<QString>("dateOfUnload").toAscii().constData(),
+                ttn_table.was_in_lab      = bill.memberValue<QBitArray>("flags").at(3),
+                ttn_table.copy            = false,
+                ttn_table.tara_platforma  = seq().seqId(),
+                ttn_table.field_from_car  = current_car[cars_table.num_field],
+                ttn_table.tara            = bill.memberValue<int>("taraWeight"),
+                ttn_table.dt_of_tara      = bill.memberValue<QDateTime>("dateOfTara").toString(rdb_date_time_format).toAscii().constData(),
+                ttn_table.time_of_tara    = bill.memberValue<QDateTime>("dateOfTara").time().toString().toAscii().constData()
+            );
+
+    current_ttn.set(v);
+
     async2().exec(
-                sql::update(ttn_table).set(
-                        ttn_table.real_bum        = bill.memberValue<int>("bumFact"),
-                        ttn_table.kagat           = bill.memberValue<int>("kagat"),
-                        ttn_table.dt_of_unload    = bill.memberValue<QString>("dateOfUnload").toAscii().constData(),
-                        ttn_table.was_in_lab      = bill.memberValue<QBitArray>("flags").at(3),
-                        ttn_table.copy            = false,
-                        ttn_table.time_of_tara    = time_duration_to_string(current_ttn[ttn_table.dt_of_tara].time_of_day()).c_str(),
-                        ttn_table.tara_platforma  = seq().seqId(),
-                        ttn_table.field_from_car  = current_car[cars_table.num_field]
-                    ).where( ttn_table.num_nakl ==  current_ttn[ttn_table.num_nakl]),
+                sql::update(ttn_table).set(v).where(
+                        ttn_table.num_nakl ==  bill.memberValue<int>("billNumber")),
                     tr(update_ttn_error_message)
                 );
 }
 
-void BeetAcceptanceCulture::updateTaraValues(MifareCardData& , boost::mpl::bool_<false>)
+void BeetAcceptanceCulture::updateTaraValues(MifareCardData& bill, boost::mpl::bool_<false>)
 {
+    auto v = ::tools::make_vvector (
+                    ttn_table.tara            = bill.memberValue<int>("taraWeight"),
+                    ttn_table.dt_of_tara      = bill.memberValue<QDateTime>("dateOfTara").toString(rdb_date_time_format).toAscii().constData(),
+                    ttn_table.time_of_tara    = bill.memberValue<QDateTime>("dateOfTara").time().toString().toAscii().constData()
+                );
+
+    current_ttn.set(v);
+
     async2().exec(
-                sql::update(ttn_table).set(
-                        ttn_table.copy            = false,
-                        ttn_table.time_of_tara    = time_duration_to_string(current_ttn[ttn_table.dt_of_tara].time_of_day()).c_str(),
-                        ttn_table.tara_platforma  = seq().seqId(),
-                        ttn_table.field_from_car  = current_car[cars_table.num_field]
-                    ).where( ttn_table.num_nakl ==  current_ttn[ttn_table.num_nakl]),
+                sql::update(ttn_table).set(v).
+                        where( ttn_table.num_nakl ==  bill.memberValue<int>("billNumber")),
                     tr(update_ttn_error_message)
                 );
 }
@@ -699,11 +727,11 @@ bool BeetAcceptanceCulture::makeNewTask(MifareCardData& bill)
                                     ttn_table.copy,
                                     ttn_table.time_of_return,
                                     ttn_table.loader)
-                .values( QDateTime::currentDateTime().toString().toAscii().constData(),
+                .values( QDateTime::currentDateTime().toString(rdb_date_time_format).toAscii().constData(),
                          current_car[cars_table.id],
                          current_car[cars_table.num_field],
                          bill.memberValue<int>("driver"),
-                         end_time.toString().toAscii().constData(),
+                         end_time.toString(rdb_date_time_format).toAscii().constData(),
                          false,
                          end_time.toString("hh:mm:ss").toAscii().constData(),
                          current_car[cars_table.num_loader]

@@ -68,10 +68,11 @@ public:
             return deq.front();
         }
 
-        auto q2 = sql::select( /*sql::max( tt.dt_of_tara ),*/ tt.all ).from(tt).where(tt.driver == drv);
+        auto q2 = sql::select( sql::max( tt.dt_of_tara ), tt.all ).from(tt).where(tt.driver == drv);
 
         auto ttn = async2().fetch( q2, tr(get_last_ttn_by_driver_error_message) );
-        return TtnData();
+
+        return std::move(  erase_nullable( ttn, sql::max( tt.dt_of_tara ) )  );
     }
 
 

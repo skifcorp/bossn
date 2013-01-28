@@ -50,6 +50,7 @@ LIBS           +=   -lqextserialport                \
                     -lismm                          \
                     -llibboost_system               \
                     -llibboost_thread               \
+                    -lboost_date_time               \
                     librdb
 
 TRANSLATIONS = bossn_ua.ts

@@ -75,13 +75,13 @@ private:
 
 
 
-    static const QString t_ttn_name;
+/*    static const QString t_ttn_name;
     static const QString t_cars_name;
     static const QString t_const_name;
     static const QString t_kontr_name;
     static const QString t_bum_name;
     static const QString t_kagat_name;
-    static const QString t_field_name;
+    static const QString t_field_name;*/
 
     typename sql::table_result_set<t_cars_beet_table>::type::value_type current_car;
     typename sql::table_result_set<t_ttn_beet_table>::type::value_type current_ttn;
@@ -94,6 +94,7 @@ private:
     t_kagat_beet_table kagat_table{"t_kagat"};
     t_bum_beet_table   bum_table{"t_bum"};
     t_kontr_beet_table kontr_table{"t_kontr"};
+    t_bum_state_log_beet_table t_bum_state_log_table{"t_bum_state_log"};
 
 };
 
