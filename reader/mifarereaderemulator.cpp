@@ -160,10 +160,12 @@ QVariant MifareReaderEmulator::readBlock(const QVariant& n)
             bill.setMemberValue("billNumber", 1);
         }
         else if ( num == 1) {
-
+            bill.setMemberValue("bruttoWeight", 10000);
+            bill.setMemberValue("dateOfBrutto", QDateTime(QDate(2013, 01, 29), QTime(12, 20, 0)));
         }
         else if ( num == 2 ) {
-
+            bill.setMemberValue("bumFact", 1);
+            bill.setMemberValue("kagat", 1);
         }
 
         ret.data = cardDataToByteArray( bill, num );

@@ -2,6 +2,7 @@
 #include "mainsequence.h"
 #include "codeshacks.h"
 #include "kryzhbeettables.h"
+#include "reportsmanager2.h"
 
 #include "fusion_tools/make_vvector.h"
 
@@ -433,7 +434,7 @@ void BeetAcceptanceCulture::processFreeBum(MifareCardData & bill)
 }
 
 
-QString BeetAcceptanceCulture::getBumsClause(const MifareCardData & bill)
+QString BeetAcceptanceCulture::getBumsClause(const MifareCardData & )
 {
     QStringList ret;
 #if 0
@@ -623,7 +624,7 @@ void BeetAcceptanceCulture::updateTaraValues(MifareCardData& bill, boost::mpl::b
     auto v = ::tools::make_vvector(
                 ttn_table.real_bum        = bill.memberValue<int>("bumFact"),
                 ttn_table.kagat           = bill.memberValue<int>("kagat"),
-                ttn_table.dt_of_unload    = bill.memberValue<QString>("dateOfUnload").toAscii().constData(),
+                ttn_table.dt_of_unload    = bill.memberValue<QDateTime>("dateOfUnload").toString(rdb_date_time_format).toAscii().constData(),
                 ttn_table.was_in_lab      = bill.memberValue<QBitArray>("flags").at(3),
                 ttn_table.copy            = false,
                 ttn_table.tara_platforma  = seq().seqId(),
@@ -745,7 +746,7 @@ bool BeetAcceptanceCulture::makeNewTask(MifareCardData& bill)
     return true;
 }
 
-ReportContext BeetAcceptanceCulture::makeReportContext(qx::dao::ptr<t_cars_beet> car, qx::dao::ptr<t_field_beet> field)
+ReportContext BeetAcceptanceCulture::makeReportContext(int field_id)
 {
 #if 0
     qx::dao::ptr<t_kontr_beet> kontr = wrap_async_ex(
@@ -759,6 +760,13 @@ ReportContext BeetAcceptanceCulture::makeReportContext(qx::dao::ptr<t_cars_beet>
     qx::dao::ptr<t_const_beet> dont_check_time   = convienceFunc().getConst<t_const_beet>(seq().appSetting<QString>("dont_check_time_name"));
     qx::dao::ptr<t_const_beet> disp_phone        = convienceFunc().getConst<t_const_beet>(seq().appSetting<QString>("disp_phone_name"));
 
+    auto kontr = async2().fetch( sql::select(kontr_table.all)
+                                 .from(kontr_table).where( kontr_table.id == kontrCodeFromField( field->id ) ),
+                                 QObject::tr(cant_get_kontr_when_printing) );
+
+    auto field = async2().fetch( sql::select( field_table.all ).from( field_table ).where( field_table.id == field_id ),
+                                 tr(cant_get_field_when_printing) );
+
     QList<ReportsManager::var_instance> vars = QList<ReportsManager::var_instance>{
         ReportsManager::var_instance{"t_ttn", "t_ttn_beet", current_ttn.data()},
         ReportsManager::var_instance{"t_cars", "t_cars_beet", car.data()},
@@ -770,8 +778,12 @@ ReportContext BeetAcceptanceCulture::makeReportContext(qx::dao::ptr<t_cars_beet>
      };
      return ReportsManager::makeReportContext(vars);
 #endif
+
+    return reports::makeReportContext( current_ttn, current_car );
+
 #warning Insert correct reflection here!!!
-    return  ReportContext();
+
+    //return  ReportContext();
 }
 
 ReportContext BeetAcceptanceCulture::finishReport()
@@ -785,6 +797,8 @@ ReportContext BeetAcceptanceCulture::finishReport()
     return makeReportContext(current_car, field);
 #endif
 #warning Insert correct reflection here!!!
+    reports::makeReportContext( current_car  );
+
     return ReportContext();
 }
 
@@ -799,6 +813,8 @@ ReportContext BeetAcceptanceCulture::startReport()
     return makeReportContext(current_car, field);
 #endif
 #warning Insert correct reflection here!!!
+
+    //static_name_of<decltype(current_ttn)> asas;
 
     return ReportContext();
 }

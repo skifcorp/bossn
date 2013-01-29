@@ -71,7 +71,7 @@ private:
 
 
 
-    ReportContext makeReportContext(qx::dao::ptr<t_cars_beet>, qx::dao::ptr<t_field_beet>) ;
+    ReportContext makeReportContext( int field_id ) ;
 
 
 

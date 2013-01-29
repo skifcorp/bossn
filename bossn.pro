@@ -113,7 +113,8 @@ SOURCES += alho/weighters/kryzh/beet/kryzhbeetacceptanceculture.cpp \
     alho/weighters/mria/beet/mriabeetacceptanceculture.cpp \
     alho/weighters/mria/beet/mriabeetdbstructs.cpp \
     alho/weighters/mria/weighter/mriaacceptanceweighter.cpp \
-    reader/mifarereaderemulator.cpp
+    reader/mifarereaderemulator.cpp \
+    alho/reportsmanager2.cpp
 
 HEADERS +=   reader/mifarereaderemulator.h \
     tools/func.h \
@@ -200,7 +201,8 @@ HEADERS +=   reader/mifarereaderemulator.h \
     alho/async_func2.h \
     tools/deleterlater.h \
     alho/weighters/common/generictables.h \
-    rdb_pch.h
+    rdb_pch.h \
+    alho/reportsmanager2.h
 
 
 RESOURCES += bossn.qrc
