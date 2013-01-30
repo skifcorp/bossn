@@ -8,6 +8,7 @@
 #include <boost/fusion/include/vector.hpp>
 #include <boost/fusion/include/zip.hpp>
 #include <boost/fusion/include/front.hpp>
+#include <boost/fusion/include/at_c.hpp>
 
 #include <boost/mpl/transform.hpp>
 #include <boost/mpl/for_each.hpp>
@@ -51,27 +52,13 @@ namespace reports {
     namespace fusion = ::boost::fusion;
     namespace mpl    = ::boost::mpl;
 
-    template <class E>
-    struct ExprWrap
-    {
-    };
-
-    struct column_name_to_map
-    {
-        column_name_to_map( ReportContext& rc ) : rc_(rc)
-        {}
-
-        ReportContext& rc_;
-
-        template <class Expr>
-        void operator()( ExprWrap<Expr> )
-        {
-            std::cout << Expr::name() << endl;
-        }
-    };
-
 
     namespace {
+        template <class E>
+        struct ExprWrap
+        {
+        };
+
         inline QString to_qstring(const std::string& s)
         {
             return QString::fromUtf8( s.c_str() );
@@ -92,58 +79,53 @@ namespace reports {
         {
             return QVariant::fromValue( ptime_to_qt(t) );
         }
-    }
 
-    struct column_name_to_map2
-    {
-        column_name_to_map2( ReportContext& rc ) : rc_(rc)
-        {}
-
-        ReportContext& rc_;
-
-        template <template <class, class> class Cont, class Data, template <class> class Wrapper, class Expr>
-        void operator()(const Cont<Data, const Wrapper<Expr>& >& d ) const
+        template <class ... Args>
+        void exec_args (Args ... )
         {
-            //std::cout << Expr::name() << " = " << fusion::front(d) << endl;
-            rc_[ to_qstring(Expr::name()) ] = to_qvariant(  fusion::front(d) );
-
         }
-    };
 
-    template <class ... Args>
-    void exec_args (Args ... a)
-    {
-        qDebug() << "args count: " << sizeof...(a);
+        struct column_name_to_map2
+        {
+            column_name_to_map2( const QString& vn, ReportContext& rc ) : var_name(vn), rc_(rc)
+            {}
+
+            const QString& var_name;
+            ReportContext& rc_;
+
+            template <template <class, class> class Cont, class Data, template <class> class Wrapper, class Expr>
+            void operator()(const Cont<Data, const Wrapper<Expr>& >& d ) const
+            {
+                rc_[ var_name + "_" + to_qstring(Expr::name()) ] = to_qvariant(  fusion::front(d) );
+            }
+        };
+
+
+        template <class Seq, class WrappedExpr>
+        bool call_for_each(const QString& var_name, const Seq& s, WrappedExpr we, ReportContext& rc )
+        {
+            fusion::for_each( fusion::zip( s, we ), column_name_to_map2{var_name, rc} );
+
+            return true;
+        }
     }
 
-    template <class Seq, class WrappedExpr>
-    bool call_for_each(const Seq& s, WrappedExpr we, ReportContext& rc )
-    {
-        fusion::for_each( fusion::zip( s, we ), column_name_to_map2(rc) );
-
-        qDebug() << "called!!!!!!!!!";
-
-        return true;
-    }
-
-    //template <class ... Seq, class ... ExprList, template <class, class>  class ... Cont>
-    //ReportContext makeReportContext( const sql::nullable<Seq, ExprList>& n )
-    //ReportContext makeReportContext( const Cont<Seq, ExprList>& ... n )
-    template <class ... Conts>
-    ReportContext makeReportContext( const Conts& ... c )
+    template <class ... Conts, int ... N>
+    ReportContext makeReportContext( const fusion::vector<const char(&)[N], Conts& >& ... c )
     {
         ReportContext rc;
 
-        //using WrappedExpr = typename mpl::transform< ExprList, ExprWrap<mpl::_> >::type;
+        exec_args (
+            call_for_each(
+                fusion::at_c<0>(c),
+                fusion::at_c<1>(c).values_,
+                typename mpl::transform<
+                    typename Conts::expr_list,
+                    ExprWrap<mpl::_>
+                >::type(), rc
+            ) ...
+        );
 
-        //WrappedExpr we;
-
-/*        exec_args (  call_for_each( c.values_,
-                                    typename mpl::transform<typename Conts::expr_list, ExprWrap<mpl::_> >::type(), rc ) ...  );*/
-
-                exec_args ( 1, 2, 3, 4  );
-
-        qDebug() << rc;
 
         return std::move(rc);
     }

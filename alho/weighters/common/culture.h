@@ -103,8 +103,8 @@ public:
     template <class T>
     T constantValue( const QString& n ) const
     {
-        auto iter = constants.find( n );
-        if ( iter == constants.end() ) {
+        auto iter = constants_.find( n );
+        if ( iter == constants_.end() ) {
             throw MainSequenceException( tr(requested_constant_not_exists) + " " + n, "requested_constant_not_exists " + n );
         }
         QVariant v( *iter );
@@ -113,8 +113,14 @@ public:
 
     bool containsConstant( const QString& n ) const
     {
-        return constants.contains(n);
+        return constants_.contains(n);
     }
+
+    const QMap<QString, QString>& constants() const
+    {
+        return constants_;
+    }
+
 private:
     MainSequence& seq_;
     QSqlDatabase database_;
@@ -123,7 +129,7 @@ private:
     async_func2 async2_;
 
 private:
-    QMap<QString, QString> constants;
+    QMap<QString, QString> constants_;
 };
 
 } }

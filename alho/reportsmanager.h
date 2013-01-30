@@ -14,6 +14,11 @@ class ReportContext : public QVariantMap
 public:
     ReportContext(){}
     ~ReportContext(){}
+
+    ReportContext( QVariantMap&& other )
+    {
+        swap( other );
+    }
 };
 
 class ReportsManager

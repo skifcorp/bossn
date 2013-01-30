@@ -78,18 +78,10 @@ void Culture::fillConstants()
 
     deq = async2().exec( sql::select( t_const.all ).from( t_const ), cant_get_const_message ).all();
 
-    constants.clear();
+    constants_.clear();
 
     for ( const auto & val : deq ) {
-        //cout << "  const id: " << val[t_const.id] << endl;
-
-        //QTextCodec * c = QTextCodec::codecForName("UTF-8");
-
-        //QString s = QString::fromUtf8( val[t_const.id].c_str() );
-
-        //printOnDisplay( "key: " + s );
-
-        constants[  QString::fromUtf8( val[t_const.id].c_str() ) ] =
+        constants_[  QString::fromUtf8( val[t_const.id].c_str() ) ] =
                  QString::fromUtf8( val[t_const.value].c_str() );
     }
 }

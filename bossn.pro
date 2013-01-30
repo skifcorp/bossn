@@ -12,7 +12,6 @@
 
 #INCLUDEPATH += d:/users/andigor/prg/STLport-5.2.1/stlport/
 
-
 QT       += core xml sql script gui
 CONFIG   += uitools console
 
@@ -29,8 +28,8 @@ INCLUDEPATH    += db alho serial weight generic iodevicewrapper scheduler       
                   alho/weighters/common
 
 
-QMAKE_CXXFLAGS += -std=gnu++0x -O # -ftemplate-depth=40 #--param ggc-min-expand=10 --param ggc-min-heapsize=65535 -O
-
+QMAKE_CXXFLAGS += -std=gnu++0x -O #--param ggc-min-expand=10 --param ggc-min-heapsize=65535 -O
+#QMAKE_CXXFLAGS -= -pipe
 
 DEFINES += FUSION_MAX_VECTOR_SIZE=40                          #\
 #           BOOST_FUSION_INVOKE_MAX_ARITY=30                   \
@@ -52,6 +51,8 @@ LIBS           +=   -lqextserialport                \
                     -llibboost_thread               \
                     -lboost_date_time               \
                     librdb
+
+LIBS           += -lgdi32
 
 TRANSLATIONS = bossn_ua.ts
 
@@ -206,3 +207,5 @@ HEADERS +=   reader/mifarereaderemulator.h \
 
 
 RESOURCES += bossn.qrc
+
+

@@ -117,7 +117,7 @@ public:
     void repairFieldCodeCorrectnessIfNeeded2(MifareCardData &bill,
         const Tfield& field_table, const Tttn& ttn_table, Tttn_data & ttn_data)
     {
-        auto q = sql::select( sql::count() ).from(field_table).where( field_table.num_field ==
+        auto q = sql::select( sql::count() ).from(field_table).where( field_table.id ==
                                                                       bill.memberValue<int>("realNumField") );       
 
         if ( bill.memberValue<uint>("realNumField") == 0 || async2().fetch( q, "fetching field_table failed!") )
@@ -128,7 +128,7 @@ public:
 
             //static_name_of < decltype(ttn_data[ ttn_table.real_field ]) > aaa;
 
-            ttn_data[ ttn_table.real_field ] = bill.memberValue<int>("numField");
+            //ttn_data[ ttn_table.real_field ] = bill.memberValue<int>("numField");
 
 
 

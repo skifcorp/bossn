@@ -6,6 +6,8 @@
 
 #include "fusion_tools/make_vvector.h"
 
+#include <boost/fusion/include/vector_tie.hpp>
+
 namespace alho  { namespace kryzh {
 
 /*const QString BeetAcceptanceCulture::t_cars_name("t_cars");
@@ -759,14 +761,15 @@ ReportContext BeetAcceptanceCulture::makeReportContext(int field_id)
     qx::dao::ptr<t_const_beet> base_firm         = convienceFunc().getConst<t_const_beet>(seq().appSetting<QString>("base_firm_name"));
     qx::dao::ptr<t_const_beet> dont_check_time   = convienceFunc().getConst<t_const_beet>(seq().appSetting<QString>("dont_check_time_name"));
     qx::dao::ptr<t_const_beet> disp_phone        = convienceFunc().getConst<t_const_beet>(seq().appSetting<QString>("disp_phone_name"));
+#endif
 
     auto kontr = async2().fetch( sql::select(kontr_table.all)
-                                 .from(kontr_table).where( kontr_table.id == kontrCodeFromField( field->id ) ),
+                                 .from(kontr_table).where( kontr_table.id == kontrCodeFromField( field_id ) ),
                                  QObject::tr(cant_get_kontr_when_printing) );
 
     auto field = async2().fetch( sql::select( field_table.all ).from( field_table ).where( field_table.id == field_id ),
                                  tr(cant_get_field_when_printing) );
-
+#if 0
     QList<ReportsManager::var_instance> vars = QList<ReportsManager::var_instance>{
         ReportsManager::var_instance{"t_ttn", "t_ttn_beet", current_ttn.data()},
         ReportsManager::var_instance{"t_cars", "t_cars_beet", car.data()},
@@ -779,7 +782,18 @@ ReportContext BeetAcceptanceCulture::makeReportContext(int field_id)
      return ReportsManager::makeReportContext(vars);
 #endif
 
-    return reports::makeReportContext( current_ttn, current_car );
+    auto rc = reports::makeReportContext(
+                fusion::vector_tie("t_ttn", current_ttn),
+                fusion::vector_tie("t_cars", current_car),
+                fusion::vector_tie("t_kontr", kontr),
+                fusion::vector_tie("t_field", field) );
+
+    rc["base_firm_value"]       = constantValue<QVariant>(seq().appSetting<QString>("base_firm_name"));
+    rc["dont_check_time_value"] = constantValue<QVariant>(seq().appSetting<QString>("dont_check_time_name"));
+    rc["disp_phone_value"]      = constantValue<QVariant>(seq().appSetting<QString>("disp_phone_name"));
+
+    return std::move(rc);
+
 
 #warning Insert correct reflection here!!!
 
@@ -797,9 +811,11 @@ ReportContext BeetAcceptanceCulture::finishReport()
     return makeReportContext(current_car, field);
 #endif
 #warning Insert correct reflection here!!!
-    reports::makeReportContext( current_car  );
+    //reports::makeReportContext( current_ttn, current_car  );
 
-    return ReportContext();
+    return makeReportContext( current_ttn[ttn_table.real_field] );
+
+    //return rc;
 }
 
 ReportContext BeetAcceptanceCulture::startReport()
@@ -816,7 +832,9 @@ ReportContext BeetAcceptanceCulture::startReport()
 
     //static_name_of<decltype(current_ttn)> asas;
 
-    return ReportContext();
+    return makeReportContext( current_ttn[ttn_table.field] );
+
+    //return rc;
 }
 
 QString BeetAcceptanceCulture::detectPlatformType(const MifareCardData& bill) const

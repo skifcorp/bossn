@@ -66,8 +66,9 @@ BOOST_RDB_BEGIN_TABLE(t_cars_beet_table)
 BOOST_RDB_END_TABLE(t_cars_beet_table)
 
 BOOST_RDB_BEGIN_TABLE(t_field_beet_table)
-    BOOST_RDB_COLUMN(num_field                    ,integer    )
-    BOOST_RDB_COLUMN(num_loader                   ,integer    )
+    BOOST_RDB_COLUMN(id                     ,integer      )
+    BOOST_RDB_COLUMN(distance               ,integer      )
+    BOOST_RDB_COLUMN(info                   ,varchar<100> )
 BOOST_RDB_END_TABLE(t_field_beet_table)
 
 BOOST_RDB_BEGIN_TABLE(t_bum_beet_table)

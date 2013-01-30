@@ -158,6 +158,7 @@ QVariant MifareReaderEmulator::readBlock(const QVariant& n)
         if ( num == 0 ) { //must refactor this
             bill.setMemberValue("driver", 2190);
             bill.setMemberValue("billNumber", 1);
+            bill.setMemberValue("numField", 105);
         }
         else if ( num == 1) {
             bill.setMemberValue("bruttoWeight", 10000);

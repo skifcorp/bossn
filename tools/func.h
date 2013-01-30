@@ -112,4 +112,15 @@ inline std::string time_duration_to_string( const boost::posix_time::time_durati
     return ss.str();
 }
 
+template <class V>
+inline QVariantMap to_variant_map(const QMap<QString, V>& m)
+{
+    QVariantMap ret;
+    for ( auto iter = m.begin(); iter != m.end(); ++iter ) {
+        ret[iter.key()] = QVariant::fromValue(*iter);
+    }
+
+    return std::move(ret);
+}
+
 #endif // FUNC_H
