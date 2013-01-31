@@ -198,7 +198,9 @@ struct t_const_beet_mria
     virtual ~t_const_beet_mria(){}
 };
 
+#if 0
 QX_REGISTER_PRIMARY_KEY(t_const_beet_mria, QString)
+#endif
 
 struct t_bum_state_log_beet_mria
 {
@@ -229,7 +231,7 @@ struct t_action_log_beet_mria
     virtual ~t_action_log_beet_mria(){}
 };
 
-
+#if 0
 
 QX_REGISTER_HPP_EXPORT_DLL(t_ttn_beet_mria          , qx::trait::no_base_class_defined, 1)
 QX_REGISTER_HPP_EXPORT_DLL(t_rez_beet_mria          , qx::trait::no_base_class_defined, 1)
@@ -242,5 +244,7 @@ QX_REGISTER_HPP_EXPORT_DLL(t_field_beet_mria        , qx::trait::no_base_class_d
 QX_REGISTER_HPP_EXPORT_DLL(t_const_beet_mria        , qx::trait::no_base_class_defined, 1)
 QX_REGISTER_HPP_EXPORT_DLL(t_bum_state_log_beet_mria, qx::trait::no_base_class_defined, 1)
 QX_REGISTER_HPP_EXPORT_DLL(t_action_log_beet_mria   , qx::trait::no_base_class_defined, 1)
+
+#endif
 
 #endif // DBSTRUCTS_H

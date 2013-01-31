@@ -54,6 +54,7 @@ private:
     //void checkLaboratory( const MifareCardData& , qx::dao::ptr<t_cars_beet>)throw(MainSequenceException);
     //void checkKagat(const MifareCardData&) throw(MainSequenceException);
     void checkBum(MifareCardData&) const throw(MainSequenceException);
+#if 0
     void clearBumQueue(qx::dao::ptr<t_ttn_beet_mria> ttn) throw (MainSequenceException);
     void updateBruttoValues(MifareCardData& bill, qx::dao::ptr<t_ttn_beet_mria> ttn) throw(MainSequenceException);
     void updateTaraValues(MifareCardData&, qx::dao::ptr<t_ttn_beet_mria>, qx::dao::ptr<t_cars_beet_mria>, bool pure_weight) throw(MainSequenceException);
@@ -64,7 +65,7 @@ private:
     qx::dao::ptr<t_cars_beet_mria> current_car;
 
     ReportContext makeReportContext(qx::dao::ptr<t_cars_beet_mria>, qx::dao::ptr<t_field_beet_mria>) ;
-
+#endif
 
 
     static const QString t_ttn_name;

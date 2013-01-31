@@ -10,7 +10,7 @@
 #include <QSharedPointer>
 #include <QSqlDatabase>
 
-#include "QxOrm.h"
+//#include "QxOrm.h"
 
 #include "bossnexception.h"
 #include "mifarecarddata.h"
@@ -52,7 +52,7 @@ public:
     const QSqlDatabase   & database() const      {return database_ ;}
     const MainSequence   & seq() const           {return seq_      ;}
     const async_func2    & async2() const        {return async2_   ;}
-
+#if 0
     template <class Tttn>
     void checkTaraByBrutto(int tara, qx::dao::ptr<Tttn> ttn) const throw (MainSequenceException)
     {
@@ -72,6 +72,7 @@ public:
                 "brutto: " + QString::number(brutto)   +
                 "tara: "   + QString::number(ttn->tara) );
     }	
+#endif
 
 
     template <class Table, class TableData>

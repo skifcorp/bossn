@@ -10,6 +10,8 @@
 
 #include "genericdbstructs.h"
 
+
+
 struct t_ttn_beet
 {
     long num_nakl;
@@ -195,7 +197,9 @@ struct t_const_beet
     virtual ~t_const_beet(){}
 };
 
+#if 0
 QX_REGISTER_PRIMARY_KEY(t_const_beet, QString)
+#endif
 
 struct t_bum_state_log_beet
 {
@@ -227,6 +231,7 @@ struct t_action_log_beet
 };
 
 
+#if 0
 QX_REGISTER_HPP_EXPORT_DLL(t_ttn_beet          , qx::trait::no_base_class_defined, 1)
 QX_REGISTER_HPP_EXPORT_DLL(t_rez_beet          , qx::trait::no_base_class_defined, 1)
 QX_REGISTER_HPP_EXPORT_DLL(t_def_field_beet    , qx::trait::no_base_class_defined, 1)
@@ -238,6 +243,8 @@ QX_REGISTER_HPP_EXPORT_DLL(t_field_beet        , qx::trait::no_base_class_define
 QX_REGISTER_HPP_EXPORT_DLL(t_const_beet        , qx::trait::no_base_class_defined, 1)
 QX_REGISTER_HPP_EXPORT_DLL(t_bum_state_log_beet, qx::trait::no_base_class_defined, 1)
 QX_REGISTER_HPP_EXPORT_DLL(t_action_log_beet   , qx::trait::no_base_class_defined, 1)
+
+#endif
 
 
 #endif // DBSTRUCTS_H

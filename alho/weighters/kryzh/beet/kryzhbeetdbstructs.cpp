@@ -6,6 +6,8 @@
 #include "qxorm_pch.h"
 #include "func.h"
 
+#if 0
+
 QX_REGISTER_CPP_EXPORT_DLL(t_ttn_beet)
 QX_REGISTER_CPP_EXPORT_DLL(t_rez_beet)
 QX_REGISTER_CPP_EXPORT_DLL(t_def_field_beet)
@@ -17,6 +19,8 @@ QX_REGISTER_CPP_EXPORT_DLL(t_field_beet)
 QX_REGISTER_CPP_EXPORT_DLL(t_const_beet)
 QX_REGISTER_CPP_EXPORT_DLL(t_bum_state_log_beet)
 QX_REGISTER_CPP_EXPORT_DLL(t_action_log_beet)
+
+#endif
 
 t_ttn_beet::t_ttn_beet():num_nakl(-1), date_time(timeShitToDateTime(0)), car(0), field(0), real_field(0), loader(0), dt_of_load(timeShitToDateTime(0)),
                 driver(0),  brutto(0), dt_of_brutto(timeShitToDateTime(0)),
@@ -37,7 +41,7 @@ t_ttn_beet::t_ttn_beet(long id):num_nakl(id), date_time(timeShitToDateTime(0)), 
 {
 
 }
-
+#if 0
 
 namespace qx {
     template <> void register_class(QxClass<t_ttn_beet> & t)
@@ -194,3 +198,5 @@ namespace qx {
     }
 
 }
+
+#endif

@@ -18,25 +18,35 @@ const QString GrainShipmentCulture::t_prikaz_name("t_prikaz");
 
 QString GrainShipmentCulture::bruttoFinishMessage(const MifareCardData&  )const
 {
+#if 0
     return tr(brutto_finish_weight_message).arg( current_ttn->brutto );
+#endif
+    return QString();
 }
 
 QString GrainShipmentCulture::taraFinishMessage(const MifareCardData& bill)const
 {
+#if 0
     return tr("tara:") + bill.memberValue<QString>("taraWeight") + tr("rest:")
             + QString::number(current_prikaz->lim - current_prikaz->rest -
                               current_prikaz->virtual_rest);
+#endif
+    return QString();
 }
 
 
 
-
+#if 0
 void GrainShipmentCulture::updateBruttoValues(MifareCardData& , qx::dao::ptr<t_ttno> ttn) throw(MainSequenceException)
 {
+
     wrap_async_ex( tr(update_ttn_error_message), "Error updating ttn brutto",
         [&ttn, this]{ asyncFunc().async_update(ttn, t_ttn_name); });
-}
 
+}
+#endif
+
+#if 0
 void GrainShipmentCulture::updateTaraValues(MifareCardData& bill, qx::dao::ptr<t_ttno> ttn) throw (MainSequenceException)
 {    
     ttn->num_kart         = byteArrayToString (bill.uid());
@@ -46,13 +56,15 @@ void GrainShipmentCulture::updateTaraValues(MifareCardData& bill, qx::dao::ptr<t
     wrap_async_ex( tr(update_ttn_error_message),
          "Error updating ttn tara: ttn_num: " + QString::number(ttn->num_nakl),
            [&ttn, this]{ asyncFunc().async_update(ttn, t_ttn_name); });
+
 }
+#endif
 
 
-
-
+#if 0
 ReportContext GrainShipmentCulture::makeReportContext( qx::dao::ptr<t_ttno> ttn )
 {
+
     qx::dao::ptr<t_kontr> kontr = wrap_async_ex(QObject::tr(cant_get_kontr_when_printing), "cant get kontr when printing",
          [this]{return asyncFunc().async_fetch<t_kontr>(
                kontrCodeFromField( current_prikaz->place_in ), t_kontr_name ); });
@@ -70,17 +82,26 @@ ReportContext GrainShipmentCulture::makeReportContext( qx::dao::ptr<t_ttno> ttn 
         ReportsManager::var_instance{"t_prikaz", "t_prikaz", current_prikaz.data()}
      };
      return ReportsManager::makeReportContext(vars);
+
+    return ReportContext();
 }
+#endif
 
 ReportContext GrainShipmentCulture::finishReport() throw(MainSequenceException)
 {
+#if 0
     return makeReportContext(current_ttn);
+#endif
+    return ReportContext();
 }
 
 
 ReportContext GrainShipmentCulture::startReport() throw(MainSequenceException)
 {
+#if 0
     return makeReportContext(current_ttn);
+#endif
+    return ReportContext();
 }
 
 
@@ -118,7 +139,7 @@ bool GrainShipmentCulture::isPureTaraWeight(const MifareCardData& bill) const th
 void GrainShipmentCulture::fetchCar(const MifareCardData& bill) throw (MainSequenceException)
 {
     //qDebug() << "database_name:"<< async_.database.databaseName();
-
+#if 0
     current_car = wrap_async_ex(tr(fetch_car_error_message),
            "fetching car failed!!!: driver: " + bill.memberValue<QString>("driver"),
       [&bill, this]{return asyncFunc().async_fetch<t_cars>(
@@ -127,11 +148,13 @@ void GrainShipmentCulture::fetchCar(const MifareCardData& bill) throw (MainSeque
     if (current_car->block) {
         throw MainSequenceException(tr(car_blocked_message), "car is blocked!!!");
     }
+#endif
 }
 
 
 void GrainShipmentCulture::brutto(int w, MifareCardData& bill) throw (MainSequenceException)
 {
+#if 0
     current_ttn = wrap_async_ex(tr(fetch_ttn_error_message), "fetching ttn failed!!!",
                [&bill, this]{return asyncFunc().async_fetch<t_ttno>(
                    bill["billNumber"].toUInt(), t_ttn_name);});
@@ -171,8 +194,10 @@ void GrainShipmentCulture::brutto(int w, MifareCardData& bill) throw (MainSequen
 
     updateBruttoValues(bill, current_ttn);
     updatePrikaz(current_prikaz);
+#endif
 }
 
+#if 0
 void GrainShipmentCulture::checkPrikazLimit(qx::dao::ptr<t_prikaz> pr) throw (MainSequenceException)
 {
     if ( pr->rest + current_ttn->netto() > pr->lim )
@@ -182,9 +207,12 @@ void GrainShipmentCulture::checkPrikazLimit(qx::dao::ptr<t_prikaz> pr) throw (Ma
            " prikaz: " + QString::number(pr->num_nakl) +
            " delta: " + QString::number(pr->rest + current_ttn->netto() - pr->lim) );
 }
+#endif
+
 
 void GrainShipmentCulture::reBrutto(int w, MifareCardData& bill) throw (MainSequenceException)
 {
+#if 0
     current_ttn = ttnByDriver<t_ttno>( bill.memberValue<uint>("driver") );
 
     seq().seqDebug() << "GrainShipment: retara weight!, ttn: " << current_ttn->num_nakl;
@@ -215,17 +243,21 @@ void GrainShipmentCulture::reBrutto(int w, MifareCardData& bill) throw (MainSequ
 
     updateBruttoValues(bill, current_ttn);
     updatePrikaz(current_prikaz);
+#endif
 }
 
-
+#if 0
 void GrainShipmentCulture::rollbackPrikaz(qx::dao::ptr<t_prikaz> pr,
                                            qx::dao::ptr<t_ttno> ttn)
 {
     pr->rest -= ttn->netto();
 }
+#endif
+
 
 void GrainShipmentCulture::tara(int w, MifareCardData& bill) throw (MainSequenceException)
 {
+#if 0
     current_ttn = wrap_async_ex(tr(fetch_ttn_error_message), "fetching ttn failed!!!",
                               [&bill, this]{return asyncFunc().async_fetch<t_ttno>(
                   bill["billNumber"].toUInt(), t_ttn_name);});
@@ -250,10 +282,12 @@ void GrainShipmentCulture::tara(int w, MifareCardData& bill) throw (MainSequence
 
     updateTaraValues(bill, current_ttn);
     updatePrikaz(current_prikaz);
+#endif
 }
 
 void GrainShipmentCulture::reTara(int w, MifareCardData& bill) throw (MainSequenceException)
 {
+#if 0
     current_ttn = wrap_async_ex(tr(fetch_ttn_error_message), "fetching ttn failed!!!",
                               [&bill, this]{return asyncFunc().async_fetch<t_ttno>(
                   bill["billNumber"].toUInt(), t_ttn_name);});
@@ -281,18 +315,24 @@ void GrainShipmentCulture::reTara(int w, MifareCardData& bill) throw (MainSequen
     //processTaraRupture<t_ttno, t_cars, t_const>(current_ttn, current_car);
 
     updateTaraValues(bill, current_ttn);
+#endif
 }
 
+#if 0
 qx::dao::ptr<t_prikaz>  GrainShipmentCulture::fetchPrikaz(int num) throw (MainSequenceException)
 {
     //const QString q = "select * from t_prikaz where num_nakl = " + QString::number(num);
+
     auto p = wrap_async_ex(tr(cant_fetch_prikaz), "cant fetch prikaz for " + QString::number(num),
           [this, &num]{return asyncFunc().async_fetch<t_prikaz>(num, t_prikaz_name);});
 
     return p;
 
+    return qx::dao::ptr<t_prikaz>();
 }
+#endif
 
+#if 0
 void GrainShipmentCulture::checkPrikazClosed( qx::dao::ptr<t_prikaz> pr ) throw (MainSequenceException)
 {
     if ( pr->rest >= pr->lim )
@@ -300,10 +340,12 @@ void GrainShipmentCulture::checkPrikazClosed( qx::dao::ptr<t_prikaz> pr ) throw 
             "prikaz already closed: " + QString::number(pr->num_nakl));
 }
 
+#endif
+
 bool GrainShipmentCulture::makeNewTask(MifareCardData &bill) throw (MainSequenceException)
 {
     bill.clear();
-
+#if 0
 
     current_ttn = qx::dao::ptr<t_ttno>(new t_ttno);
 
@@ -318,21 +360,25 @@ bool GrainShipmentCulture::makeNewTask(MifareCardData &bill) throw (MainSequence
                     [this]{return asyncFunc().async_insert(current_ttn, false, t_ttn_name);});
 
     bill.setMemberValue("billNumber", current_ttn->num_nakl);
+#endif
 
     return true;
 }
 
-
+#if 0
 void GrainShipmentCulture::updatePrikaz( qx::dao::ptr<t_prikaz> pr) throw (MainSequenceException)
 {
+
     wrap_async_ex( tr(cant_update_prikaz),  "cant update prikaz",
                    [this, &pr]{ return asyncFunc().async_update(pr, t_prikaz_name); });
+
 }
+#endif
 
-
-
+#if 0
 qx::dao::ptr<t_ttno> GrainShipmentCulture::ttnWithMaxNetto() throw (MainSequenceException)
 {
+
     const QString q = "select * from t_ttno where brutto - tara = " \
        "(select MAX(brutto-tara) from t_ttno where car=" + QString::number(current_car->id) +
        " AND num_nakl != " + QString::number(current_ttn->num_nakl) + " and brutto > 0  LIMIT 0,1)";
@@ -343,36 +389,15 @@ qx::dao::ptr<t_ttno> GrainShipmentCulture::ttnWithMaxNetto() throw (MainSequence
 
     return ttn_max_netto;
 
+
+    return qx::dao::ptr<t_ttno> ();
 }
-
-
-#if 0
-
-select brutto-tara from t_ttno where num_nakl in (
-  select num_nakl from t_ttno where brutto - tara =
-    (select MAX(brutto - tara) from t_ttno where car in
-      (select car from t_cars inner join t_ttno on t_cars.id = t_ttno.car where
-        t_ttno.tara != 0 and t_ttno.brutto = 0 and t_ttno.prikaz = 1 ) AND brutto > 0))
-
-
 #endif
 
-
 #if 0
-
-
-select sum(netto) from (
- select MAX(t_ttn1.brutto - t_ttn1.tara) AS netto from t_ttn AS t_ttn1
-   inner join t_ttn AS t_ttn2 on t_ttn1.car = t_ttn2.car
-     where t_ttn2.brutto != 0 and t_ttn2.tara = 0
-       group by t_ttn1.car
-) as netto_sum;
-
-
-#endif
-
 int GrainShipmentCulture::getMaxNetto(qx::dao::ptr<t_prikaz> pr) throw(MainSequenceException)
 {
+
     qx::dao::ptr<t_ttno> ttn_max_netto = ttnWithMaxNetto();
     int ret = 0;
     if (!ttn_max_netto) {
@@ -393,11 +418,16 @@ int GrainShipmentCulture::getMaxNetto(qx::dao::ptr<t_prikaz> pr) throw(MainSeque
     }
 
     return ret;
-}
 
+    return 0;
+}
+#endif
+
+#if 0
 int GrainShipmentCulture::getVirtualNetto(qx::dao::ptr<t_prikaz> pr)
   throw (MainSequenceException)
 {
+
     const QString q =
             "select sum(netto) from (" \
                 "select MAX(t_ttn1.brutto - t_ttn1.tara) AS netto from t_ttno AS t_ttn1 " \
@@ -414,10 +444,15 @@ int GrainShipmentCulture::getVirtualNetto(qx::dao::ptr<t_prikaz> pr)
             [this, &q]{return asyncFunc().async_call_query<int>(q);});
 
     return virtual_netto;
-}
 
+    return 0;
+}
+#endif
+
+#if 0
 void GrainShipmentCulture::checkVirtualNetto(qx::dao::ptr<t_prikaz> pr) throw (MainSequenceException)
 {
+
     int vn = getVirtualNetto(pr);
 
     pr->virtual_rest = vn;
@@ -431,6 +466,8 @@ void GrainShipmentCulture::checkVirtualNetto(qx::dao::ptr<t_prikaz> pr) throw (M
             " virtual rest: " + QString::number(vn) +
             " limit: " + QString::number(pr->rest));
 
+
 }
+#endif
 
 } }

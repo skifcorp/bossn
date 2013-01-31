@@ -40,16 +40,18 @@ public:
     //void checkPerimetr(){}
 private:
     void checkBum( const MifareCardData& )const throw(MainSequenceException);
+#if 0
     void checkLaboratory( qx::dao::ptr< t_ttn > )const throw(MainSequenceException);
     void updateBruttoValues(MifareCardData& bill, qx::dao::ptr<t_ttn> ttn) throw(MainSequenceException);
     void updateTaraValues(MifareCardData&, qx::dao::ptr<t_ttn>, qx::dao::ptr<t_cars>, bool pure_weight) throw(MainSequenceException);
-
+#endif
+#if 0
     ReportContext makeReportContext(qx::dao::ptr<t_cars>, qx::dao::ptr<t_field>) ;
-
-
+#endif
+#if 0
     qx::dao::ptr<t_ttn> current_ttn;
     qx::dao::ptr<t_cars> current_car;    
-
+#endif
 
 
     static const QString t_ttn_name;

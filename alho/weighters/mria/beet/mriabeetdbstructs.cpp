@@ -8,6 +8,7 @@
 
 //using namespace alho::mria::data;
 
+#if 0
 QX_REGISTER_CPP_EXPORT_DLL(t_ttn_beet_mria)
 QX_REGISTER_CPP_EXPORT_DLL(t_rez_beet_mria)
 QX_REGISTER_CPP_EXPORT_DLL(t_def_field_beet_mria)
@@ -20,6 +21,7 @@ QX_REGISTER_CPP_EXPORT_DLL(t_const_beet_mria)
 QX_REGISTER_CPP_EXPORT_DLL(t_bum_state_log_beet_mria)
 QX_REGISTER_CPP_EXPORT_DLL(t_action_log_beet_mria)
 
+#endif
 
 
 t_ttn_beet_mria::t_ttn_beet_mria():num_nakl(-1), date_time(timeShitToDateTime(0)), car(0), field(0), real_field(0), loader(0), dt_of_load(timeShitToDateTime(0)),
@@ -43,6 +45,7 @@ t_ttn_beet_mria::t_ttn_beet_mria(long id):num_nakl(id), date_time(timeShitToDate
 }
 
 
+#if 0
 namespace qx {
     template <> void register_class(QxClass<t_ttn_beet_mria> & t)
     {
@@ -201,5 +204,5 @@ namespace qx {
 
 }
 
-
+#endif
  

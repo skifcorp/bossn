@@ -43,8 +43,8 @@ DEFINES += FUSION_MAX_VECTOR_SIZE=40                          #\
 
 LIBS           +=   -lqextserialport                \
                     -lcoroutined                    \
-                    -lqxorm                         \
-                    -lboost_serialization           \
+                    #-lqxorm                         \
+                    #-lboost_serialization           \
                     -llibmysql                      \
                     -lismm                          \
                     -llibboost_system               \

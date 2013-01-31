@@ -10,7 +10,7 @@ class ShipmentCulture : public Culture
 {
 public:
     ShipmentCulture(MainSequence & as, QSqlDatabase& db, boost::rdb::mysql::mysql_database& db2) : Culture(as, db, db2){}
-
+#if 0
     template <class Tttn>
     qx::dao::ptr<Tttn> ttnByDriver( int drv ) throw (MainSequenceException)
 	{   
@@ -63,6 +63,7 @@ public:
          ttn->rup_tara           = mid_tara * percent.toUInt() / 100;
          ttn->real_rup_tara      = qAbs(mid_tara - static_cast<int>(ttn->tara));
     }
+#endif
 };
 
 

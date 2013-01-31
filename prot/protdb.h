@@ -90,6 +90,8 @@ struct message_log
     virtual ~message_log() {}
 };
 
+#if 0
+
 QX_REGISTER_PRIMARY_KEY(prot_values, QDateTime)
 QX_REGISTER_PRIMARY_KEY(prot_work, QDateTime)
 QX_REGISTER_PRIMARY_KEY(prot_value_scale, QDateTime)
@@ -101,5 +103,7 @@ QX_REGISTER_HPP_EXPORT_DLL(prot_value_scale   , qx::trait::no_base_class_defined
 QX_REGISTER_HPP_EXPORT_DLL(prot_work          , qx::trait::no_base_class_defined, 1)
 
 QX_REGISTER_HPP_EXPORT_DLL(message_log        , qx::trait::no_base_class_defined, 1)
+
+#endif
 
 #endif // PROTDB_H

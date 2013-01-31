@@ -10,11 +10,12 @@
 
 #include "qxorm_pch.h"
 
+#if 0
 using qx::QxClassX;
 using qx::IxClass;
 using qx::IxDataMemberX;
 using qx::IxDataMember;
-
+#endif
 
 
 #include <QTextCodec>
@@ -36,27 +37,17 @@ bool ReportsManager::printReport(const ReportContext& ctx, const QString & file_
 ReportContext ReportsManager::makeReportContext( QList<ReportsManager::var_instance> & vars) throw ()
 {
     ReportContext ctx;
-
-    for( auto iter = vars.begin(); iter != vars.end(); ++iter ) {
+#if 0
+    for( auto iter = vars.begin(); iter != vars.end(); ++iter ) {        
         IxClass * c = QxClassX::getClass( iter->typ_name );
 
         IxDataMemberX * m = c->getDataMemberX();
         for ( long i = 0; i < m->count(); ++i  ) {
             IxDataMember * dm = m->get(i);
-
-/*            if ( dm->getSqlType()=="TEXT" ) {
-                //ctx[iter->var_name + "_" + dm->getName()] = dm->getValue<QString>(iter->var).toLatin1();
-                QTextCodec * utf = QTextCodec::codecForName("UTF-8");
-                QByteArray ba = utf->fromUnicode(dm->getValue<QString>(iter->var));
-                QTextCodec * cp1251 = QTextCodec::codecForName("Windows-1251");
-
-                ctx[iter->var_name + "_" + dm->getName()] = dm->getValue<QString>(iter->var);//cp1251->toUnicode(ba);
-            }
-            else {*/
                 ctx[iter->var_name + "_" + dm->getName()] = dm->toVariant(  iter->var  );
-            //}
+
         }
     }
-
+#endif
     return ctx;
 }

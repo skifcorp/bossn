@@ -53,7 +53,7 @@ private:
     bool checkForNeedDatabaseConstAnalisys(long count, long kontrag)  ;
     uint getAnalisysPeriodFromStorage(uint typ);
     bool checkForNeedDiscreteAnalisys(long count) const;
-    QString getBumsClause(const MifareCardData & bill);
+    //QString getBumsClause(const MifareCardData & bill);
     void repairBumCorrectnessIfNeeded(  ) ;
     bool checkBumWorks(const QDateTime& , const QDateTime&, long) ;
     void checkLaboratory( const MifareCardData& );

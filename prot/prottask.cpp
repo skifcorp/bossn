@@ -125,6 +125,7 @@ void ProtTask::tryInitializeProtDataTables()
 
 void ProtTask::initProtDataTables()  throw (MainSequenceException)
 {
+#if 0
     for (TagProtConf & tpc : tag_prot_confs) {
         //try {
         //qDebug() << "creating table: " << tpc.NameVar;
@@ -143,11 +144,12 @@ void ProtTask::initProtDataTables()  throw (MainSequenceException)
         //}
     }
 
-
+#endif
 }
 
 void ProtTask::insertProtConf() throw (MainSequenceException)
 {
+#if 0
     wrap_async_ex(QString(), QString(), [this]{return config_async_func_.async_delete_all<prot_conf>();} );
     QList<prot_conf> prot_confs;
 
@@ -157,12 +159,14 @@ void ProtTask::insertProtConf() throw (MainSequenceException)
 
     //config_async_func_.async_insert(prot_confs);
     wrap_async_ex(QString(), QString(), [this, &prot_confs]{config_async_func_.async_insert(prot_confs);});
+#endif
+
 }
 
 void ProtTask::insertDbNames(const QString& db_name, const QString& db_ru_name) throw (MainSequenceException)
 {
     //qDebug() << "before delete all";
-
+#if 0
     wrap_async_ex(QString(), QString(), [this]{return config_async_func_.async_delete_all<db_names>();} );
 
     //qDebug() << "after";
@@ -173,6 +177,8 @@ void ProtTask::insertDbNames(const QString& db_name, const QString& db_ru_name) 
 
     //config_async_func_.async_insert(dn);
     wrap_async_ex(QString(), QString(), [this, &dn]{config_async_func_.async_insert(dn);});
+#endif
+
 }
 
 
@@ -195,6 +201,7 @@ void ProtTask::initConfigForProtViewer(const QString& db_name, const QString& db
 
 void ProtTask::initializeProtWork()
 {
+#if 0
     cur_prot_work->start_from = cur_prot_work->work_till = QDateTime::currentDateTime().toUTC();
 
     try {
@@ -206,11 +213,13 @@ void ProtTask::initializeProtWork()
     catch(MainSequenceException& ex) {
         qWarning() << "cant initProtWORK!!!! " << ex.systemMessage();
     }
+#endif
 }
 
 
 void ProtTask::initializeMessageLogs()
 {
+#if 0
     try {
         wrap_async_ex( QString(), QString(), [this]{return async_func_.async_create_table<message_log>();});
 
@@ -219,6 +228,7 @@ void ProtTask::initializeMessageLogs()
     catch(MainSequenceException& ex) {
         qWarning() << "cant initProtWORK!!!! " << ex.systemMessage();
     }
+#endif
 }
 
 void ProtTask::run()
@@ -339,6 +349,8 @@ void ProtTask::onSaveTimer()
         names.push_back(tpc.NameVar);
     }
 
+#if 0
+
     QtConcurrent::run( [this,  names]() mutable {
         saving_now.ref();
         cur_prot_work->work_till = QDateTime::currentDateTime().toUTC();
@@ -370,6 +382,7 @@ void ProtTask::onSaveTimer()
         saving_now.deref();
         //qDebug() << "saved!";
     } );
+#endif
 
     //tags_values.clear();
     clearDataInTagsValues();

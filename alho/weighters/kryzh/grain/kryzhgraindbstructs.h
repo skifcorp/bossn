@@ -203,7 +203,9 @@ struct t_const
     virtual ~t_const(){}
 };
 
+#if 0
 QX_REGISTER_PRIMARY_KEY(t_const, QString)
+#endif
 
 struct t_bum_state_log
 {
@@ -282,6 +284,7 @@ struct t_ttno
     int netto() const {return brutto - tara;}
 };
 
+#if 0
 QX_REGISTER_HPP_EXPORT_DLL(t_ttn          , qx::trait::no_base_class_defined, 1)
 QX_REGISTER_HPP_EXPORT_DLL(t_rez          , qx::trait::no_base_class_defined, 1)
 QX_REGISTER_HPP_EXPORT_DLL(t_def_field    , qx::trait::no_base_class_defined, 1)
@@ -295,5 +298,6 @@ QX_REGISTER_HPP_EXPORT_DLL(t_bum_state_log, qx::trait::no_base_class_defined, 1)
 QX_REGISTER_HPP_EXPORT_DLL(t_action_log   , qx::trait::no_base_class_defined, 1)
 QX_REGISTER_HPP_EXPORT_DLL(t_prikaz       , qx::trait::no_base_class_defined, 1)
 QX_REGISTER_HPP_EXPORT_DLL(t_ttno         , qx::trait::no_base_class_defined, 1)
+#endif
 
 #endif // DBSTRUCTS_H

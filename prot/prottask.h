@@ -25,7 +25,10 @@ public:
                        prot_conf_initialized(false),
                         prot_work_initialized(false),
                         message_logs_initialized(false),
-                        cur_prot_work (new prot_work), init(true)
+#if 0
+                        cur_prot_work (new prot_work),
+#endif
+                        init(true)
     {
         //async_func_.setShowDebugInfo(true);
     }
@@ -107,9 +110,9 @@ private:
     bool prot_conf_initialized;
     bool prot_work_initialized;
     bool message_logs_initialized;
-
+#if 0
     qx::dao::ptr<prot_work> cur_prot_work;
-
+#endif
     QList<message_log> message_logs;
     bool init;
 

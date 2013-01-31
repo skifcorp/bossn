@@ -18,7 +18,10 @@
 
 #include <boost/bind.hpp>
 
+#include <QObject>
+#include <QDebug>
 
+namespace mpl = boost::mpl;
 
 class async_func_base2 : public QObject
 {

@@ -14,25 +14,30 @@
 #include <QPrinterInfo>
 
 
+template <class T>
+struct deleter
+{
+    T * t;
+    ~deleter()
+    {
+        delete t;
+    }
+};
+
 
 bool Reports::print(const QVariantMap & m)
 {
      //QPrinter printer1(QPrinter::HighResolution);
 
 
-/*    QString noPrinters(QLatin1String("qt_no_printers"));
-    wchar_t buffer[256];
-    GetProfileString(L"windows", L"device",
-                     reinterpret_cast<const wchar_t *>(noPrinters.utf16()),
-                     buffer, 256);
-    QString output = QString::fromWCharArray(buffer);
+     // HDC hdc = CreateDC(0, reinterpret_cast<const wchar_t *>(name.utf16()), 0, 0);
+
+       //HDC hdc = CreateDC(0, L"Microsoft XPS Document Writer", 0, 0);
 
 
+//    qDebug () << "ooooooooooooooooo: " << program <<  name;
 
 
-
-    qDebug () << "ooooooooooooooooo: " << output;
-*/
 
     if (file_name.isEmpty()) {
         qWarning() << "reports file_name is empty!"; return false;
@@ -53,6 +58,7 @@ bool Reports::print(const QVariantMap & m)
     f.open(QFile::ReadOnly);
 
     QWidget * report = uil.load(&f, 0);
+    deleter<QWidget> rep_guard{report};
 
     //report->resize( report->minimumSizeHint() );
 
@@ -67,7 +73,6 @@ bool Reports::print(const QVariantMap & m)
 
         if ( engine.hasUncaughtException() ) {
             printOnDisplay("text: " + l->text() + " has exception: " + engine.uncaughtException().toString() );
-            delete report;
             return false;
         }
         else {
@@ -76,41 +81,22 @@ bool Reports::print(const QVariantMap & m)
 
 
     }
-    //delete report;
+
     report->setAttribute( Qt::WA_QuitOnClose, false );
-    report->show();
-    //QPixmap pix = QPixmap::grabWidget(report);
-    //delete report;
-     qWarning() << "finished! 11111";
-     //qDebug() << "printerInfo: " << QPrinterInfo::availablePrinters().count();
-     //return true;
+    report->show();  
+
     QPrinter printer(QPrinter::HighResolution);
-    qWarning() << "finished! 22222";
-    //printer.setR
-    //printer.setPaperSize(QSize(148, 72), QPrinter::Millimeter);
+
     printer.setPrinterName(printer_name);
-    //printer.setResolution(72);
-    //qWarning() << "finished! 33333";
+
     if (!printer.isValid()) {
         qWarning() << "WARNING! Printer " << printer_name << " is not valid!";
+
         return false;
     }
+
     QPainter painter(&printer);
-    //painter.setRenderHint(QPainter::Antialiasing, true);
-    //painter.setRenderHint(QPainter::TextAntialiasing , true);
-    //qWarning() << "finished! 4444444";
     report->render(&painter);
-    //qWarning() << "finished! 5555555";
-    //QPainter painter(&printer);
-    //painter.setRenderHint( QPainter::Antialiasing, true );
-    //painter.drawPixmap(0, 0, pix);
-    //report->render(&printer);
-
-    //delete report;
-
-    //printer.print
-
-    //qWarning() << "finished!";
 
     return true;
 }

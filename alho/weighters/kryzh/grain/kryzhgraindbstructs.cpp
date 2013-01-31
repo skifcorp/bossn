@@ -6,6 +6,8 @@
 #include "qxorm_pch.h"
 #include "func.h"
 
+
+#if 0
 QX_REGISTER_CPP_EXPORT_DLL(t_ttn)
 QX_REGISTER_CPP_EXPORT_DLL(t_rez)
 QX_REGISTER_CPP_EXPORT_DLL(t_def_field)
@@ -19,6 +21,8 @@ QX_REGISTER_CPP_EXPORT_DLL(t_bum_state_log)
 QX_REGISTER_CPP_EXPORT_DLL(t_action_log)
 QX_REGISTER_CPP_EXPORT_DLL(t_prikaz)
 QX_REGISTER_CPP_EXPORT_DLL(t_ttno)
+
+#endif
 
 t_ttn::t_ttn():num_nakl(-1), date_time(timeShitToDateTime(0)), car(0), field(0), real_field(0), loader(0), dt_of_load(timeShitToDateTime(0)),
                 driver(0),  brutto(0), dt_of_brutto(timeShitToDateTime(0)),
@@ -79,7 +83,7 @@ t_ttno::t_ttno() : date_time(timeShitToDateTime(0)),
 
 
 
-
+#if 0
 
 namespace qx {
     template <> void register_class(QxClass<t_ttn> & t)
@@ -281,3 +285,4 @@ namespace qx {
     }
 
 }
+#endif

@@ -3,6 +3,8 @@
 #include "qxorm_pch.h"
 #include "func.h"
 
+#if 0
+
 QX_REGISTER_CPP_EXPORT_DLL(bad_cards)
 
 
@@ -14,3 +16,4 @@ namespace qx {
     }
 }
 
+#endif

@@ -15,7 +15,7 @@ class AcceptanceCulture : public Culture
 {
 public:    
     AcceptanceCulture(MainSequence & as, QSqlDatabase& db, boost::rdb::mysql::mysql_database& db2) : Culture(as, db, db2){}
-
+#if 0
     template <class Tttn>
     qx::dao::ptr<Tttn> ttnByDriver( int drv ) throw (MainSequenceException)
 	{
@@ -37,7 +37,7 @@ public:
 
 		return ret;	
 	}
-
+#endif
     template <class TtnData, class TtnTable>
     TtnData ttnByDriver2( int drv, const TtnTable& tt )
     {
@@ -75,7 +75,7 @@ public:
         return std::move(  erase_nullable( ttn, sql::max( tt.dt_of_tara ) )  );
     }
 
-
+#if 0
     template <class Tttn, class Tcars>
     void processDrivingTime(qx::dao::ptr<Tttn> ttn, qx::dao::ptr<Tcars> car )const throw (MainSequenceException)
 	{
@@ -85,6 +85,7 @@ public:
 			ttn->time_return = timeShitToDateTime( dateTimeToTimeShit(ttn->date_time) + car->vremja_na_hodku * 60 );
 		}	
 	}
+#endif
 
     template <class TtnTable, class TtnData, class CarsTable, class CarsData>
     void processDrivingTime2(const TtnTable& tt, TtnData & ttn, const CarsTable& ct, const CarsData& car )const
@@ -99,7 +100,7 @@ public:
         }
     }
 
-
+#if 0
     template<class Tttn, class Tfield>
     void repairFieldCodeCorrectnessIfNeeded(MifareCardData &bill, qx::dao::ptr<Tttn> ttn,
                                             const QString& table_name)  throw()
@@ -112,7 +113,7 @@ public:
 			ttn->real_field = bill.memberValue<uint>("numField");
 		}	
 	}
-
+#endif
     template<class Tttn, class Tttn_data, class Tfield>
     void repairFieldCodeCorrectnessIfNeeded2(MifareCardData &bill,
         const Tfield& field_table, const Tttn& ttn_table, Tttn_data & ttn_data)
@@ -137,7 +138,7 @@ public:
         }
     }
 
-
+#if 0
     template <class Tttn, class Tcars, class Tconst>
     void processTaraRupture(qx::dao::ptr<Tttn> ttn, qx::dao::ptr<Tcars> car )  throw (MainSequenceException)
     {
@@ -164,6 +165,7 @@ public:
          ttn->rup_tara           = mid_tara * percent.toUInt() / 100;
          ttn->real_rup_tara      = qAbs(mid_tara - static_cast<int>(ttn->tara));
     }
+#endif
 
     template <class TtnTable, class TtnData, class CarsTable, class CarsData>
     void processTaraRupture2(const TtnTable & tt, TtnData& ttn, const CarsTable & ct, const CarsData & car )

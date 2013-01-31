@@ -18,7 +18,7 @@
 #include "tasksettings.h"
 #include "constructweighters.h"
 
-
+#include <QPrinter>
 
 int main(int argc, char *argv[])
 {  
@@ -37,27 +37,43 @@ int main(int argc, char *argv[])
     }
 
     app.installTranslator(&translator);
-
+    {
+        QPrinter p;
+    }
     //printOnDisplay("Hello");
+
+//CreateDC(0, L"Microsoft XPS Document Writer", 0, 0);
 
     const QString settings_file_name = "proj/settings.xml";
 
     TaskSettings app_settings(settings_file_name);
 
+//CreateDC(0, L"Microsoft XPS Document Writer", 0, 0);
+
     QMap<QString, QVariant> options;
     app_settings.initProgOptions(options);
+
+//CreateDC(0, L"Microsoft XPS Document Writer", 0, 0);
 
     Tags tags;
     app_settings.initTags(tags);
 
+//CreateDC(0, L"Microsoft XPS Document Writer", 0, 0);
+
     QVector<Porter::Pointer> porters;
     app_settings.initPorters(porters, tags);
+
+//CreateDC(0, L"Microsoft XPS Document Writer", 0, 0);
 
     TaskExec task_exec;
     app_settings.initTasks(task_exec, tags, options);
 
+//CreateDC(0, L"Microsoft XPS Document Writer", 0, 0);
+
     QVector<AlhoSequence::Pointer> alhos;
     app_settings.initAlhos(alhos, tags, options);
+
+//CreateDC(0, L"Microsoft XPS Document Writer", 0, 0);
 
     return app.exec();
 

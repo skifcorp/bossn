@@ -13,6 +13,7 @@
 
 #include "photomaker.h"
 
+#include <windows.h>
 
 void MainSequence::setSettings(const QVariantMap & s)
 {    
@@ -77,7 +78,7 @@ void MainSequence::setSettings(const QVariantMap & s)
     restart();
 
 
-    createStack(65535*8);
+    createStack(65535*16);
     cont();  //for initializing tablo and do
 }
 
@@ -139,8 +140,10 @@ void MainSequence::printOnTablo(const QString & s)
 MainSequence::MainSequence(Tags & t, const QVariantMap& s)
     :AlhoSequence("MainSequence"), init(true),tags(t), app_settings(s), alho_settings(*this, tags) ,on_weight(false), seq_id(0), uses_photo(false), wake_timer(this)
 {
+#if 0
     qx::QxSqlDatabase::getSingleton()->setTraceSqlQuery(false);
     qx::QxSqlDatabase::getSingleton()->setTraceSqlRecord(false);
+#endif
 
     connect(&wake_timer, SIGNAL(timeout()), this, SLOT(wakeUp()));
     wake_timer.setSingleShot(true);
@@ -174,7 +177,7 @@ void MainSequence::onAppearOnWeight(const QString& , AlhoSequence *)
 
     if ( status() == NotStarted || status() == Terminated ) {
         restart();
-        createStack(65535*8);
+        createStack(65535*16);
         wakeUp();
     }
 }
@@ -220,6 +223,8 @@ void MainSequence::run()
 
 
     seqDebug() << "something appeared on weight!!!! id" << seq_id;
+
+     //CreateDC(0, L"Microsoft XPS Document Writer", 0, 0);
 
     on_weight = true;
 

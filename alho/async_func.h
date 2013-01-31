@@ -15,10 +15,10 @@
 
 #include <string>
 
-using qx::QxClassX;
-using qx::IxClass;
-using qx::IxDataMemberX;
-using qx::IxDataMember;
+//using qx::QxClassX;
+//using qx::IxClass;
+//using qx::IxDataMemberX;
+//using qx::IxDataMember;
 
 #include "warnmessages.h"
 
@@ -45,7 +45,7 @@ public:
     {
         static bool value() {return false;}
     };
-
+#if 0
     template<class Callable>
     struct Ret<QSqlError, Callable>
     {
@@ -56,6 +56,7 @@ public:
                               QSqlError::UnknownError, 9000);
         }
     };
+#endif
 
     template <class Callable, class... Args >
     typename std::result_of<Callable(Args...)>::type async_call(Callable c, Args ... args)
@@ -120,7 +121,7 @@ public:
             async_func_base(c), database(db)
          {}
 
-
+#if 0
     template <class T, class ID>
     qx::dao::ptr<T> async_fetch(const ID& id, const QString& table_name,  bool ex_on_no_data = true) throw (MysqlException)
     {
@@ -138,7 +139,9 @@ public:
         }
         return p;
     }
+#endif
 
+#if 0
     template <class T>
     void async_update(qx::dao::ptr<T> p, const QString& table_name) throw (MysqlException)
     {
@@ -150,7 +153,9 @@ public:
                                  err.driverText());
         }
     }
+#endif
 
+#if 0
     template <class T>
     void async_insert(T& t, bool on_duplicate_key_update=false, const QString& table_name=QString()) throw (MysqlException)
     {
@@ -165,7 +170,8 @@ public:
                                  err.driverText());
         }
     }
-
+#endif
+#if 0
     template <class T>
     void async_count(long & cnt, const qx_query& q, const QString& table_name) throw (MysqlException)
     {
@@ -177,7 +183,9 @@ public:
                                  err.driverText());
         }
     }
+#endif
 
+#if 0
     template <class T>
     qx::dao::ptr<T> async_exec_query(const QString& qs, bool ex_on_no_data = true) throw (MysqlException)
     {
@@ -199,8 +207,9 @@ public:
 
         return t;
     }
+#endif
 
-
+#if 0
     template <class T>
     T async_call_query(const QString& qs) throw (MysqlException)
     {
@@ -216,7 +225,9 @@ public:
         QVariant v = q.getSqlResultAt(0, 0);//q.boundValue(0);
         return v.value<T>();
     }
+#endif
 
+#if 0
     inline void async_call_query(const QString& qs) throw (MysqlException)
     {
         QSqlError err = async_call( [&qs, this]{ qx_query q(qs); return qx::dao::call_query( q, &database ) ;});
@@ -226,7 +237,9 @@ public:
                                  err.driverText());
         }
     }
+#endif
 
+#if 0
     template <class T>
     inline QSqlError async_create_table(const QString& table_name = QString()) throw (MysqlException)
     {
@@ -242,7 +255,9 @@ public:
         }
         return err;
     }
+#endif
 
+#if 0
     template <class T>
     inline QSqlError async_delete_all(const QString& table_name = QString()) throw (MysqlException)
     {
@@ -255,6 +270,8 @@ public:
         }
         return err;
     }
+
+#endif
 
     QString databaseName() const
     {
@@ -297,7 +314,7 @@ struct convience_func
     async_func & async_func_;
     convience_func(async_func& af) : async_func_(af) {}
     convience_func(const convience_func&) = delete;
-
+#if 0
     template <class Tconst>
     inline qx::dao::ptr<Tconst> getConst(const QString & k) throw(MainSequenceException)
     {
@@ -305,6 +322,7 @@ struct convience_func
                  [&k,this]{return async_func_.async_fetch<Tconst>(k, "t_const");});
         return const_;
     }
+#endif
 
 };
 

@@ -1,6 +1,6 @@
 #include "protdb.h"
 
-
+#if 0
 
 QX_REGISTER_CPP_EXPORT_DLL(prot_conf)
 QX_REGISTER_CPP_EXPORT_DLL(db_names)
@@ -55,3 +55,4 @@ namespace qx {
         t.data( &prot_value_scale::max, "max" );
     }
 }
+#endif

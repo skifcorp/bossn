@@ -39,6 +39,7 @@ public:
     virtual ReportContext startReport( ) throw(MainSequenceException);
 
 private:
+#if 0
     void updateBruttoValues(MifareCardData& bill, qx::dao::ptr<t_ttno> ttn) throw(MainSequenceException);
     void updateTaraValues(MifareCardData&, qx::dao::ptr<t_ttno>) throw(MainSequenceException);
 
@@ -66,7 +67,7 @@ private:
 
     qx::dao::ptr<t_prikaz> current_prikaz;
 
-
+#endif
     static const QString t_ttn_name;
     static const QString t_cars_name;
     static const QString t_const_name;

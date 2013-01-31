@@ -2,6 +2,7 @@
 #define GENERICDBSTRUCTS_H
 
 #include "qxorm_pch.h"
+#include <QString>
 
 struct bad_cards
 {
@@ -14,7 +15,9 @@ struct bad_cards
     virtual ~bad_cards(){}
 };
 
-
+#if 0
 QX_REGISTER_HPP_EXPORT_DLL(bad_cards          , qx::trait::no_base_class_defined, 1)
+#endif
+
 
 #endif // GENERICDBSTRUCTS_H

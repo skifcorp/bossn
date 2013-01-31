@@ -4,7 +4,7 @@
 #include <QSharedPointer>
 #include <QSqlDatabase>
 
-#include "qxorm_pch.h"
+#include "rdb_pch.h"
 
 #include "factory.h"
 

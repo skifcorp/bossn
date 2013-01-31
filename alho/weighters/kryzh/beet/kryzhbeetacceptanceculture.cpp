@@ -8,6 +8,8 @@
 
 #include <boost/fusion/include/vector_tie.hpp>
 
+
+
 namespace alho  { namespace kryzh {
 
 /*const QString BeetAcceptanceCulture::t_cars_name("t_cars");
@@ -435,11 +437,11 @@ void BeetAcceptanceCulture::processFreeBum(MifareCardData & bill)
     //qFatal("exiting...");
 }
 
-
+#if 0
 QString BeetAcceptanceCulture::getBumsClause(const MifareCardData & )
 {
     QStringList ret;
-#if 0
+
     if (current_car[cars_table.dump_body_truck]) {
         ret.append("id = 99");
     }
@@ -458,10 +460,10 @@ QString BeetAcceptanceCulture::getBumsClause(const MifareCardData & )
             ret.append("(id % 10) = 1");
         }
     }
-#endif
+
     return  ret.join(" or ");
 }
-
+#endif
 
 void BeetAcceptanceCulture::repairBumCorrectnessIfNeeded()
 {
@@ -781,6 +783,8 @@ ReportContext BeetAcceptanceCulture::makeReportContext(int field_id)
      };
      return ReportsManager::makeReportContext(vars);
 #endif
+
+
 
     auto rc = reports::makeReportContext(
                 fusion::vector_tie("t_ttn", current_ttn),
