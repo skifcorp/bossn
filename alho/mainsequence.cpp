@@ -13,8 +13,6 @@
 
 #include "photomaker.h"
 
-#include <windows.h>
-
 void MainSequence::setSettings(const QVariantMap & s)
 {    
     alho_settings.green_light.tag_name = get_setting<QString>("green_light_tag", s);
@@ -223,8 +221,6 @@ void MainSequence::run()
 
 
     seqDebug() << "something appeared on weight!!!! id" << seq_id;
-
-     //CreateDC(0, L"Microsoft XPS Document Writer", 0, 0);
 
     on_weight = true;
 

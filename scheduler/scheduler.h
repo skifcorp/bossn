@@ -12,7 +12,7 @@
 
 using std::function;
 
-#include "coroutine.h"
+#include "coroutine2.h"
 
 
 class IoDeviceWrapper;
@@ -37,10 +37,10 @@ public:
     QTimer timeout_timer;
 
     void startScheduleTimer(const QString& );
-    static void coro_deleter(Coroutine *);
-    static void coro_deleter_for_external_coro(Coroutine *);
+    static void coro_deleter(Coroutine2 *);
+    static void coro_deleter_for_external_coro(Coroutine2 *);
 
-    void setExternalCoro(Coroutine *);
+    void setExternalCoro(Coroutine2 *);
     void yield()
     {
         coro->yield();
@@ -51,10 +51,10 @@ public:
     }
     bool running() const
     {
-        return coro->status() == Coroutine::Stopped;
+        return coro->status() == Coroutine2::Stopped;
     }
 
-    Coroutine::Status status() const
+    Coroutine2::Status status() const
     {
         return coro->status();
     }
@@ -62,7 +62,7 @@ public:
 protected:
     //virtual void run();
 private:
-    typedef QSharedPointer<Coroutine> TrickyCoroPointer;
+    typedef QSharedPointer<Coroutine2> TrickyCoroPointer;
 
     Scheduler & scheduler;
 
@@ -98,7 +98,7 @@ void connect_callable(QObject * sender, const char * signal, R*receiver , const 
 
 struct CoroContext
 {
-    typedef QSharedPointer<Coroutine> CoroPointer;
+    typedef QSharedPointer<Coroutine2> CoroPointer;
     CoroPointer coro;
     Schedul * schedul;
     CoroContext(const CoroPointer & c, Schedul *s):coro(c), schedul(s) , activate_on_finish(false), cyclic(true){}

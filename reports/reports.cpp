@@ -1,5 +1,3 @@
-#include <windows.h>
-
 #include "reports.h"
 #include "func.h"
 
@@ -27,18 +25,6 @@ struct deleter
 
 bool Reports::print(const QVariantMap & m)
 {
-     //QPrinter printer1(QPrinter::HighResolution);
-
-
-     // HDC hdc = CreateDC(0, reinterpret_cast<const wchar_t *>(name.utf16()), 0, 0);
-
-       //HDC hdc = CreateDC(0, L"Microsoft XPS Document Writer", 0, 0);
-
-
-//    qDebug () << "ooooooooooooooooo: " << program <<  name;
-
-
-
     if (file_name.isEmpty()) {
         qWarning() << "reports file_name is empty!"; return false;
     }
@@ -58,7 +44,7 @@ bool Reports::print(const QVariantMap & m)
     f.open(QFile::ReadOnly);
 
     QWidget * report = uil.load(&f, 0);
-    deleter<QWidget> rep_guard{report};
+    deleter<QWidget> rep_guard{report}; Q_UNUSED(rep_guard);
 
     //report->resize( report->minimumSizeHint() );
 
@@ -83,7 +69,7 @@ bool Reports::print(const QVariantMap & m)
     }
 
     report->setAttribute( Qt::WA_QuitOnClose, false );
-    report->show();  
+    //report->show();
 
     QPrinter printer(QPrinter::HighResolution);
 

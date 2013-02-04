@@ -11,7 +11,7 @@ using std::function;
 #include <QVariant>
 #include <QWeakPointer>
 
-#include "coroutine.h"
+#include "coroutine2.h"
 #include "iodevicewrapper.h"
 #include "factory.h"
 #include "iodevicewrapper.h"
@@ -38,7 +38,7 @@ protected:
 
     void yield()
     {
-        Coroutine::yield();
+        Coroutine2::yield();
     }
 
 };

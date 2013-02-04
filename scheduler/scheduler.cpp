@@ -2,7 +2,7 @@
 
 #include "scheduler.h"
 #include "iodevicewrapper.h"
-#include "coroutine.h"
+#include "coroutine2.h"
 #include "alhosequence.h"
 
 #include <QCoreApplication>
@@ -11,7 +11,7 @@
 
 #include "deleterlater.h"
 
-using CoroDeleter = DeleterLater<Coroutine>;
+using CoroDeleter = DeleterLater<Coroutine2>;
 
 void CoroContext::clear()
 {
@@ -44,13 +44,13 @@ Schedul::~Schedul()
 
 }
 
-void Schedul::coro_deleter(Coroutine *c)
+void Schedul::coro_deleter(Coroutine2 *c)
 {
     CoroDeleter * deleter = new CoroDeleter(c);
     deleter->deleteLater();
 }
 
-void Schedul::coro_deleter_for_external_coro(Coroutine *)
+void Schedul::coro_deleter_for_external_coro(Coroutine2 *)
 {
     //does nothing
 }
@@ -70,19 +70,19 @@ void Schedul::startScheduleTimer(const QString& func_name)
     schedule_timer.start();
 
     coro = TrickyCoroPointer (
-                Coroutine::build(
+                Coroutine2::build(
                     [this, func_name] {
                         scheduler.startNewCoro(*this, false, false, true,
                                                  "cyclic", func_name);
                     },
-                    "coro_for: " + func_name
+                    ("coro_for: " + func_name).toStdString()
                 ),
                 coro_deleter );
 
     coro->createStack(32768 * 4);
 }
 
-void Schedul::setExternalCoro(Coroutine * c)
+void Schedul::setExternalCoro(Coroutine2 * c)
 {
     coro = TrickyCoroPointer(c, coro_deleter_for_external_coro);
 }
@@ -158,12 +158,12 @@ void Scheduler::execFunction(AlhoSequence * caller, function<void ()>schf, funct
 //    qDebug() << "2: !!!!!!!!! exec function: afterStartNewCoro!!!!: " << caller->objectName()
 //             << " func_name: " << current_coro.func_name;
 
-    while (current_coro.coro && current_coro.coro->status() == Coroutine::Stopped ) {
+    while (current_coro.coro && current_coro.coro->status() == Coroutine2::Stopped ) {
 //        qDebug() << "before yeild scheduler "<< tag_name << " func: "<< func_name <<  " wants to sleep! because " << current_coro.tag_name << " "
 //                 << current_coro.func_name << " works" ;
         s.yield();
         //qDebug() << "scheduler wake up ... status: " <<
-        if (current_coro.coro && current_coro.coro->status() == Coroutine::Stopped) {
+        if (current_coro.coro && current_coro.coro->status() == Coroutine2::Stopped) {
             qWarning() << "ATTANTION!!! Bad wakeup for: " << current_coro.tag_name << " "
                        << " func: " << current_coro.func_name;
         }
@@ -180,7 +180,7 @@ void Scheduler::onTimeoutTimer()
     device.data()->clear();
 
     if (current_coro.cyclic )
-        current_coro.schedul->startScheduleTimer( current_coro.coro->coroName() );
+        current_coro.schedul->startScheduleTimer( QString::fromStdString(current_coro.coro->coroName()) );
 
     current_coro.clear();
 
@@ -192,7 +192,7 @@ void Scheduler::startNewCoro(Schedul & s, bool important, bool activate_on_finis
 {
     waitForFree(s, important);
 
-    current_coro = CoroContext(QSharedPointer<Coroutine>(  Coroutine::build( s.schedule_func, func_name ) ), &s);
+    current_coro = CoroContext(QSharedPointer<Coroutine2>(  Coroutine2::build( s.schedule_func, func_name.toStdString() ) ), &s);
     current_coro.activate_on_finish = activate_on_finish;
     current_coro.cyclic = cyclic;
     current_coro.coro->createStack(65535*4);
@@ -220,12 +220,12 @@ void Scheduler::execute()
 
     current_coro.coro->cont();
 
-    Coroutine::Status s = current_coro.coro->status();
+    Coroutine2::Status s = current_coro.coro->status();
 
-    if (s == Coroutine::NotStarted || s == Coroutine::Terminated ) {
+    if (s == Coroutine2::NotStarted || s == Coroutine2::Terminated ) {
         current_coro.schedul->timeout_timer.stop();
         if (current_coro.cyclic)
-            current_coro.schedul->startScheduleTimer( current_coro.coro->coroName() );        
+            current_coro.schedul->startScheduleTimer( QString::fromStdString(current_coro.coro->coroName()) );
         current_coro.clear();
         activateWaiter();
     }

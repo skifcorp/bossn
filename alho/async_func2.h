@@ -9,7 +9,7 @@
 
 #include "qxorm_pch.h"
 #include "bossnexception.h"
-#include "coroutine.h"
+#include "coroutine2.h"
 #include "warnmessages.h"
 #include "bossnasync.h"
 #include "name_of/name_of.h"
@@ -27,7 +27,7 @@ class async_func_base2 : public QObject
 {
     Q_OBJECT
 public:
-    async_func_base2( Coroutine & c ) : coro(c), very_busy_(false), show_debug_info_(false)
+    async_func_base2( Coroutine2 & c ) : coro(c), very_busy_(false), show_debug_info_(false)
     {}
 
     ~async_func_base2() {}
@@ -46,7 +46,7 @@ public:
 
     void setShowDebugInfo(bool d) {show_debug_info_ = d;}
 private:
-    Coroutine & coro;
+    Coroutine2 & coro;
     bool very_busy_;
 
     bool show_debug_info_;
@@ -195,7 +195,7 @@ class async_func2 : public async_func_base2
 private:
     boost::rdb::mysql::mysql_database & database;
 public:
-    async_func2(  boost::rdb::mysql::mysql_database & db, Coroutine& c  ) : async_func_base2(c), database(db)
+    async_func2(  boost::rdb::mysql::mysql_database & db, Coroutine2& c  ) : async_func_base2(c), database(db)
     {
 
     }

@@ -25,7 +25,7 @@ INCLUDEPATH    += db alho serial weight generic iodevicewrapper scheduler       
                   porter task dido perimeter tools reader  reports                  \
                   settings stable prot                                              \
                   alho/weighters alho/direction photograb                           \
-                  alho/weighters/common
+                  alho/weighters/common coro
 
 
 QMAKE_CXXFLAGS += -std=gnu++0x -O #--param ggc-min-expand=10 --param ggc-min-heapsize=65535 -O
@@ -42,7 +42,8 @@ DEFINES += FUSION_MAX_VECTOR_SIZE=40                          #\
 #PRECOMPILED_HEADER = qxorm_pch.h
 
 LIBS           +=   -lqextserialport                \
-                    -lcoroutined                    \
+                    -llibboost_context              \
+                    #-lcoroutined                    \
                     #-lqxorm                         \
                     #-lboost_serialization           \
                     -llibmysql                      \
@@ -51,8 +52,6 @@ LIBS           +=   -lqextserialport                \
                     -llibboost_thread               \
                     -lboost_date_time               \
                     librdb
-
-LIBS           += -lgdi32
 
 TRANSLATIONS = bossn_ua.ts
 
@@ -115,7 +114,8 @@ SOURCES += alho/weighters/kryzh/beet/kryzhbeetacceptanceculture.cpp \
     alho/weighters/mria/beet/mriabeetdbstructs.cpp \
     alho/weighters/mria/weighter/mriaacceptanceweighter.cpp \
     reader/mifarereaderemulator.cpp \
-    alho/reportsmanager2.cpp
+    alho/reportsmanager2.cpp \
+    coro/coroutine2.cpp
 
 HEADERS +=   reader/mifarereaderemulator.h \
     tools/func.h \
@@ -203,7 +203,8 @@ HEADERS +=   reader/mifarereaderemulator.h \
     tools/deleterlater.h \
     alho/weighters/common/generictables.h \
     rdb_pch.h \
-    alho/reportsmanager2.h
+    alho/reportsmanager2.h \
+    coro/coroutine2.h
 
 
 RESOURCES += bossn.qrc

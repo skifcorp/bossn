@@ -9,7 +9,7 @@
 #include "qxorm_pch.h"
 
 #include "bossnexception.h"
-#include "coroutine.h"
+#include "coroutine2.h"
 
 #include <QSharedPointer>
 
@@ -28,7 +28,7 @@ class async_func_base : public QObject
 {
     Q_OBJECT
 public:
-    async_func_base( Coroutine & c ) : coro(c), very_busy_(false), show_debug_info_(false) {}
+    async_func_base( Coroutine2 & c ) : coro(c), very_busy_(false), show_debug_info_(false) {}
 
 
     template <class T, class Callable>
@@ -92,7 +92,7 @@ public:
 
     void setShowDebugInfo(bool d) {show_debug_info_ = d;}
 private:
-    Coroutine & coro;
+    Coroutine2 & coro;
     bool very_busy_;
     bool show_debug_info_;
 private slots:
@@ -117,7 +117,7 @@ public:
     typedef QSharedPointer<async_func> pointer;
 
     async_func(const async_func& ) = delete;
-    async_func(QSqlDatabase& db, Coroutine & c ):
+    async_func(QSqlDatabase& db, Coroutine2 & c ):
             async_func_base(c), database(db)
          {}
 

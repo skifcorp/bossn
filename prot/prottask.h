@@ -10,7 +10,7 @@
 #include "tags.h"
 #include "async_func.h"
 #include "protdb.h"
-#include "coroutine.h"
+#include "coroutine2.h"
 
 #include <QAtomicInt>
 

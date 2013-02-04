@@ -1,7 +1,7 @@
 #include "esitPWI.h"
 #include <QByteArray>
 
-#include "coroutine.h"
+#include "coroutine2.h"
 
 //bool EsitPWI::registered = EsitPWI::registerInFact();
 

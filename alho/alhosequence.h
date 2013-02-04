@@ -4,9 +4,9 @@
 #include <QSharedPointer>
 #include <QVariant>
 
-#include "coroutine.h"
+#include "coroutine2.h"
 
-class AlhoSequence : public QObject, public Coroutine
+class AlhoSequence : public QObject, public Coroutine2
 {
 public:
     typedef QSharedPointer<AlhoSequence> Pointer;
