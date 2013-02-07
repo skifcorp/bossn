@@ -6,9 +6,17 @@
 #include "shipmentculture.h"
 #include "reportsmanager.h"
 
+#include "rdb_pch.h"
+
+#include "kryzhgraintables.h"
+
+
+
 namespace alho { namespace kryzh {
 
 using alho::common::ShipmentCulture;
+
+namespace sql = boost::rdb::mysql;
 
 class GrainShipmentCulture : public ShipmentCulture
 {
@@ -19,60 +27,68 @@ public:
 
     ~GrainShipmentCulture() {}
 
-    virtual void fetchCar(const MifareCardData& ) throw (MainSequenceException);
-    virtual void brutto(int, MifareCardData& ) throw (MainSequenceException);
-    virtual void tara(int, MifareCardData&) throw (MainSequenceException);
-    virtual void reBrutto(int, MifareCardData& ) throw (MainSequenceException);
-    virtual void reTara(int, MifareCardData& ) throw (MainSequenceException);
+    void fetchCar(const MifareCardData& ) ;
+    void brutto(int, MifareCardData& ) ;
+    void tara(int, MifareCardData&) ;
+    void reBrutto(int, MifareCardData& ) ;
+    void reTara(int, MifareCardData& ) ;
 
-    virtual QString bruttoFinishMessage(const MifareCardData& )const;
-    virtual QString taraFinishMessage(const MifareCardData& )const;
+    QString bruttoFinishMessage(const MifareCardData& )const;
+    QString taraFinishMessage(const MifareCardData& )const;
 
-    virtual bool makeNewTask(MifareCardData& ) throw (MainSequenceException);
+    bool makeNewTask(MifareCardData& ) ;
 
-    virtual QString detectPlatformType(const MifareCardData& ) const throw (MainSequenceException);
-    virtual bool isPureBruttoWeight(const MifareCardData& ) const throw (MainSequenceException);
-    virtual bool isPureTaraWeight(const MifareCardData& ) const throw (MainSequenceException);
+    QString detectPlatformType(const MifareCardData& ) const ;
+    bool isPureBruttoWeight(const MifareCardData& ) const ;
+    bool isPureTaraWeight(const MifareCardData& ) const ;
 
-    virtual ReportContext finishReport( ) throw(MainSequenceException);
+    ReportContext finishReport( ) ;
     //virtual ReportContext fakeReport( ) throw(MainSequenceException);
-    virtual ReportContext startReport( ) throw(MainSequenceException);
+    ReportContext startReport( ) ;
 
 private:
-#if 0
-    void updateBruttoValues(MifareCardData& bill, qx::dao::ptr<t_ttno> ttn) throw(MainSequenceException);
-    void updateTaraValues(MifareCardData&, qx::dao::ptr<t_ttno>) throw(MainSequenceException);
 
-    qx::dao::ptr<t_prikaz>  fetchPrikaz(int) throw (MainSequenceException);
-    void checkPrikazClosed(qx::dao::ptr<t_prikaz>) throw (MainSequenceException);
+    void updateBruttoValues(MifareCardData& bill) ;
+    void updateTaraValues(MifareCardData&);
+
+    void  fetchPrikaz(int) ;
+    void checkPrikazClosed() const;
+#if 0
     qx::dao::ptr<t_ttno> ttnWithMaxNetto() throw (MainSequenceException);
     int getMaxNetto(qx::dao::ptr<t_prikaz> ) throw(MainSequenceException);
-    void checkPrikazLimit(qx::dao::ptr<t_prikaz> pr) throw (MainSequenceException);
-    void rollbackPrikaz( qx::dao::ptr<t_prikaz>, qx::dao::ptr<t_ttno> );
+#endif
 
-    void updatePrikaz( qx::dao::ptr<t_prikaz> ) throw (MainSequenceException);
-    qx::dao::ptr<t_prikaz> makePrikaz(int) throw (MainSequenceException);
+    void checkPrikazLimit();
+    void rollbackPrikaz();
 
-//    void makeNewTask( ) throw (MainSequenceException);
+    void updatePrikaz( );
+
+    void makePrikaz(int);
+    void updateVirtualRest();
+    void updateRest();
+#if 0
+    //    void makeNewTask( ) throw (MainSequenceException);
     void makeFakeTtn(int, const MifareCardData&, qx::dao::ptr<t_prikaz>) throw (MainSequenceException);
+#endif
+    int getVirtualNetto( );
+    void checkVirtualNetto (  );
 
-    int getVirtualNetto( qx::dao::ptr<t_prikaz> ) throw (MainSequenceException);
-    void checkVirtualNetto ( qx::dao::ptr<t_prikaz> ) throw (MainSequenceException);
+    ReportContext makeReportContext() ;
 
-    ReportContext makeReportContext(qx::dao::ptr<t_ttno>) ;
-
-
+#if 0
     qx::dao::ptr<t_ttno> current_ttn;
     qx::dao::ptr<t_cars> current_car;
-
     qx::dao::ptr<t_prikaz> current_prikaz;
-
 #endif
-    static const QString t_ttn_name;
-    static const QString t_cars_name;
-    static const QString t_const_name;
-    static const QString t_kontr_name;
-    static const QString t_prikaz_name;
+
+    typename sql::table_result_set<t_cars_grain_table>::type::value_type current_car;
+    typename sql::table_result_set<t_ttno_grain_table>::type::value_type  current_ttn;
+    typename sql::table_result_set<t_prikaz_grain_table>::type::value_type  current_prikaz;
+
+    t_cars_grain_table   cars_table{"t_cars"};
+    t_ttno_grain_table   ttn_table{"t_ttno"};
+    t_prikaz_grain_table prikaz_table{"t_prikaz"};
+    t_kontr_grain_table kontr_table{"t_kontr"};
 
 };
 

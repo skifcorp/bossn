@@ -38,42 +38,6 @@ public:
 		return ret;	
 	}
 #endif
-    template <class TtnData, class TtnTable>
-    TtnData ttnByDriver2( int drv, const TtnTable& tt )
-    {
-#if 0
-        auto ret = wrap_async_ex(tr(get_ttn_by_driver_tara0_error_message), "getting ttn by driver with zero tara failed: " + QString::number(drv),
-                            [&drv, this]{ return asyncFunc().async_exec_query<Tttn>(
-                                                 "select * from t_ttn where driver="+QString::number(drv) + " and brutto != 0 and tara=0", false);});
-
-        if ( ret ) {
-            seq().seqWarning() << "Corrupted data on card!. Maybe dispatcher made task before tara finished! drv: " + QString::number(drv) <<" founded ttn: " + QString::number(ret->num_nakl);
-            return ret;
-        }
-
-        const QString qq = "select * from t_ttn where driver = " + QString::number(drv)
-            + " and dt_of_tara = (select MAX(dt_of_tara) from t_ttn where driver = " + QString::number(drv) + " limit 0, 1 )";
-
-
-        ret = wrap_async_ex(tr(get_last_ttn_by_driver_error_message), "getting last ttn by driver failed! drv: " + QString::number(drv),
-                            [&drv, this, &qq]{ return asyncFunc().async_exec_query<Tttn>(qq);});
-
-        return ret;
-#endif
-        auto q1 = sql::select( tt.all ).from( tt ).where( tt.driver == drv && tt.brutto != 0 && tt.tara == 0 );
-        auto deq = async2().exec( q1, tr(get_ttn_by_driver_tara0_error_message) ).all();
-        if ( deq.size() > 0 ) {
-            seq().seqWarning() << "Corrupted data on card!. Maybe dispatcher made task before tara finished! drv: "
-                                  + QString::number(drv) <<" founded ttn: " + QString::number( deq.front()[tt.num_nakl] );
-            return deq.front();
-        }
-
-        auto q2 = sql::select( sql::max( tt.dt_of_tara ), tt.all ).from(tt).where(tt.driver == drv);
-
-        auto ttn = async2().fetch( q2, tr(get_last_ttn_by_driver_error_message) );
-
-        return std::move(  erase_nullable( ttn, sql::max( tt.dt_of_tara ) )  );
-    }
 
 #if 0
     template <class Tttn, class Tcars>

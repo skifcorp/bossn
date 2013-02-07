@@ -66,16 +66,7 @@ void BeetAcceptanceCulture::brutto(int w, MifareCardData& bill)
     repairFieldCodeCorrectnessIfNeeded2(bill, field_table, ttn_table, current_ttn);
 
     processChemicalAnalysis( bill );
-    processFreeBum( bill );
-
-//    if ( bill.memberValue<QBitArray>("flags").at(2) )
-//        bill.setMemberValue("flags", 3, true);
-//    else
-//        bill.setMemberValue("flags", 3, false);
-
-    //current_ttn->sort = bill.memberValue<int>("sort");
-    //current_ttn->culture = bill.memberValue<int>("culture");
-    //current_ttn->repr = bill.memberValue<int>("repr");    
+    processFreeBum( bill ); 
 
     updateBruttoValues(bill);
 }
@@ -123,13 +114,6 @@ void BeetAcceptanceCulture::reBrutto(int w, MifareCardData& bill)
     bill.setMemberValue("flags", 0, true );
     bill.setMemberValue("bruttoWeight", w);
     bill.setMemberValue("dateOfBrutto", QDateTime::currentDateTime());
-
-/*    if ( bill.memberValue<QBitArray>("flags").at(2) ) {
-        bill.setMemberValue("flags", 3, true);
-    }
-    else {
-        bill.setMemberValue("flags", 3, false);
-    }*/
 
     updateBruttoValues(bill);
 }
@@ -652,7 +636,8 @@ void BeetAcceptanceCulture::updateTaraValues(MifareCardData& bill, boost::mpl::b
     auto v = ::tools::make_vvector (
                     ttn_table.tara            = bill.memberValue<int>("taraWeight"),
                     ttn_table.dt_of_tara      = bill.memberValue<QDateTime>("dateOfTara").toString(rdb_date_time_format).toAscii().constData(),
-                    ttn_table.time_of_tara    = bill.memberValue<QDateTime>("dateOfTara").time().toString().toAscii().constData()
+                    ttn_table.time_of_tara    = bill.memberValue<QDateTime>("dateOfTara").time().toString().toAscii().constData(),
+                    ttn_table.copy            = false
                 );
 
     current_ttn.set(v);
@@ -797,11 +782,6 @@ ReportContext BeetAcceptanceCulture::makeReportContext(int field_id)
     rc["disp_phone_value"]      = constantValue<QVariant>(seq().appSetting<QString>("disp_phone_name"));
 
     return std::move(rc);
-
-
-#warning Insert correct reflection here!!!
-
-    //return  ReportContext();
 }
 
 ReportContext BeetAcceptanceCulture::finishReport()
@@ -814,12 +794,8 @@ ReportContext BeetAcceptanceCulture::finishReport()
              current_ttn->real_field, t_field_name ); });
     return makeReportContext(current_car, field);
 #endif
-#warning Insert correct reflection here!!!
-    //reports::makeReportContext( current_ttn, current_car  );
 
     return makeReportContext( current_ttn[ttn_table.real_field] );
-
-    //return rc;
 }
 
 ReportContext BeetAcceptanceCulture::startReport()
@@ -832,13 +808,8 @@ ReportContext BeetAcceptanceCulture::startReport()
                current_ttn->field, t_field_name ); });
     return makeReportContext(current_car, field);
 #endif
-#warning Insert correct reflection here!!!
-
-    //static_name_of<decltype(current_ttn)> asas;
 
     return makeReportContext( current_ttn[ttn_table.field] );
-
-    //return rc;
 }
 
 QString BeetAcceptanceCulture::detectPlatformType(const MifareCardData& bill) const

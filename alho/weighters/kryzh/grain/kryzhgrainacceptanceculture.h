@@ -1,16 +1,20 @@
 #ifndef GRAINWEIGHTERS_H
 #define GRAINWEIGHTERS_H
 
-
+#include <boost/mpl/bool.hpp>
 
 #include "kryzhgraindbstructs.h"
 #include "acceptanceculture.h"
 #include "reportsmanager.h"
 
+#include "kryzhgraintables.h"
+#include "rdb_pch.h"
 
 namespace alho { namespace kryzh {
 
 using alho::common::AcceptanceCulture;
+
+namespace sql = boost::rdb::mysql;
 
 class GrainAcceptanceCulture : public AcceptanceCulture
 {
@@ -20,47 +24,44 @@ public:
     }
 
     ~GrainAcceptanceCulture() {}
-    virtual void fetchCar(const MifareCardData& ) throw (MainSequenceException);
-    virtual void brutto(int, MifareCardData& ) throw (MainSequenceException);
-    virtual void tara(int, MifareCardData&) throw (MainSequenceException);
-    virtual void reBrutto(int, MifareCardData& ) throw (MainSequenceException);
-    virtual void reTara(int, MifareCardData& ) throw (MainSequenceException);
+    void fetchCar(const MifareCardData& ) ;
+    void brutto(int, MifareCardData& ) ;
+    void tara(int, MifareCardData&);
+    void reBrutto(int, MifareCardData& );
+    void reTara(int, MifareCardData& );
 
-    virtual QString bruttoFinishMessage(const MifareCardData& )const;
-    virtual QString taraFinishMessage(const MifareCardData& )const;
+    QString bruttoFinishMessage(const MifareCardData& )const;
+    QString taraFinishMessage(const MifareCardData& )const;
 
-    bool makeNewTask(MifareCardData& bill) throw (MainSequenceException);
+    bool makeNewTask(MifareCardData& bill) ;
 
-    virtual ReportContext finishReport( ) throw(MainSequenceException);
-    virtual ReportContext startReport() throw(MainSequenceException);
+    ReportContext finishReport( );
+    ReportContext startReport() ;
 
-    virtual QString detectPlatformType(const MifareCardData& ) const throw (MainSequenceException);
-    virtual bool isPureBruttoWeight(const MifareCardData& ) const throw (MainSequenceException);
-    virtual bool isPureTaraWeight(const MifareCardData& ) const throw (MainSequenceException);
+    QString detectPlatformType(const MifareCardData& ) const;
+    bool isPureBruttoWeight(const MifareCardData& ) const ;
+    bool isPureTaraWeight(const MifareCardData& ) const ;
     //void checkPerimetr(){}
 private:
-    void checkBum( const MifareCardData& )const throw(MainSequenceException);
-#if 0
-    void checkLaboratory( qx::dao::ptr< t_ttn > )const throw(MainSequenceException);
-    void updateBruttoValues(MifareCardData& bill, qx::dao::ptr<t_ttn> ttn) throw(MainSequenceException);
-    void updateTaraValues(MifareCardData&, qx::dao::ptr<t_ttn>, qx::dao::ptr<t_cars>, bool pure_weight) throw(MainSequenceException);
-#endif
-#if 0
-    ReportContext makeReportContext(qx::dao::ptr<t_cars>, qx::dao::ptr<t_field>) ;
-#endif
-#if 0
-    qx::dao::ptr<t_ttn> current_ttn;
-    qx::dao::ptr<t_cars> current_car;    
-#endif
+    void checkBum( const MifareCardData& )const ;
 
+    void checkLaboratory(  )const ;
+    void updateBruttoValues(MifareCardData& bill) ;
+    void updateTaraValues(MifareCardData&,  boost::mpl::bool_<true>);
+    void updateTaraValues(MifareCardData&,  boost::mpl::bool_<false>);
 
-    static const QString t_ttn_name;
-    static const QString t_cars_name;
-    static const QString t_const_name;
-    static const QString t_kontr_name;
-    static const QString t_bum_name;
-    static const QString t_kagat_name;
-    static const QString t_field_name;
+    ReportContext makeReportContext(int field_id) ;
+
+    typename sql::table_result_set<t_cars_grain_table>::type::value_type current_car;
+    typename sql::table_result_set<t_ttn_grain_table>::type::value_type current_ttn;
+
+    t_cars_grain_table  cars_table {"t_cars"};
+    t_ttn_grain_table   ttn_table{"t_ttn"};
+    t_field_grain_table field_table{"t_field"};
+    t_kagat_grain_table kagat_table{"t_kagat"};
+    t_bum_grain_table   bum_table{"t_bum"};
+    t_kontr_grain_table kontr_table{"t_kontr"};
+    t_bum_state_log_grain_table t_bum_state_log_table{"t_bum_state_log"};
 
 };
 

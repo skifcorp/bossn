@@ -1,9 +1,8 @@
-#ifndef KRYZHBEETTABLES_H
-#define KRYZHBEETTABLES_H
+#ifndef MRIABEETTABLES_H
+#define MRIABEETTABLES_H
 
-#include <fusion_tools/as_vvector.h>
+namespace alho { namespace mria {
 
-namespace alho { namespace kryzh {
 
 BOOST_RDB_BEGIN_TABLE(t_ttn_beet_table)
     BOOST_RDB_COLUMN(num_nakl     ,integer     )  //not null
@@ -43,7 +42,6 @@ BOOST_RDB_END_TABLE(t_ttn_beet_table)
 
 
 
-
 BOOST_RDB_BEGIN_TABLE(t_cars_beet_table)
     BOOST_RDB_COLUMN(id                           ,integer    )
     BOOST_RDB_COLUMN(name                         ,varchar<20>)
@@ -65,6 +63,8 @@ BOOST_RDB_BEGIN_TABLE(t_cars_beet_table)
     BOOST_RDB_COLUMN(start_time                   ,datetime   )
     BOOST_RDB_COLUMN(amount_of_car_for_middle_tara,integer    )
     BOOST_RDB_COLUMN(vremja_na_hodku              ,integer    )
+    BOOST_RDB_COLUMN(copy                         ,boolean    )
+    BOOST_RDB_COLUMN(fl_perimetr                  ,boolean    )
     BOOST_RDB_COLUMN(smena                        ,varchar<20>)
 BOOST_RDB_END_TABLE(t_cars_beet_table)
 
@@ -80,6 +80,7 @@ BOOST_RDB_BEGIN_TABLE(t_bum_beet_table)
     BOOST_RDB_COLUMN(queue, integer)
     BOOST_RDB_COLUMN(kvoday, integer)
 BOOST_RDB_END_TABLE(t_bum_beet_table)
+
 
 BOOST_RDB_BEGIN_TABLE(t_kagat_beet_table)
     BOOST_RDB_COLUMN(id                 , integer)
@@ -97,6 +98,7 @@ BOOST_RDB_BEGIN_TABLE(t_kontr_beet_table)
     BOOST_RDB_COLUMN(type         , integer)
 BOOST_RDB_END_TABLE(t_kontr_beet_table)
 
+
 BOOST_RDB_BEGIN_TABLE(t_bum_state_log_beet_table)
     BOOST_RDB_COLUMN(id, integer)
     BOOST_RDB_COLUMN(date_time, datetime)
@@ -106,4 +108,4 @@ BOOST_RDB_END_TABLE(t_bum_state_log_beet_table)
 
 } }
 
-#endif // KRYZHBEETTABLES_H
+#endif // MRIABEETTABLES_H

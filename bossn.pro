@@ -56,6 +56,7 @@ LIBS           +=   -lqextserialport                \
 TRANSLATIONS = bossn_ua.ts
 
 SOURCES += alho/weighters/kryzh/beet/kryzhbeetacceptanceculture.cpp \
+           alho/weighters/kryzh/grain/kryzhgrainshipmentculture.cpp \
         main.cpp \
     weight/mettlertoledo8530.cpp \
     weight/mettlertoledo310.cpp \
@@ -106,8 +107,7 @@ SOURCES += alho/weighters/kryzh/beet/kryzhbeetacceptanceculture.cpp \
     iodevicewrapper/iodeviceemulator.cpp \   
     alho/weighters/kryzh/beet/kryzhbeetdbstructs.cpp \
     alho/weighters/kryzh/grain/kryzhgrainacceptanceculture.cpp \
-    alho/weighters/kryzh/grain/kryzhgraindbstructs.cpp \
-    alho/weighters/kryzh/grain/kryzhgrainshipmentculture.cpp \
+    alho/weighters/kryzh/grain/kryzhgraindbstructs.cpp \    
     alho/weighters/kryzh/weighter/kryzhacceptanceweighter.cpp \
     alho/weighters/kryzh/weighter/kryzhshipmentweighter.cpp \
     alho/weighters/mria/beet/mriabeetacceptanceculture.cpp \
@@ -204,7 +204,9 @@ HEADERS +=   reader/mifarereaderemulator.h \
     alho/weighters/common/generictables.h \
     rdb_pch.h \
     alho/reportsmanager2.h \
-    coro/coroutine2.h
+    coro/coroutine2.h \
+    alho/weighters/kryzh/grain/kryzhgraintables.h \
+    alho/weighters/mria/beet/mriabeettables.h
 
 
 RESOURCES += bossn.qrc
