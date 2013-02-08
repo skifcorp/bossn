@@ -569,6 +569,8 @@ int GrainShipmentCulture::getVirtualNetto()
 
 #endif
 
+#warning need check this
+
     auto t1 = ttn_table.as("t1");
     auto t2 = ttn_table.as("t2");
     auto netto = sql::alias<_S("netto")>(t1.brutto - t1.tara);
