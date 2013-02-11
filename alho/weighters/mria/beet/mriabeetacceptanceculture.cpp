@@ -365,7 +365,7 @@ bool BeetAcceptanceCulture::makeNewTask(MifareCardData& bill)
     QDateTime end_time = timeShitToDateTime( current_car[cars_table.vremja_na_hodku]*60 +
             dateTimeToTimeShit(QDateTime::currentDateTime())  );
 
-    async2().exec(
+    current_ttn[ttn_table.num_nakl] = async2().exec(
         sql::insert_into(ttn_table)(ttn_table.date_time,
                                     ttn_table.car,
                                     ttn_table.field,
@@ -382,9 +382,9 @@ bool BeetAcceptanceCulture::makeNewTask(MifareCardData& bill)
                          false,
                          end_time.toString("hh:mm:ss").toAscii().constData(),
                          current_car[cars_table.num_loader]
-                  ),
+                  ).select_last_insert_id(),
         tr(error_make_new_task)
-    );
+    ).next().all().front().get<0>();
 
     bill.setMemberValue("billNumber", current_ttn[ttn_table.num_nakl]);
     bill.setMemberValue("numField"  , current_ttn[ttn_table.field]   );

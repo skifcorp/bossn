@@ -463,9 +463,9 @@ bool GrainShipmentCulture::makeNewTask(MifareCardData &bill)
                         bill.memberValue<int>("driver"),
                         false,
                         current_prikaz[prikaz_table.num_nakl]
-                    ),
+                    ).select_last_insert_id(),
                     tr(error_make_new_task)
-                );
+                ).next().all().front().get<0>();
 
     bill.setMemberValue("billNumber", current_ttn[ttn_table.num_nakl]);
 
