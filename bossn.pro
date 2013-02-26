@@ -55,7 +55,8 @@ LIBS           +=   -lqextserialport                \
 
 TRANSLATIONS = bossn_ua.ts
 
-SOURCES += alho/weighters/kryzh/beet/kryzhbeetacceptanceculture.cpp \
+SOURCES +=  prot/prottask.cpp \
+            alho/weighters/kryzh/beet/kryzhbeetacceptanceculture.cpp \
            alho/weighters/kryzh/grain/kryzhgrainshipmentculture.cpp \
         main.cpp \
     weight/mettlertoledo8530.cpp \
@@ -87,8 +88,7 @@ SOURCES += alho/weighters/kryzh/beet/kryzhbeetacceptanceculture.cpp \
     settings/appsettings.cpp \
     settings/portersettings.cpp \
     settings/tasksettings.cpp \
-    stable/stable.cpp \
-    prot/prottask.cpp \
+    stable/stable.cpp \   
     prot/protdb.cpp \
     weight/hbm2108.cpp \
     weight/hbm2110.cpp \

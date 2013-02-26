@@ -1,13 +1,22 @@
 #ifndef PROTDB_H
 #define PROTDB_H
 
-#include "qxorm_pch.h"
+#include "rdb_pch.h"
 
+#if 0
+BOOST_RDB_BEGIN_TABLE(prot_conf)
+    BOOST_RDB_COLUMN(NameDB   , varchar<50> )
+    BOOST_RDB_COLUMN(Names    , varchar<50> )
+    BOOST_RDB_COLUMN(NameVar  , varchar<256>)
+    BOOST_RDB_COLUMN(Parametrs, varchar<512>)
+BOOST_RDB_END_TABLE(prot_conf)
+
+#endif
 
 #include <QString>
 
-#include "func.h"
 
+/*
 struct prot_conf
 {
     QString NameDB;
@@ -20,8 +29,16 @@ struct prot_conf
 
     virtual ~prot_conf() {}
 };
+*/
 
+/*
+BOOST_RDB_BEGIN_TABLE(db_names)
+    BOOST_RDB_COLUMN(DB_name, varchar<50>)
+    BOOST_RDB_COLUMN(DB_r_name, varchar<50>)
+BOOST_RDB_END_TABLE(db_names)
+*/
 
+/*
 struct db_names
 {
     QString DB_name;
@@ -30,10 +47,14 @@ struct db_names
     db_names() {}
     virtual ~db_names() {}
 
-};
+};*/
 
+BOOST_RDB_BEGIN_TABLE(prot_values_table)
+    BOOST_RDB_COLUMN(time, datetime)
+    BOOST_RDB_COLUMN(value, float_)
+BOOST_RDB_END_TABLE(prot_values_table)
 
-struct prot_values
+/*struct prot_values
 {
     QDateTime   time;
     float       value;
@@ -42,8 +63,15 @@ struct prot_values
     prot_values(const QDateTime& dt, float v) : time(dt), value(v){}
     virtual ~prot_values(){}
 
-};
-
+};*/
+/*
+BOOST_RDB_BEGIN_TABLE(prot_value_scale)
+    BOOST_RDB_COLUMN(time, datetime)
+    BOOST_RDB_COLUMN(min, float_)
+    BOOST_RDB_COLUMN(max, float_)
+BOOST_RDB_END_TABLE(prot_value_scale)
+*/
+/*
 struct prot_value_scale
 {
     QDateTime time;
@@ -62,16 +90,32 @@ struct prot_value_scale
 
     virtual ~prot_value_scale() {}
 
-};
+};*/
 
+BOOST_RDB_BEGIN_TABLE(prot_work_table)
+    BOOST_RDB_COLUMN(start_from, datetime)
+    BOOST_RDB_COLUMN(work_till, datetime)
+BOOST_RDB_END_TABLE(prot_work_table)
+
+/*
 struct prot_work
 {
     QDateTime start_from;
     QDateTime work_till;
 
     virtual ~prot_work(){}
-};
+};*/
 
+BOOST_RDB_BEGIN_TABLE(message_log_table)
+    BOOST_RDB_COLUMN(num, integer)
+    BOOST_RDB_COLUMN(sender_id, integer)
+    BOOST_RDB_COLUMN(type, integer)
+    BOOST_RDB_COLUMN(when, datetime)
+    BOOST_RDB_COLUMN(message, varchar<2048>)
+BOOST_RDB_END_TABLE(message_log_table)
+
+
+/*
 struct message_log
 {
     long num;
@@ -89,21 +133,7 @@ struct message_log
 
     virtual ~message_log() {}
 };
+*/
 
-#if 0
-
-QX_REGISTER_PRIMARY_KEY(prot_values, QDateTime)
-QX_REGISTER_PRIMARY_KEY(prot_work, QDateTime)
-QX_REGISTER_PRIMARY_KEY(prot_value_scale, QDateTime)
-
-QX_REGISTER_HPP_EXPORT_DLL(prot_conf          , qx::trait::no_base_class_defined, 1)
-QX_REGISTER_HPP_EXPORT_DLL(db_names           , qx::trait::no_base_class_defined, 1)
-QX_REGISTER_HPP_EXPORT_DLL(prot_values        , qx::trait::no_base_class_defined, 1)
-QX_REGISTER_HPP_EXPORT_DLL(prot_value_scale   , qx::trait::no_base_class_defined, 1)
-QX_REGISTER_HPP_EXPORT_DLL(prot_work          , qx::trait::no_base_class_defined, 1)
-
-QX_REGISTER_HPP_EXPORT_DLL(message_log        , qx::trait::no_base_class_defined, 1)
-
-#endif
 
 #endif // PROTDB_H

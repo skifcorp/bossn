@@ -128,7 +128,7 @@ private:
             throw MainSequenceException( user_message, admin_message + "unkonwn exception!!!! in async_exec!" );
         }
 
-        try {
+/*        try {
             bf.get();
         }
         catch ( std::exception& ex ) {
@@ -136,7 +136,7 @@ private:
         }
         catch ( ... ) {
             throw MainSequenceException( user_message, admin_message + "unkonwn exception!!!! in async_exec!" );
-        }
+        }*/
     }
 
 

@@ -100,6 +100,14 @@ inline std::time_t toTime_t( const boost::posix_time::ptime & t )
     return x;
 }
 
+//boost::posix_time::from_time_t( QDateTime::currentDateTime().toTime_t() );
+
+inline boost::posix_time::ptime qt_to_ptime( const QDateTime & dt )
+{
+    return boost::posix_time::from_time_t( dt.toTime_t() );
+}
+
+
 inline QDateTime ptime_to_qt( const boost::posix_time::ptime & t )
 {
     return QDateTime::fromTime_t( toTime_t( t ) );

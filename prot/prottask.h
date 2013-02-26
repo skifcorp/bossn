@@ -5,6 +5,9 @@
 #include <QSqlDatabase>
 #include <QTimer>
 
+#include <vector>
+
+using std::vector;
 
 #include "basetask.h"
 #include "tags.h"
@@ -18,17 +21,7 @@ class ProtTask : public BaseTask
 {
     Q_OBJECT
 public:
-    ProtTask(Tags & t):BaseTask("ProtTask"),tags(t),
-                       async_func_(database, *this),
-                       config_async_func_( config_database, *this ),
-                       viewer_prot_initialized(false),
-                       prot_conf_initialized(false),
-                        prot_work_initialized(false),
-                        message_logs_initialized(false),
-#if 0
-                        cur_prot_work (new prot_work),
-#endif
-                        init(true)
+    ProtTask(Tags & t):BaseTask("ProtTask"),tags(t)
     {
         //async_func_.setShowDebugInfo(true);
     }
@@ -44,8 +37,6 @@ public:
         return new ProtTask(t);
     }
 
-
-
     Q_INVOKABLE QVariant addLogMessage(const QString&, AlhoSequence*, QGenericArgument sender_id, QGenericArgument type, QGenericArgument text );
     //Q_INVOKABLE void addLogMessage(const QString&, const QVariant& sender_id, const QVariant& type, const QVariant& text );
     void addLogMessageP( int sender_id, int type, const QString& text );
@@ -56,68 +47,53 @@ protected:
 private slots:
     void onSaveTimer();
 private:
-    Tags & tags;
-    async_func async_func_;
-    async_func config_async_func_;
-
     static BossnFactoryRegistrator<ProtTask> registrator;
-
-    struct TagProtConf : public prot_conf
+    struct TagProtConf
     {
-        enum DzType {DzNone = 0, DzPerc = 1, DzAbs = 2};
-
+        enum class DzType {DzNone, DzPerc, DzAbs};
+        QString tag_name;
         QString func_name;
         QVariant dz;
         QVariant min;
         QVariant max;
-        int dz_type;
-        TagProtConf(  ) : prot_conf(), dz_type(DzNone)
-        {
-        }
+
+        DzType dz_type = DzType::DzNone;
     };
+    using TagProtConfs = vector<TagProtConf> ;
 
-    typedef QList<TagProtConf> TagProtConfs;
-    TagProtConfs tag_prot_confs;
+    using prot_value_type = typename boost::rdb::mysql::table_result_set<prot_values_table>::type::value_type;
+    using TagValues  = vector<prot_value_type>;
+    using TagsValues = vector<TagValues>;
 
-    typedef QList<prot_values>  TagValues;
-    typedef QList<TagValues>    TagsValues;
+    using message_log_type = typename boost::rdb::mysql::table_result_set<message_log_table>::type::value_type;
+private:
+    void exec();
 
-    TagsValues tags_values;
-    TagValues  last_values;
-
-    QSqlDatabase database;
-    QSqlDatabase config_database;
-
-    void initConfigForProtViewer(const QString&, const QString& ) throw(MainSequenceException);
-    void insertProtConf() throw (MainSequenceException);
-    void insertDbNames(const QString&, const QString& ) throw (MainSequenceException);
-    void initProtDataTables()  throw (MainSequenceException);
-
-    void tryInitializeProtViewerConf(const QString&, const QString&);
-    std::function <void ()> tryInitializeProtViewerConf_;
-    void tryInitializeProtDataTables();
+    void initProtDataTables() ;
     void initializeProtWork();
     void initializeMessageLogs();
-
-    QTimer save_timer;
 
     void initTagsValues();
     void clearDataInTagsValues();
 
-    QAtomicInt saving_now;
+    bool is_busy = false;
 
-    bool viewer_prot_initialized;
-    bool prot_conf_initialized;
-    bool prot_work_initialized;
-    bool message_logs_initialized;
-#if 0
-    qx::dao::ptr<prot_work> cur_prot_work;
-#endif
-    QList<message_log> message_logs;
-    bool init;
+    boost::rdb::mysql::mysql_database database;
 
-    void exec();
-    bool is_busy;
+    Tags & tags;
+
+    TagProtConfs tag_prot_confs;
+    TagsValues tags_values;
+    TagValues  last_values;
+
+    vector<message_log_table> message_logs;
+
+    QTimer save_timer;
+    QAtomicInt saving_now{0};
+private:
+    prot_work_table  prot_work {"prot_work"};
+    prot_values_table prot_values;
+    message_log_table message_log{"message_log"};
 };
 
 #endif // PROTTASK_H
