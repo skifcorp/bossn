@@ -10,6 +10,8 @@
 #include <cmath>
 #include <limits>
 
+namespace mysql = boost::rdb::mysql;
+
 BossnFactoryRegistrator<ProtTask> ProtTask::registrator("ProtTask");
 
 bool ProtTask::busy() const
@@ -18,10 +20,7 @@ bool ProtTask::busy() const
 }
 
 void ProtTask::setSettings(const QVariantMap & s)
-{
-    save_timer.setInterval( get_setting<int>("save_interval", s) );
-    connect(&save_timer, SIGNAL(timeout()), this, SLOT(onSaveTimer()));
-
+{    
     const QVariantList& tgs = get_setting<QVariantList>("tags", s);
 
     for( QVariant tg_ : tgs) {
@@ -48,11 +47,18 @@ void ProtTask::setSettings(const QVariantMap & s)
 
     initTagsValues();
 
+    database_name = get_setting<QString>("database_name", s);
+
     database.setHost(get_setting<QString>("database_host", s).toStdString() );
-    database.setDatabase(get_setting<QString>("database_name", s).toStdString());
     database.setUser(get_setting<QString>("database_user", s).toStdString());
     database.setPassword(get_setting<QString>("database_password", s).toStdString());
+
     // database.setConnectOptions( get_setting<QString>("connection_options", s, QString() ) );
+
+    save_timer.setInterval( get_setting<int>("save_interval", s) );
+    connect(&save_timer, SIGNAL(timeout()), this, SLOT(onSaveTimer()));
+    save_timer.start();
+
 }
 
 
@@ -69,6 +75,8 @@ void ProtTask::run()
 void ProtTask::exec()
 {    
     is_busy = true;
+
+    qDebug()  << "prot_exec!";
 
     auto iter            = tags_values.begin();
     auto last_value_iter = last_values.begin();
@@ -128,7 +136,7 @@ void ProtTask::clearDataInTagsValues()
 
 void ProtTask::onSaveTimer()
 {   
-    //qDebug () << "want save!!!";
+    qDebug () << "want save!!!";
 
 #if 0
     if (!prot_conf_initialized) {
@@ -148,11 +156,44 @@ void ProtTask::onSaveTimer()
         names.push_back(tpc.tag_name);
     }
 
-#if 0
+
 
     QtConcurrent::run( [this,  names]() mutable {
         saving_now.ref();
-        cur_prot_work->work_till = QDateTime::currentDateTime().toUTC();
+        try {
+            if (database.isClosed())
+                database.open();
+
+            static bool exec_once = [&, this] {
+                database.execute( mysql::create_database(database_name.toStdString()) );
+
+                database.setDatabase( database_name.toStdString() );
+
+                database.execute( mysql::create_table(prot_work) );
+
+                database.execute( mysql::insert_into(prot_work)
+                                  (prot_work.start_from, prot_work.work_till)
+                                  .values( when_started, boost::posix_time::second_clock::universal_time() ) );
+
+                for ( const TagProtConf & c : tag_prot_confs ) {
+                    database.execute(  mysql::create_table( prot_values_table{c.tag_name.toStdString()} ) ) ;
+                }
+
+                return true;
+            }(); Q_UNUSED(exec_once);
+
+        }
+        catch ( ::sql::SQLException & ex ) {
+            qWarning() << "Sql exception on saving: " << ex.what() << " state: " << ex.getSQLState().c_str();
+        }
+        catch( std::exception& ex ) {
+            qWarning() << "Exception on saving: " << ex.what();
+        }
+        catch( ... ) {
+            qWarning() << "Exception on saving: ";
+        }
+
+        /*cur_prot_work->work_till = QDateTime::currentDateTime().toUTC();
         QSqlError err2 = qx::dao::update_optimized(cur_prot_work, &database, "prot_work");
         if ( err2.isValid() ) {
             qWarning() << "prot_error while updating work_till! "<< err2.databaseText() << " " << err2.driverText();
@@ -176,12 +217,13 @@ void ProtTask::onSaveTimer()
         QSqlError err3 = qx::dao::insert(message_logs, &database);
         if ( err3.isValid() ) {
             qWarning() << "prot_error while inserting message_logs! "<< err3.databaseText() << " " << err3.driverText();
-        }
+        }*/
+
+
 
         saving_now.deref();
-        //qDebug() << "saved!";
     } );
-#endif
+
 
     //tags_values.clear();
     clearDataInTagsValues();

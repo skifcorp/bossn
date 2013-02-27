@@ -19,7 +19,9 @@ using std::cout;
 #include <sstream>
 #include <boost/date_time/posix_time/posix_time_io.hpp>
 
-const QString rdb_date_time_format{"yyyy-MM-dd hh::mm:ss"};
+#include <boost/rdb/core/datetime.hpp>
+
+const QString rdb_date_time_format = "yyyy-MM-dd hh:mm:ss";
 
 inline void printOnDisplay(const QString& str)
 {

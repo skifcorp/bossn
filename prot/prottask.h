@@ -9,11 +9,14 @@
 
 using std::vector;
 
+#include <boost/date_time/posix_time/ptime.hpp>
+
 #include "basetask.h"
 #include "tags.h"
 #include "async_func.h"
 #include "protdb.h"
 #include "coroutine2.h"
+#include "func.h"
 
 #include <QAtomicInt>
 
@@ -79,6 +82,7 @@ private:
     bool is_busy = false;
 
     boost::rdb::mysql::mysql_database database;
+    QString database_name;
 
     Tags & tags;
 
@@ -90,6 +94,7 @@ private:
 
     QTimer save_timer;
     QAtomicInt saving_now{0};
+    boost::posix_time::ptime when_started = boost::posix_time::second_clock::universal_time();
 private:
     prot_work_table  prot_work {"prot_work"};
     prot_values_table prot_values;
