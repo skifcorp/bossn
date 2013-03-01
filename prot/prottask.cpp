@@ -76,7 +76,7 @@ void ProtTask::exec()
 {    
     is_busy = true;
 
-    qDebug()  << "prot_exec!";
+    //qDebug()  << "prot_exec!";
 
     auto iter            = tags_values.begin();
     auto last_value_iter = last_values.begin();
@@ -133,10 +133,8 @@ void ProtTask::clearDataInTagsValues()
     }
 }
 
-
 void ProtTask::onSaveTimer()
 {   
-    qDebug () << "want save!!!";
 
 #if 0
     if (!prot_conf_initialized) {
@@ -151,14 +149,16 @@ void ProtTask::onSaveTimer()
         return;
     }
 
-    vector<QString> names;
-    for (const TagProtConf & tpc : tag_prot_confs) {
-        names.push_back(tpc.tag_name);
+    decltype(tags_values) tags_vals;
+
+    for ( auto & tv : tags_values ) {
+        tags_vals.emplace_back();
+        tags_vals.front() = std::move(tv);
     }
 
+    decltype(message_logs) logs(std::move(message_logs));
 
-
-    QtConcurrent::run( [this,  names]() mutable {
+    QtConcurrent::run( [this, tags_vals, logs]() mutable {
         saving_now.ref();
         try {
             if (database.isClosed())
@@ -179,12 +179,29 @@ void ProtTask::onSaveTimer()
                     database.execute(  mysql::create_table( prot_values_table{c.tag_name.toStdString()} ) ) ;
                 }
 
+                database.execute( mysql::create_table(message_log) );
+
                 return true;
             }(); Q_UNUSED(exec_once);
 
+            auto values = std::begin(tags_vals);
+
+            for ( const TagProtConf & c : tag_prot_confs ) {
+                if ( values->empty() ) continue;
+
+                prot_values_table t{c.tag_name.toStdString()};
+
+                database.execute( mysql::insert_into(t)(t.time, t.value).values(*values++) );
+            }
+
+            if ( !logs.empty() )
+                database.execute( mysql::insert_into(message_log)
+                                  (message_log.num, message_log.sender_id, message_log.type,
+                                   message_log.message_date, message_log.message )
+                                  .values(logs) );
         }
         catch ( ::sql::SQLException & ex ) {
-            qWarning() << "Sql exception on saving: " << ex.what() << " state: " << ex.getSQLState().c_str();
+            qWarning() << "General sql exception on saving: " << ex.what() << " state: " << ex.getSQLState().c_str();
         }
         catch( std::exception& ex ) {
             qWarning() << "Exception on saving: " << ex.what();
@@ -261,4 +278,5 @@ QVariant ProtTask::addLogMessage(const QString&, AlhoSequence*, QGenericArgument
 void ProtTask::addLogMessageP( int sender_id, int type, const QString& text )
 {
     //message_logs.push_back( message_log{sender_id, type, text} );
+    message_logs.emplace_back( 0, sender_id, type, boost::posix_time::second_clock::universal_time(), text.toStdString()  );
 }

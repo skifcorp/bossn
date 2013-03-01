@@ -90,7 +90,7 @@ private:
     TagsValues tags_values;
     TagValues  last_values;
 
-    vector<message_log_table> message_logs;
+    vector<message_log_type> message_logs;
 
     QTimer save_timer;
     QAtomicInt saving_now{0};

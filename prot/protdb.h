@@ -110,7 +110,7 @@ BOOST_RDB_BEGIN_TABLE(message_log_table)
     BOOST_RDB_COLUMN(num, integer)
     BOOST_RDB_COLUMN(sender_id, integer)
     BOOST_RDB_COLUMN(type, integer)
-    BOOST_RDB_COLUMN(when, datetime)
+    BOOST_RDB_COLUMN(message_date, datetime)
     BOOST_RDB_COLUMN(message, varchar<2048>)
 BOOST_RDB_END_TABLE(message_log_table)
 
