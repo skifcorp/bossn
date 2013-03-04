@@ -104,7 +104,13 @@ template <class F>
 class BuildedCoroutine2 : public Coroutine2
 {
 public:
-    BuildedCoroutine2( F f, const std::string& n ) : Coroutine2(n),  f_(f){}
+    BuildedCoroutine2( F f, const std::string& n ) : Coroutine2(n),  f_(f)
+    {
+    }
+
+    ~BuildedCoroutine2()
+    {
+    }
 protected:
     virtual void run() override
     {

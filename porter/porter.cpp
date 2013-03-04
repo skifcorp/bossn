@@ -62,7 +62,7 @@ void Porter::setScheduled(bool s)
 }
 
 void Porter::addTagToSchedule(Drivers::size_type driver_index, const QString& tag_name)
-{
+{    
     scheduler.addFunction(
             [this, driver_index, tag_name] {
                 MethodInfo & mi = methods[tag_name];

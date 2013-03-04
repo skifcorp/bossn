@@ -7,8 +7,10 @@ Coroutine2 * Coroutine2::current_coro = nullptr;
 
 std::unique_ptr<Coroutine2> Coroutine2::root_coro;
 
+int coro_counter = 0;
+
 Coroutine2::Coroutine2(const string& n, bool root) : coro_name(n)
-{
+{    
     if ( !root_coro && !root ) {
         root_coro.reset( new Coroutine2( "Root", true ) );
         current_coro = root_coro.get();
@@ -20,6 +22,7 @@ Coroutine2::Coroutine2(const string& n, bool root) : coro_name(n)
 Coroutine2::~Coroutine2()
 {
     BOOST_ASSERT_MSG(  coro_status == NotStarted || coro_status == Terminated, currentStatusText().c_str() );
+    alloc.deallocate(stack, stack_size);
 }
 
 

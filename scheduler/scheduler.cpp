@@ -148,7 +148,7 @@ void Scheduler::activateWaiter()
 
 void Scheduler::execFunction(AlhoSequence * caller, function<void ()>schf, function<void ()> tmf,
                int tm_msec, const QString& tag_name, const QString& func_name)
-{
+{    
     Schedul s(*this, schf, tmf, 0, tm_msec);
     s.setExternalCoro(caller);
     connect(&s.timeout_timer, SIGNAL(timeout()), this, SLOT(onTimeoutTimer()));
@@ -189,7 +189,7 @@ void Scheduler::onTimeoutTimer()
 
 void Scheduler::startNewCoro(Schedul & s, bool important, bool activate_on_finish, bool cyclic, const QString& tag_name,
                              const QString& func_name)
-{
+{ 
     waitForFree(s, important);
 
     current_coro = CoroContext(QSharedPointer<Coroutine2>(  Coroutine2::build( s.schedule_func, func_name.toStdString() ) ), &s);
