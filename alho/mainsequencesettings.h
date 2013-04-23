@@ -1,6 +1,8 @@
 #ifndef MAINSEQUENCESETTINGS_H
 #define MAINSEQUENCESETTINGS_H
 
+#include <QString>
+
 #include "tagmethod.h"
 #include "tagfunchelper.h"
 #include "alhosequence.h"
@@ -58,6 +60,49 @@ struct BaseMainSequenceSettings
         green_light(s, t), perim_in(s, t), perim_out(s, t), logging(s, t),
         reader(s, t)
     {
+
+    }
+
+    void init( const QVariantMap & s )
+    {
+        green_light.tag_name = get_setting<QString>("green_light_tag", s);
+        green_light.method_name = get_setting<QString>("green_light_method", s);
+        green_light.value = get_setting<QVariant>("green_light_on_value", s);
+
+        red_light.tag_name = get_setting<QString>("red_light_tag", s);
+        red_light.method_name = get_setting<QString>("red_light_method", s);
+        red_light.value = get_setting<QVariant>("red_light_on_value", s);
+
+        tablo_tag.tag_name = get_setting<QString>("tablo_tag", s);
+        tablo_tag.method_name = get_setting<QString>("tablo_method", s);
+
+        perim_in.tag_name = get_setting<QString>("perim_in_tag", s);
+        perim_in.method_name = get_setting<QString>("perim_in_method", s);
+        perim_in.value = get_setting<QVariant>("perim_in_on_value", s);
+
+        perim_out.tag_name = get_setting<QString>("perim_out_tag", s);
+        perim_out.method_name = get_setting<QString>("perim_out_method", s);
+        perim_out.value = get_setting<QVariant>("perim_out_on_value", s);
+
+        weight_tag.tag_name = get_setting<QString>("weight_tag", s);
+        weight_tag.method_name = get_setting<QString>("weight_method", s);
+
+        weight_stable.tag_name = get_setting<QString>("stable_tag", s);
+        weight_stable.method_name = get_setting<QString>("stable_method", s);
+
+        logging.tag_name = get_setting<QString>("logging_tag", s);
+        logging.method_name = get_setting<QString>("logging_method", s);
+
+        reader.name                     = get_setting<QString>("reader_tag", s);
+        reader.do_on.func_name          = get_setting<QString>("reader_do_on", s);
+        reader.do_off.func_name         = get_setting<QString>("reader_do_off", s);
+        reader.activate_idle.func_name  = get_setting<QString>("reader_activate_idle", s);
+        reader.host_coded_key.func_name = get_setting<QString>("reader_host_coded_key", s);
+        reader.do_auth.func_name        = get_setting<QString>("reader_do_auth", s);
+        reader.write_block.func_name    = get_setting<QString>("reader_write_block", s);
+        reader.read_block.func_name     = get_setting<QString>("reader_read_block", s);
+        reader.do_sound.func_name       = get_setting<QString>("reader_sound", s);
+
 
     }
 };

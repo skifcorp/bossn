@@ -15,47 +15,9 @@
 
 void MainSequence::setSettings(const QVariantMap & s)
 {    
-    alho_settings.green_light.tag_name = get_setting<QString>("green_light_tag", s);
-    alho_settings.green_light.method_name = get_setting<QString>("green_light_method", s);
-    alho_settings.green_light.value = get_setting<QVariant>("green_light_on_value", s);
-
-    alho_settings.red_light.tag_name = get_setting<QString>("red_light_tag", s);
-    alho_settings.red_light.method_name = get_setting<QString>("red_light_method", s);
-    alho_settings.red_light.value = get_setting<QVariant>("red_light_on_value", s);
-
-    alho_settings.tablo_tag.tag_name = get_setting<QString>("tablo_tag", s);
-    alho_settings.tablo_tag.method_name = get_setting<QString>("tablo_method", s);
-
-    alho_settings.perim_in.tag_name = get_setting<QString>("perim_in_tag", s);
-    alho_settings.perim_in.method_name = get_setting<QString>("perim_in_method", s);
-    alho_settings.perim_in.value = get_setting<QVariant>("perim_in_on_value", s);
-
-    alho_settings.perim_out.tag_name = get_setting<QString>("perim_out_tag", s);
-    alho_settings.perim_out.method_name = get_setting<QString>("perim_out_method", s);
-    alho_settings.perim_out.value = get_setting<QVariant>("perim_out_on_value", s);
-
-    alho_settings.weight_tag.tag_name = get_setting<QString>("weight_tag", s);
-    alho_settings.weight_tag.method_name = get_setting<QString>("weight_method", s);
-
-    alho_settings.weight_stable.tag_name = get_setting<QString>("stable_tag", s);
-    alho_settings.weight_stable.method_name = get_setting<QString>("stable_method", s);
-
-    alho_settings.logging.tag_name = get_setting<QString>("logging_tag", s);
-    alho_settings.logging.method_name = get_setting<QString>("logging_method", s);
-
-    alho_settings.reader.name                     = get_setting<QString>("reader_tag", s);
-    alho_settings.reader.do_on.func_name          = get_setting<QString>("reader_do_on", s);
-    alho_settings.reader.do_off.func_name         = get_setting<QString>("reader_do_off", s);
-    alho_settings.reader.activate_idle.func_name  = get_setting<QString>("reader_activate_idle", s);
-    alho_settings.reader.host_coded_key.func_name = get_setting<QString>("reader_host_coded_key", s);
-    alho_settings.reader.do_auth.func_name        = get_setting<QString>("reader_do_auth", s);
-    alho_settings.reader.write_block.func_name    = get_setting<QString>("reader_write_block", s);
-    alho_settings.reader.read_block.func_name     = get_setting<QString>("reader_read_block", s);
-    alho_settings.reader.do_sound.func_name       = get_setting<QString>("reader_sound", s);
+    alho_settings.init(s);
 
     seq_id                              = get_setting<int>("id", s);
-
-    //platform_type                       = get_setting<QString>("platform_type", s);
     printer_name                        = get_setting<QString>("printer_name", s, QString());
     uses_photo                          = get_setting<bool>("uses_photo", s, false);
 
@@ -69,12 +31,9 @@ void MainSequence::setSettings(const QVariantMap & s)
 
     setObjectName( "MainSequence num: " + QString::number(seq_id) );
 
-    //weighters_conf = get_setting<QVariantList>("weighters_conf", s);
-
     initWeightersConf( s );
 
     restart();
-
 
     createStack(65535*16);
     cont();  //for initializing tablo and do

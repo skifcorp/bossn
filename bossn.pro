@@ -120,7 +120,8 @@ SOURCES +=  prot/prottask.cpp \
     alho/webservicesequence.cpp \
     gsoap/soapTestSoapBindingProxy.cpp \
     gsoap/stdsoap2.cpp \
-    gsoap/soapC.cpp
+    gsoap/soapC.cpp \
+    alho/mainsequencesettings.cpp
 
 HEADERS +=   reader/mifarereaderemulator.h \
     tools/func.h \

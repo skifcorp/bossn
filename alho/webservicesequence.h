@@ -2,7 +2,13 @@
 #define WEBSERVICESEQUENCE_H
 
 #include "alhosequence.h"
+#include "mainsequencesettings.h"
 #include "tags.h"
+
+
+
+
+
 
 class WebServiceSequence : public AlhoSequence
 {
@@ -21,6 +27,11 @@ protected:
 private:
     Tags & tags_;
     const QVariantMap& app_settings;
+    MainSequenceSettings  alho_settings;
+
+    bool on_weight  = false;
+    bool init       = true;
+    int seq_id      = 0;
 };
 
 
