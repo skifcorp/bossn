@@ -1,6 +1,7 @@
 #include "tasksettings.h"
 #include "perimeter.h"
 #include "mainsequence.h"
+#include "webservicesequence.h"
 #include "stable.h"
 
 
@@ -24,6 +25,14 @@ void TaskSettings::initAlhos (QVector<AlhoSequence::Pointer> &alhos, Tags &tags,
 
                 alhos.push_back(seq);
             }
+            else if  ( maybe_alho_elem.attribute("name") == "WebServiceSequence") {
+                AlhoSequence::Pointer seq (new WebServiceSequence(tags, app_settings));
+                seq->setSettings( getDynamicSettings(maybe_alho_elem) );
+                bindTags( maybe_alho_elem, tags, seq.data()  );
+
+                alhos.push_back(seq);
+            }
+
             else {
                 qWarning() << maybe_alho_elem.attribute("name") << " dont supported!! ";
                 qFatal("exit");

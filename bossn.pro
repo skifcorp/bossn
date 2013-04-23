@@ -115,7 +115,8 @@ SOURCES +=  prot/prottask.cpp \
     alho/weighters/mria/weighter/mriaacceptanceweighter.cpp \
     reader/mifarereaderemulator.cpp \
     alho/reportsmanager2.cpp \
-    coro/coroutine2.cpp
+    coro/coroutine2.cpp \
+    alho/webservicesequence.cpp
 
 HEADERS +=   reader/mifarereaderemulator.h \
     tools/func.h \
@@ -206,7 +207,8 @@ HEADERS +=   reader/mifarereaderemulator.h \
     alho/reportsmanager2.h \
     coro/coroutine2.h \
     alho/weighters/kryzh/grain/kryzhgraintables.h \
-    alho/weighters/mria/beet/mriabeettables.h
+    alho/weighters/mria/beet/mriabeettables.h \
+    alho/webservicesequence.h
 
 
 RESOURCES += bossn.qrc
