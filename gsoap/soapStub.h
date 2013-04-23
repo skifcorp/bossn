@@ -254,27 +254,6 @@ typedef char *_XML;
 \******************************************************************************/
 
 
-/******************************************************************************\
- *                                                                            *
- * Client-Side Call Stubs                                                     *
- *                                                                            *
-\******************************************************************************/
-
-
-SOAP_FMAC5 int SOAP_FMAC6 soap_send___ns1__HelloResponse(struct soap *soap, const char *soap_endpoint, const char *soap_action, _ns1__HelloResponse *ns1__HelloResponse);
-
-SOAP_FMAC5 int SOAP_FMAC6 soap_recv___ns1__HelloResponse(struct soap *soap, struct __ns1__HelloResponse *_param_1);
-
-
-SOAP_FMAC5 int SOAP_FMAC6 soap_call___ns1__Hello(struct soap *soap, const char *soap_endpoint, const char *soap_action, _ns1__Hello *ns1__Hello, _ns1__HelloResponse *ns1__HelloResponse);
-
-SOAP_FMAC5 int SOAP_FMAC6 soap_send___ns1__HelloResponse_(struct soap *soap, const char *soap_endpoint, const char *soap_action, _ns1__HelloResponse *ns1__HelloResponse);
-
-SOAP_FMAC5 int SOAP_FMAC6 soap_recv___ns1__HelloResponse_(struct soap *soap, struct __ns1__HelloResponse_ *_param_2);
-
-
-SOAP_FMAC5 int SOAP_FMAC6 soap_call___ns1__Hello_(struct soap *soap, const char *soap_endpoint, const char *soap_action, _ns1__Hello *ns1__Hello, _ns1__HelloResponse *ns1__HelloResponse);
-
 #endif
 
 /* End of soapStub.h */

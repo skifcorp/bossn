@@ -25,7 +25,7 @@ INCLUDEPATH    += db alho serial weight generic iodevicewrapper scheduler       
                   porter task dido perimeter tools reader  reports                  \
                   settings stable prot                                              \
                   alho/weighters alho/direction photograb                           \
-                  alho/weighters/common coro
+                  alho/weighters/common coro gsoap
 
 
 QMAKE_CXXFLAGS += -std=gnu++1y -O #--param ggc-min-expand=10 --param ggc-min-heapsize=65535 -O
@@ -51,7 +51,8 @@ LIBS           +=   -lqextserialport                \
                     -llibboost_system               \
                     -llibboost_thread               \
                     -lboost_date_time               \
-                    librdb
+                    librdb \
+                    -lwsock32
 
 TRANSLATIONS = bossn_ua.ts
 
@@ -116,7 +117,10 @@ SOURCES +=  prot/prottask.cpp \
     reader/mifarereaderemulator.cpp \
     alho/reportsmanager2.cpp \
     coro/coroutine2.cpp \
-    alho/webservicesequence.cpp
+    alho/webservicesequence.cpp \
+    gsoap/soapTestSoapBindingProxy.cpp \
+    gsoap/stdsoap2.cpp \
+    gsoap/soapC.cpp
 
 HEADERS +=   reader/mifarereaderemulator.h \
     tools/func.h \
@@ -208,7 +212,9 @@ HEADERS +=   reader/mifarereaderemulator.h \
     coro/coroutine2.h \
     alho/weighters/kryzh/grain/kryzhgraintables.h \
     alho/weighters/mria/beet/mriabeettables.h \
-    alho/webservicesequence.h
+    alho/webservicesequence.h \
+    gsoap/stdsoap2.h \
+    gsoap/soapH.h
 
 
 RESOURCES += bossn.qrc
