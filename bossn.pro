@@ -214,7 +214,8 @@ HEADERS +=   reader/mifarereaderemulator.h \
     alho/weighters/mria/beet/mriabeettables.h \
     alho/webservicesequence.h \
     gsoap/stdsoap2.h \
-    gsoap/soapH.h
+    gsoap/soapH.h \
+    alho/asyncfuncbase.h
 
 
 RESOURCES += bossn.qrc

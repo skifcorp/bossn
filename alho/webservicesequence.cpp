@@ -30,6 +30,8 @@ void WebServiceSequence::onAppearOnWeight(const QString&, AlhoSequence*)
     _ns1__Hello hello;
     _ns1__HelloResponse resp;
 
+    hello.param = "URRAAAA";
+
     int ret = proxy.Hello( &hello, &resp );
     if ( ret != SOAP_OK ) {
         qWarning() << "soap FAILED: " << ret; return;
