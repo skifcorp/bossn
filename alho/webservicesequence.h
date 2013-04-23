@@ -12,6 +12,12 @@ public:
     ~WebServiceSequence();
 
     virtual void setSettings(const QVariantMap &) override;
+
+    Q_INVOKABLE void onAppearOnWeight(const QString&, AlhoSequence*);
+    Q_INVOKABLE void onDisappearOnWeight(const QString&, AlhoSequence*);
+
+protected:
+    virtual void run () override;
 private:
     Tags & tags_;
     const QVariantMap& app_settings;

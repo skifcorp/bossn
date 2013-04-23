@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://schemas.xmlsoap.org/wsdl/"
+		xmlns:soap12bind="http://schemas.xmlsoap.org/wsdl/soap12/"
+		xmlns:soapbind="http://schemas.xmlsoap.org/wsdl/soap/"
+		xmlns:tns="http://localhost"
+		xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+		xmlns:xsd1="http://localhost"
+		name="Test"
+		targetNamespace="http://localhost">
+	<types>
+		<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+				xmlns:xs1="http://localhost"
+				targetNamespace="http://localhost"
+				elementFormDefault="qualified">
+			<xs:element name="Hello">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="param"
+								type="xs:string"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="HelloResponse">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="return"
+								type="xs:string"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+		</xs:schema>
+	</types>
+	<message name="HelloRequestMessage">
+		<part name="parameters"
+				element="tns:Hello"/>
+	</message>
+	<message name="HelloResponseMessage">
+		<part name="parameters"
+				element="tns:HelloResponse"/>
+	</message>
+	<portType name="TestPortType">
+		<operation name="Hello">
+			<input message="tns:HelloRequestMessage"/>
+			<output message="tns:HelloResponseMessage"/>
+		</operation>
+	</portType>
+	<binding name="TestSoapBinding"
+			type="tns:TestPortType">
+		<soapbind:binding style="document"
+				transport="http://schemas.xmlsoap.org/soap/http"/>
+		<operation name="Hello">
+			<soapbind:operation style="document"
+					soapAction="http://localhost#Test:Hello"/>
+			<input>
+				<soapbind:body use="literal"/>
+			</input>
+			<output>
+				<soapbind:body use="literal"/>
+			</output>
+		</operation>
+	</binding>
+	<binding name="TestSoap12Binding"
+			type="tns:TestPortType">
+		<soap12bind:binding style="document"
+				transport="http://schemas.xmlsoap.org/soap/http"/>
+		<operation name="Hello">
+			<soap12bind:operation style="document"
+					soapAction="http://localhost#Test:Hello"/>
+			<input>
+				<soap12bind:body use="literal"/>
+			</input>
+			<output>
+				<soap12bind:body use="literal"/>
+			</output>
+		</operation>
+	</binding>
+	<service name="Test">
+		<port name="TestSoap"
+				binding="tns:TestSoapBinding">
+			<documentation> 
+				<wsi:Claim xmlns:wsi="http://ws-i.org/schemas/conformanceClaim/"
+						conformsTo="http://ws-i.org/profiles/basic/1.1"/>
+			</documentation>
+			<soapbind:address location="http://localhost/boss/ws/test.1cws"/>
+		</port>
+		<port name="TestSoap12"
+				binding="tns:TestSoap12Binding">
+			<soap12bind:address location="http://localhost/boss/ws/test.1cws"/>
+		</port>
+	</service>
+</definitions>

@@ -17,3 +17,19 @@ void WebServiceSequence::setSettings(const QVariantMap &)
 {
 
 }
+
+void WebServiceSequence::run()
+{
+
+}
+
+
+void WebServiceSequence::onAppearOnWeight(const QString&, AlhoSequence*)
+{
+
+}
+
+void WebServiceSequence::onDisappearOnWeight(const QString&, AlhoSequence*)
+{
+
+}
