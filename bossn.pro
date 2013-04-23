@@ -121,7 +121,8 @@ SOURCES +=  prot/prottask.cpp \
     gsoap/soapTestSoapBindingProxy.cpp \
     gsoap/stdsoap2.cpp \
     gsoap/soapC.cpp \
-    alho/mainsequencesettings.cpp
+    alho/mainsequencesettings.cpp \
+    alho/mainsequencebaseop.cpp
 
 HEADERS +=   reader/mifarereaderemulator.h \
     tools/func.h \
@@ -216,7 +217,8 @@ HEADERS +=   reader/mifarereaderemulator.h \
     alho/webservicesequence.h \
     gsoap/stdsoap2.h \
     gsoap/soapH.h \
-    alho/asyncfuncbase.h
+    alho/asyncfuncbase.h \
+    alho/mainsequencebaseop.h
 
 
 RESOURCES += bossn.qrc

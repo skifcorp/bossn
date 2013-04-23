@@ -4,13 +4,13 @@
 #include "alhosequence.h"
 #include "mainsequencesettings.h"
 #include "tags.h"
+#include "mainsequencebaseop.h"
 
 
 
 
 
-
-class WebServiceSequence : public AlhoSequence
+class WebServiceSequence : public MainSequenceBaseOp
 {
     Q_OBJECT
 public:
@@ -25,10 +25,6 @@ public:
 protected:
     virtual void run () override;
 private:
-    Tags & tags_;
-    const QVariantMap& app_settings;
-    MainSequenceSettings  alho_settings;
-
     bool on_weight  = false;
     bool init       = true;
     int seq_id      = 0;

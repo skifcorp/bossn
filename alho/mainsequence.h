@@ -28,12 +28,13 @@ using std::vector;
 #include "mifarecard.h"
 #include "weighterconf.h"
 #include "photomaker.h"
+#include "mainsequencebaseop.h"
 
 class MifareCardSector;
 
 
 
-class MainSequence : public AlhoSequence
+class MainSequence : public MainSequenceBaseOp
 {
     Q_OBJECT
 public:
@@ -79,11 +80,7 @@ public slots:
 private:    
     bool init;
 
-    Tags & tags;    
-    const QVariantMap & app_settings;
-
-
-    MainSequenceSettings  alho_settings;
+    //Tags & tags;
 
     bool on_weight;
 
@@ -95,7 +92,7 @@ private:
     QVariantMap enter_photo;
 
 
-    QTimer wake_timer;
+
 
     std::vector<WeighterConf> weighters_conf;
 

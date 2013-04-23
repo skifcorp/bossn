@@ -54,8 +54,7 @@ public:
 
 
 
-WebServiceSequence::WebServiceSequence(Tags & t, const QVariantMap& m) : AlhoSequence("WebServiceSequence"), tags_(t),
-    app_settings(m),  alho_settings(*this, tags_)
+WebServiceSequence::WebServiceSequence(Tags & t, const QVariantMap& m) : MainSequenceBaseOp("WebServiceSequence", tags, m)
 {
 
 }
@@ -70,17 +69,16 @@ void WebServiceSequence::setSettings(const QVariantMap & s)
     alho_settings.init(s);
 
     seq_id                              = get_setting<int>("id", s);
-
-    //current_card_tag = get_setting<QString>("current_card_tag", s);
-    //current_card_prop = get_setting<QString>("current_card_prop", s);
+#if 0
+    current_card_tag = get_setting<QString>("current_card_tag", s);
+    current_card_prop = get_setting<QString>("current_card_prop", s);
+#endif
 
     setObjectName( "MainSequence num: " + QString::number(seq_id) );
 
     restart();
 
-    //createStack(65535*16);
     cont();  //for initializing tablo and do
-
 }
 
 void WebServiceSequence::run()

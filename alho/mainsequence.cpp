@@ -95,7 +95,7 @@ void MainSequence::printOnTablo(const QString & s)
 }
 
 MainSequence::MainSequence(Tags & t, const QVariantMap& s)
-    :AlhoSequence("MainSequence"), init(true),tags(t), app_settings(s), alho_settings(*this, tags) ,on_weight(false), seq_id(0), uses_photo(false), wake_timer(this)
+    :MainSequenceBaseOp("MainSequence", t, s), init(true),on_weight(false), seq_id(0), uses_photo(false)
 {
 #if 0
     qx::QxSqlDatabase::getSingleton()->setTraceSqlQuery(false);
