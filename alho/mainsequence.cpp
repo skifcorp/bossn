@@ -89,21 +89,15 @@ void MainSequence::initWeightersConf(const QVariantMap& s)
 
 
 
-void MainSequence::printOnTablo(const QString & s)
-{
-    tags[alho_settings.tablo_tag.tag_name]->func(alho_settings.tablo_tag.method_name, this, Q_ARG(const QVariant&, QVariant(s)));
-}
 
 MainSequence::MainSequence(Tags & t, const QVariantMap& s)
-    :MainSequenceBaseOp("MainSequence", t, s), init(true),on_weight(false), seq_id(0), uses_photo(false)
+    :MainSequenceBaseOp("MainSequence", t, s)
 {
 #if 0
     qx::QxSqlDatabase::getSingleton()->setTraceSqlQuery(false);
     qx::QxSqlDatabase::getSingleton()->setTraceSqlRecord(false);
 #endif
 
-    connect(&wake_timer, SIGNAL(timeout()), this, SLOT(wakeUp()));
-    wake_timer.setSingleShot(true);
 }
 
 
@@ -309,17 +303,6 @@ void MainSequence::onDisappearOnWeight(const QString&, AlhoSequence * )
     qDebug() << "disappear finished!!!";
 }
 
-void MainSequence::setLightsToRed()
-{
-    alho_settings.red_light.func(Q_ARG(QVariant,  alho_settings.red_light.value.toBool() ));
-    alho_settings.green_light.func(Q_ARG(QVariant, !alho_settings.green_light.value.toBool()));
-}
-
-void MainSequence::setLightsToGreen()
-{
-    alho_settings.red_light.func(Q_ARG(QVariant, !alho_settings.red_light.value.toBool()));
-    alho_settings.green_light.func(Q_ARG(QVariant, alho_settings.green_light.value.toBool()));
-}
 
 void MainSequence::processPerimeter()
 {

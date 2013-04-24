@@ -5,6 +5,10 @@
 #include "asyncfuncbase.h"
 #include "settingstool.h"
 
+#include "warnmessages.h"
+#include "mifarereader.h"
+#include "mifarecard.h"
+
 #include <QString>
 
 
@@ -83,18 +87,84 @@ void WebServiceSequence::setSettings(const QVariantMap & s)
 
 void WebServiceSequence::run()
 {
-    if ( init  ) {
+    if ( init ) {
+        printOnTablo(tr(greeting_message));
+        setLightsToGreen();
         init = false;
         return;
     }
-    //while ( on_weight ) {
 
-    //}
+    seqDebug() << "something appeared on weight!!!! id" << seq_id;
 
-    WebServiceAsync w(*this);
-    auto ret = w.exchangeData(QMap<QString, QString>());
+    on_weight = true;
 
-    qDebug() << "got result: " << ret;
+    printOnTablo(tr(apply_card_message));
+
+    setLightsToRed();
+
+    alho_settings.reader.do_on.func();
+
+
+    QByteArray card_code = get_setting<QByteArray>("card_code" , app_settings);
+    uint data_block      = get_setting<uint>      ("data_block", app_settings);
+
+    while(on_weight) {
+        ActivateCardISO14443A act = alho_settings.reader.activate_idle.func().value<ActivateCardISO14443A>();
+        MifareCardSector card(act, alho_settings.reader, card_code, data_block);
+
+        if ( !card.active() ) {
+            sleepnbtm();
+            continue;
+        }
+
+        try {
+            printOnTablo(tr(processing_message));
+
+            card.autorize();
+
+            WebServiceAsync w(*this);
+            auto ret = w.exchangeData(QMap<QString, QString>());
+
+            printOnTablo( tr(apply_card_message) );
+            continue;
+        }
+        catch (MifareCardAuthException& ex) {
+            seqWarning() << "auth_exeption! "<<ex.message();
+
+            sleepnbtmerr(tr(card_autorize_error_message), tr(apply_card_message));
+            continue;
+        }
+        catch (MifareCardReadException& ex) {
+            seqWarning() << "read_card_exception! "<<ex.message();
+            sleepnbtmerr(ex.message(), tr(apply_card_message));
+            continue;
+        }
+        catch (MifareCardWriteException& ex) {
+            seqWarning() << "write_card_exception! "<<ex.message();
+            sleepnbtmerr(ex.message(), tr(apply_card_message));
+            continue;
+        }
+        catch (MainSequenceException& ex) {
+            seqWarning()<<"sequence_exception: " << ex.adminMessage() << " sys: " + ex.systemMessage();
+            sleepnbtmerr(ex.userMessage(), tr(apply_card_message));
+            continue;
+        }
+        catch (MifareCardException& ex) {
+            seqWarning()<<"mifare_card_exception: " << ex.message();
+            sleepnbtmerr(ex.message(), tr(apply_card_message));
+            continue;
+        }
+
+    }
+    seqDebug () << "\n\nexit from onAppearOnWeight!!!!!!!";
+
+    printOnTablo(tr(greeting_message));
+    setLightsToGreen();
+    //tags[current_card_tag]->setProperty(current_card_prop,
+    //                                   QVariant::fromValue<ActivateCardISO14443A>(ActivateCardISO14443A()));
+    alho_settings.reader.do_off.func();
+
+
 }
 
 
@@ -108,11 +178,29 @@ void WebServiceSequence::onAppearOnWeight(const QString&, AlhoSequence*)
 
 void WebServiceSequence::onDisappearOnWeight(const QString&, AlhoSequence*)
 {
+    seqDebug() << "something disappeared on weight!!!!";
+
+    on_weight = false;
+
+    if ( wake_timer.isActive() ) {
+        //qDebug( )     << "1";
+        wake_timer.stop();
+        //qDebug( )     << "2";
+
+        if (  status() == Stopped  )
+            wakeUp();
+    }
+    //qDebug( )     << "3";
+
+    qDebug() << "disappear finished!!!";
 
 }
 
 
-
+void WebServiceSequence::wakeUp()
+{
+    cont();
+}
 
 
 

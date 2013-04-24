@@ -24,6 +24,8 @@ public:
 
 protected:
     virtual void run () override;
+protected:
+    virtual  void wakeUp() override;
 private:
     bool on_weight  = false;
     bool init       = true;

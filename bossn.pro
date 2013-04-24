@@ -57,6 +57,7 @@ LIBS           +=   -lqextserialport                \
 TRANSLATIONS = bossn_ua.ts
 
 SOURCES +=  prot/prottask.cpp \
+            alho/webservicesequence.cpp \
             alho/weighters/kryzh/beet/kryzhbeetacceptanceculture.cpp \
            alho/weighters/kryzh/grain/kryzhgrainshipmentculture.cpp \
         main.cpp \
@@ -116,8 +117,7 @@ SOURCES +=  prot/prottask.cpp \
     alho/weighters/mria/weighter/mriaacceptanceweighter.cpp \
     reader/mifarereaderemulator.cpp \
     alho/reportsmanager2.cpp \
-    coro/coroutine2.cpp \
-    alho/webservicesequence.cpp \
+    coro/coroutine2.cpp \  
     gsoap/soapTestSoapBindingProxy.cpp \
     gsoap/stdsoap2.cpp \
     gsoap/soapC.cpp \

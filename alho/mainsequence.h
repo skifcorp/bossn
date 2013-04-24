@@ -22,7 +22,6 @@ using std::vector;
 #include "mifarereader.h"
 #include "mifarecarddata.h"
 #include "mainsequencesettings.h"
-#include "seqdebug.h"
 #include "weighter.h"
 #include "cardstructs.h"
 #include "mifarecard.h"
@@ -49,55 +48,22 @@ public:
 
     virtual void setSettings(const QVariantMap &);
 
-    MainSequenceSettings& alhoSettings() {return alho_settings;}
-    int seqId() const {return seq_id;}
-    SeqDebug seqDebug(int err_code=-1)
-    {
-        return SeqDebug(false, *this, err_code);
-    }
-
-    SeqDebug seqWarning(int err_code=-1, bool to_console=true)
-    {
-        return SeqDebug(true, *this, err_code, to_console);
-    }
-
-    template <class T>
-    T appSetting(const QString& n) const
-    {
-        return get_setting<T>(n, app_settings);
-    }
-
-    template <class T>
-    T appSetting(const QString& n, const T& def) const
-    {
-        return get_setting<T>(n, app_settings, def);
-    }
-
     QString printerName() const {return printer_name;}
-    void printOnTablo(const QString& ) ;
-public slots:
-    void wakeUp();
+protected:
+    virtual  void wakeUp() override;
 private:    
-    bool init;
-
-    //Tags & tags;
-
-    bool on_weight;
-
-    int seq_id;
+    bool init = true;
+    bool on_weight = false;
 
     QString printer_name;
-    bool uses_photo;
+    bool uses_photo = false;
     QVariantMap exit_photo;
     QVariantMap enter_photo;
 
-
-
-
     std::vector<WeighterConf> weighters_conf;
 
-    void setLightsToRed();
-    void setLightsToGreen();
+    //void setLightsToRed();
+    //void setLightsToGreen();
 
 
     void checkForStealedCard(const ActivateCardISO14443A& );
@@ -113,26 +79,7 @@ private:
     }
 
 
-    void sleepnb(int msec)
-    {
-        wake_timer.setInterval(msec);
-        wake_timer.start();
-        yield();
-    }
 
-    void sleepnbtm()
-    {
-        static uint tm = get_setting<uint>("sleepnb_timeout", app_settings, 100);
-        sleepnb(tm);
-    }
-
-    void sleepnbtmerr(const QString& msg1, const QString& msg2)
-    {
-        static uint tm = get_setting<uint>("sleepnb_on_error_timeout", app_settings, 10000);
-        printOnTablo(msg1);
-        sleepnb(tm);
-        printOnTablo(msg2);
-    }
 
     virtual void run();
 
