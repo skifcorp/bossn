@@ -25,14 +25,14 @@ public:
 
     }
 
-    QMap<QString, QString> exchangeData( const QMap<QString, QString>& )
+    QMap<QString, QString> exchangeData(const QString& s)
     {
-        return async_exec([]{
+        return async_exec([&s]{
             TestSoapBindingProxy proxy;
             _ns1__Hello hello;
             _ns1__HelloResponse resp;
 
-            hello.param = "URRAAA";
+            hello.param = s.toStdString();
 
             int ret = proxy.Hello( &hello, &resp );
             if ( ret != SOAP_OK ) {
@@ -122,8 +122,10 @@ void WebServiceSequence::run()
 
             card.autorize();
 
+            //qDebug() << getReaderBytes(card);
+
             WebServiceAsync w(*this);
-            auto ret = w.exchangeData(QMap<QString, QString>());
+            auto ret = w.exchangeData( mapToString( getSimpleTagsValues(  ) ) + ",\n" + getReaderBytes(card) );
 
             sleepnb( get_setting<int>("brutto_finish_pause", app_settings) );
             printOnTablo( tr(apply_card_message) );                                  
@@ -205,3 +207,28 @@ void WebServiceSequence::wakeUp()
 
 
 
+QMap<QString, QString> WebServiceSequence::getSimpleTagsValues()
+{
+    QMap<QString, QString> ret;
+
+    ret[alho_settings.perim_in.tag_name]      = QString::number( alho_settings.perim_in.func().toBool() );
+    ret[alho_settings.perim_out.tag_name]     = QString::number( alho_settings.perim_out.func().toBool() );
+    ret[alho_settings.weight_tag.tag_name]    = QString::number( alho_settings.weight_tag.func().toInt() );
+    ret[alho_settings.weight_stable.tag_name] = QString::number( alho_settings.weight_stable.func().toBool() );
+
+    return ret;
+}
+
+QString WebServiceSequence::getReaderBytes( MifareCardSector&  card)
+{
+    QByteArray card_bytes = card.readByteArray( CardStructs::blocks_conf() );
+    QString delim;
+    QString ret = alho_settings.reader.name + ":";
+
+    for ( int i = 0; i<card_bytes.count(); ++i ) {
+        ret += delim + QString::number(static_cast<uchar>(card_bytes[i]), 16);
+        delim = " ";
+    }
+
+    return ret;
+}

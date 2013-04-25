@@ -7,7 +7,7 @@
 #include "mainsequencebaseop.h"
 
 
-
+class MifareCardSector;
 
 
 class WebServiceSequence : public MainSequenceBaseOp
@@ -30,6 +30,18 @@ private:
     bool on_weight  = false;
     bool init       = true;
     int seq_id      = 0;
+
+    QMap<QString, QString> getSimpleTagsValues() ;
+    QString getReaderBytes( MifareCardSector&  );
+    QString mapToString( const QMap<QString, QString>& m ) const
+    {
+        QString ret; QString delim;
+        for ( QMap<QString, QString>::const_iterator iter = m.begin(); iter != m.end(); ++iter ) {
+            ret += ( delim + iter.key() + ":" + iter.value() ) ;
+            delim = ",\n";
+        }
+        return ret;
+    }
 };
 
 
