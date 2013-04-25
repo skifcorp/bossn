@@ -58,7 +58,7 @@ public:
 
 
 
-WebServiceSequence::WebServiceSequence(Tags & t, const QVariantMap& m) : MainSequenceBaseOp("WebServiceSequence", tags, m)
+WebServiceSequence::WebServiceSequence(Tags & t, const QVariantMap& m) : MainSequenceBaseOp("WebServiceSequence", t, m)
 {
 
 }
@@ -125,7 +125,8 @@ void WebServiceSequence::run()
             WebServiceAsync w(*this);
             auto ret = w.exchangeData(QMap<QString, QString>());
 
-            printOnTablo( tr(apply_card_message) );
+            sleepnb( get_setting<int>("brutto_finish_pause", app_settings) );
+            printOnTablo( tr(apply_card_message) );                                  
             continue;
         }
         catch (MifareCardAuthException& ex) {

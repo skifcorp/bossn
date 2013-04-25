@@ -24,7 +24,7 @@ public:
 
 protected:
     virtual void run () override;
-protected:
+protected slots:
     virtual  void wakeUp() override;
 private:
     bool on_weight  = false;

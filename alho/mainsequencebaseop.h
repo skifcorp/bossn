@@ -10,6 +10,7 @@
 
 class MainSequenceBaseOp : public AlhoSequence
 {
+    Q_OBJECT
 public:
     MainSequenceBaseOp(const QString& nm, Tags & t, const QVariantMap&);
 
