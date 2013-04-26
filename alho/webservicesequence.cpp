@@ -10,6 +10,65 @@
 #include "mifarecard.h"
 
 #include <QString>
+#include <QTcpSocket>
+
+#include <sstream>
+#include <iosfwd>
+
+
+#include <boost/iostreams/stream.hpp>
+#include <boost/iostreams/stream_buffer.hpp>
+
+namespace io = boost::iostreams;
+
+
+
+class my_source
+{
+public:
+    typedef char        char_type;
+    typedef io::source_tag  category;
+    my_source(string& ){}
+    std::streamsize read(char* s, std::streamsize n)
+    {
+        using namespace std;
+        streamsize amt = static_cast<streamsize>(container_.size() - pos_);
+        streamsize result = (min)(n, amt);
+        if (result != 0) {
+            std::copy( container_.begin() + pos_,
+                       container_.begin() + pos_ + result,
+                     s );
+            pos_ += result;
+            return result;
+        }
+        else {
+            return -1; // EOF
+        }
+    }
+
+    /* Other members */
+private:
+    std::string container_ = "HTTP/1.1 200 OK\n"                          \
+            "Date: Fri, 26 Apr 2013 12:06:18 GMT\n"                   \
+            "Server: Apache/2.2.4 (Win32)\n"                          \
+            "Content-Length: 445\n"                                   \
+            "Set-Cookie: vrs_rc=;Version=1\n"                         \
+            "Connection: close\n"                                     \
+            "Content-Type: text/xml; charset=utf-8\n\n"                 \
+            "<soap:Envelope xmlns:soap=\"http://www.w3.org/2003/05/soap-envelope\">\n"    \
+                "<soap:Header/>\n"                                                        \
+                "<soap:Body> <m:HelloResponse xmlns:m=\"http://localhost\">\n"            \
+                "<m:return xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"\n"               \
+                        "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">reader2:1 0 0 0 0 69 0 0 0 0 0 0 0 8e 8 0 10 27 84 f9 68 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 0 0 0 0 0 0 0,\n"   \
+            "tablo2:Hello!!!!!!!!!!!!!</m:return>\n"                  \
+            "</m:HelloResponse></soap:Body>\n"            \
+            "</soap:Envelope>\n";
+
+    string::size_type pos_ = 0;
+};
+
+
+
 
 
 class WebServiceAsync : public async_func_base2
@@ -29,19 +88,68 @@ public:
     {
         return async_exec([&s]{
             TestSoapBindingProxy proxy;
+            //proxy.soap->mode = SOAP_IO_STORE;
+            //proxy.soap->recv_timeout = 1;
+            //proxy.soap->connect_timeout = 1;
+
+            std::string buffer = "HTTP/1.1 200 OK\n"                          \
+                    "Date: Fri, 26 Apr 2013 12:06:18 GMT\n"                   \
+                    "Server: Apache/2.2.4 (Win32)\n"                          \
+                    "Content-Length: 445\n"                                   \
+                    "Set-Cookie: vrs_rc=;Version=1\n"                         \
+                    "Connection: close\n"                                     \
+                    "Content-Type: text/xml; charset=utf-8\n\n"                 \
+                    "<soap:Envelope xmlns:soap=\"http://www.w3.org/2003/05/soap-envelope\">\n"    \
+                        "<soap:Header/>\n"                                                        \
+                        "<soap:Body> <m:HelloResponse xmlns:m=\"http://localhost\">\n"            \
+                        "<m:return xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"\n"               \
+                                "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">reader2:1 0 0 0 0 69 0 0 0 0 0 0 0 8e 8 0 10 27 84 f9 68 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 0 0 0 0 0 0 0,\n"   \
+                    "tablo2:Hello!!!!!!!!!!!!!</m:return>\n"                  \
+                    "</m:HelloResponse></soap:Body>\n"            \
+                    "</soap:Envelope>\n";
+
+
+
+            std::ostringstream os;
+            //std::istringstream is(buffer);
+            //is.rdbuf(BossnRdBuf());
+            //std::istream is;
+
+            io::stream<my_source> is(buffer);
+            //is.open();
+
+            proxy.soap->os = &os;
+            proxy.soap->is = &is;
+
             _ns1__Hello hello;
             _ns1__HelloResponse resp;
+
 
             hello.param = s.toStdString();
 
             int ret = proxy.Hello( &hello, &resp );
             if ( ret != SOAP_OK ) {
-                qWarning() << "soap FAILED: " << ret;
+                std::cerr << "!!!!!!!!!!!!!!!!!!!!!error: " << ret << std::endl;
 
             }
             else {
-                qDebug() << " ret: " << QString::fromStdString( resp.return_ );
+                std::cout << "!!!!!!!!!!!!!!!!!!!ret: " << resp.return_  << std::endl;
             }
+
+            //ret = proxy.Hello( &hello, &resp );
+            //if ( ret != SOAP_OK ) {
+            //    qWarning() << "!!!!!!!!!!!!!!!!!!!!!!!!soap FAILED: " << ret;
+//
+            //}
+            //else {
+                //qDebug() << "!!!!!!!!!!!!!!!!!!!!!!!! ret: " << QString::fromStdString( resp.return_ );
+            //}
+
+
+
+
+            //std::cout << "is: " << is.str()  << "\n----------->os " << os.str()
+            //          << std::endl;
 
             QMap<QString, QString> retm;
             retm["aaa"] = QString::fromStdString( resp.return_ );

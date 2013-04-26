@@ -12,7 +12,7 @@
 
 #INCLUDEPATH += d:/users/andigor/prg/STLport-5.2.1/stlport/
 
-QT       += core xml sql script gui
+QT       += core xml sql script gui network
 CONFIG   += uitools console
 
 TARGET   = bossn
@@ -31,7 +31,9 @@ INCLUDEPATH    += db alho serial weight generic iodevicewrapper scheduler       
 QMAKE_CXXFLAGS += -std=gnu++1y -O #--param ggc-min-expand=10 --param ggc-min-heapsize=65535 -O
 #QMAKE_CXXFLAGS -= -pipe
 
-DEFINES += FUSION_MAX_VECTOR_SIZE=40                          #\
+DEFINES += FUSION_MAX_VECTOR_SIZE=40  SOAP_DEBUG
+
+#\
 #           BOOST_FUSION_INVOKE_MAX_ARITY=30                   \
 #           BOOST_MPL_LIMIT_VECTOR_SIZE=30                    \
 #           BOOST_RESULT_OF_NUM_ARGS=30                       \
@@ -218,7 +220,8 @@ HEADERS +=   reader/mifarereaderemulator.h \
     gsoap/stdsoap2.h \
     gsoap/soapH.h \
     alho/asyncfuncbase.h \
-    alho/mainsequencebaseop.h
+    alho/mainsequencebaseop.h \
+    gsoap/stdsoap2.h
 
 
 RESOURCES += bossn.qrc

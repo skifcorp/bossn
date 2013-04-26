@@ -328,7 +328,7 @@ int TestSoapBindingProxy::Hello_(const char *endpoint, const char *soap_action, 
 	}
 	if (soap_end_count(soap))
 		return soap->error;
-	if (soap_connect(soap, soap_endpoint, soap_action)
+    if (soap_connect(soap, soap_endpoint, soap_action)
 	 || soap_envelope_begin_out(soap)
 	 || soap_putheader(soap)
 	 || soap_body_begin_out(soap)
