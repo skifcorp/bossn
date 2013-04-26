@@ -18,25 +18,39 @@
 
 #include <boost/iostreams/stream.hpp>
 #include <boost/iostreams/stream_buffer.hpp>
+#include <boost/iostreams/categories.hpp>
+
 
 namespace io = boost::iostreams;
 
+struct AAA : public io::flushable_tag, io::bidirectional_device_tag{};
 
-
-class my_source
+class GsoapSource
 {
 public:
-    typedef char        char_type;
-    typedef io::source_tag  category;
-    my_source(string& ){}
+    typedef char            char_type;
+    typedef AAA category;
+    GsoapSource(string& ){}
+
+    bool flush()
+    {
+        return true;
+    }
+
     std::streamsize read(char* s, std::streamsize n)
     {
+        SocketHelper sh(*this);
+
+        sh.exechange();
+
+        //qDebug() << "RRRRRRRRRRRRRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEED";
+
         using namespace std;
-        streamsize amt = static_cast<streamsize>(container_.size() - pos_);
+        streamsize amt = static_cast<streamsize>(read_buffer.size() - pos_);
         streamsize result = (min)(n, amt);
         if (result != 0) {
-            std::copy( container_.begin() + pos_,
-                       container_.begin() + pos_ + result,
+            std::copy( read_buffer.begin() + pos_,
+                       read_buffer.begin() + pos_ + result,
                      s );
             pos_ += result;
             return result;
@@ -46,9 +60,27 @@ public:
         }
     }
 
-    /* Other members */
+    std::streamsize write(const char* s, std::streamsize n)
+    {
+        //qDebug() << "WRIIIIIIIIIIIIIIIIII";
+
+        write_buffer += s;
+
+        //std::cout << "---------------------write_buffer: " << write_buffer<<std::endl;
+
+        return n;
+    }
+
+    const std::string& writeBuffer() const {return write_buffer;}
+    void setReadBuffer( const std::string& rb )
+    {
+        read_buffer = rb;
+    }
+
 private:
-    std::string container_ = "HTTP/1.1 200 OK\n"                          \
+    std::string read_buffer
+#if 0
+    = "HTTP/1.1 200 OK\n"                          \
             "Date: Fri, 26 Apr 2013 12:06:18 GMT\n"                   \
             "Server: Apache/2.2.4 (Win32)\n"                          \
             "Content-Length: 445\n"                                   \
@@ -62,11 +94,71 @@ private:
                         "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">reader2:1 0 0 0 0 69 0 0 0 0 0 0 0 8e 8 0 10 27 84 f9 68 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 0 0 0 0 0 0 0,\n"   \
             "tablo2:Hello!!!!!!!!!!!!!</m:return>\n"                  \
             "</m:HelloResponse></soap:Body>\n"            \
-            "</soap:Envelope>\n";
+            "</soap:Envelope>\n"
+#endif
+     ;
 
+    string write_buffer;
     string::size_type pos_ = 0;
 };
 
+
+
+
+SocketHelper::SocketHelper(GsoapSource & s):source_(s)
+{
+//    connect( &socket_, SIGNAL(connected()) , this, SLOT(onConnected());
+//    connect( &socket_, SIGNAL(disconnected()) , this, SLOT(onDisconnected());
+//    connect( &socket_, SIGNAL(error(QAbstractSocket::SocketError)) , this, SLOT(onError(QAbstractSocket::SocketError)));
+//    connect( &socket_, SIGNAL(readyRead()) , this, SLOT(onReadyRead()));
+}
+
+SocketHelper::~SocketHelper()
+{
+
+}
+
+void SocketHelper::exechange()
+{
+    socket_.connectToHost("127.0.0.1", 80);
+    socket_.waitForConnected();
+    socket_.write( source_.writeBuffer().c_str() );
+
+    //std::cout << "wrote:  "<< source_.writeBuffer();
+
+    socket_.waitForBytesWritten();
+    if (socket_.waitForReadyRead()) {
+        QByteArray arr = socket_.readAll();
+        std::string s(arr.data(), arr.size());
+        source_.setReadBuffer( s );
+    }
+}
+
+
+void SocketHelper::onConnected()
+{
+
+}
+
+void SocketHelper::onDisconnected()
+{
+
+}
+
+void SocketHelper::onError(QAbstractSocket::SocketError)
+{
+
+}
+
+void SocketHelper::onReadyRead()
+{
+
+}
+
+void SocketHelper::onTimeout()
+{
+
+}
 
 
 
@@ -115,10 +207,12 @@ public:
             //is.rdbuf(BossnRdBuf());
             //std::istream is;
 
-            io::stream<my_source> is(buffer);
+            io::stream <GsoapSource> is(buffer);
+
+            //is.
             //is.open();
 
-            proxy.soap->os = &os;
+            proxy.soap->os = &is;
             proxy.soap->is = &is;
 
             _ns1__Hello hello;

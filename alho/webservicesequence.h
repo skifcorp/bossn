@@ -7,8 +7,31 @@
 #include "mainsequencebaseop.h"
 
 
+#include <QTcpSocket>
+#include <QTimer>
+
 class MifareCardSector;
 
+class GsoapSource;
+
+class SocketHelper : public QObject
+{
+    Q_OBJECT
+public:
+    SocketHelper(GsoapSource & );
+    ~SocketHelper();
+    void exechange();
+private:
+    GsoapSource & source_;
+    QTcpSocket socket_;
+    QTimer timeout_timer;
+private slots:
+    void onConnected();
+    void onDisconnected();
+    void onError(QAbstractSocket::SocketError);
+    void onReadyRead();
+    void onTimeout();
+};
 
 class WebServiceSequence : public MainSequenceBaseOp
 {
