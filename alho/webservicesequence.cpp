@@ -23,27 +23,21 @@
 
 namespace io = boost::iostreams;
 
-struct AAA : public io::flushable_tag, io::bidirectional_device_tag{};
 
 class GsoapSource
 {
 public:
-    typedef char            char_type;
-    typedef AAA category;
-    GsoapSource(string& ){}
+    using char_type = char;
+    using category  = io::bidirectional_device_tag;
 
-    bool flush()
-    {
-        return true;
-    }
+    GsoapSource( Coroutine2& c):coro_(c){}
 
     std::streamsize read(char* s, std::streamsize n)
     {
-        SocketHelper sh(*this);
-
-        sh.exechange();
-
-        //qDebug() << "RRRRRRRRRRRRRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEED";
+        if ( read_buffer.empty() ) {
+            SocketHelper sh(*this);
+            sh.exechange();
+        }
 
         using namespace std;
         streamsize amt = static_cast<streamsize>(read_buffer.size() - pos_);
@@ -62,11 +56,9 @@ public:
 
     std::streamsize write(const char* s, std::streamsize n)
     {
-        //qDebug() << "WRIIIIIIIIIIIIIIIIII";
+        string str( s, n );
 
-        write_buffer += s;
-
-        //std::cout << "---------------------write_buffer: " << write_buffer<<std::endl;
+        write_buffer += str;
 
         return n;
     }
@@ -76,8 +68,10 @@ public:
     {
         read_buffer = rb;
     }
-
+    Coroutine2& coro() {return coro_;}
+    const Coroutine2& coro() const {return coro_;}
 private:
+    Coroutine2 & coro_;
     std::string read_buffer
 #if 0
     = "HTTP/1.1 200 OK\n"                          \
@@ -105,68 +99,99 @@ private:
 
 
 
-SocketHelper::SocketHelper(GsoapSource & s):source_(s)
+SocketHelper::SocketHelper(GsoapSource & s):source_(s), socket_(this), timeout_timer(this)
 {
-//    connect( &socket_, SIGNAL(connected()) , this, SLOT(onConnected());
-//    connect( &socket_, SIGNAL(disconnected()) , this, SLOT(onDisconnected());
-//    connect( &socket_, SIGNAL(error(QAbstractSocket::SocketError)) , this, SLOT(onError(QAbstractSocket::SocketError)));
-//    connect( &socket_, SIGNAL(readyRead()) , this, SLOT(onReadyRead()));
+    connect( &socket_, SIGNAL(connected()) , this, SLOT(onConnected()));
+    connect( &socket_, SIGNAL(disconnected()) , this, SLOT(onDisconnected()));
+    connect( &socket_, SIGNAL(error(QAbstractSocket::SocketError)),
+             this, SLOT(onError(QAbstractSocket::SocketError)));
+    connect( &socket_, SIGNAL(readyRead()) , this, SLOT(onReadyRead()));
+
+    connect( &timeout_timer, SIGNAL(timeout()), this, SLOT(onTimeout()) );
+
+    timeout_timer.setSingleShot(true);
 }
 
 SocketHelper::~SocketHelper()
 {
-
+    qDebug() << "socket helper destructed!!";
 }
 
 void SocketHelper::exechange()
 {
+
+    qDebug() << "!!!!!!!!!!!!!!! beforeeeeeeeee";
     socket_.connectToHost("127.0.0.1", 80);
-    socket_.waitForConnected();
+    qDebug() << "!!!!!!!!!!!!!!! aftreeeeeeeeeeeeeeeeee";
+
+    qDebug() << socket_.state();
+
+    //if ( socket_.state() != QAbstractSocket::ConnectedState ) {
+        timeout_timer.start(5000);
+        source_.coro().yield();
+    //}
+
     socket_.write( source_.writeBuffer().c_str() );
 
-    //std::cout << "wrote:  "<< source_.writeBuffer();
+    timeout_timer.stop();
+    timeout_timer.start(1000);
 
-    socket_.waitForBytesWritten();
-    if (socket_.waitForReadyRead()) {
-        QByteArray arr = socket_.readAll();
-        std::string s(arr.data(), arr.size());
-        source_.setReadBuffer( s );
-    }
+    source_.coro().yield();
+
+    QByteArray arr = socket_.readAll();
+    std::string s(arr.data(), arr.size());
+
+    source_.setReadBuffer( s );
+    timeout_timer.stop();
+    socket_.disconnectFromHost();
+    socket_.close();
 }
 
 
 void SocketHelper::onConnected()
 {
+    //this is needed on some systems which can emit connected signal from connectToHost
+    //when conecting to local host
 
+    qDebug() << "!!!!!!!!!!!!!!! onConnected!!!!!!!!!!!!!!";
+
+    //if ( !socket_.state() == QAbstractSocket::ConnectedState )
+        source_.coro().cont();
 }
 
 void SocketHelper::onDisconnected()
 {
-
+      qDebug() << "!!!!!!!!!!!!!!! onDisconnected!!!!!!!!!!!!!!";
+    //source_.coro().cont();
 }
 
-void SocketHelper::onError(QAbstractSocket::SocketError)
+void SocketHelper::onError(QAbstractSocket::SocketError e)
 {
-
+    qWarning() << "SocketHelper error! " <<e;
+    //source_.coro().cont();
 }
 
 void SocketHelper::onReadyRead()
 {
+    qDebug() << "onReadyReadddddddddddddddddd";
 
+    source_.coro().cont();
 }
 
 void SocketHelper::onTimeout()
 {
+    qDebug() << "TIMEEEEEEEEOUT!";
 
+    source_.coro().cont();
 }
 
 
 
 
-class WebServiceAsync : public async_func_base2
+class WebServiceAsync //: public async_func_base2
 {
 public:
-    WebServiceAsync(Coroutine2& c) : async_func_base2(c)
+    WebServiceAsync(Coroutine2& c):coro_(c)//:async_func_base2(c)
     {
 
     }
@@ -178,12 +203,12 @@ public:
 
     QMap<QString, QString> exchangeData(const QString& s)
     {
-        return async_exec([&s]{
+        //return async_exec([&s, this]{
             TestSoapBindingProxy proxy;
             //proxy.soap->mode = SOAP_IO_STORE;
             //proxy.soap->recv_timeout = 1;
             //proxy.soap->connect_timeout = 1;
-
+#if 0
             std::string buffer = "HTTP/1.1 200 OK\n"                          \
                     "Date: Fri, 26 Apr 2013 12:06:18 GMT\n"                   \
                     "Server: Apache/2.2.4 (Win32)\n"                          \
@@ -201,19 +226,22 @@ public:
                     "</soap:Envelope>\n";
 
 
+#endif
 
-            std::ostringstream os;
+            //std::ostringstream os;
             //std::istringstream is(buffer);
             //is.rdbuf(BossnRdBuf());
             //std::istream is;
 
-            io::stream <GsoapSource> is(buffer);
-
+            io::stream <GsoapSource> is;
+            GsoapSource source(coro_);
             //is.
             //is.open();
 
             proxy.soap->os = &is;
             proxy.soap->is = &is;
+
+            is.open( source, 0 );
 
             _ns1__Hello hello;
             _ns1__HelloResponse resp;
@@ -249,13 +277,15 @@ public:
             retm["aaa"] = QString::fromStdString( resp.return_ );
 
             return retm;
-        }, "Exchange web service data", "Exchange web service data" );
+        //}, "Exchange web service data", "Exchange web service data" );
     }
 
     void acceptedCardResult( bool )
     {
 
     }
+private:
+    Coroutine2 & coro_;
 };
 
 

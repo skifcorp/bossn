@@ -760,7 +760,7 @@ SOAP_FMAC3 _ns1__HelloResponse * SOAP_FMAC4 soap_in__ns1__HelloResponse(struct s
 			return (_ns1__HelloResponse *)a->soap_in(soap, tag, type);
 		}
 	}
-	size_t soap_flag_return_1 = 1;
+    size_t soap_flag_return_1 = 1;
 	if (soap->body && !*soap->href)
 	{
 		for (;;)

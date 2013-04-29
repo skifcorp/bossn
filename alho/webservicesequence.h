@@ -31,6 +31,8 @@ private slots:
     void onError(QAbstractSocket::SocketError);
     void onReadyRead();
     void onTimeout();
+
+
 };
 
 class WebServiceSequence : public MainSequenceBaseOp

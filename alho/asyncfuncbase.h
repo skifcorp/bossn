@@ -17,7 +17,7 @@ class async_func_base2 : public QObject
 {
     Q_OBJECT
 public:
-    async_func_base2( Coroutine2 & c ) : coro(c), very_busy_(false), show_debug_info_(false)
+    async_func_base2( Coroutine2 & c ) : coro_(c), very_busy_(false), show_debug_info_(false)
     {}
 
     ~async_func_base2() {}
@@ -35,8 +35,10 @@ public:
     }
 
     void setShowDebugInfo(bool d) {show_debug_info_ = d;}
+    Coroutine2& coro() {return coro_;}
+    const Coroutine2& coro() const {return coro_;}
 private:
-    Coroutine2 & coro;
+    Coroutine2 & coro_;
     bool very_busy_;
 
     bool show_debug_info_;
@@ -64,7 +66,7 @@ private:
             if (show_debug_info_)
                 qDebug() << "need sleep!";
 
-            coro.yield();
+            coro_.yield();
 
             if (show_debug_info_)
                 qDebug()<<"wow!! I with you!";
@@ -100,7 +102,7 @@ private:
             if (show_debug_info_)
                 qDebug() << "need sleep!";
 
-            coro.yield();
+            coro_.yield();
 
             if (show_debug_info_)
                 qDebug()<<"wow!! I with you!";
@@ -136,7 +138,7 @@ private slots:
         if (show_debug_info_)
             qDebug() << "FINISHED FUTURE!";
 
-        coro.cont();
+        coro_.cont();
 
         if (show_debug_info_)
             qDebug () << "after cont!";

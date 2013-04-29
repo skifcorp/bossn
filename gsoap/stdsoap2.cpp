@@ -540,7 +540,7 @@ fsend(struct soap *soap, const char *s, size_t n)
 #if defined(__cplusplus) && !defined(WITH_LEAN) && !defined(WITH_COMPAT)
   if (soap->os)
   { soap->os->write(s, (std::streamsize)n);
-      soap->os->flush();
+      //soap->os->flush();
     if (soap->os->good())
       return SOAP_OK;
     soap->errnum = 0;
