@@ -237,7 +237,7 @@ void SocketHelper::exechange()
 
     error = timeout = got_result = false;
 
-    socket_->connectToHost("127.0.0.1", 80);
+    socket_->connectToHost("192.168.0.66", 80);
     timeout_timer->start(5000);
 
     if ( socket_->state() != QTcpSocket::ConnectedState ) {
@@ -359,6 +359,8 @@ public:
             wsa->cur_fake_source = nullptr;
         } ); Q_UNUSED(cur_fake_source_guard);
 
+        terminating_ = false;
+
         Q_ASSERT( !cur_fake_source );
 
         TestSoapBindingProxy proxy;
@@ -418,18 +420,22 @@ public:
 
     void terminate()
     {
+        terminating_ = true;
         cur_fake_source->terminate();
     }
 
     bool isTerminating() const
     {
-        return !cur_fake_source || cur_fake_source->isTerminating(); //ugly hack
+        if (!cur_fake_source)
+            return terminating_;
+
+        return cur_fake_source->isTerminating(); //ugly hack
     }
 
 private:
     Coroutine2 & coro_;
     FakeSource * cur_fake_source = nullptr;
-
+    bool terminating_ = false;
 };
 
 
