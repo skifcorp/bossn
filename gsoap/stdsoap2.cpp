@@ -15346,8 +15346,6 @@ soap_try_connect_command(struct soap *soap, int http_command, const char *endpoi
 #ifndef WITH_LEANER
   if (soap->fconnect)
   {
-      std::cout << "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"<<std::endl;
-
       if ((soap->error = soap->fconnect(soap, endpoint, soap->host, soap->port)))
         return soap->error;
   }
