@@ -51,10 +51,14 @@ public:
     std::streamsize read(char* s, std::streamsize n)
     {
         if ( !buffer_initialized ) {
-            buffer_initialized = true;
+            buffer_initialized  = true;
+            terminate_          = false;
             try {
                 SocketHelper sh(*this);
                 sh.exechange();
+                if ( terminate_ ) {
+                    return -1;
+                }
             }
             catch (MainSequenceException & ex)
             {
@@ -62,7 +66,7 @@ public:
                 has_exception = true;
                 return -1;
             }
-        }
+        }                
 
         using namespace std;
         streamsize amt = static_cast<streamsize>(read_buffer.size() - pos_);
@@ -102,6 +106,18 @@ public:
             throw current_exception;
         }
     }
+
+    void terminate()
+    {
+        terminate_ = true;  //need manual reset of terminate_
+        coro_.cont();
+    }
+
+    bool isTerminating() const
+    {
+        return terminate_;
+    }
+
 private:
     Coroutine2 & coro_;
     std::string read_buffer;
@@ -111,6 +127,7 @@ private:
     bool buffer_initialized = false;
     MainSequenceException current_exception;
     bool has_exception = false;
+    bool terminate_ = false;
 };
 
 
@@ -161,6 +178,15 @@ public:
         source_->exception();
     }
 
+    void terminate()
+    {
+        source_->terminate();
+    }
+
+    bool isTerminating( ) const
+    {
+        return source_->isTerminating();
+    }
 private:
     std::shared_ptr<GsoapSource> source_;
 };
@@ -213,6 +239,8 @@ void SocketHelper::exechange()
     if ( socket_->state() != QTcpSocket::ConnectedState ) {
         while ( !got_result ) {
             source_.coro().yield();
+            if ( source_.isTerminating() )
+                return;
         }
         got_result = false;
     }
@@ -234,6 +262,8 @@ void SocketHelper::exechange()
 
     while ( !got_result ) {
         source_.coro().yield();
+        if ( source_.isTerminating() )
+            return;
     }
     got_result = false;
 
@@ -303,6 +333,8 @@ void SocketHelper::onTimeout()
 
 
 
+
+
 class WebServiceAsync
 {
 public:
@@ -318,8 +350,14 @@ public:
 
     QMap<QString, QString> exchangeData(const QString& s)
     {
+        std::shared_ptr<WebServiceAsync> cur_fake_source_guard( this , [&](WebServiceAsync * wsa){
+            wsa->cur_fake_source = nullptr;
+        } ); Q_UNUSED(cur_fake_source_guard);
+
+        Q_ASSERT( !cur_fake_source );
+
         TestSoapBindingProxy proxy;
-        proxy.soap->mode = SOAP_IO_STORE;
+        //proxy.soap->mode = SOAP_IO_STORE;
         proxy.soap->fconnect    = fake_connect;
         proxy.soap->fopen       = nullptr;
         proxy.soap->fdisconnect = fake_disconnect;
@@ -329,6 +367,8 @@ public:
         io::stream <FakeSource> is;
 
         FakeSource source(coro_);
+        cur_fake_source = &source;
+
 
         proxy.soap->os = &is;
         proxy.soap->is = &is;        
@@ -342,6 +382,10 @@ public:
         hello.param = s.toStdString();
 
         int ret = proxy.Hello( &hello, &resp );
+
+        if ( source.isTerminating() )
+            return QMap<QString, QString>();
+
         if ( ret != SOAP_OK ) {
             source.exception();
 
@@ -364,9 +408,22 @@ public:
     {
 
     }
+
+    void terminate()
+    {
+        cur_fake_source->terminate();
+    }
+
+    bool isTerminating() const
+    {
+        return cur_fake_source->isTerminating();
+    }
+
 private:
     Coroutine2 & coro_;
+    FakeSource * cur_fake_source = nullptr;
 };
+
 
 
 
@@ -430,12 +487,23 @@ void WebServiceSequence::run()
         }
 
         try {
+            std::shared_ptr<WebServiceSequence> cur_fake_source_guard( this , [&](WebServiceSequence * wss){
+                wss->cur_webservice_async = nullptr;
+            } ); Q_UNUSED(cur_fake_source_guard);
+
+            Q_ASSERT(!cur_webservice_async);
+
             printOnTablo(tr(processing_message));
 
-            card.autorize();
+            card.autorize();            
 
-            WebServiceAsync w(*this);
-            auto ret = w.exchangeData( mapToString( getSimpleTagsValues(  ) ) + ",\n" + getReaderBytes(card) );
+            WebServiceAsync was(*this);
+            cur_webservice_async = &was;
+
+
+            QMap<QString, QString> ret = was.exchangeData( mapToString( getSimpleTagsValues(  ) ) + ",\n" + getReaderBytes(card) );
+
+            if (was.isTerminating()) continue;
 
             sleepnb( get_setting<int>("brutto_finish_pause", app_settings) );
             printOnTablo( tr(apply_card_message) );                                  
@@ -496,13 +564,15 @@ void WebServiceSequence::onDisappearOnWeight(const QString&, AlhoSequence*)
     on_weight = false;
 
     if ( wake_timer.isActive() ) {
-        //qDebug( )     << "1";
         wake_timer.stop();
-        //qDebug( )     << "2";
 
         if (  status() == Stopped  )
             wakeUp();
     }
+    else if (cur_webservice_async) {
+        cur_webservice_async->terminate();
+    }
+
     //qDebug( )     << "3";
 
     qDebug() << "disappear finished!!!";

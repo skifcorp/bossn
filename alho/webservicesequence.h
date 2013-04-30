@@ -16,6 +16,7 @@ class MifareCardSector;
 
 class GsoapSource;
 
+
 class SocketHelper : public QObject
 {
     Q_OBJECT
@@ -42,8 +43,12 @@ private:
     std::unique_ptr<QTimer> getTimer() const;
 };
 
+class WebServiceAcyncDeinitializer;
+class WebServiceAsync;
+
 class WebServiceSequence : public MainSequenceBaseOp
 {
+    friend class WebServiceAcyncDeinitializer;
     Q_OBJECT
 public:
     WebServiceSequence( Tags& t, const QVariantMap& m );
@@ -74,6 +79,8 @@ private:
         }
         return ret;
     }
+
+    WebServiceAsync * cur_webservice_async = nullptr;
 };
 
 
