@@ -15327,6 +15327,10 @@ soap_connect_command(struct soap *soap, int http_command, const char *endpoints,
 }
 #endif
 
+#include <iostream>
+
+
+
 /******************************************************************************/
 #ifndef PALM_1
 static int
@@ -15341,8 +15345,11 @@ soap_try_connect_command(struct soap *soap, int http_command, const char *endpoi
   soap_set_endpoint(soap, endpoint);
 #ifndef WITH_LEANER
   if (soap->fconnect)
-  { if ((soap->error = soap->fconnect(soap, endpoint, soap->host, soap->port)))
-      return soap->error;
+  {
+      std::cout << "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"<<std::endl;
+
+      if ((soap->error = soap->fconnect(soap, endpoint, soap->host, soap->port)))
+        return soap->error;
   }
   else
 #endif

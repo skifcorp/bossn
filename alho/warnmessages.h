@@ -61,6 +61,13 @@ static const char * cant_get_ttn_with_max_netto            = QT_TRANSLATE_NOOP("
 static const char * your_card_is_banned                    = QT_TRANSLATE_NOOP("MainSequence", "Your card is banned");
 static const char * cant_get_virtual_netto                 = QT_TRANSLATE_NOOP("MainSequence", "Cant get virtual netto");
 static const char * requested_constant_not_exists          = QT_TRANSLATE_NOOP("MainSequence", "Requested constant not exists");
+static const char * connect_to_service_server_error        = QT_TRANSLATE_NOOP("MainSequence", "Connect to service server error");
+static const char * connect_to_service_server_timeout      = QT_TRANSLATE_NOOP("MainSequence", "Connect to service server timeout");
+static const char * read_from_service_server_error         = QT_TRANSLATE_NOOP("MainSequence", "Read from service server error");
+static const char * read_from_service_server_timeout       = QT_TRANSLATE_NOOP("MainSequence", "Read from service server timeout");
+
+static const char * gsoap_data_exchange_request_error      = QT_TRANSLATE_NOOP("MainSequence", "Gsoap data exchange request error");
+static const char * gsoap_accept_card_result_request_error = QT_TRANSLATE_NOOP("MainSequence", "Gsoap accept card result request error request error");
 
 static const char * brutto_finish_weight_message                  = QT_TRANSLATE_NOOP("MainSequence", "%1 kg");
 static const char * brutto_finish_lab_message                     = QT_TRANSLATE_NOOP("MainSequence", "Lab(%1)");
@@ -133,6 +140,14 @@ inline void remove_unsued_warning()
     Q_UNUSED(brutto_finish_weight_message);
     Q_UNUSED(brutto_finish_lab_message);
     Q_UNUSED(brutto_finish_bum_message);
+
+    Q_UNUSED(connect_to_service_server_error);
+    Q_UNUSED(connect_to_service_server_timeout);
+    Q_UNUSED(read_from_service_server_error);
+    Q_UNUSED(read_from_service_server_timeout);
+
+    Q_UNUSED(gsoap_data_exchange_request_error);
+    Q_UNUSED(gsoap_accept_card_result_request_error);
 
     Q_UNUSED(requested_constant_not_exists);
 

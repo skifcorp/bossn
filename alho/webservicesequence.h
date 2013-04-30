@@ -10,6 +10,8 @@
 #include <QTcpSocket>
 #include <QTimer>
 
+#include <memory>
+
 class MifareCardSector;
 
 class GsoapSource;
@@ -23,16 +25,21 @@ public:
     void exechange();
 private:
     GsoapSource & source_;
-    QTcpSocket socket_;
-    QTimer timeout_timer;
+    //QTcpSocket socket_;
+    //QTimer timeout_timer;
 private slots:
     void onConnected();
-    void onDisconnected();
+    //void onDisconnected();
     void onError(QAbstractSocket::SocketError);
     void onReadyRead();
     void onTimeout();
+private:
+    volatile bool error = false;
+    volatile bool timeout = false;
+    volatile bool got_result = false;
 
-
+    std::unique_ptr<QTcpSocket> getSocket() const;
+    std::unique_ptr<QTimer> getTimer() const;
 };
 
 class WebServiceSequence : public MainSequenceBaseOp

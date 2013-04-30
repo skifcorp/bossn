@@ -91,7 +91,7 @@ private:
     boost::coroutines::detail::stack_allocator alloc;
 
     std::size_t stack_size =
-            boost::coroutines::detail::stack_allocator::default_stacksize();
+            boost::coroutines::detail::stack_allocator::default_stacksize()*2;
     void * stack = alloc.allocate( stack_size );
 
     void initializeContext();

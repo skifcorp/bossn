@@ -26,7 +26,7 @@ class MainSequenceException
 public:
     MainSequenceException(const QString& user_msg, const QString& admin_msg, const QString& sys_msg = QString())
         :user_message(user_msg), admin_message(admin_msg), system_message(sys_msg){}
-
+    MainSequenceException(){}
     ~MainSequenceException() {}
 
     QString userMessage() const {return user_message;}

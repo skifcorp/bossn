@@ -28,7 +28,7 @@ inline void printOnDisplay(const QString& str)
     //QTextCodec *codec = QTextCodec::codecForName("IBM 866");
     //qDebug( codec->fromUnicode(str) );
 
-    ///qDebug () << str;
+    //qDebug () << str;
     //QTextStream s(stdout);
     //s.setCodec("IBM866");
     //s<<str;
@@ -38,7 +38,7 @@ inline void printOnDisplay(const QString& str)
 
     out.setCodec( QTextCodec::codecForName("IBM 866") );
 
-    out <<  str;
+    out <<  str << "\n";
 
 }
 

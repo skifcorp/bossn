@@ -76,7 +76,7 @@ class SOAP_CMAC TestSoapBindingProxy
 	virtual	int HelloResponse(const char *endpoint, const char *soap_action, _ns1__HelloResponse *ns1__HelloResponse) { if (this->send_HelloResponse(endpoint, soap_action, ns1__HelloResponse) || soap_recv_empty_response(this->soap)) return this->soap->error; return SOAP_OK; }
 
 	/// Web service operation 'Hello' (returns error code or SOAP_OK)
-	virtual	int Hello(_ns1__Hello *ns1__Hello, _ns1__HelloResponse *ns1__HelloResponse) { return this->Hello(NULL, NULL, ns1__Hello, ns1__HelloResponse); }
+    virtual	int Hello(_ns1__Hello *ns1__Hello, _ns1__HelloResponse *ns1__HelloResponse) { return this->Hello(NULL, NULL, ns1__Hello, ns1__HelloResponse); }
 	virtual	int Hello(const char *endpoint, const char *soap_action, _ns1__Hello *ns1__Hello, _ns1__HelloResponse *ns1__HelloResponse);
 
 	/// Web service one-way send operation 'send_HelloResponse' (returns error code or SOAP_OK)

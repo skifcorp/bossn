@@ -11,10 +11,11 @@
 
 #include <QString>
 #include <QTcpSocket>
+#include <QHostAddress>
 
 #include <sstream>
 #include <iosfwd>
-
+#include <ios>
 
 #include <boost/iostreams/stream.hpp>
 #include <boost/iostreams/stream_buffer.hpp>
@@ -23,20 +24,44 @@
 
 namespace io = boost::iostreams;
 
+using std::unique_ptr;
+
+int fake_connect(struct soap*, const char*, const char*, int)
+{
+    return 0;
+}
+
+int fake_disconnect(struct soap*)
+{
+    return 0;
+}
+
+
+
 
 class GsoapSource
 {
 public:
-    using char_type = char;
-    using category  = io::bidirectional_device_tag;
+
 
     GsoapSource( Coroutine2& c):coro_(c){}
 
+    GsoapSource( const GsoapSource& ) = delete;
+
     std::streamsize read(char* s, std::streamsize n)
     {
-        if ( read_buffer.empty() ) {
-            SocketHelper sh(*this);
-            sh.exechange();
+        if ( !buffer_initialized ) {
+            buffer_initialized = true;
+            try {
+                SocketHelper sh(*this);
+                sh.exechange();
+            }
+            catch (MainSequenceException & ex)
+            {
+                current_exception = ex;
+                has_exception = true;
+                return -1;
+            }
         }
 
         using namespace std;
@@ -70,117 +95,207 @@ public:
     }
     Coroutine2& coro() {return coro_;}
     const Coroutine2& coro() const {return coro_;}
+    void exception()
+    {
+        if (has_exception) {
+            has_exception = false;
+            throw current_exception;
+        }
+    }
 private:
     Coroutine2 & coro_;
-    std::string read_buffer
-#if 0
-    = "HTTP/1.1 200 OK\n"                          \
-            "Date: Fri, 26 Apr 2013 12:06:18 GMT\n"                   \
-            "Server: Apache/2.2.4 (Win32)\n"                          \
-            "Content-Length: 445\n"                                   \
-            "Set-Cookie: vrs_rc=;Version=1\n"                         \
-            "Connection: close\n"                                     \
-            "Content-Type: text/xml; charset=utf-8\n\n"                 \
-            "<soap:Envelope xmlns:soap=\"http://www.w3.org/2003/05/soap-envelope\">\n"    \
-                "<soap:Header/>\n"                                                        \
-                "<soap:Body> <m:HelloResponse xmlns:m=\"http://localhost\">\n"            \
-                "<m:return xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"\n"               \
-                        "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">reader2:1 0 0 0 0 69 0 0 0 0 0 0 0 8e 8 0 10 27 84 f9 68 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 0 0 0 0 0 0 0,\n"   \
-            "tablo2:Hello!!!!!!!!!!!!!</m:return>\n"                  \
-            "</m:HelloResponse></soap:Body>\n"            \
-            "</soap:Envelope>\n"
-#endif
-     ;
+    std::string read_buffer;
 
     string write_buffer;
     string::size_type pos_ = 0;
+    bool buffer_initialized = false;
+    MainSequenceException current_exception;
+    bool has_exception = false;
 };
 
 
 
-
-SocketHelper::SocketHelper(GsoapSource & s):source_(s), socket_(this), timeout_timer(this)
+class FakeSource
 {
-    connect( &socket_, SIGNAL(connected()) , this, SLOT(onConnected()));
-    connect( &socket_, SIGNAL(disconnected()) , this, SLOT(onDisconnected()));
-    connect( &socket_, SIGNAL(error(QAbstractSocket::SocketError)),
-             this, SLOT(onError(QAbstractSocket::SocketError)));
-    connect( &socket_, SIGNAL(readyRead()) , this, SLOT(onReadyRead()));
+public:
+    using char_type = char;
+    using category  = io::bidirectional_device_tag;
 
-    connect( &timeout_timer, SIGNAL(timeout()), this, SLOT(onTimeout()) );
+    FakeSource( Coroutine2 & c ):source_(new GsoapSource(c))
+    {
 
-    timeout_timer.setSingleShot(true);
+    }
+    ~FakeSource(){}
+
+    std::streamsize read(char* s, std::streamsize n)
+    {
+        return source_->read(s, n);
+    }
+
+    std::streamsize write(const char* s, std::streamsize n)
+    {
+        return source_->write(s, n);
+    }
+
+    const std::string& writeBuffer() const
+    {
+        return source_->writeBuffer();
+    }
+
+    void setReadBuffer( const std::string& rb )
+    {
+        source_->setReadBuffer(rb);
+    }
+    Coroutine2& coro()
+    {
+        return source_->coro();
+    }
+
+    const Coroutine2& coro() const
+    {
+        return source_->coro();
+    }
+
+    void exception()
+    {
+        source_->exception();
+    }
+
+private:
+    std::shared_ptr<GsoapSource> source_;
+};
+
+
+SocketHelper::SocketHelper(GsoapSource & s):source_(s)
+{
 }
 
 SocketHelper::~SocketHelper()
 {
-    qDebug() << "socket helper destructed!!";
+
 }
+
+unique_ptr<QTcpSocket> SocketHelper::getSocket() const
+{
+    unique_ptr<QTcpSocket> s(new QTcpSocket);
+
+    connect( s.get(), SIGNAL(connected()) , this, SLOT(onConnected()));
+
+    connect( s.get(), SIGNAL(error(QAbstractSocket::SocketError)),
+             this, SLOT(onError(QAbstractSocket::SocketError)));
+    connect( s.get(), SIGNAL(readyRead()) , this, SLOT(onReadyRead()));
+
+    return s;
+}
+
+unique_ptr<QTimer> SocketHelper::getTimer() const
+{
+    unique_ptr<QTimer> t(new QTimer);
+
+    t->setSingleShot(true);
+
+    connect( t.get(), SIGNAL(timeout()), this, SLOT(onTimeout()) );
+
+    return t;
+}
+
 
 void SocketHelper::exechange()
 {
+    unique_ptr<QTcpSocket> socket_   = getSocket();
+    unique_ptr<QTimer> timeout_timer = getTimer();
 
-    qDebug() << "!!!!!!!!!!!!!!! beforeeeeeeeee";
-    socket_.connectToHost("127.0.0.1", 80);
-    qDebug() << "!!!!!!!!!!!!!!! aftreeeeeeeeeeeeeeeeee";
+    error = timeout = got_result = false;
 
-    qDebug() << socket_.state();
+    socket_->connectToHost("127.0.0.1", 80);
+    timeout_timer->start(5000);
 
-    //if ( socket_.state() != QAbstractSocket::ConnectedState ) {
-        timeout_timer.start(5000);
+    if ( socket_->state() != QTcpSocket::ConnectedState ) {
+        while ( !got_result ) {
+            source_.coro().yield();
+        }
+        got_result = false;
+    }
+
+    if (  error ) {
+        throw MainSequenceException( connect_to_service_server_error, "connection to host " + socket_->peerAddress().toString() +
+                                     " error!", socket_->errorString() );
+    }
+
+    if (  timeout )
+        throw MainSequenceException( connect_to_service_server_timeout, "connection to host " + socket_->peerAddress().toString() +
+                                     " timeout!", "" );
+
+
+
+    socket_->write( source_.writeBuffer().c_str() );
+
+    timeout_timer->start(5000);
+
+    while ( !got_result ) {
         source_.coro().yield();
-    //}
+    }
+    got_result = false;
 
-    socket_.write( source_.writeBuffer().c_str() );
 
-    timeout_timer.stop();
-    timeout_timer.start(1000);
+    if (  error ) {
+        throw MainSequenceException( read_from_service_server_error, "read from host " + socket_->peerAddress().toString() +
+                                     " error!", socket_->errorString() );
+    }
 
-    source_.coro().yield();
+    if (  timeout ) {
+        throw MainSequenceException( read_from_service_server_timeout, "read from host " + socket_->peerAddress().toString() +
+                                     " timeout!", "" );
+    }
 
-    QByteArray arr = socket_.readAll();
+
+    QByteArray arr = socket_->readAll();
+
     std::string s(arr.data(), arr.size());
 
     source_.setReadBuffer( s );
-    timeout_timer.stop();
-    socket_.disconnectFromHost();
-    socket_.close();
+    timeout_timer->stop();
 }
-
 
 void SocketHelper::onConnected()
 {
-    //this is needed on some systems which can emit connected signal from connectToHost
-    //when conecting to local host
-
-    qDebug() << "!!!!!!!!!!!!!!! onConnected!!!!!!!!!!!!!!";
-
-    //if ( !socket_.state() == QAbstractSocket::ConnectedState )
-        source_.coro().cont();
-}
-
-void SocketHelper::onDisconnected()
-{
-      qDebug() << "!!!!!!!!!!!!!!! onDisconnected!!!!!!!!!!!!!!";
-    //source_.coro().cont();
+    got_result = true;
+    source_.coro().cont();
 }
 
 void SocketHelper::onError(QAbstractSocket::SocketError e)
 {
-    qWarning() << "SocketHelper error! " <<e;
-    //source_.coro().cont();
+    qWarning() << "socket error: " << e;
+    error = got_result = true;
+    if ( source_.coro().status() != Coroutine2::Stopped ) {
+        qWarning() << "Surious warning! Got error in socket helper while coro is not in stopped state!!";
+        return;
+    }
+    source_.coro().cont();
 }
 
 void SocketHelper::onReadyRead()
-{
-    qDebug() << "onReadyReadddddddddddddddddd";
+{   
+    got_result = true;
+    if ( source_.coro().status() != Coroutine2::Stopped ) {
+        qWarning() << "Surious error! Got readyRead in socket helper while coro is not in stopped state!!";
+        return;
+    }
 
     source_.coro().cont();
 }
 
 void SocketHelper::onTimeout()
 {
-    qDebug() << "TIMEEEEEEEEOUT!";
+    qWarning() << "socket timeout!";
+
+    got_result = timeout = true;
+
+    if ( source_.coro().status() != Coroutine2::Stopped ) {
+        qWarning() << "Surious error! Got readyRead in socket helper while coro is not in stopped state!!";
+        return;
+    }
+
 
     source_.coro().cont();
 }
@@ -188,10 +303,10 @@ void SocketHelper::onTimeout()
 
 
 
-class WebServiceAsync //: public async_func_base2
+class WebServiceAsync
 {
 public:
-    WebServiceAsync(Coroutine2& c):coro_(c)//:async_func_base2(c)
+    WebServiceAsync(Coroutine2& c):coro_(c)
     {
 
     }
@@ -203,81 +318,46 @@ public:
 
     QMap<QString, QString> exchangeData(const QString& s)
     {
-        //return async_exec([&s, this]{
-            TestSoapBindingProxy proxy;
-            //proxy.soap->mode = SOAP_IO_STORE;
-            //proxy.soap->recv_timeout = 1;
-            //proxy.soap->connect_timeout = 1;
-#if 0
-            std::string buffer = "HTTP/1.1 200 OK\n"                          \
-                    "Date: Fri, 26 Apr 2013 12:06:18 GMT\n"                   \
-                    "Server: Apache/2.2.4 (Win32)\n"                          \
-                    "Content-Length: 445\n"                                   \
-                    "Set-Cookie: vrs_rc=;Version=1\n"                         \
-                    "Connection: close\n"                                     \
-                    "Content-Type: text/xml; charset=utf-8\n\n"                 \
-                    "<soap:Envelope xmlns:soap=\"http://www.w3.org/2003/05/soap-envelope\">\n"    \
-                        "<soap:Header/>\n"                                                        \
-                        "<soap:Body> <m:HelloResponse xmlns:m=\"http://localhost\">\n"            \
-                        "<m:return xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"\n"               \
-                                "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">reader2:1 0 0 0 0 69 0 0 0 0 0 0 0 8e 8 0 10 27 84 f9 68 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 0 0 0 0 0 0 0,\n"   \
-                    "tablo2:Hello!!!!!!!!!!!!!</m:return>\n"                  \
-                    "</m:HelloResponse></soap:Body>\n"            \
-                    "</soap:Envelope>\n";
+        TestSoapBindingProxy proxy;
+        proxy.soap->mode = SOAP_IO_STORE;
+        proxy.soap->fconnect    = fake_connect;
+        proxy.soap->fopen       = nullptr;
+        proxy.soap->fdisconnect = fake_disconnect;
+        proxy.soap->fclose       = nullptr;
 
 
-#endif
+        io::stream <FakeSource> is;
 
-            //std::ostringstream os;
-            //std::istringstream is(buffer);
-            //is.rdbuf(BossnRdBuf());
-            //std::istream is;
+        FakeSource source(coro_);
 
-            io::stream <GsoapSource> is;
-            GsoapSource source(coro_);
-            //is.
-            //is.open();
+        proxy.soap->os = &is;
+        proxy.soap->is = &is;        
 
-            proxy.soap->os = &is;
-            proxy.soap->is = &is;
+        is.open( source, 0 );
 
-            is.open( source, 0 );
-
-            _ns1__Hello hello;
-            _ns1__HelloResponse resp;
+        _ns1__Hello hello;
+        _ns1__HelloResponse resp;
 
 
-            hello.param = s.toStdString();
+        hello.param = s.toStdString();
 
-            int ret = proxy.Hello( &hello, &resp );
-            if ( ret != SOAP_OK ) {
-                std::cerr << "!!!!!!!!!!!!!!!!!!!!!error: " << ret << std::endl;
+        int ret = proxy.Hello( &hello, &resp );
+        if ( ret != SOAP_OK ) {
+            source.exception();
 
-            }
-            else {
-                std::cout << "!!!!!!!!!!!!!!!!!!!ret: " << resp.return_  << std::endl;
-            }
+            throw MainSequenceException( gsoap_data_exchange_request_error, "Error in request data: " +
+                                         QString::number(ret), "");
+        }
+        else {
+            std::cout << "ret: " << resp.return_  << std::endl;
+        }
 
-            //ret = proxy.Hello( &hello, &resp );
-            //if ( ret != SOAP_OK ) {
-            //    qWarning() << "!!!!!!!!!!!!!!!!!!!!!!!!soap FAILED: " << ret;
-//
-            //}
-            //else {
-                //qDebug() << "!!!!!!!!!!!!!!!!!!!!!!!! ret: " << QString::fromStdString( resp.return_ );
-            //}
+        is.close();
 
+        QMap<QString, QString> retm;
+        retm["aaa"] = QString::fromStdString( resp.return_ );
 
-
-
-            //std::cout << "is: " << is.str()  << "\n----------->os " << os.str()
-            //          << std::endl;
-
-            QMap<QString, QString> retm;
-            retm["aaa"] = QString::fromStdString( resp.return_ );
-
-            return retm;
-        //}, "Exchange web service data", "Exchange web service data" );
+        return retm;
     }
 
     void acceptedCardResult( bool )
@@ -353,8 +433,6 @@ void WebServiceSequence::run()
             printOnTablo(tr(processing_message));
 
             card.autorize();
-
-            //qDebug() << getReaderBytes(card);
 
             WebServiceAsync w(*this);
             auto ret = w.exchangeData( mapToString( getSimpleTagsValues(  ) ) + ",\n" + getReaderBytes(card) );
