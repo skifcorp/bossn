@@ -46,6 +46,10 @@ public:
 
     GsoapSource( Coroutine2& c):coro_(c){}
 
+    ~GsoapSource()
+    {
+    }
+
     GsoapSource( const GsoapSource& ) = delete;
 
     std::streamsize read(char* s, std::streamsize n)
@@ -262,8 +266,9 @@ void SocketHelper::exechange()
 
     while ( !got_result ) {
         source_.coro().yield();
-        if ( source_.isTerminating() )
+        if ( source_.isTerminating() ) {
             return;
+        }
     }
     got_result = false;
 
@@ -383,8 +388,10 @@ public:
 
         int ret = proxy.Hello( &hello, &resp );
 
-        if ( source.isTerminating() )
+        if ( source.isTerminating() ) {
+            //is.close();
             return QMap<QString, QString>();
+        }
 
         if ( ret != SOAP_OK ) {
             source.exception();
@@ -396,7 +403,7 @@ public:
             std::cout << "ret: " << resp.return_  << std::endl;
         }
 
-        is.close();
+        //is.close();
 
         QMap<QString, QString> retm;
         retm["aaa"] = QString::fromStdString( resp.return_ );
@@ -416,12 +423,13 @@ public:
 
     bool isTerminating() const
     {
-        return cur_fake_source->isTerminating();
+        return !cur_fake_source || cur_fake_source->isTerminating(); //ugly hack
     }
 
 private:
     Coroutine2 & coro_;
     FakeSource * cur_fake_source = nullptr;
+
 };
 
 
@@ -503,7 +511,10 @@ void WebServiceSequence::run()
 
             QMap<QString, QString> ret = was.exchangeData( mapToString( getSimpleTagsValues(  ) ) + ",\n" + getReaderBytes(card) );
 
-            if (was.isTerminating()) continue;
+
+            if (cur_webservice_async->isTerminating()) {
+                continue;
+            }
 
             sleepnb( get_setting<int>("brutto_finish_pause", app_settings) );
             printOnTablo( tr(apply_card_message) );                                  
@@ -569,7 +580,8 @@ void WebServiceSequence::onDisappearOnWeight(const QString&, AlhoSequence*)
         if (  status() == Stopped  )
             wakeUp();
     }
-    else if (cur_webservice_async) {
+
+    if (cur_webservice_async) {
         cur_webservice_async->terminate();
     }
 
