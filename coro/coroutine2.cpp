@@ -21,7 +21,11 @@ Coroutine2::Coroutine2(const string& n, bool root) : coro_name(n)
 
 Coroutine2::~Coroutine2()
 {
-    BOOST_ASSERT_MSG(  coro_status == NotStarted || coro_status == Terminated, currentStatusText().c_str() );
+    if ( can_destruct_stopped )
+        BOOST_ASSERT_MSG(  coro_status != Running, currentStatusText().c_str() );
+    else
+        BOOST_ASSERT_MSG(  coro_status == NotStarted || coro_status == Terminated, currentStatusText().c_str() );
+
     alloc.deallocate(stack, stack_size);
 }
 

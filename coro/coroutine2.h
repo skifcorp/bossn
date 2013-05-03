@@ -66,6 +66,16 @@ public:
     {
         return coro_name;
     }
+
+    void setCanDestructStopped(  bool cds )
+    {
+        can_destruct_stopped = cds;
+    }
+    bool canDestructStopped() const
+    {
+        return can_destruct_stopped;
+    }
+
 protected:
     virtual void run() {}
 private:
@@ -91,10 +101,12 @@ private:
     boost::coroutines::detail::stack_allocator alloc;
 
     std::size_t stack_size =
-            boost::coroutines::detail::stack_allocator::default_stacksize()*2;
+            boost::coroutines::detail::stack_allocator::default_stacksize();
     void * stack = alloc.allocate( stack_size );
 
     void initializeContext();
+
+    bool can_destruct_stopped = false;
 };
 
 

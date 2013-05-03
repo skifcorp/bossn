@@ -16,9 +16,10 @@ using CoroDeleter = DeleterLater<Coroutine2>;
 void CoroContext::clear()
 {
     coro.clear();
+    // activate_on_finish -  means that main coro was stopped to wait result of
+    // this operation with driver coro and needs wake up when driver coro finishes
 
     if (activate_on_finish && schedul->running()) {
-        //qDebug() << "!!!!!!!!!!!!!GOT activate_on_finish!!!!: status: ";
         schedul->cont();
     }
 
@@ -79,7 +80,8 @@ void Schedul::startScheduleTimer(const QString& func_name)
                 ),
                 coro_deleter );
 
-    coro->createStack(32768 * 4);
+    //coro->createStack(32768 * 4);
+    //coro->setCanDestructStopped( true );
 }
 
 void Schedul::setExternalCoro(Coroutine2 * c)
@@ -195,9 +197,10 @@ void Scheduler::startNewCoro(Schedul & s, bool important, bool activate_on_finis
     current_coro = CoroContext(QSharedPointer<Coroutine2>(  Coroutine2::build( s.schedule_func, func_name.toStdString() ) ), &s);
     current_coro.activate_on_finish = activate_on_finish;
     current_coro.cyclic = cyclic;
-    current_coro.coro->createStack(65535*4);
+    //current_coro.coro->createStack(65535*4);
     current_coro.tag_name = tag_name;
     current_coro.func_name = func_name;
+    current_coro.coro->setCanDestructStopped(true);
 
     execute();
 }
