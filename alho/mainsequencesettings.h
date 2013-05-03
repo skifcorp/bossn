@@ -41,7 +41,7 @@ struct CallableTagMethod : public TagMethod<Typ>,
                            public mpl::if_c<
                                         IsTagWithFunc<Typ>::value,
                                         TagFuncHelper<true>,
-                                        TagPropHelper<true>
+                                        TagPropHelper<false>
                                     >::type
 
 {
@@ -57,7 +57,7 @@ struct CallableTagMethod : public TagMethod<Typ>,
     template <TagMethodType Typ2 = Typ>
     CallableTagMethod(Tags & t,  typename std::enable_if<!IsTagWithFunc<Typ2>::value>::type * v = 0 ) :
         TagMethod<Typ>(),
-        TagPropHelper<true>(TagMethod<Typ>::tag_name, TagMethod<Typ>::property_name, t)
+        TagPropHelper<false>(TagMethod<Typ>::tag_name, t)
     {
         Q_UNUSED(v);
     }

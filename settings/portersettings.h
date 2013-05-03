@@ -15,7 +15,7 @@ public:
     void initTasks(TaskExec& , Tags&, const QVariantMap& );
 protected:
     void initPorterDrivers(Porter::Pointer, const QDomNode& porter_node, Tags& tags) const;
-    QList<TagMethod<false>> getTagMethods(const QDomNode& driver_node, const Tags& ) const;
+    QList<TagMethod<TagMethodType::Simple>> getTagMethods(const QDomNode& driver_node, const Tags& ) const;
     void bindTags( const QDomNode&, Tags&, QObject * ) const;
     QVariant convertToType( const QDomNode& , Tags * t = nullptr) const;
 };

@@ -39,8 +39,7 @@ template <>
 struct TagMethod<TagMethodType::Property>
 {
     QString tag_name;
-    QString property_name;
-    TagMethod(const QString& tn, const QString & pn):tag_name(tn), property_name(pn){}
+
     TagMethod(const QString &tn) : tag_name(tn) {}
     TagMethod(){}
 };
