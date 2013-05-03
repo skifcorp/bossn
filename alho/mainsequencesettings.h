@@ -5,17 +5,63 @@
 
 #include "tagmethod.h"
 #include "tagfunchelper.h"
+#include "tagprophelper.h"
 #include "alhosequence.h"
 #include "tags.h"
 
-template <bool WithCompareValue>
-struct CallableTagMethod : public TagMethod<WithCompareValue>,
-                           public TagFuncHelper<true>
+#include <boost/mpl/if.hpp>
+#include <boost/mpl/equal_to.hpp>
+#include <boost/mpl/or.hpp>
+#include <boost/mpl/int.hpp>
+
+#include <type_traits>
+
+#include <name_of/name_of.h>
+
+namespace mpl = boost::mpl;
+
+
+
+template <TagMethodType T>
+using IsTagWithFunc = typename mpl::or_<
+                    typename mpl::equal_to<
+                        mpl::int_<static_cast<int>(T)>,
+                        mpl::int_<static_cast<int>(TagMethodType::Simple)>
+                    >::type,
+                    typename mpl::equal_to<
+                        mpl::int_<static_cast<int>(T)>,
+                        mpl::int_<static_cast<int>(TagMethodType::CompareValue)>
+                    >::type
+                >;
+
+
+
+template <TagMethodType Typ>
+struct CallableTagMethod : public TagMethod<Typ>,
+                           public mpl::if_c<
+                                        IsTagWithFunc<Typ>::value,
+                                        TagFuncHelper<true>,
+                                        TagPropHelper<true>
+                                    >::type
+
 {
-    CallableTagMethod(AlhoSequence& s, Tags & t) :
-        TagMethod<WithCompareValue>(),
-        TagFuncHelper(TagMethod<WithCompareValue>::tag_name, TagMethod<WithCompareValue>::method_name, s, t)
-    {}
+
+    template <TagMethodType Typ2 = Typ>
+    CallableTagMethod(AlhoSequence& s, Tags & t,  typename std::enable_if<IsTagWithFunc<Typ2>::value>::type * v = 0 ) :
+        TagMethod<Typ>(),
+        TagFuncHelper<true>(TagMethod<Typ>::tag_name, TagMethod<Typ>::method_name, s, t)
+    {
+        Q_UNUSED(v);
+    }
+
+    template <TagMethodType Typ2 = Typ>
+    CallableTagMethod(Tags & t,  typename std::enable_if<!IsTagWithFunc<Typ2>::value>::type * v = 0 ) :
+        TagMethod<Typ>(),
+        TagPropHelper<true>(TagMethod<Typ>::tag_name, TagMethod<Typ>::property_name, t)
+    {
+        Q_UNUSED(v);
+    }
+
 
     CallableTagMethod(const CallableTagMethod&) = delete;
 };
@@ -41,23 +87,24 @@ struct ReaderTagMethods
     }
 };
 
-template <template <bool WithCompare> class TagMethodType, class ReaderMethodsType>
+template <template <TagMethodType Typ> class TagMethodTyp, class ReaderMethodsType>
 struct BaseMainSequenceSettings
 {
-    TagMethodType<false> weight_tag;
-    TagMethodType<false> tablo_tag;
-    TagMethodType<false> weight_stable;
-    TagMethodType<true> red_light;
-    TagMethodType<true> green_light;
-    TagMethodType<true> perim_in;
-    TagMethodType<true> perim_out;
-    TagMethodType<false> logging;
+    TagMethodTyp<TagMethodType::Simple> weight_tag;
+    TagMethodTyp<TagMethodType::Simple> tablo_tag;
+    TagMethodTyp<TagMethodType::Simple> weight_stable;
+    TagMethodTyp<TagMethodType::CompareValue> red_light;
+    TagMethodTyp<TagMethodType::CompareValue> green_light;
+    TagMethodTyp<TagMethodType::CompareValue> perim_in;
+    TagMethodTyp<TagMethodType::CompareValue> perim_out;
+    TagMethodTyp<TagMethodType::Simple> logging;
+    TagMethodTyp<TagMethodType::Property> current_card;
 
     ReaderMethodsType reader;
 
     BaseMainSequenceSettings(AlhoSequence& s, Tags & t):weight_tag(s, t),
         tablo_tag(s, t), weight_stable(s, t), red_light(s, t),
-        green_light(s, t), perim_in(s, t), perim_out(s, t), logging(s, t),
+        green_light(s, t), perim_in(s, t), perim_out(s, t), logging(s, t), current_card(t),
         reader(s, t)
     {
 
@@ -90,8 +137,13 @@ struct BaseMainSequenceSettings
         weight_stable.tag_name = get_setting<QString>("stable_tag", s);
         weight_stable.method_name = get_setting<QString>("stable_method", s);
 
+        current_card.tag_name = get_setting<QString>("current_card_tag", s);
+        current_card.property_name = get_setting<QString>("current_card_prop", s);
+
         logging.tag_name = get_setting<QString>("logging_tag", s);
         logging.method_name = get_setting<QString>("logging_method", s);
+
+
 
         reader.name                     = get_setting<QString>("reader_tag", s);
         reader.do_on.func_name          = get_setting<QString>("reader_do_on", s);

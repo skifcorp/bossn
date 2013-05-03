@@ -44,6 +44,7 @@ public:
     {
         return tags[tag_name_ref]->func(func_name, &seq, val0, val1, val2, val3, val4, val5);
     }
+
     typename TypeSelect<IsRef, const QString&, QString>::result func_name;
 private:
     const QString& tag_name_ref;

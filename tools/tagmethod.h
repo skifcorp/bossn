@@ -5,8 +5,18 @@
 #include <QString>
 #include <QVariant>
 
-template <bool WithCompareValue>
-struct TagMethod
+enum class TagMethodType{
+    Simple, CompareValue, Property
+};
+
+
+template <TagMethodType Typ>
+struct TagMethod;
+
+
+
+template <>
+struct TagMethod<TagMethodType::Simple>
 {
     QString tag_name;
     QString method_name;
@@ -15,12 +25,24 @@ struct TagMethod
     TagMethod(){}
 };
 
+
 template <>
-struct TagMethod<true> : TagMethod<false>
+struct TagMethod<TagMethodType::CompareValue> : TagMethod<TagMethodType::Simple>
 {
     QVariant value;
-    TagMethod<true>() {}
-    TagMethod<true>(const QString& tn, const QString& mn) : TagMethod<false>(tn, mn) {}
+    TagMethod<TagMethodType::CompareValue>() {}
+    TagMethod<TagMethodType::CompareValue>(const QString& tn, const QString& mn) : TagMethod<TagMethodType::Simple>(tn, mn) {}
+};
+
+
+template <>
+struct TagMethod<TagMethodType::Property>
+{
+    QString tag_name;
+    QString property_name;
+    TagMethod(const QString& tn, const QString & pn):tag_name(tn), property_name(pn){}
+    TagMethod(const QString &tn) : tag_name(tn) {}
+    TagMethod(){}
 };
 
 #endif // TAGMETHOD_H

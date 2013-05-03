@@ -58,7 +58,9 @@ LIBS           +=   -lqextserialport                \
 
 TRANSLATIONS = bossn_ua.ts
 
-SOURCES +=  prot/prottask.cpp \
+SOURCES +=  \
+    alho/mainsequencebaseop.cpp \
+            prot/prottask.cpp \
             alho/webservicesequence.cpp \
             alho/weighters/kryzh/beet/kryzhbeetacceptanceculture.cpp \
            alho/weighters/kryzh/grain/kryzhgrainshipmentculture.cpp \
@@ -123,8 +125,7 @@ SOURCES +=  prot/prottask.cpp \
     gsoap/soapTestSoapBindingProxy.cpp \
     gsoap/stdsoap2.cpp \
     gsoap/soapC.cpp \
-    alho/mainsequencesettings.cpp \
-    alho/mainsequencebaseop.cpp
+    alho/mainsequencesettings.cpp
 
 HEADERS +=   reader/mifarereaderemulator.h \
     tools/func.h \
@@ -221,7 +222,8 @@ HEADERS +=   reader/mifarereaderemulator.h \
     gsoap/soapH.h \
     alho/asyncfuncbase.h \
     alho/mainsequencebaseop.h \
-    gsoap/stdsoap2.h
+    gsoap/stdsoap2.h \
+    alho/tagprophelper.h
 
 
 RESOURCES += bossn.qrc
