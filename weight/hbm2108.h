@@ -22,7 +22,7 @@ protected:
         bool ok = false;
         address = static_cast<uchar> ( conf["address"].toUInt(&ok) ); Q_ASSERT(ok) ;
 
-        qDebug () << "Hbm2110 CREATED!";
+        qDebug () << "Hbm2108 CREATED!";
     }
 
 /*    static bool registerInFact()

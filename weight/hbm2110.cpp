@@ -49,9 +49,9 @@ int Hbm2110::parseWeightFrameAnswer(const QByteArray& ba, uint & err) const
     }
 
     QByteArray ret = ba.mid(4,7);
+
     bool ok = false;
-    int iret = ret.toInt(&ok);
-    //qDebug () << "getWeight: " << fret;
+    int iret = ret.toDouble(&ok);
 
     if (!ok) {
         //throw WeightFrameExceptionCorrupted();
