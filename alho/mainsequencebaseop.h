@@ -7,6 +7,7 @@
 #include "tags.h"
 #include "mainsequencesettings.h"
 #include "seqdebug.h"
+#include "mifarecard.h"
 
 class MainSequenceBaseOp : public AlhoSequence
 {
@@ -78,6 +79,9 @@ protected:
         sleepnb(tm);
         printOnTablo(msg2);
     }
+
+    void checkForStealedCard(const ActivateCardISO14443A& );
+
 protected:
     const QVariantMap & app_settings;
     Tags tags;

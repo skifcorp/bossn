@@ -66,7 +66,7 @@ private:
     //void setLightsToGreen();
 
 
-    void checkForStealedCard(const ActivateCardISO14443A& );
+//    void checkForStealedCard(const ActivateCardISO14443A& );
 
     void initWeightersConf(const QVariantMap& s);
 

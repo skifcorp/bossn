@@ -30,9 +30,15 @@ public:
         tags[tag_name_ref]->setProperty( property_name, v );
     }
 
-    QVariant property( ) const
+    template <class T>
+    T property( ) const
     {
-        return tags[tag_name_ref]->getProperty( property_name );
+        return tags[tag_name_ref]->getProperty<T>( property_name );
+    }
+
+    bool containsProperty(  ) const
+    {
+        return tags[tag_name_ref]->containsProp( property_name );
     }
 
 private:

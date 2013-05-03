@@ -456,10 +456,10 @@ void WebServiceSequence::setSettings(const QVariantMap & s)
     alho_settings.init(s);
 
     seq_id                              = get_setting<int>("id", s);
-#if 0
-    current_card_tag = get_setting<QString>("current_card_tag", s);
-    current_card_prop = get_setting<QString>("current_card_prop", s);
-#endif
+//#if 0
+//    current_card_tag = get_setting<QString>("current_card_tag", s);
+//    current_card_prop = get_setting<QString>("current_card_prop", s);
+//#endif
 
     setObjectName( "MainSequence num: " + QString::number(seq_id) );
 
@@ -487,9 +487,13 @@ void WebServiceSequence::run()
 
     alho_settings.reader.do_on.func();
 
-
     QByteArray card_code = get_setting<QByteArray>("card_code" , app_settings);
     uint data_block      = get_setting<uint>      ("data_block", app_settings);
+
+    std::shared_ptr<WebServiceSequence> current_card_guard( this, [this](WebServiceSequence*){
+        alho_settings.current_card.setProperty(QVariant::fromValue<ActivateCardISO14443A>(ActivateCardISO14443A()));
+    }); Q_UNUSED(current_card_guard);
+
 
     while(on_weight) {
         ActivateCardISO14443A act = alho_settings.reader.activate_idle.func().value<ActivateCardISO14443A>();
@@ -510,6 +514,8 @@ void WebServiceSequence::run()
             printOnTablo(tr(processing_message));
 
             card.autorize();            
+
+            checkForStealedCard( act );
 
             WebServiceAsync was(*this);
             cur_webservice_async = &was;

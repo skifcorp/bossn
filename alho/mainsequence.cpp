@@ -13,6 +13,8 @@
 
 #include "photomaker.h"
 
+#include <memory>
+
 void MainSequence::setSettings(const QVariantMap & s)
 {    
     alho_settings.init(s);
@@ -26,8 +28,8 @@ void MainSequence::setSettings(const QVariantMap & s)
         enter_photo                         = get_setting<QVariantMap>("enter_photo", s);
     }
 
-    current_card_tag = get_setting<QString>("current_card_tag", s);
-    current_card_prop = get_setting<QString>("current_card_prop", s);
+    //current_card_tag = get_setting<QString>("current_card_tag", s);
+    //current_card_prop = get_setting<QString>("current_card_prop", s);
 
     setObjectName( "MainSequence num: " + QString::number(seq_id) );
 
@@ -35,7 +37,7 @@ void MainSequence::setSettings(const QVariantMap & s)
 
     restart();
 
-    createStack(65535*16);
+    //createStack(65535*16);
     cont();  //for initializing tablo and do
 }
 
@@ -101,6 +103,7 @@ MainSequence::MainSequence(Tags & t, const QVariantMap& s)
 }
 
 
+/*
 void MainSequence::checkForStealedCard(const ActivateCardISO14443A& card)
 {
     if ( !tags[current_card_tag]->containsProp(current_card_prop) ||
@@ -115,7 +118,7 @@ void MainSequence::checkForStealedCard(const ActivateCardISO14443A& card)
 
     throw MainSequenceException(tr(stealed_card_message), "You used stealed card!");
 }
-
+*/
 
 void MainSequence::wakeUp()
 {   
@@ -128,7 +131,7 @@ void MainSequence::onAppearOnWeight(const QString& , AlhoSequence *)
 
     if ( status() == NotStarted || status() == Terminated ) {
         restart();
-        createStack(65535*16);
+        //createStack(65535*16);
         wakeUp();
     }
 }
@@ -190,7 +193,12 @@ void MainSequence::run()
 
     alho::common::Weighter::Pointer weighter;
 
+    std::shared_ptr<MainSequence> current_card_guard( this, [this](MainSequence *){
+        alho_settings.current_card.setProperty(QVariant::fromValue<ActivateCardISO14443A>(ActivateCardISO14443A()));
+    }); Q_UNUSED(current_card_guard);
+
     while(on_weight) {
+
         long cur_num_nakl = 0;
 
         //ActivateCardISO14443A act = tags[alho_settings.reader.name]->func(alho_settings.reader.activate_idle, this).value<ActivateCardISO14443A>();
@@ -279,8 +287,9 @@ void MainSequence::run()
 
     printOnTablo(tr(greeting_message));
     setLightsToGreen();
-    tags[current_card_tag]->setProperty(current_card_prop,
-                                       QVariant::fromValue<ActivateCardISO14443A>(ActivateCardISO14443A()));
+    //tags[current_card_tag]->setProperty(current_card_prop,
+    //                                   QVariant::fromValue<ActivateCardISO14443A>(ActivateCardISO14443A()));
+    //alho_settings.current_card.setProperty(QVariant::fromValue<ActivateCardISO14443A>(ActivateCardISO14443A()));
     alho_settings.reader.do_off.func();
 }
 
