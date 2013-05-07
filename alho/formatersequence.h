@@ -1,6 +1,8 @@
 #ifndef FORMATERSEQUENCE_H
 #define FORMATERSEQUENCE_H
 
+#if 0
+
 #include "tags.h"
 #include "alhosequence.h"
 
@@ -17,5 +19,7 @@ private:
     Tags & tags;
     const QVariantMap& options;
 };
+
+#endif
 
 #endif

@@ -6,7 +6,7 @@
 #include "shipmentculture.h"
 #include "reportsmanager.h"
 
-#include "rdb_pch.h"
+//#include "rdb_pch.h"
 
 #include "kryzhgraintables.h"
 

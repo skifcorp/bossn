@@ -4,7 +4,7 @@
 #include <QSharedPointer>
 #include <QSqlDatabase>
 
-#include "rdb_pch.h"
+//#include "rdb_pch.h"
 
 #include "factory.h"
 
@@ -16,8 +16,11 @@ class MainSequence;
 
 namespace alho { namespace common {
 
+namespace  boost { namespace rdb  { namespace mysql {
+    class mysql_database;
+}}}
 
-class Weighter : public BossnFactory<Weighter, MainSequence&, QSqlDatabase&, boost::rdb::mysql::mysql_database& >
+class Weighter : public BossnFactory<Weighter, MainSequence&, QSqlDatabase&, ::boost::rdb::mysql::mysql_database& >
 {
 public:
 

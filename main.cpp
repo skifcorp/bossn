@@ -4,6 +4,8 @@
 #include <QSharedPointer>
 #include <QTranslator>
 
+#include "rdb_pch.h"
+
 #include "func.h"
 
 #include "porter.h"
@@ -16,6 +18,9 @@
 #include "formatersequence.h"
 #include "alhosequence.h"
 #include "tasksettings.h"
+
+
+
 #include "constructweighters.h"
 
 int main(int argc, char *argv[])

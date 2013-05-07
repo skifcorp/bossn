@@ -1,3 +1,5 @@
+#if 0
+
 #include "formatersequence.h"
 #include "func.h"
 #include "mifarecard.h"
@@ -91,3 +93,6 @@ void FormaterSequence::start()
     }
 #endif
 }
+
+#endif
+

@@ -1,3 +1,4 @@
+#include "rdb_pch.h"
 #include "culture.h"
 #include "warnmessages.h"
 #include "mainsequence.h"
@@ -14,7 +15,7 @@
 
 namespace alho { namespace common {
 
-Culture::Culture(MainSequence & as, QSqlDatabase& db, boost::rdb::mysql::mysql_database& db2) : seq_(as),
+Culture::Culture(MainSequence & as, QSqlDatabase& db, ::boost::rdb::mysql::mysql_database& db2) : seq_(as),
     database_(db), async_(database_, as), convience_(async_), async2_(db2, as) {}
 
 
@@ -74,9 +75,9 @@ namespace sql = boost::rdb::mysql;
 void Culture::fillConstants()
 {
     t_const_table t_const{"t_const"};
-    typename sql::table_result_set<t_const_table>::type deq;
+    typename ::boost::rdb::mysql::table_result_set<t_const_table>::type deq;
 
-    deq = async2().exec( sql::select( t_const.all ).from( t_const ), cant_get_const_message ).all();
+    deq = async2().exec( ::boost::rdb::mysql::select( t_const.all ).from( t_const ), cant_get_const_message ).all();
 
     constants_.clear();
 

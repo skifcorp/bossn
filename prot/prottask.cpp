@@ -1,8 +1,12 @@
 //#include <winsock.h>
 //#include "mysql.h"
 
+#include "rdb_pch.h"
+#include "protdb.h"
+
 #include "prottask.h"
 #include "settingstool.h"
+
 #include "protdb.h"
 #include "async_func.h"
 #include "func.h"
@@ -13,6 +17,67 @@
 namespace mysql = boost::rdb::mysql;
 
 BossnFactoryRegistrator<ProtTask> ProtTask::registrator("ProtTask");
+
+
+
+
+
+class ProtTaskImpl
+{
+public:
+    ProtTaskImpl(Tags & t):tags(t)
+    {
+
+    }
+
+    struct TagProtConf
+    {
+        enum class DzType {DzNone, DzPerc, DzAbs};
+        QString tag_name;
+        QString func_name;
+        QVariant dz;
+        QVariant min;
+        QVariant max;
+
+        DzType dz_type = DzType::DzNone;
+    };
+    using TagProtConfs = vector<TagProtConf> ;
+
+    using prot_value_type = typename boost::rdb::mysql::table_result_set<prot_values_table>::type::value_type;
+    using TagValues  = vector<prot_value_type>;
+    using TagsValues = vector<TagValues>;
+
+    using message_log_type = typename boost::rdb::mysql::table_result_set<message_log_table>::type::value_type;
+
+
+    boost::rdb::mysql::mysql_database database;
+    QString database_name;
+
+    Tags & tags;
+
+    TagProtConfs tag_prot_confs;
+    TagsValues tags_values;
+    TagValues  last_values;
+
+    vector<message_log_type> message_logs;
+
+    prot_work_table  prot_work {"prot_work"};
+    prot_values_table prot_values;
+    message_log_table message_log{"message_log"};
+
+};
+
+
+
+ProtTask::ProtTask(Tags & t):BaseTask("ProtTask")
+{
+    impl_ = QSharedPointer<ProtTaskImpl>(new ProtTaskImpl(t));
+}
+
+ProtTask::~ProtTask()
+{
+
+}
 
 bool ProtTask::busy() const
 {
@@ -25,7 +90,7 @@ void ProtTask::setSettings(const QVariantMap & s)
 
     for( QVariant tg_ : tgs) {
         QVariantMap tg = tg_.toMap();
-        TagProtConf tag_prot_conf;
+        ProtTaskImpl::TagProtConf tag_prot_conf;
 
         tag_prot_conf.tag_name   = get_setting<QString>("tag", tg);
         //tag_prot_conf.Names     = get_setting<QString>("tag_ru", tg);
@@ -37,21 +102,21 @@ void ProtTask::setSettings(const QVariantMap & s)
 
         QString dz_type = get_setting<QString>("dz_type", tg, QString());
         if (dz_type == "absolute")
-            tag_prot_conf.dz_type = TagProtConf::DzType::DzAbs;
+            tag_prot_conf.dz_type = ProtTaskImpl::TagProtConf::DzType::DzAbs;
         else if ( dz_type == "perc" ) {
-            tag_prot_conf.dz_type = TagProtConf::DzType::DzPerc;
+            tag_prot_conf.dz_type = ProtTaskImpl::TagProtConf::DzType::DzPerc;
         }
 
-        tag_prot_confs.push_back(tag_prot_conf);
+        impl_->tag_prot_confs.push_back(tag_prot_conf);
     }
 
     initTagsValues();
 
-    database_name = get_setting<QString>("database_name", s);
+    impl_->database_name = get_setting<QString>("database_name", s);
 
-    database.setHost(get_setting<QString>("database_host", s).toStdString() );
-    database.setUser(get_setting<QString>("database_user", s).toStdString());
-    database.setPassword(get_setting<QString>("database_password", s).toStdString());
+    impl_->database.setHost(get_setting<QString>("database_host", s).toStdString() );
+    impl_->database.setUser(get_setting<QString>("database_user", s).toStdString());
+    impl_->database.setPassword(get_setting<QString>("database_password", s).toStdString());
 
     // database.setConnectOptions( get_setting<QString>("connection_options", s, QString() ) );
 
@@ -78,11 +143,11 @@ void ProtTask::exec()
 
     //qDebug()  << "prot_exec!";
 
-    auto iter            = tags_values.begin();
-    auto last_value_iter = last_values.begin();
+    auto iter            = impl_->tags_values.begin();
+    auto last_value_iter = impl_->last_values.begin();
 
-    for (const TagProtConf & tpc : tag_prot_confs) {
-        QVariant val = tags[ tpc.tag_name ]->func( tpc.func_name, this );
+    for (const ProtTaskImpl::TagProtConf & tpc : impl_->tag_prot_confs) {
+        QVariant val = impl_->tags[ tpc.tag_name ]->func( tpc.func_name, this );
 
         if ( !val.isValid() ) {
 #if 0
@@ -91,21 +156,21 @@ void ProtTask::exec()
                 iter->push_back( *last_value_iter );
             }
 #endif
-            if (  (*last_value_iter)[prot_values.value] == (*last_value_iter)[prot_values.value] /*not nan*/  ) {
-                (*last_value_iter)[prot_values.time] = qt_to_ptime(QDateTime::currentDateTime().toUTC());
-                (*last_value_iter)[prot_values.value] = std::numeric_limits<double>::quiet_NaN();
+            if (  (*last_value_iter)[impl_->prot_values.value] == (*last_value_iter)[impl_->prot_values.value] /*not nan*/  ) {
+                (*last_value_iter)[impl_->prot_values.time] = qt_to_ptime(QDateTime::currentDateTime().toUTC());
+                (*last_value_iter)[impl_->prot_values.value] = std::numeric_limits<double>::quiet_NaN();
             }
         }
         else {
             auto fval = val.toDouble();
 
             if ( /* true || */
-                 ( (*last_value_iter)[prot_values.value] != (*last_value_iter)[prot_values.value] /*isnan*/) ||
-                 ( tpc.dz_type == TagProtConf::DzType::DzNone && !qFuzzyCompare(fval, (*last_value_iter)[prot_values.value]) ) ||
-                 ( tpc.dz_type == TagProtConf::DzType::DzAbs && qAbs(fval - (*last_value_iter)[prot_values.value]) > tpc.dz.toDouble() ) ) {
+                 ( (*last_value_iter)[impl_->prot_values.value] != (*last_value_iter)[impl_->prot_values.value] /*isnan*/) ||
+                 ( tpc.dz_type == ProtTaskImpl::TagProtConf::DzType::DzNone && !qFuzzyCompare(fval, (*last_value_iter)[impl_->prot_values.value]) ) ||
+                 ( tpc.dz_type == ProtTaskImpl::TagProtConf::DzType::DzAbs && qAbs(fval - (*last_value_iter)[impl_->prot_values.value]) > tpc.dz.toDouble() ) ) {
 
-                (*last_value_iter)[prot_values.time] = qt_to_ptime(QDateTime::currentDateTime().toUTC());
-                (*last_value_iter)[prot_values.value] = val.toDouble();
+                (*last_value_iter)[impl_->prot_values.time] = qt_to_ptime(QDateTime::currentDateTime().toUTC());
+                (*last_value_iter)[impl_->prot_values.value] = val.toDouble();
 
                 (*iter).push_back( *last_value_iter );
             }
@@ -119,16 +184,16 @@ void ProtTask::exec()
 
 void ProtTask::initTagsValues()
 {
-    for (decltype(tag_prot_confs)::size_type i = 0; i<tag_prot_confs.size(); ++i) {
-        tags_values.emplace_back();
-        last_values.emplace_back( qt_to_ptime( QDateTime::currentDateTimeUtc() ), std::numeric_limits<double>::quiet_NaN());
+    for (decltype(impl_->tag_prot_confs)::size_type i = 0; i<impl_->tag_prot_confs.size(); ++i) {
+        impl_->tags_values.emplace_back();
+        impl_->last_values.emplace_back( qt_to_ptime( QDateTime::currentDateTimeUtc() ), std::numeric_limits<double>::quiet_NaN());
     }
 
 }
 
 void ProtTask::clearDataInTagsValues()
 {
-    for ( TagValues & tv : tags_values ) {
+    for ( ProtTaskImpl::TagValues & tv : impl_->tags_values ) {
         tv.clear();
     }
 }
@@ -145,59 +210,60 @@ void ProtTask::onSaveTimer()
 
 
     if ( static_cast<int>(saving_now) > 0 ) {
-        qWarning() << "SAVING OPERATION NOT BECAUSE PREVIOUS NOT FINISHED. Will try next time.... point count: " << tags_values.front().size();
+        qWarning() << "SAVING OPERATION NOT BECAUSE PREVIOUS NOT FINISHED. Will try next time.... point count: "
+                   << impl_->tags_values.front().size();
         return;
     }
 
-    decltype(tags_values) tags_vals;
+    decltype(impl_->tags_values) tags_vals;
 
-    for ( auto & tv : tags_values ) {
+    for ( auto & tv : impl_->tags_values ) {
         tags_vals.emplace_back();
         tags_vals.front() = std::move(tv);
     }
 
-    decltype(message_logs) logs(std::move(message_logs));
+    decltype(impl_->message_logs) logs(std::move(impl_->message_logs));
 
     QtConcurrent::run( [this, tags_vals, logs]() mutable {
         saving_now.ref();
         try {
-            if (database.isClosed())
-                database.open();
+            if (impl_->database.isClosed())
+                impl_->database.open();
 
             static bool exec_once = [&, this] {
-                database.execute( mysql::create_database(database_name.toStdString()) );
+                impl_->database.execute( mysql::create_database(impl_->database_name.toStdString()) );
 
-                database.setDatabase( database_name.toStdString() );
+                impl_->database.setDatabase( impl_->database_name.toStdString() );
 
-                database.execute( mysql::create_table(prot_work) );
+                impl_->database.execute( mysql::create_table(impl_->prot_work) );
 
-                database.execute( mysql::insert_into(prot_work)
-                                  (prot_work.start_from, prot_work.work_till)
+                impl_->database.execute( mysql::insert_into(impl_->prot_work)
+                                  (impl_->prot_work.start_from, impl_->prot_work.work_till)
                                   .values( when_started, boost::posix_time::second_clock::universal_time() ) );
 
-                for ( const TagProtConf & c : tag_prot_confs ) {
-                    database.execute(  mysql::create_table( prot_values_table{c.tag_name.toStdString()} ) ) ;
+                for ( const ProtTaskImpl::TagProtConf & c : impl_->tag_prot_confs ) {
+                    impl_->database.execute(  mysql::create_table( prot_values_table{c.tag_name.toStdString()} ) ) ;
                 }
 
-                database.execute( mysql::create_table(message_log) );
+                impl_->database.execute( mysql::create_table(impl_->message_log) );
 
                 return true;
             }(); Q_UNUSED(exec_once);
 
             auto values = std::begin(tags_vals);
 
-            for ( const TagProtConf & c : tag_prot_confs ) {
+            for ( const ProtTaskImpl::TagProtConf & c : impl_->tag_prot_confs ) {
                 if ( values->empty() ) continue;
 
                 prot_values_table t{c.tag_name.toStdString()};
 
-                database.execute( mysql::insert_into(t)(t.time, t.value).values(*values++) );
+                impl_->database.execute( mysql::insert_into(t)(t.time, t.value).values(*values++) );
             }
 
             if ( !logs.empty() )
-                database.execute( mysql::insert_into(message_log)
-                                  (message_log.num, message_log.sender_id, message_log.type,
-                                   message_log.message_date, message_log.message )
+                impl_->database.execute( mysql::insert_into(impl_->message_log)
+                                  (impl_->message_log.num, impl_->message_log.sender_id, impl_->message_log.type,
+                                   impl_->message_log.message_date, impl_->message_log.message )
                                   .values(logs) );
         }
         catch ( ::sql::SQLException & ex ) {
@@ -244,7 +310,7 @@ void ProtTask::onSaveTimer()
 
     //tags_values.clear();
     clearDataInTagsValues();
-    message_logs.clear();
+    impl_->message_logs.clear();
 }
 
 
@@ -278,5 +344,5 @@ QVariant ProtTask::addLogMessage(const QString&, AlhoSequence*, QGenericArgument
 void ProtTask::addLogMessageP( int sender_id, int type, const QString& text )
 {
     //message_logs.push_back( message_log{sender_id, type, text} );
-    message_logs.emplace_back( 0, sender_id, type, boost::posix_time::second_clock::universal_time(), text.toStdString()  );
+    impl_->message_logs.emplace_back( 0, sender_id, type, boost::posix_time::second_clock::universal_time(), text.toStdString()  );
 }

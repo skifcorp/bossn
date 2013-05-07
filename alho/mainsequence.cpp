@@ -1,5 +1,7 @@
 #include <QBitArray>
 
+#include "rdb_pch.h"
+
 #include "mainsequence.h"
 #include "mifarecard.h"
 #include "settingstool.h"
@@ -13,7 +15,21 @@
 
 #include "photomaker.h"
 
+#include "weighterconf.h"
+
 #include <memory>
+
+/*
+alho::common::Weighter::Pointer MainSequence::createWeighter (WeighterConf& wc)
+{
+    return alho::common::Weighter::create( wc.weighter_name, *this, wc.database, *wc.db );
+}
+*/
+
+MainSequence::~MainSequence()
+{
+
+}
 
 void MainSequence::setSettings(const QVariantMap & s)
 {    
@@ -47,33 +63,33 @@ void MainSequence::initWeightersConf(const QVariantMap& s)
 
     for (int i = 0; i<weighters_conf_list.count(); ++i) {
         bool ok = false;
-        WeighterConf wc;
+        std::unique_ptr<WeighterConf> wc(new WeighterConf);
 
         auto m = weighters_conf_list[i].toMap();
 
-        wc.database = QSqlDatabase::addDatabase(
+        wc->database = QSqlDatabase::addDatabase(
               m.take("database_driver").toString(),
               m.take("connection_name").toString() + QString::number(seq_id));
 
-        wc.material      = m.take("material").toInt(&ok);
-        wc.weighter_name = m.take("weighter").toString();
-        wc.platform_type = m.take("platform_type").toString();
+        wc->material      = m.take("material").toInt(&ok);
+        wc->weighter_name = m.take("weighter").toString();
+        wc->platform_type = m.take("platform_type").toString();
 
-        wc.database.setHostName(m.take("database_host").toString());
-        wc.database.setDatabaseName(m.take("database").toString());
-        wc.database.setUserName(m.take("database_user").toString());
-        wc.database.setPassword(m.take("database_password").toString());
-        wc.database.setConnectOptions(m.take("connection_options").toString() );
+        wc->database.setHostName(m.take("database_host").toString());
+        wc->database.setDatabaseName(m.take("database").toString());
+        wc->database.setUserName(m.take("database_user").toString());
+        wc->database.setPassword(m.take("database_password").toString());
+        wc->database.setConnectOptions(m.take("connection_options").toString() );
 
 
-        wc.db.setHost(wc.database.hostName().toStdString());
-        wc.db.setDatabase(wc.database.databaseName().toStdString());
-        wc.db.setUser(wc.database.userName().toStdString());
-        wc.db.setPassword(wc.database.password().toStdString());
+        wc->db->setHost(wc->database.hostName().toStdString());
+        wc->db->setDatabase(wc->database.databaseName().toStdString());
+        wc->db->setUser(wc->database.userName().toStdString());
+        wc->db->setPassword(wc->database.password().toStdString());
 
         for ( QVariantMap::const_iterator iter =  m.constBegin(); iter != m.constEnd(); ++iter){
             //qDebug() << "k: " << iter.key() << " " << *iter;
-            wc[iter.key()] = *iter;
+            (*wc)[iter.key()] = *iter;
         }
 
         if (!ok) {
@@ -239,7 +255,13 @@ void MainSequence::run()
             cur_num_nakl = bill.memberValue<int>("billNumber");
 
             if (!weighter)
-                weighter = createWeighter(weighter_conf);
+                //weighter = createWeighter(weighter_conf);
+
+                weighter = alho::common::Weighter::create(
+                            weighter_conf.weighter_name,
+                            *this,
+                            weighter_conf.database,
+                            *weighter_conf.db );
 
             weighter->checkCardBanned( byteArrayToString(card.uid()) );
             weighter->processWeighting(bill, card, weighter_conf);
@@ -325,8 +347,8 @@ void MainSequence::processPerimeter()
 WeighterConf& MainSequence::findWeighterConf(int material)
 {    
     for (uint i = 0; i<weighters_conf.size(); ++i) {
-        if ( weighters_conf[i].material == material )
-            return weighters_conf[i];
+        if ( weighters_conf[i]->material == material )
+            return *weighters_conf[i];
     }
 
     throw MainSequenceException("cant find weighter", "cant find weighter for maaterial: " + material );

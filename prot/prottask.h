@@ -14,22 +14,21 @@ using std::vector;
 #include "basetask.h"
 #include "tags.h"
 #include "async_func.h"
-#include "protdb.h"
+
 #include "coroutine2.h"
 #include "func.h"
 
 #include <QAtomicInt>
 
+class ProtTaskImpl;
+
 class ProtTask : public BaseTask
 {
     Q_OBJECT
 public:
-    ProtTask(Tags & t):BaseTask("ProtTask"),tags(t)
-    {
-        //async_func_.setShowDebugInfo(true);
-    }
+    ProtTask(Tags & t);
 
-    ~ProtTask()  {}
+    ~ProtTask();
 
     virtual void setSettings(const QVariantMap &);
 
@@ -51,25 +50,10 @@ private slots:
     void onSaveTimer();
 private:
     static BossnFactoryRegistrator<ProtTask> registrator;
-    struct TagProtConf
-    {
-        enum class DzType {DzNone, DzPerc, DzAbs};
-        QString tag_name;
-        QString func_name;
-        QVariant dz;
-        QVariant min;
-        QVariant max;
-
-        DzType dz_type = DzType::DzNone;
-    };
-    using TagProtConfs = vector<TagProtConf> ;
-
-    using prot_value_type = typename boost::rdb::mysql::table_result_set<prot_values_table>::type::value_type;
-    using TagValues  = vector<prot_value_type>;
-    using TagsValues = vector<TagValues>;
-
-    using message_log_type = typename boost::rdb::mysql::table_result_set<message_log_table>::type::value_type;
 private:
+
+    QSharedPointer<ProtTaskImpl> impl_;
+
     void exec();
 
     void initProtDataTables() ;
@@ -81,24 +65,11 @@ private:
 
     bool is_busy = false;
 
-    boost::rdb::mysql::mysql_database database;
-    QString database_name;
-
-    Tags & tags;
-
-    TagProtConfs tag_prot_confs;
-    TagsValues tags_values;
-    TagValues  last_values;
-
-    vector<message_log_type> message_logs;
 
     QTimer save_timer;
     QAtomicInt saving_now{0};
     boost::posix_time::ptime when_started = boost::posix_time::second_clock::universal_time();
 private:
-    prot_work_table  prot_work {"prot_work"};
-    prot_values_table prot_values;
-    message_log_table message_log{"message_log"};
 };
 
 #endif // PROTTASK_H

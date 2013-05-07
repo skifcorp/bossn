@@ -1,3 +1,5 @@
+#include "rdb_pch.h"
+
 #include "kryzhgrainacceptanceculture.h"
 #include "warnmessages.h"
 #include "mainsequence.h"

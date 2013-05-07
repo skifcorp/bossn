@@ -1,3 +1,6 @@
+#include "rdb_pch.h"
+
+
 #include "tasksettings.h"
 #include "perimeter.h"
 #include "mainsequence.h"

@@ -1,7 +1,7 @@
 #ifndef PROTDB_H
 #define PROTDB_H
 
-#include "rdb_pch.h"
+//#include "rdb_pch.h"
 
 #if 0
 BOOST_RDB_BEGIN_TABLE(prot_conf)

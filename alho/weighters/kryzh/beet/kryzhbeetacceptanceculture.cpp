@@ -1,3 +1,4 @@
+#include "rdb_pch.h"
 #include "kryzhbeetacceptanceculture.h"
 #include "mainsequence.h"
 #include "codeshacks.h"

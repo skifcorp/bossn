@@ -3,7 +3,7 @@
 
 //#include "qxorm_pch.h"
 
-#include "rdb_pch.h"
+
 
 #include "acceptanceculture.h"
 #include "kryzhbeetdbstructs.h"
@@ -22,7 +22,7 @@ namespace sql = boost::rdb::mysql;
 class BeetAcceptanceCulture : public AcceptanceCulture
 {
 public:
-    BeetAcceptanceCulture(MainSequence& as, QSqlDatabase& db, boost::rdb::mysql::mysql_database& db2) : AcceptanceCulture(as, db, db2)
+    BeetAcceptanceCulture(MainSequence& as, QSqlDatabase& db, ::boost::rdb::mysql::mysql_database& db2) : AcceptanceCulture(as, db, db2)
     {        
     }
 

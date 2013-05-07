@@ -8,7 +8,7 @@
 #include "reportsmanager.h"
 
 #include "kryzhgraintables.h"
-#include "rdb_pch.h"
+//#include "rdb_pch.h"
 
 namespace alho { namespace kryzh {
 

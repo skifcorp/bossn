@@ -1,5 +1,8 @@
+
+//#include "rdb_pch.h"
+
 #include "seqdebug.h"
-#include "mainsequence.h"
+#include "mainsequencebaseop.h"
 #include "func.h"
 
 SeqDebug::~SeqDebug()

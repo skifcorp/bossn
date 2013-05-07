@@ -6,7 +6,7 @@
 #include <QtConcurrentRun>
 #include <QFutureWatcher>
 
-#include "qxorm_pch.h"
+//#include "qxorm_pch.h"
 
 #include "bossnexception.h"
 #include "coroutine2.h"
@@ -22,7 +22,7 @@
 
 #include "warnmessages.h"
 
-#include <boost/rdb/mysql_database.hpp>
+//#include <boost/rdb/mysql_database.hpp>
 
 class async_func_base : public QObject
 {

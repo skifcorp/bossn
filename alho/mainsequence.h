@@ -22,16 +22,24 @@ using std::vector;
 #include "mifarereader.h"
 #include "mifarecarddata.h"
 #include "mainsequencesettings.h"
-#include "weighter.h"
+//#include "weighter.h"
 #include "cardstructs.h"
 #include "mifarecard.h"
-#include "weighterconf.h"
+//#include "weighterconf.h"
 #include "photomaker.h"
 #include "mainsequencebaseop.h"
 
 class MifareCardSector;
 
+//namespace alho { namespace common  {
+//    class Weighter;
+//} }
 
+//#ifdef Q_MOC_RUN
+//    #include "rdb_pch.h"
+//#endif
+
+class WeighterConf;
 
 class MainSequence : public MainSequenceBaseOp
 {
@@ -39,7 +47,7 @@ class MainSequence : public MainSequenceBaseOp
 public:
     MainSequence(Tags & t, const QVariantMap& );
 
-    ~MainSequence() {}
+    ~MainSequence();
 
     void processPerimeter();
 
@@ -60,7 +68,7 @@ private:
     QVariantMap exit_photo;
     QVariantMap enter_photo;
 
-    std::vector<WeighterConf> weighters_conf;
+    std::vector< std::unique_ptr<WeighterConf>> weighters_conf;
 
     //void setLightsToRed();
     //void setLightsToGreen();
@@ -73,10 +81,7 @@ private:
     WeighterConf& findWeighterConf(int) ;
 
     WeighterConf& readStruct(MifareCardSector&, MifareCardData& d );
-    alho::common::Weighter::Pointer createWeighter (WeighterConf& wc)
-    {
-        return alho::common::Weighter::create( wc.weighter_name, *this, wc.database, wc.db );
-    }
+    //QSharedPointer<alho::common::Weighter> createWeighter (WeighterConf& wc);
 
 
 
