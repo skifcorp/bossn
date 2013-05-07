@@ -505,6 +505,7 @@ void WebServiceSequence::run()
         }
 
         try {
+            qDebug() << "1";
             std::shared_ptr<WebServiceSequence> cur_fake_source_guard( this , [&](WebServiceSequence * wss){
                 wss->cur_webservice_async = nullptr;
             } ); Q_UNUSED(cur_fake_source_guard);
@@ -512,24 +513,25 @@ void WebServiceSequence::run()
             Q_ASSERT(!cur_webservice_async);
 
             printOnTablo(tr(processing_message));
-
+            qDebug() << "2";
             card.autorize();            
 
             checkForStealedCard( act );
-
+            qDebug() << "3";
             WebServiceAsync was(*this);
             cur_webservice_async = &was;
-
+            qDebug() << "4";
 
             QMap<QString, QString> ret = was.exchangeData( mapToString( getSimpleTagsValues(  ) ) + ",\n" + getReaderBytes(card) );
-
+            qDebug() << "5";
 
             if (cur_webservice_async->isTerminating()) {
                 continue;
             }
-
+            qDebug() << "6";
             sleepnb( get_setting<int>("brutto_finish_pause", app_settings) );
             printOnTablo( tr(apply_card_message) );                                  
+            qDebug() << "7";
             continue;
         }
         catch (MifareCardAuthException& ex) {
