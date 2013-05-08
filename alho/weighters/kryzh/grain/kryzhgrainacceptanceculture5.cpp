@@ -25,98 +25,6 @@ QString GrainAcceptanceCulture::taraFinishMessage(const MifareCardData& )const
 }
 
 
-void GrainAcceptanceCulture::brutto(int w, MifareCardData& bill )
-{
-#if 0
-    current_ttn = wrap_async_ex(tr(fetch_ttn_error_message), "fetching ttn failed!!!",
-               [&bill, this]{return asyncFunc().async_fetch<t_ttn>(
-                   bill["billNumber"].toUInt(), t_ttn_name);});
-#endif
-    current_ttn = async2().fetch(
-                sql::select( ttn_table.all ).from(ttn_table).where( ttn_table.num_nakl ==  bill["billNumber"].toInt()),
-                tr(fetch_ttn_error_message) );
-
-
-    seq().seqDebug() << "GrainAcceptance: brutto weight!, ttn: " << current_ttn[ttn_table.num_nakl];
-
-    repairFieldCodeCorrectnessIfNeeded2(bill, field_table, ttn_table, current_ttn);
-
-    bill.setMemberValue("bruttoWeight", w);
-    bill.setMemberValue("dateOfBrutto", QDateTime::currentDateTime());
-    bill.setMemberValue("flags", 2, true );
-
-    current_ttn[ttn_table.routed_to_lab] = 1;
-
-    current_ttn[ttn_table.culture] = bill.memberValue<int>("culture");
-    current_ttn[ttn_table.repr]    = bill.memberValue<int>("repr");
-    current_ttn[ttn_table.sort]    = bill.memberValue<int>("sort");
-
-    updateBruttoValues(bill);
-}
-
-void GrainAcceptanceCulture::tara(int w, MifareCardData& bill)
-{
-    current_ttn = async2().fetch(
-                sql::select( ttn_table.all ).from(ttn_table).where( ttn_table.num_nakl ==  bill["billNumber"].toInt()),
-                tr(fetch_ttn_error_message) );
-
-
-    seq().seqDebug() << "GrainAcceptance: tara weight!, ttn: " << current_ttn[ttn_table.num_nakl];
-
-    checkTaraByBrutto2(w, ttn_table, current_ttn);
-
-    bill.setMemberValue("taraWeight", w);
-    bill.setMemberValue("dateOfTara", QDateTime::currentDateTime());
-
-
-    processDrivingTime2(ttn_table, current_ttn, cars_table, current_car);
-
-    processTaraRupture2(ttn_table, current_ttn, cars_table, current_car);
-
-    updateTaraValues(bill, boost::mpl::true_{});
-}
-
-
-
-void GrainAcceptanceCulture::reBrutto(int w, MifareCardData& bill)
-{
-
-    current_ttn = async2().fetch(
-                sql::select( ttn_table.all ).from(ttn_table).where( ttn_table.num_nakl ==  bill["billNumber"].toInt()),
-                tr(fetch_ttn_error_message) );
-
-
-    seq().seqDebug() << "GrainAcceptance: rebrutto weight!, ttn: " << current_ttn[ttn_table.num_nakl];
-
-    checkBruttoDeltaForReweights(bill.memberValue<uint>("bruttoWeight"), w);
-
-    bill.setMemberValue("flags", 0, true );
-    bill.setMemberValue("bruttoWeight", w);
-    bill.setMemberValue("dateOfBrutto", QDateTime::currentDateTime());
-
-    updateBruttoValues(bill);
-}
-
-void GrainAcceptanceCulture::reTara(int w, MifareCardData& bill)
-{
-    current_ttn = ttnByDriver2< decltype(current_ttn) >(  bill.memberValue<int>("driver"), ttn_table );
-
-    seq().seqDebug() << "GrainAcceptance: retara weight!, ttn: " << current_ttn[ttn_table.num_nakl];
-
-    checkTaraByBrutto2(w, ttn_table, current_ttn);
-
-    checkTaraDeltaForReweights(current_ttn[ttn_table.tara], w);
-
-    bill.setMemberValue("taraWeight", w);
-    bill.setMemberValue("dateOfTara", QDateTime::currentDateTime());
-
-
-    processDrivingTime2(ttn_table, current_ttn, cars_table, current_car);
-
-    processTaraRupture2(ttn_table, current_ttn, cars_table, current_car);
-
-    updateTaraValues(bill, boost::mpl::false_{});
-}
 
 
 
@@ -339,8 +247,8 @@ ReportContext GrainAcceptanceCulture::startReport()
     qx::dao::ptr<t_field> field
 
             = wrap_async_ex(tr(cant_get_field_when_printing),
-	  "startReport: cant get field " + QString::number(current_ttn->field) +
-	  " when printing for passed ttn: " + QString::number(current_ttn->num_nakl),
+      "startReport: cant get field " + QString::number(current_ttn->field) +
+      " when printing for passed ttn: " + QString::number(current_ttn->num_nakl),
       [this]{return asyncFunc().async_fetch<t_field>(
               current_ttn->field, t_field_name ); })
 
@@ -388,7 +296,7 @@ bool GrainAcceptanceCulture::isPureTaraWeight(const MifareCardData& bill) const
 }
 
 void GrainAcceptanceCulture::fetchCar(const MifareCardData& bill)
-{    
+{
 #if 0
     current_car = wrap_async_ex(tr(fetch_car_error_message),
            "fetching car failed!!!: driver: " + bill.memberValue<QString>("driver"),

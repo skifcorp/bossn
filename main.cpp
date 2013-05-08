@@ -20,7 +20,7 @@
 #include "tasksettings.h"
 
 
-
+#include "weighterconf.h"
 #include "constructweighters.h"
 
 int main(int argc, char *argv[])

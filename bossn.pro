@@ -28,7 +28,9 @@ INCLUDEPATH    += db alho serial weight generic iodevicewrapper scheduler       
                   alho/weighters/common coro gsoap
 
 
-QMAKE_CXXFLAGS += -std=gnu++1y -O #--param ggc-min-expand=10 --param ggc-min-heapsize=65535 -O
+QMAKE_CXXFLAGS += -std=gnu++1y -Og #--param ggc-min-expand=10 --param ggc-min-heapsize=65535 -O
+
+
 #QMAKE_CXXFLAGS -= -pipe
 
 DEFINES += FUSION_MAX_VECTOR_SIZE=40  SOAP_DEBUG
@@ -59,12 +61,34 @@ LIBS           +=   -lqextserialport                \
 TRANSLATIONS = bossn_ua.ts
 
 SOURCES +=  \
+    alho/weighters/mria/beet/mriabeetacceptanceculture1.cpp \
+    alho/weighters/mria/beet/mriabeetacceptanceculture2.cpp \
+    alho/weighters/mria/beet/mriabeetacceptanceculture3.cpp \
+    alho/weighters/mria/beet/mriabeetacceptanceculture4.cpp \
+    alho/weighters/mria/beet/mriabeetacceptanceculture5.cpp \
+\
+    alho/weighters/kryzh/grain/kryzhgrainshipmentculture1.cpp \
+    alho/weighters/kryzh/grain/kryzhgrainshipmentculture2.cpp \
+    alho/weighters/kryzh/grain/kryzhgrainshipmentculture3.cpp \
+    alho/weighters/kryzh/grain/kryzhgrainshipmentculture4.cpp \
+    alho/weighters/kryzh/grain/kryzhgrainshipmentculture5.cpp \
+\
+    alho/weighters/kryzh/grain/kryzhgrainacceptanceculture1.cpp \
+    alho/weighters/kryzh/grain/kryzhgrainacceptanceculture2.cpp \
+    alho/weighters/kryzh/grain/kryzhgrainacceptanceculture3.cpp \
+    alho/weighters/kryzh/grain/kryzhgrainacceptanceculture4.cpp \
+    alho/weighters/kryzh/grain/kryzhgrainacceptanceculture5.cpp \
+\
+    alho/weighters/kryzh/beet/kryzhbeetacceptanceculture1.cpp   \
+    alho/weighters/kryzh/beet/kryzhbeetacceptanceculture2.cpp   \
+    alho/weighters/kryzh/beet/kryzhbeetacceptanceculture3.cpp   \
+    alho/weighters/kryzh/beet/kryzhbeetacceptanceculture4.cpp   \
+    alho/weighters/kryzh/beet/kryzhbeetacceptanceculture5.cpp   \
+\
     alho/mainsequencebaseop.cpp \
-            prot/prottask.cpp \
-            alho/webservicesequence.cpp \
-            alho/weighters/kryzh/beet/kryzhbeetacceptanceculture.cpp \
-           alho/weighters/kryzh/grain/kryzhgrainshipmentculture.cpp \
-        main.cpp \
+    prot/prottask.cpp \
+    alho/webservicesequence.cpp \
+    main.cpp \
     weight/mettlertoledo8530.cpp \
     weight/mettlertoledo310.cpp \
     weight/esitPWI.cpp \
@@ -112,11 +136,9 @@ SOURCES +=  \
     iodevicewrapper/iodeviceconsole.cpp \
     iodevicewrapper/iodeviceemulator.cpp \   
     alho/weighters/kryzh/beet/kryzhbeetdbstructs.cpp \
-    alho/weighters/kryzh/grain/kryzhgrainacceptanceculture.cpp \
     alho/weighters/kryzh/grain/kryzhgraindbstructs.cpp \    
     alho/weighters/kryzh/weighter/kryzhacceptanceweighter.cpp \
     alho/weighters/kryzh/weighter/kryzhshipmentweighter.cpp \
-    alho/weighters/mria/beet/mriabeetacceptanceculture.cpp \
     alho/weighters/mria/beet/mriabeetdbstructs.cpp \
     alho/weighters/mria/weighter/mriaacceptanceweighter.cpp \
     reader/mifarereaderemulator.cpp \

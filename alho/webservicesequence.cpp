@@ -266,7 +266,9 @@ void SocketHelper::exechange()
 
     while ( !got_result ) {
         source_.coro().yield();
+        qDebug() << "11111111111";
         if ( source_.isTerminating() ) {
+            qDebug() << "terminating!!!";
             return;
         }
     }
@@ -318,6 +320,7 @@ void SocketHelper::onReadyRead()
     }
 
     source_.coro().cont();
+    qDebug() << "exiting from onReadyRead!!!";
 }
 
 void SocketHelper::onTimeout()
@@ -608,6 +611,7 @@ void WebServiceSequence::onDisappearOnWeight(const QString&, AlhoSequence*)
 
 void WebServiceSequence::wakeUp()
 {
+    qDebug() << "waked up!!!!!";
     cont();
 }
 

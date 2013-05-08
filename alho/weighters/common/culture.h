@@ -101,6 +101,7 @@ public:
     template <class TtnData, class TtnTable>
     TtnData ttnByDriver2( int drv, const TtnTable& tt )
     {
+
         auto q1 = ::boost::rdb::mysql::select( tt.all ).from( tt ).where( tt.driver == drv && tt.brutto != 0 && tt.tara == 0 );
         auto deq = async2().exec( q1, tr(get_ttn_by_driver_tara0_error_message) ).all();
         if ( deq.size() > 0 ) {

@@ -84,7 +84,7 @@ protected:
 
 protected:
     const QVariantMap & app_settings;
-    Tags tags;
+    Tags & tags;
     MainSequenceSettings  alho_settings;
     QTimer wake_timer;
     int seq_id = 0;
