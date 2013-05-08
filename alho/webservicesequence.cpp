@@ -84,7 +84,7 @@ public:
         }
         else {
             return -1; // EOF
-        }
+        }       
     }
 
     std::streamsize write(const char* s, std::streamsize n)
@@ -202,9 +202,9 @@ SocketHelper::SocketHelper(GsoapSource & s):source_(s)
 
 SocketHelper::~SocketHelper()
 {
-
+    //qDebug() << "socket helper destructed!!!!!!!!!!!";
 }
-
+#if 0
 unique_ptr<QTcpSocket> SocketHelper::getSocket() const
 {
     unique_ptr<QTcpSocket> s(new QTcpSocket);
@@ -228,12 +228,16 @@ unique_ptr<QTimer> SocketHelper::getTimer() const
 
     return t;
 }
+#endif
 
 
 void SocketHelper::exechange()
 {
-    unique_ptr<QTcpSocket> socket_   = getSocket();
-    unique_ptr<QTimer> timeout_timer = getTimer();
+    //unique_ptr<QTcpSocket> socket_   = getSocket();
+    //unique_ptr<QTimer> timeout_timer = getTimer();
+
+    auto socket_   = getSocket();
+    auto timeout_timer = getTimer();
 
     error = timeout = got_result = false;
 
@@ -266,9 +270,9 @@ void SocketHelper::exechange()
 
     while ( !got_result ) {
         source_.coro().yield();
-        qDebug() << "11111111111";
+        //qDebug() << "11111111111";
         if ( source_.isTerminating() ) {
-            qDebug() << "terminating!!!";
+            //qDebug() << "terminating!!!";
             return;
         }
     }
@@ -291,7 +295,11 @@ void SocketHelper::exechange()
     std::string s(arr.data(), arr.size());
 
     source_.setReadBuffer( s );
-    timeout_timer->stop();
+    //timeout_timer->stop();
+    //socket_->flush();
+    //socket_->close();
+    //qDebug() << "socket closed!";
+
 }
 
 void SocketHelper::onConnected()
@@ -319,13 +327,12 @@ void SocketHelper::onReadyRead()
         return;
     }
 
-    source_.coro().cont();
-    qDebug() << "exiting from onReadyRead!!!";
+    source_.coro().cont();   
 }
 
 void SocketHelper::onTimeout()
 {
-    qWarning() << "socket timeout!";
+    //qWarning() << "socket timeout!";
 
     got_result = timeout = true;
 
@@ -412,6 +419,8 @@ public:
 
         QMap<QString, QString> retm;
         retm["aaa"] = QString::fromStdString( resp.return_ );
+
+        proxy.destroy();
 
         return retm;
     }
@@ -508,7 +517,7 @@ void WebServiceSequence::run()
         }
 
         try {
-            qDebug() << "1";
+            //qDebug() << "1";
             std::shared_ptr<WebServiceSequence> cur_fake_source_guard( this , [&](WebServiceSequence * wss){
                 wss->cur_webservice_async = nullptr;
             } ); Q_UNUSED(cur_fake_source_guard);
@@ -516,25 +525,25 @@ void WebServiceSequence::run()
             Q_ASSERT(!cur_webservice_async);
 
             printOnTablo(tr(processing_message));
-            qDebug() << "2";
+            //qDebug() << "2";
             card.autorize();            
 
             checkForStealedCard( act );
-            qDebug() << "3";
+            //qDebug() << "3";
             WebServiceAsync was(*this);
             cur_webservice_async = &was;
-            qDebug() << "4";
+            //qDebug() << "4";
 
             QMap<QString, QString> ret = was.exchangeData( mapToString( getSimpleTagsValues(  ) ) + ",\n" + getReaderBytes(card) );
-            qDebug() << "5";
+            //qDebug() << "5";
 
             if (cur_webservice_async->isTerminating()) {
                 continue;
             }
-            qDebug() << "6";
+            //qDebug() << "6";
             sleepnb( get_setting<int>("brutto_finish_pause", app_settings) );
             printOnTablo( tr(apply_card_message) );                                  
-            qDebug() << "7";
+            //qDebug() << "7";
             continue;
         }
         catch (MifareCardAuthException& ex) {
@@ -610,8 +619,7 @@ void WebServiceSequence::onDisappearOnWeight(const QString&, AlhoSequence*)
 
 
 void WebServiceSequence::wakeUp()
-{
-    qDebug() << "waked up!!!!!";
+{    
     cont();
 }
 

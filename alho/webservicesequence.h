@@ -39,8 +39,38 @@ private:
     volatile bool timeout = false;
     volatile bool got_result = false;
 
-    std::unique_ptr<QTcpSocket> getSocket() const;
-    std::unique_ptr<QTimer> getTimer() const;
+    auto getSocket() const
+    {
+        auto del_func = [](QTcpSocket * s){
+            s->deleteLater();
+        };
+
+        std::unique_ptr<QTcpSocket, decltype(del_func)> s(new QTcpSocket, del_func);
+
+        connect( s.get(), SIGNAL(connected()) , this, SLOT(onConnected()));
+
+        connect( s.get(), SIGNAL(error(QAbstractSocket::SocketError)),
+                 this, SLOT(onError(QAbstractSocket::SocketError)));
+        connect( s.get(), SIGNAL(readyRead()) , this, SLOT(onReadyRead()));
+
+        return s;
+    }
+
+    auto getTimer() const
+    {
+        auto del_func = [](QTimer * t){
+            t->stop();
+            t->deleteLater();
+        };
+
+        std::unique_ptr<QTimer, decltype(del_func)> t(new QTimer, del_func);
+
+        t->setSingleShot(true);
+
+        connect( t.get(), SIGNAL(timeout()), this, SLOT(onTimeout()) );
+
+        return t;
+    }
 };
 
 class WebServiceAcyncDeinitializer;

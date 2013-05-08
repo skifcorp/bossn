@@ -53,6 +53,9 @@ A commercial use license is available from Genivia, Inc., contact@genivia.com
 
 #define GSOAP_VERSION 20814
 
+extern int memory_alloc_counter;
+
+
 #ifdef WITH_SOAPDEFS_H
 # include "soapdefs.h"		/* include user-defined stuff */
 #endif
@@ -1432,12 +1435,25 @@ typedef soap_int32 soap_mode;
 # endif
 #endif
 
+
+inline void * my_malloc(size_t s)
+{
+    ++memory_alloc_counter;
+    return malloc(s);
+}
+
+inline void my_free(void * m)
+{
+    --memory_alloc_counter;
+    free(m);
+}
+
 #ifndef SOAP_MALLOC			/* use libc malloc */
-# define SOAP_MALLOC(soap, size) malloc(size)
+# define SOAP_MALLOC(soap, size) my_malloc(size)
 #endif
 
 #ifndef SOAP_FREE			/* use libc free */
-# define SOAP_FREE(soap, ptr) free(ptr)
+# define SOAP_FREE(soap, ptr) my_free(ptr)
 #endif
 
 #if !defined(WITH_LEAN) && !defined(WITH_COMPAT) && !defined(SOAP_NOTHROW)

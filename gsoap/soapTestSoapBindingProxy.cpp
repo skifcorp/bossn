@@ -49,8 +49,11 @@ TestSoapBindingProxy::TestSoapBindingProxy(soap_mode imode, soap_mode omode)
 }
 
 TestSoapBindingProxy::~TestSoapBindingProxy()
-{	if (this->own)
+{
+    if (this->own)
 		soap_free(this->soap);
+
+    std::cout << "memory_alloc_counter: " << memory_alloc_counter << std::endl;
 }
 
 void TestSoapBindingProxy::TestSoapBindingProxy_init(soap_mode imode, soap_mode omode)

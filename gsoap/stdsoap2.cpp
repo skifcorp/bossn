@@ -51,6 +51,8 @@ A commercial use license is available from Genivia, Inc., contact@genivia.com
 --------------------------------------------------------------------------------
 */
 
+int memory_alloc_counter = 0;
+
 #define GSOAP_LIB_VERSION 20814
 
 #ifdef AS400
