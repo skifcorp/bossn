@@ -9,6 +9,7 @@
 
 #include <QTcpSocket>
 #include <QTimer>
+#include <QStringList>
 
 #include <memory>
 
@@ -109,6 +110,20 @@ private:
         }
         return ret;
     }
+
+    QMap<QString, QString> stringToMap( const QString& m ) const
+    {
+        QMap<QString, QString> ret;
+
+        QStringList l1 = m.split(";\n");
+
+        for ( QString v : l1  ) {
+            QStringList l2 = v.split(":");
+            ret[ l2.first() ] = l2.last();
+        }
+        return ret;
+    }
+
 
     WebServiceAsync * cur_webservice_async = nullptr;
 };

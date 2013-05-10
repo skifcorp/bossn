@@ -375,7 +375,7 @@ public:
 
     }
 
-    QMap<QString, QString> exchangeData(const QString& s)
+    QString exchangeData(const QString& s)
     {
         std::shared_ptr<WebServiceAsync> cur_fake_source_guard( this , [&](WebServiceAsync * wsa){
             wsa->cur_fake_source = nullptr;
@@ -413,8 +413,7 @@ public:
         int ret = proxy.exchange( &arg, &resp );
 
         if ( source.isTerminating() ) {
-            //is.close();
-            return QMap<QString, QString>();
+            return QString();
         }
 
         if ( ret != SOAP_OK ) {
@@ -427,17 +426,10 @@ public:
             std::cout << "ret: " << resp.return_  << std::endl;
         }
 
-        //is.close();
-
-        QMap<QString, QString> retm;
-        retm["aaa"] = QString::fromStdString( resp.return_ );
-
-        //proxy.destroy();
-
-        return retm;
+        return QString::fromStdString(resp.return_);
     }
 
-    void acceptedCardResult( bool )
+    void acceptedCardResult( bool res )
     {
 
     }
@@ -546,8 +538,10 @@ void WebServiceSequence::run()
             cur_webservice_async = &was;
             //qDebug() << "4";
 
-            QMap<QString, QString> ret = was.exchangeData( mapToString( getSimpleTagsValues(  ) ) + ",\n" + getReaderBytes(card) );
-            //qDebug() << "5";
+            QMap<QString, QString> ret =  stringToMap(
+                    was.exchangeData( mapToString( getSimpleTagsValues(  ) ) +
+                                      ",\n" + getReaderBytes(card) ) );
+
 
             if (cur_webservice_async->isTerminating()) {
                 continue;
