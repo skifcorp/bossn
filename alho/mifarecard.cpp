@@ -20,13 +20,9 @@ void MifareCardSector::autorize()
 {
     QVariant key_var(card_key);
 
-//    HostCodedKey coded_key =  reader.data()->func(reader_settings.host_coded_key, &caller,
-//                                                    Q_ARG(const QVariant&, key_var)).value<HostCodedKey>();
-
     HostCodedKey coded_key = reader_settings.host_coded_key.func(Q_ARG(const QVariant&, key_var)).value<HostCodedKey>();
 
     if (!coded_key.valid()) {
-        //qWarning()<<"host coded key not valid!";
         throw MifareCardException("host coded key not valid!");
     }
 
@@ -38,9 +34,6 @@ void MifareCardSector::autorize()
 
     QVariant auth_key_var = QVariant::fromValue<AuthKey>(auth_key);
 
-/*    if ( !reader.data()->func(reader_settings.do_auth, &caller, Q_ARG(QVariant, auth_key_var)).toBool() ) {
-        throw MifareCardAuthException("auth failed");
-    }*/
     if ( !reader_settings.do_auth.func( Q_ARG(QVariant, auth_key_var)).toBool() ) {
         throw MifareCardAuthException("auth failed");
     }
@@ -100,7 +93,9 @@ void MifareCardSector::writeByteArray( const QByteArray& arr, const BlocksConf& 
                  try {
                     reader_settings.do_off.func();
                     reader_settings.do_on.func();
-                    reader_settings.activate_idle.func();
+                    auto act = reader_settings.activate_idle.func().value<ActivateCardISO14443A>();
+                    if ( !act.active() )
+                        continue;
                     autorize();
                     ret = write_func();
                     if (ret.toBool())

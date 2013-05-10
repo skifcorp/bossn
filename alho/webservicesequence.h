@@ -115,12 +115,13 @@ private:
     {
         QMap<QString, QString> ret;
 
-        QStringList l1 = m.split(";\n");
+        QStringList l1 = m.split(",\n");
 
         for ( QString v : l1  ) {
             QStringList l2 = v.split(":");
             ret[ l2.first() ] = l2.last();
         }
+
         return ret;
     }
     void writeTagsValues( const QMap<QString, QString>& , MifareCardSector&   );
