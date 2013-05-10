@@ -345,15 +345,15 @@ void SocketHelper::onTimeout()
     source_.coro().cont();
 }
 
-class AutoDestroyTestSoapBindingProxy : public bossnSoapBindingProxy
+class AutoDestroybossnSoapBindingProxy : public bossnSoapBindingProxy
 {
 public:
-    AutoDestroyTestSoapBindingProxy() : bossnSoapBindingProxy()
+    AutoDestroybossnSoapBindingProxy() : bossnSoapBindingProxy()
     {
 
     }
 
-    ~AutoDestroyTestSoapBindingProxy()
+    ~AutoDestroybossnSoapBindingProxy()
     {
         destroy();
     }
@@ -385,7 +385,7 @@ public:
 
         Q_ASSERT( !cur_fake_source );
 
-        AutoDestroyTestSoapBindingProxy proxy;
+        AutoDestroybossnSoapBindingProxy proxy;
         //proxy.soap->mode = SOAP_IO_STORE;
         proxy.soap->fconnect    = fake_connect;
         proxy.soap->fopen       = nullptr;
