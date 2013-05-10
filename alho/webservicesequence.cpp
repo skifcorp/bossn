@@ -348,15 +348,32 @@ void SocketHelper::onTimeout()
 class AutoDestroybossnSoapBindingProxy : public bossnSoapBindingProxy
 {
 public:
-    AutoDestroybossnSoapBindingProxy() : bossnSoapBindingProxy()
+    AutoDestroybossnSoapBindingProxy(Coroutine2 & c) : bossnSoapBindingProxy(), source_(c)
     {
+        soap->fconnect    = fake_connect;
+        soap->fopen       = nullptr;
+        soap->fdisconnect = fake_disconnect;
+        soap->fclose      = nullptr;
 
+        soap->os = &is;
+        soap->is = &is;
+
+        is.open( source_, 0 );
     }
 
     ~AutoDestroybossnSoapBindingProxy()
     {
         destroy();
     }
+
+    FakeSource& source()
+    {
+        return source_;
+    }
+
+private:
+    io::stream <FakeSource> is;
+    FakeSource source_;
 };
 
 
@@ -385,24 +402,9 @@ public:
 
         Q_ASSERT( !cur_fake_source );
 
-        AutoDestroybossnSoapBindingProxy proxy;
-        //proxy.soap->mode = SOAP_IO_STORE;
-        proxy.soap->fconnect    = fake_connect;
-        proxy.soap->fopen       = nullptr;
-        proxy.soap->fdisconnect = fake_disconnect;
-        proxy.soap->fclose       = nullptr;
+        AutoDestroybossnSoapBindingProxy proxy(coro_);
 
-
-        io::stream <FakeSource> is;
-
-        FakeSource source(coro_);
-        cur_fake_source = &source;
-
-
-        proxy.soap->os = &is;
-        proxy.soap->is = &is;        
-
-        is.open( source, 0 );
+        cur_fake_source = &proxy.source();
 
         _ns1__exchange arg;
         _ns1__exchangeResponse resp;
@@ -412,18 +414,15 @@ public:
 
         int ret = proxy.exchange( &arg, &resp );
 
-        if ( source.isTerminating() ) {
+        if ( cur_fake_source->isTerminating() ) {
             return QString();
         }
 
         if ( ret != SOAP_OK ) {
-            source.exception();
+            cur_fake_source->exception();
 
             throw MainSequenceException( gsoap_data_exchange_request_error, "Error in request data: " +
                                          QString::number(ret), "");
-        }
-        else {
-            std::cout << "ret: " << resp.return_  << std::endl;
         }
 
         return QString::fromStdString(resp.return_);
@@ -431,7 +430,34 @@ public:
 
     void acceptedCardResult( bool res )
     {
+        std::shared_ptr<WebServiceAsync> cur_fake_source_guard( this , [&](WebServiceAsync * wsa){
+            wsa->cur_fake_source = nullptr;
+        } ); Q_UNUSED(cur_fake_source_guard);
 
+        terminating_ = false;
+
+        Q_ASSERT( !cur_fake_source );
+
+        AutoDestroybossnSoapBindingProxy proxy(coro_);
+
+        cur_fake_source = &proxy.source();
+
+        _ns1__accept arg;
+        _ns1__acceptResponse resp;
+
+        arg.flag = res;
+
+        int ret = proxy.accept( &arg, &resp );
+
+        if ( cur_fake_source->isTerminating() ) {
+            return ;
+        }
+
+        if ( ret != SOAP_OK ) {
+            cur_fake_source->exception();
+
+            throw MainSequenceException( gsoap_accept_card_result_request_error, "Error in accept card!!!");
+        }
     }
 
     void terminate()
@@ -549,7 +575,7 @@ void WebServiceSequence::run()
                 throw;
             }
 
-            was.acceptedCardResult(false);
+            was.acceptedCardResult(true);
 
             sleepnb( get_setting<int>("brutto_finish_pause", app_settings) );
             printOnTablo( tr(apply_card_message) );                                  
