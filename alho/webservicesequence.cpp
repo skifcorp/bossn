@@ -562,6 +562,8 @@ void WebServiceSequence::run()
             QString ret_data = was.exchangeData( mapToString( getSimpleTagsValues(  ) ) +
                               ",\n" + getReaderBytes(card) );
 
+            qDebug( )  << ret_data;
+
             if (was.isTerminating()) {
                 continue;
             }
