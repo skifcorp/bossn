@@ -472,10 +472,6 @@ void WebServiceSequence::setSettings(const QVariantMap & s)
     alho_settings.init(s);
 
     seq_id                              = get_setting<int>("id", s);
-//#if 0
-//    current_card_tag = get_setting<QString>("current_card_tag", s);
-//    current_card_prop = get_setting<QString>("current_card_prop", s);
-//#endif
 
     setObjectName( "MainSequence num: " + QString::number(seq_id) );
 
@@ -521,37 +517,43 @@ void WebServiceSequence::run()
         }
 
         try {
-            //qDebug() << "1";
-            std::shared_ptr<WebServiceSequence> cur_fake_source_guard( this , [&](WebServiceSequence * wss){
+            std::shared_ptr<WebServiceSequence> cur_fake_source_guard( this ,[&]
+            (WebServiceSequence * wss){
                 wss->cur_webservice_async = nullptr;
             } ); Q_UNUSED(cur_fake_source_guard);
 
             Q_ASSERT(!cur_webservice_async);
 
             printOnTablo(tr(processing_message));
-            //qDebug() << "2";
+
             card.autorize();            
 
             checkForStealedCard( act );
-            //qDebug() << "3";
+
             WebServiceAsync was(*this);
             cur_webservice_async = &was;
-            //qDebug() << "4";
 
-            QMap<QString, QString> ret =  stringToMap(
-                    was.exchangeData( mapToString( getSimpleTagsValues(  ) ) +
-                                      ",\n" + getReaderBytes(card) ) );
+            QString ret_data = was.exchangeData( mapToString( getSimpleTagsValues(  ) ) +
+                              ",\n" + getReaderBytes(card) );
 
-
-            writeTagsValues( ret, card );
-
-            if (cur_webservice_async->isTerminating()) {
+            if (was.isTerminating()) {
                 continue;
             }
-            //qDebug() << "6";
+
+            try {
+                QMap<QString, QString> ret =  stringToMap(ret_data);
+                writeTagsValues( ret, card );
+            }
+            catch ( ... ) {
+                was.acceptedCardResult(false);
+                throw;
+            }
+
+            was.acceptedCardResult(false);
+
             sleepnb( get_setting<int>("brutto_finish_pause", app_settings) );
             printOnTablo( tr(apply_card_message) );                                  
-            //qDebug() << "7";
+
             continue;
         }
         catch (MifareCardAuthException& ex) {
@@ -662,7 +664,15 @@ QString WebServiceSequence::getReaderBytes( MifareCardSector&  card)
 
 void WebServiceSequence::writeReaderBytes( const QString& s, MifareCardSector&  card )
 {
-    //card.writeByteArray();
+    QByteArray arr;
+
+    QStringList bytes = s.split( " " );
+
+    for( QString byte : bytes ) {
+        arr.push_back(  byte.toInt(nullptr, 16) );
+    }
+
+    card.writeByteArray( arr, CardStructs::blocks_conf() );
 }
 
 void WebServiceSequence::writeTagsValues( const QMap<QString, QString>& m, MifareCardSector&  card )
@@ -672,5 +682,9 @@ void WebServiceSequence::writeTagsValues( const QMap<QString, QString>& m, Mifar
         writeReaderBytes( *reader_bytes, card );
     }
 
-    //QString tablo_value = m.take( alho_settings.tablo_tag.tag_name );
+    auto tablo_text = m.find( alho_settings.tablo_tag.tag_name );
+    if ( tablo_text != m.end() ) {
+        alho_settings.tablo_tag.func( Q_ARG(QVariant, QVariant::fromValue(*tablo_text) ) );
+    }
+
 }
