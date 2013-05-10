@@ -668,6 +668,11 @@ void WebServiceSequence::writeReaderBytes( const QString& s, MifareCardSector&  
 
     QStringList bytes = s.split( " " );
 
+    if ( bytes.count() != CardStructs::blocks_conf().memorySize() ) {
+        throw MainSequenceException(web_service_wrong_reader_bytes_count, "web service returned " +
+                                    QString::number(bytes.count()) +  " bytes for reader!");
+    }
+
     for( QString byte : bytes ) {
         arr.push_back(  byte.toInt(nullptr, 16) );
     }

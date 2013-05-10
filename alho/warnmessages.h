@@ -68,6 +68,7 @@ static const char * read_from_service_server_timeout       = QT_TRANSLATE_NOOP("
 
 static const char * gsoap_data_exchange_request_error      = QT_TRANSLATE_NOOP("MainSequence", "Gsoap data exchange request error");
 static const char * gsoap_accept_card_result_request_error = QT_TRANSLATE_NOOP("MainSequence", "Gsoap accept card result request error request error");
+static const char * web_service_wrong_reader_bytes_count   = QT_TRANSLATE_NOOP("MainSequence", "web service returned wrong number of bytes for reader");
 
 static const char * brutto_finish_weight_message                  = QT_TRANSLATE_NOOP("MainSequence", "%1 kg");
 static const char * brutto_finish_lab_message                     = QT_TRANSLATE_NOOP("MainSequence", "Lab(%1)");
@@ -150,6 +151,8 @@ inline void remove_unsued_warning()
     Q_UNUSED(gsoap_accept_card_result_request_error);
 
     Q_UNUSED(requested_constant_not_exists);
+
+    Q_UNUSED(web_service_wrong_reader_bytes_count);
 
 }
 
