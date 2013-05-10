@@ -668,13 +668,20 @@ void WebServiceSequence::writeReaderBytes( const QString& s, MifareCardSector&  
 
     QStringList bytes = s.split( " " );
 
-    if ( bytes.count() != CardStructs::blocks_conf().memorySize() ) {
+    if ( static_cast<uint>(bytes.count()) != CardStructs::blocks_conf().memorySize() ) {
         throw MainSequenceException(web_service_wrong_reader_bytes_count, "web service returned " +
                                     QString::number(bytes.count()) +  " bytes for reader!");
     }
 
     for( QString byte : bytes ) {
-        arr.push_back(  byte.toInt(nullptr, 16) );
+        bool ok = false;
+        auto ret = byte.toInt(&ok, 16);
+        if ( !ok ) {
+            throw MainSequenceException(web_service_corrupted_reader_byte, "web service returned corrupted byte (" +
+                                        byte + ") for reader!");
+        }
+        arr.push_back( ret );
+
     }
 
     card.writeByteArray( arr, CardStructs::blocks_conf() );
