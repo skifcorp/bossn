@@ -53,9 +53,6 @@ A commercial use license is available from Genivia, Inc., contact@genivia.com
 
 #define GSOAP_VERSION 20814
 
-extern int memory_alloc_counter;
-
-
 #ifdef WITH_SOAPDEFS_H
 # include "soapdefs.h"		/* include user-defined stuff */
 #endif
@@ -1435,25 +1432,12 @@ typedef soap_int32 soap_mode;
 # endif
 #endif
 
-
-inline void * my_malloc(size_t s)
-{
-    ++memory_alloc_counter;
-    return malloc(s);
-}
-
-inline void my_free(void * m)
-{
-    --memory_alloc_counter;
-    free(m);
-}
-
 #ifndef SOAP_MALLOC			/* use libc malloc */
-# define SOAP_MALLOC(soap, size) my_malloc(size)
+# define SOAP_MALLOC(soap, size) malloc(size)
 #endif
 
 #ifndef SOAP_FREE			/* use libc free */
-# define SOAP_FREE(soap, ptr) my_free(ptr)
+# define SOAP_FREE(soap, ptr) free(ptr)
 #endif
 
 #if !defined(WITH_LEAN) && !defined(WITH_COMPAT) && !defined(SOAP_NOTHROW)
@@ -1527,9 +1511,9 @@ inline void my_free(void * m)
 # endif
 # ifndef DBGFUN
 #  define DBGFUN(FNAME) DBGLOG(TEST, SOAP_MESSAGE(fdebug, "%s(%d): %s()\n", __FILE__, __LINE__, FNAME))
-#  define DBGFUN1(FNAME, FMT, ARG) DBGLOG(TEST, SOAP_MESSAGE(fdebug, "%s(%d): %s(" FMT ")\n", __FILE__, __LINE__, FNAME, (ARG)))
-#  define DBGFUN2(FNAME, FMT1, ARG1, FMT2, ARG2) DBGLOG(TEST, SOAP_MESSAGE(fdebug, "%s(%d): %s(" FMT1 ", " FMT2 ")\n", __FILE__, __LINE__, FNAME, (ARG1), (ARG2)))
-#  define DBGFUN3(FNAME, FMT1, ARG1, FMT2, ARG2, FMT3, ARG3) DBGLOG(TEST, SOAP_MESSAGE(fdebug, "%s(%d): %s(" FMT1 ", " FMT2 ", " FMT3 ")\n", __FILE__, __LINE__, FNAME, (ARG1), (ARG2), (ARG3)))
+#  define DBGFUN1(FNAME, FMT, ARG) DBGLOG(TEST, SOAP_MESSAGE(fdebug, "%s(%d): %s("FMT")\n", __FILE__, __LINE__, FNAME, (ARG)))
+#  define DBGFUN2(FNAME, FMT1, ARG1, FMT2, ARG2) DBGLOG(TEST, SOAP_MESSAGE(fdebug, "%s(%d): %s("FMT1", "FMT2")\n", __FILE__, __LINE__, FNAME, (ARG1), (ARG2)))
+#  define DBGFUN3(FNAME, FMT1, ARG1, FMT2, ARG2, FMT3, ARG3) DBGLOG(TEST, SOAP_MESSAGE(fdebug, "%s(%d): %s("FMT1", "FMT2", "FMT3")\n", __FILE__, __LINE__, FNAME, (ARG1), (ARG2), (ARG3)))
 # endif
 # ifndef DBGHEX
 #  define DBGHEX(DBGFILE, MSG, LEN) \

@@ -144,10 +144,10 @@ SOURCES +=  \
     reader/mifarereaderemulator.cpp \
     alho/reportsmanager2.cpp \
     coro/coroutine2.cpp \  
-    gsoap/soapTestSoapBindingProxy.cpp \
     gsoap/stdsoap2.cpp \
     gsoap/soapC.cpp \
-    alho/mainsequencesettings.cpp
+    alho/mainsequencesettings.cpp \
+    gsoap/soapbossnSoapBindingProxy.cpp
 
 HEADERS +=   reader/mifarereaderemulator.h \
     tools/func.h \
@@ -245,7 +245,8 @@ HEADERS +=   reader/mifarereaderemulator.h \
     alho/asyncfuncbase.h \
     alho/mainsequencebaseop.h \
     gsoap/stdsoap2.h \
-    alho/tagprophelper.h
+    alho/tagprophelper.h \
+    gsoap/soapbossnSoapBindingProxy.h
 
 
 RESOURCES += bossn.qrc

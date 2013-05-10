@@ -5,14 +5,14 @@
 		xmlns:tns="http://localhost"
 		xmlns:xsd="http://www.w3.org/2001/XMLSchema"
 		xmlns:xsd1="http://localhost"
-		name="Test"
+		name="bossn"
 		targetNamespace="http://localhost">
 	<types>
 		<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
 				xmlns:xs1="http://localhost"
 				targetNamespace="http://localhost"
 				elementFormDefault="qualified">
-			<xs:element name="Hello">
+			<xs:element name="exchange">
 				<xs:complexType>
 					<xs:sequence>
 						<xs:element name="param"
@@ -20,7 +20,23 @@
 					</xs:sequence>
 				</xs:complexType>
 			</xs:element>
-			<xs:element name="HelloResponse">
+			<xs:element name="exchangeResponse">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="return"
+								type="xs:string"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="accept">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="flag"
+								type="xs:boolean"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="acceptResponse">
 				<xs:complexType>
 					<xs:sequence>
 						<xs:element name="return"
@@ -30,27 +46,49 @@
 			</xs:element>
 		</xs:schema>
 	</types>
-	<message name="HelloRequestMessage">
+	<message name="exchangeRequestMessage">
 		<part name="parameters"
-				element="tns:Hello"/>
+				element="tns:exchange"/>
 	</message>
-	<message name="HelloResponseMessage">
+	<message name="exchangeResponseMessage">
 		<part name="parameters"
-				element="tns:HelloResponse"/>
+				element="tns:exchangeResponse"/>
 	</message>
-	<portType name="TestPortType">
-		<operation name="Hello">
-			<input message="tns:HelloRequestMessage"/>
-			<output message="tns:HelloResponseMessage"/>
+	<message name="acceptRequestMessage">
+		<part name="parameters"
+				element="tns:accept"/>
+	</message>
+	<message name="acceptResponseMessage">
+		<part name="parameters"
+				element="tns:acceptResponse"/>
+	</message>
+	<portType name="bossnPortType">
+		<operation name="exchange">
+			<input message="tns:exchangeRequestMessage"/>
+			<output message="tns:exchangeResponseMessage"/>
+		</operation>
+		<operation name="accept">
+			<input message="tns:acceptRequestMessage"/>
+			<output message="tns:acceptResponseMessage"/>
 		</operation>
 	</portType>
-	<binding name="TestSoapBinding"
-			type="tns:TestPortType">
+	<binding name="bossnSoapBinding"
+			type="tns:bossnPortType">
 		<soapbind:binding style="document"
 				transport="http://schemas.xmlsoap.org/soap/http"/>
-		<operation name="Hello">
+		<operation name="exchange">
 			<soapbind:operation style="document"
-					soapAction="http://localhost#Test:Hello"/>
+					soapAction="http://localhost#bossn:exchange"/>
+			<input>
+				<soapbind:body use="literal"/>
+			</input>
+			<output>
+				<soapbind:body use="literal"/>
+			</output>
+		</operation>
+		<operation name="accept">
+			<soapbind:operation style="document"
+					soapAction="http://localhost#bossn:accept"/>
 			<input>
 				<soapbind:body use="literal"/>
 			</input>
@@ -59,13 +97,23 @@
 			</output>
 		</operation>
 	</binding>
-	<binding name="TestSoap12Binding"
-			type="tns:TestPortType">
+	<binding name="bossnSoap12Binding"
+			type="tns:bossnPortType">
 		<soap12bind:binding style="document"
 				transport="http://schemas.xmlsoap.org/soap/http"/>
-		<operation name="Hello">
+		<operation name="exchange">
 			<soap12bind:operation style="document"
-					soapAction="http://localhost#Test:Hello"/>
+					soapAction="http://localhost#bossn:exchange"/>
+			<input>
+				<soap12bind:body use="literal"/>
+			</input>
+			<output>
+				<soap12bind:body use="literal"/>
+			</output>
+		</operation>
+		<operation name="accept">
+			<soap12bind:operation style="document"
+					soapAction="http://localhost#bossn:accept"/>
 			<input>
 				<soap12bind:body use="literal"/>
 			</input>
@@ -74,18 +122,18 @@
 			</output>
 		</operation>
 	</binding>
-	<service name="Test">
-		<port name="TestSoap"
-				binding="tns:TestSoapBinding">
+	<service name="bossn">
+		<port name="bossnSoap"
+				binding="tns:bossnSoapBinding">
 			<documentation> 
 				<wsi:Claim xmlns:wsi="http://ws-i.org/schemas/conformanceClaim/"
 						conformsTo="http://ws-i.org/profiles/basic/1.1"/>
 			</documentation>
-			<soapbind:address location="http://localhost/boss/ws/test.1cws"/>
+			<soapbind:address location="http://localhost/bossn/ws/bossn.1cws"/>
 		</port>
-		<port name="TestSoap12"
-				binding="tns:TestSoap12Binding">
-			<soap12bind:address location="http://localhost/boss/ws/test.1cws"/>
+		<port name="bossnSoap12"
+				binding="tns:bossnSoap12Binding">
+			<soap12bind:address location="http://localhost/bossn/ws/bossn.1cws"/>
 		</port>
 	</service>
 </definitions>

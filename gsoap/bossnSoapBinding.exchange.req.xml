@@ -6,9 +6,9 @@
  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
  xmlns:ns1="http://localhost">
  <SOAP-ENV:Body>
-   <ns1:Hello>
+   <ns1:exchange>
     <ns1:param></ns1:param>
-   </ns1:Hello>
+   </ns1:exchange>
 
  </SOAP-ENV:Body>
 </SOAP-ENV:Envelope>

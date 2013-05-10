@@ -51,8 +51,6 @@ A commercial use license is available from Genivia, Inc., contact@genivia.com
 --------------------------------------------------------------------------------
 */
 
-int memory_alloc_counter = 0;
-
 #define GSOAP_LIB_VERSION 20814
 
 #ifdef AS400
@@ -542,7 +540,6 @@ fsend(struct soap *soap, const char *s, size_t n)
 #if defined(__cplusplus) && !defined(WITH_LEAN) && !defined(WITH_COMPAT)
   if (soap->os)
   { soap->os->write(s, (std::streamsize)n);
-      //soap->os->flush();
     if (soap->os->good())
       return SOAP_OK;
     soap->errnum = 0;
@@ -15329,10 +15326,6 @@ soap_connect_command(struct soap *soap, int http_command, const char *endpoints,
 }
 #endif
 
-#include <iostream>
-
-
-
 /******************************************************************************/
 #ifndef PALM_1
 static int
@@ -15347,9 +15340,8 @@ soap_try_connect_command(struct soap *soap, int http_command, const char *endpoi
   soap_set_endpoint(soap, endpoint);
 #ifndef WITH_LEANER
   if (soap->fconnect)
-  {
-      if ((soap->error = soap->fconnect(soap, endpoint, soap->host, soap->port)))
-        return soap->error;
+  { if ((soap->error = soap->fconnect(soap, endpoint, soap->host, soap->port)))
+      return soap->error;
   }
   else
 #endif

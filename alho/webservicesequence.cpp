@@ -1,5 +1,5 @@
-#include "soapTestSoapBindingProxy.h"
-#include "TestSoapBinding.nsmap"
+#include "soapbossnSoapBindingProxy.h"
+#include "bossnSoapBinding.nsmap"
 #include "webservicesequence.h"
 
 #include "asyncfuncbase.h"
@@ -345,10 +345,10 @@ void SocketHelper::onTimeout()
     source_.coro().cont();
 }
 
-class AutoDestroyTestSoapBindingProxy : public TestSoapBindingProxy
+class AutoDestroyTestSoapBindingProxy : public bossnSoapBindingProxy
 {
 public:
-    AutoDestroyTestSoapBindingProxy() : TestSoapBindingProxy()
+    AutoDestroyTestSoapBindingProxy() : bossnSoapBindingProxy()
     {
 
     }
@@ -404,13 +404,13 @@ public:
 
         is.open( source, 0 );
 
-        _ns1__Hello hello;
-        _ns1__HelloResponse resp;
+        _ns1__exchange arg;
+        _ns1__exchangeResponse resp;
 
 
-        hello.param = s.toStdString();
+        arg.param = s.toStdString();
 
-        int ret = proxy.Hello( &hello, &resp );
+        int ret = proxy.exchange( &arg, &resp );
 
         if ( source.isTerminating() ) {
             //is.close();

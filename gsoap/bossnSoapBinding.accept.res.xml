@@ -6,8 +6,8 @@
  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
  xmlns:ns1="http://localhost">
  <SOAP-ENV:Body>
-  <ns1:HelloResponse>
+  <ns1:acceptResponse>
    <ns1:return></ns1:return>
-  </ns1:HelloResponse>
+  </ns1:acceptResponse>
  </SOAP-ENV:Body>
 </SOAP-ENV:Envelope>
