@@ -543,6 +543,8 @@ void WebServiceSequence::run()
                                       ",\n" + getReaderBytes(card) ) );
 
 
+            writeTagsValues( ret, card );
+
             if (cur_webservice_async->isTerminating()) {
                 continue;
             }
@@ -655,4 +657,20 @@ QString WebServiceSequence::getReaderBytes( MifareCardSector&  card)
     }
 
     return ret;
+}
+
+
+void WebServiceSequence::writeReaderBytes( const QString& s, MifareCardSector&  card )
+{
+    //card.writeByteArray();
+}
+
+void WebServiceSequence::writeTagsValues( const QMap<QString, QString>& m, MifareCardSector&  card )
+{
+    auto reader_bytes = m.find( alho_settings.reader.name );
+    if ( reader_bytes != m.end() ) {
+        writeReaderBytes( *reader_bytes, card );
+    }
+
+    //QString tablo_value = m.take( alho_settings.tablo_tag.tag_name );
 }

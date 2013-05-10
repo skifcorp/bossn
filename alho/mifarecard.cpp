@@ -16,7 +16,7 @@ MifareCardSector::MifareCardSector(const ActivateCardISO14443A& ac,
 
 }
 
-void MifareCardSector::autorize() throw (MifareCardException, MifareCardAuthException)
+void MifareCardSector::autorize()
 {
     QVariant key_var(card_key);
 
@@ -47,7 +47,7 @@ void MifareCardSector::autorize() throw (MifareCardException, MifareCardAuthExce
 
 }
 
-QVariant MifareCardSector::readMember(const StructMemberConf& mc, const QByteArray& arr) const throw (MifareCardException)
+QVariant MifareCardSector::readMember(const StructMemberConf& mc, const QByteArray& arr) const
 {
     if ( mc.offset + mc.length > static_cast<uint>(arr.length()) ) {
         throw MifareCardException( "ReadMember: Member struct with name: " + mc.memberName + " have offset: " +
@@ -64,7 +64,7 @@ QVariant MifareCardSector::readMember(const StructMemberConf& mc, const QByteArr
     }
 }
 
-void MifareCardSector::writeMember(const StructMemberConf &mc, const QVariant& val, QByteArray & arr) const throw (MifareCardException)
+void MifareCardSector::writeMember(const StructMemberConf &mc, const QVariant& val, QByteArray & arr) const
 {
     if ( mc.offset + mc.length > static_cast<uint>(arr.length()) ) {
         throw MifareCardException( "WriteMember: struct with name: " + mc.memberName + " have offset: " +
@@ -80,19 +80,8 @@ void MifareCardSector::writeMember(const StructMemberConf &mc, const QVariant& v
     }
 }
 
-void MifareCardSector::writeStruct(const StructConf &conf, const MifareCardData &s, const BlocksConf& bc) throw (MifareCardException)
+void MifareCardSector::writeByteArray( const QByteArray& arr, const BlocksConf& bc )
 {
-    QByteArray arr(bc.memorySize(), 0);
-    try {
-        for (StructConf::MembersConf::const_iterator iter = conf.members_conf.begin(); iter != conf.members_conf.end(); ++iter) {
-            writeMember(*iter, s[iter->memberName], arr);
-        }
-    }
-    catch (MifareCardException& ex)  {
-        throw ex;
-    }
-
-
     uint offset_in_data = 0;
     for (int i = 0; i<bc.count(); ++i) {
         QByteArray block = arr.mid(offset_in_data, bc[i].blockSize);
@@ -134,7 +123,23 @@ void MifareCardSector::writeStruct(const StructConf &conf, const MifareCardData 
 
 }
 
-QString MifareCardSector::toString(const StructConf &conf, const MifareCardData &s) const throw()
+void MifareCardSector::writeStruct(const StructConf &conf, const MifareCardData &s, const BlocksConf& bc)
+{
+    QByteArray arr(bc.memorySize(), 0);
+    try {
+        for (StructConf::MembersConf::const_iterator iter = conf.members_conf.begin(); iter != conf.members_conf.end(); ++iter) {
+            writeMember(*iter, s[iter->memberName], arr);
+        }
+    }
+    catch (MifareCardException& ex)  {
+        throw ex;
+    }
+
+
+    writeByteArray( arr, bc );
+}
+
+QString MifareCardSector::toString(const StructConf &conf, const MifareCardData &s) const
 {
     QString ret;
     for (StructConf::MembersConf::const_iterator iter = conf.members_conf.begin(); iter != conf.members_conf.end(); ++iter) {
@@ -154,7 +159,7 @@ QString MifareCardSector::toString(const StructConf &conf, const MifareCardData 
 }
 
 
-QString MifareCardSector::toBigString(const StructConf &conf, const MifareCardData &s) const throw()
+QString MifareCardSector::toBigString(const StructConf &conf, const MifareCardData &s) const
 {
     QString ret;
 
@@ -178,14 +183,13 @@ QString MifareCardSector::toBigString(const StructConf &conf, const MifareCardDa
 }
 
 
-QByteArray MifareCardSector::readByteArray(const BlocksConf& conf) throw(MifareCardException)
+QByteArray MifareCardSector::readByteArray(const BlocksConf& conf)
 {
     //MifareCardData ret;
     //ret.setUid(uid());
 
     QByteArray arr;
     for (int i = 0; i<conf.count(); ++i) {
-        //MifareRead mr = reader.data()->func(reader_settings.read_block, &caller, Q_ARG(const QVariant&, QVariant(conf.blocks[i].blockNum))).value<MifareRead>();
         MifareRead mr;
         for (int j = 0; j<10; ++j) {
             mr = reader_settings.read_block.func( Q_ARG(const QVariant&, QVariant(conf[i].blockNum))).value<MifareRead>();
@@ -201,7 +205,7 @@ QByteArray MifareCardSector::readByteArray(const BlocksConf& conf) throw(MifareC
     return arr;
 }
 
-MifareCardData MifareCardSector::readStruct(const QByteArray &arr, const StructConf& conf) throw (MifareCardException)
+MifareCardData MifareCardSector::readStruct(const QByteArray &arr, const StructConf& conf)
 {   
     MifareCardData ret;
     ret.setUid(uid());

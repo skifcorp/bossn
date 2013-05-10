@@ -123,7 +123,8 @@ private:
         }
         return ret;
     }
-
+    void writeTagsValues( const QMap<QString, QString>& , MifareCardSector&   );
+    void writeReaderBytes( const QString&, MifareCardSector&  card );
 
     WebServiceAsync * cur_webservice_async = nullptr;
 };

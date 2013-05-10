@@ -65,16 +65,19 @@ public:
 
     bool active() const {return activate_card.active();}
 
-    void autorize(  ) throw (MifareCardException, MifareCardAuthException);
+    void autorize(  );
     //QByteArray readByteArray(const StructConf& conf) throw (MifareCardException);
-    QByteArray readByteArray(const BlocksConf& ) throw (MifareCardException);
-    MifareCardData readStruct(const QByteArray&, const StructConf& conf) throw (MifareCardException);
+    QByteArray readByteArray(const BlocksConf& ) ;
+    MifareCardData readStruct(const QByteArray&, const StructConf& conf) ;
 
 
     void writeStruct(const StructConf& conf, const MifareCardData& s,
-                     const BlocksConf& ) throw (MifareCardException);
-    QString toString( const StructConf& conf, const MifareCardData& s )const throw ();
-    QString toBigString(const StructConf& conf, const MifareCardData& s) const throw();
+                     const BlocksConf& );
+    void writeByteArray(const QByteArray&, const BlocksConf& );
+
+
+    QString toString( const StructConf& conf, const MifareCardData& s )const ;
+    QString toBigString(const StructConf& conf, const MifareCardData& s) const ;
 
     QByteArray uid() const {return activate_card.uid;}  
     static uchar passwordBlock(uchar block)
@@ -97,8 +100,8 @@ private:
     //Tag::WeakPointer reader;
     ActivateCardISO14443A activate_card;
 
-    QVariant readMember (const StructMemberConf& , const QByteArray& ) const throw (MifareCardException);
-    void     writeMember(const StructMemberConf& , const QVariant&, QByteArray& ) const throw (MifareCardException);
+    QVariant readMember (const StructMemberConf& , const QByteArray& ) const ;
+    void     writeMember(const StructMemberConf& , const QVariant&, QByteArray& ) const;
 
     ReaderTagMethods& reader_settings;
     QByteArray card_key;
