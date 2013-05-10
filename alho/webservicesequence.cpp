@@ -345,7 +345,19 @@ void SocketHelper::onTimeout()
     source_.coro().cont();
 }
 
+class AutoDestroyTestSoapBindingProxy : public TestSoapBindingProxy
+{
+public:
+    AutoDestroyTestSoapBindingProxy() : TestSoapBindingProxy()
+    {
 
+    }
+
+    ~AutoDestroyTestSoapBindingProxy()
+    {
+        destroy();
+    }
+};
 
 
 
@@ -373,7 +385,7 @@ public:
 
         Q_ASSERT( !cur_fake_source );
 
-        TestSoapBindingProxy proxy;
+        AutoDestroyTestSoapBindingProxy proxy;
         //proxy.soap->mode = SOAP_IO_STORE;
         proxy.soap->fconnect    = fake_connect;
         proxy.soap->fopen       = nullptr;
@@ -420,7 +432,7 @@ public:
         QMap<QString, QString> retm;
         retm["aaa"] = QString::fromStdString( resp.return_ );
 
-        proxy.destroy();
+        //proxy.destroy();
 
         return retm;
     }
