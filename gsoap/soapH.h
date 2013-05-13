@@ -192,9 +192,9 @@ SOAP_FMAC1 _ns1__accept * SOAP_FMAC2 soap_instantiate__ns1__accept(struct soap*,
 
 inline _ns1__accept * soap_new__ns1__accept(struct soap *soap, int n = -1) { return soap_instantiate__ns1__accept(soap, n, NULL, NULL, NULL); }
 
-inline _ns1__accept * soap_new_req__ns1__accept(struct soap *soap, bool flag) { _ns1__accept *_p = soap_instantiate__ns1__accept(soap, -1, NULL, NULL, NULL); if (_p) { _p->soap_default(soap); _p->_ns1__accept::flag = flag; } return _p; }
+inline _ns1__accept * soap_new_req__ns1__accept(struct soap *soap, bool flag, std::string& platformId) { _ns1__accept *_p = soap_instantiate__ns1__accept(soap, -1, NULL, NULL, NULL); if (_p) { _p->soap_default(soap); _p->_ns1__accept::flag = flag; _p->_ns1__accept::platformId = platformId; } return _p; }
 
-inline _ns1__accept * soap_new_set__ns1__accept(struct soap *soap, bool flag) { _ns1__accept *_p = soap_instantiate__ns1__accept(soap, -1, NULL, NULL, NULL); if (_p) { _p->soap_default(soap); _p->_ns1__accept::flag = flag; } return _p; }
+inline _ns1__accept * soap_new_set__ns1__accept(struct soap *soap, bool flag, std::string& platformId) { _ns1__accept *_p = soap_instantiate__ns1__accept(soap, -1, NULL, NULL, NULL); if (_p) { _p->soap_default(soap); _p->_ns1__accept::flag = flag; _p->_ns1__accept::platformId = platformId; } return _p; }
 
 inline void soap_delete__ns1__accept(struct soap *soap, _ns1__accept *p) { soap_delete(soap, p); }
 

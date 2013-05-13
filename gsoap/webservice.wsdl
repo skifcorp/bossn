@@ -33,6 +33,8 @@
 					<xs:sequence>
 						<xs:element name="flag"
 								type="xs:boolean"/>
+						<xs:element name="platformId"
+								type="xs:string"/>
 					</xs:sequence>
 				</xs:complexType>
 			</xs:element>

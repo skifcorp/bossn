@@ -8,6 +8,7 @@
  <SOAP-ENV:Body>
    <ns1:accept>
     <ns1:flag>false</ns1:flag>
+    <ns1:platformId></ns1:platformId>
    </ns1:accept>
 
  </SOAP-ENV:Body>

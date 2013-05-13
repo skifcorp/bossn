@@ -428,7 +428,7 @@ public:
         return QString::fromStdString(resp.return_);
     }
 
-    void acceptedCardResult( bool res )
+    void acceptedCardResult( bool res, const QString& platform_id )
     {
         std::shared_ptr<WebServiceAsync> cur_fake_source_guard( this , [&](WebServiceAsync * wsa){
             wsa->cur_fake_source = nullptr;
@@ -446,6 +446,7 @@ public:
         _ns1__acceptResponse resp;
 
         arg.flag = res;
+        arg.platformId = platform_id.toStdString();
 
         int ret = proxy.accept( &arg, &resp );
 
@@ -573,11 +574,11 @@ void WebServiceSequence::run()
                 writeTagsValues( ret, card );
             }
             catch ( ... ) {
-                was.acceptedCardResult(false);
+                was.acceptedCardResult(false, QString::number(seqId()));
                 throw;
             }
 
-            was.acceptedCardResult(true);
+            was.acceptedCardResult(true, QString::number(seqId()));
 
             sleepnb( get_setting<int>("brutto_finish_pause", app_settings) );
             printOnTablo( tr(apply_card_message) );                                  

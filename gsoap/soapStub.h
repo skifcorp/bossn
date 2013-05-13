@@ -96,6 +96,7 @@ class SOAP_CMAC _ns1__accept
 {
 public:
 	bool flag;	/* required element of type xsd:boolean */
+	std::string platformId;	/* required element of type xsd:string */
 	struct soap *soap;	/* transient */
 public:
 	virtual int soap_type() const { return 10; } /* = unique id SOAP_TYPE__ns1__accept */

@@ -147,7 +147,8 @@ SOURCES +=  \
     gsoap/stdsoap2.cpp \
     gsoap/soapC.cpp \
     alho/mainsequencesettings.cpp \
-    gsoap/soapbossnSoapBindingProxy.cpp
+    gsoap/soapbossnSoapBindingProxy.cpp \
+    weight/SysTecIT3000.cpp
 
 HEADERS +=   reader/mifarereaderemulator.h \
     tools/func.h \
@@ -246,7 +247,8 @@ HEADERS +=   reader/mifarereaderemulator.h \
     alho/mainsequencebaseop.h \
     gsoap/stdsoap2.h \
     alho/tagprophelper.h \
-    gsoap/soapbossnSoapBindingProxy.h
+    gsoap/soapbossnSoapBindingProxy.h \
+    weight/SysTecIT3000.h
 
 
 RESOURCES += bossn.qrc
