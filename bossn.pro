@@ -126,7 +126,6 @@ SOURCES +=  \
     alho/tagfunchelper.cpp \
     alho/seqdebug.cpp \
     alho/initcardstructs.cpp \
-<<<<<<< HEAD
     photograb/photomaker.cpp \
     reader/mifarereaderlist.cpp \
     weight/mettlertoledo8530_stream.cpp \
@@ -151,19 +150,6 @@ SOURCES +=  \
     gsoap/soapbossnSoapBindingProxy.cpp
 
 HEADERS +=   reader/mifarereaderemulator.h \
-=======
-    alho/weighters/baseacceptanceweighter.cpp \
-    alho/weighters/beetacceptanceweighter.cpp \
-    alho/weighters/grainacceptanceweighter.cpp \
-    alho/weighters/grainshipmentweighter.cpp \
-    alho/weighters/baseshipmentweighter.cpp \
-    alho/weighters/weighterconf.cpp \
-    alho/weighters/genericdbstructs.cpp \
-    photograb/photomaker.cpp \
-    weight/SysTecIT3000.cpp
-
-HEADERS += \    
->>>>>>> cf64865... added systecit3000
     tools/func.h \
     weight/mettlertoledo8530.h \
     weight/mettlertoledo310.h \
@@ -220,7 +206,6 @@ HEADERS += \
     alho/mainsequencesettings.h \
     alho/seqdebug.h \   	
     qxorm_pch.h \
-<<<<<<< HEAD
     photograb/photomaker.h \ 
     reader/mifarereaderlist.h \
     weight/mettlertoledo8530_stream.h \
@@ -265,10 +250,5 @@ HEADERS += \
 
 
 RESOURCES += bossn.qrc
-=======
-    photograb/photomaker.h \
-    weight/SysTecIT3000.h
-	
->>>>>>> cf64865... added systecit3000
 
 
