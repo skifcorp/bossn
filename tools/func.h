@@ -53,11 +53,11 @@ inline void printByteArray(const QByteArray& ba)
 }
 
 
-inline QString byteArrayToString(const QByteArray& ba, int base = 16)
+inline QString byteArrayToString(const QByteArray& ba, int base = 16, const QString& sep = " ")
 {
     QString ret;
     for (int i = 0; i< ba.count(); ++i) {
-        ret += QString::number(static_cast<uint>(static_cast<uchar>(ba[i])), base) + " ";
+        ret += QString::number(static_cast<uint>(static_cast<uchar>(ba[i])), base) + sep;
     }
     return ret;
 }

@@ -8,6 +8,7 @@
 #include "warnmessages.h"
 #include "mifarereader.h"
 #include "mifarecard.h"
+#include "func.h"
 
 #include <QString>
 #include <QTcpSocket>
@@ -392,7 +393,7 @@ public:
 
     }
 
-    QString exchangeData(const QString& s)
+    QString exchangeData(const QString& s, const QString& platform_id, const QString& uid)
     {
         std::shared_ptr<WebServiceAsync> cur_fake_source_guard( this , [&](WebServiceAsync * wsa){
             wsa->cur_fake_source = nullptr;
@@ -411,6 +412,8 @@ public:
 
 
         arg.param = s.toStdString();
+        arg.platformId = platform_id.toStdString();
+        arg.RFID_USCOREUID = uid.toStdString();
 
         int ret = proxy.exchange( &arg, &resp );
 
@@ -561,7 +564,8 @@ void WebServiceSequence::run()
             cur_webservice_async = &was;
 
             QString ret_data = was.exchangeData( mapToString( getSimpleTagsValues(  ) ) +
-                              ",\n" + getReaderBytes(card) );
+                        ",\n" + getReaderBytes(card), QString::number(seqId()),
+                        byteArrayToString(act.uid, 16, "") );
 
             qDebug( )  << ret_data;
 

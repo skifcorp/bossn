@@ -54,6 +54,8 @@ class SOAP_CMAC _ns1__exchange
 {
 public:
 	std::string param;	/* required element of type xsd:string */
+	std::string platformId;	/* required element of type xsd:string */
+	std::string RFID_USCOREUID;	/* required element of type xsd:string */
 	struct soap *soap;	/* transient */
 public:
 	virtual int soap_type() const { return 8; } /* = unique id SOAP_TYPE__ns1__exchange */

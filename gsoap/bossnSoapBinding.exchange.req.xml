@@ -8,6 +8,8 @@
  <SOAP-ENV:Body>
    <ns1:exchange>
     <ns1:param></ns1:param>
+    <ns1:platformId></ns1:platformId>
+    <ns1:RFID_UID></ns1:RFID_UID>
    </ns1:exchange>
 
  </SOAP-ENV:Body>

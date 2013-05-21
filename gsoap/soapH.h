@@ -250,9 +250,9 @@ SOAP_FMAC1 _ns1__exchange * SOAP_FMAC2 soap_instantiate__ns1__exchange(struct so
 
 inline _ns1__exchange * soap_new__ns1__exchange(struct soap *soap, int n = -1) { return soap_instantiate__ns1__exchange(soap, n, NULL, NULL, NULL); }
 
-inline _ns1__exchange * soap_new_req__ns1__exchange(struct soap *soap, std::string& param) { _ns1__exchange *_p = soap_instantiate__ns1__exchange(soap, -1, NULL, NULL, NULL); if (_p) { _p->soap_default(soap); _p->_ns1__exchange::param = param; } return _p; }
+inline _ns1__exchange * soap_new_req__ns1__exchange(struct soap *soap, std::string& param, std::string& platformId, std::string& RFID_USCOREUID) { _ns1__exchange *_p = soap_instantiate__ns1__exchange(soap, -1, NULL, NULL, NULL); if (_p) { _p->soap_default(soap); _p->_ns1__exchange::param = param; _p->_ns1__exchange::platformId = platformId; _p->_ns1__exchange::RFID_USCOREUID = RFID_USCOREUID; } return _p; }
 
-inline _ns1__exchange * soap_new_set__ns1__exchange(struct soap *soap, std::string& param) { _ns1__exchange *_p = soap_instantiate__ns1__exchange(soap, -1, NULL, NULL, NULL); if (_p) { _p->soap_default(soap); _p->_ns1__exchange::param = param; } return _p; }
+inline _ns1__exchange * soap_new_set__ns1__exchange(struct soap *soap, std::string& param, std::string& platformId, std::string& RFID_USCOREUID) { _ns1__exchange *_p = soap_instantiate__ns1__exchange(soap, -1, NULL, NULL, NULL); if (_p) { _p->soap_default(soap); _p->_ns1__exchange::param = param; _p->_ns1__exchange::platformId = platformId; _p->_ns1__exchange::RFID_USCOREUID = RFID_USCOREUID; } return _p; }
 
 inline void soap_delete__ns1__exchange(struct soap *soap, _ns1__exchange *p) { soap_delete(soap, p); }
 

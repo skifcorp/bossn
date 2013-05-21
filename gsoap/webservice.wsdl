@@ -17,6 +17,10 @@
 					<xs:sequence>
 						<xs:element name="param"
 								type="xs:string"/>
+						<xs:element name="platformId"
+								type="xs:string"/>
+						<xs:element name="RFID_UID"
+								type="xs:string"/>
 					</xs:sequence>
 				</xs:complexType>
 			</xs:element>

@@ -15,7 +15,7 @@ compiling, linking, and/or using OpenSSL is allowed.
 
 #include "soapH.h"
 
-SOAP_SOURCE_STAMP("@(#) soapC.cpp ver 2.8.14 2013-05-13 10:21:07 GMT")
+SOAP_SOURCE_STAMP("@(#) soapC.cpp ver 2.8.14 2013-05-21 12:54:32 GMT")
 
 
 #ifndef WITH_NOGLOBAL
@@ -1326,6 +1326,8 @@ void _ns1__exchange::soap_default(struct soap *soap)
 {
 	this->soap = soap;
 	soap_default_std__string(soap, &this->_ns1__exchange::param);
+	soap_default_std__string(soap, &this->_ns1__exchange::platformId);
+	soap_default_std__string(soap, &this->_ns1__exchange::RFID_USCOREUID);
 	/* transient soap skipped */
 }
 
@@ -1334,6 +1336,8 @@ void _ns1__exchange::soap_serialize(struct soap *soap) const
 #ifndef WITH_NOIDREF
 	(void)soap; /* appease -Wall -Werror */
 	soap_serialize_std__string(soap, &this->_ns1__exchange::param);
+	soap_serialize_std__string(soap, &this->_ns1__exchange::platformId);
+	soap_serialize_std__string(soap, &this->_ns1__exchange::RFID_USCOREUID);
 	/* transient soap skipped */
 #endif
 }
@@ -1348,6 +1352,10 @@ SOAP_FMAC3 int SOAP_FMAC4 soap_out__ns1__exchange(struct soap *soap, const char 
 	if (soap_element_begin_out(soap, tag, soap_embedded_id(soap, id, a, SOAP_TYPE__ns1__exchange), type))
 		return soap->error;
 	if (soap_out_std__string(soap, "ns1:param", -1, &(a->_ns1__exchange::param), ""))
+		return soap->error;
+	if (soap_out_std__string(soap, "ns1:platformId", -1, &(a->_ns1__exchange::platformId), ""))
+		return soap->error;
+	if (soap_out_std__string(soap, "ns1:RFID_UID", -1, &(a->_ns1__exchange::RFID_USCOREUID), ""))
 		return soap->error;
 	/* transient soap skipped */
 	return soap_element_end_out(soap, tag);
@@ -1374,6 +1382,8 @@ SOAP_FMAC3 _ns1__exchange * SOAP_FMAC4 soap_in__ns1__exchange(struct soap *soap,
 		}
 	}
 	size_t soap_flag_param1 = 1;
+	size_t soap_flag_platformId1 = 1;
+	size_t soap_flag_RFID_USCOREUID1 = 1;
 	if (soap->body && !*soap->href)
 	{
 		for (;;)
@@ -1381,6 +1391,16 @@ SOAP_FMAC3 _ns1__exchange * SOAP_FMAC4 soap_in__ns1__exchange(struct soap *soap,
 			if (soap_flag_param1 && (soap->error == SOAP_TAG_MISMATCH || soap->error == SOAP_NO_TAG))
 				if (soap_in_std__string(soap, "ns1:param", &(a->_ns1__exchange::param), "xsd:string"))
 				{	soap_flag_param1--;
+					continue;
+				}
+			if (soap_flag_platformId1 && (soap->error == SOAP_TAG_MISMATCH || soap->error == SOAP_NO_TAG))
+				if (soap_in_std__string(soap, "ns1:platformId", &(a->_ns1__exchange::platformId), "xsd:string"))
+				{	soap_flag_platformId1--;
+					continue;
+				}
+			if (soap_flag_RFID_USCOREUID1 && (soap->error == SOAP_TAG_MISMATCH || soap->error == SOAP_NO_TAG))
+				if (soap_in_std__string(soap, "ns1:RFID_UID", &(a->_ns1__exchange::RFID_USCOREUID), "xsd:string"))
+				{	soap_flag_RFID_USCOREUID1--;
 					continue;
 				}
 			/* transient soap skipped */
@@ -1399,7 +1419,7 @@ SOAP_FMAC3 _ns1__exchange * SOAP_FMAC4 soap_in__ns1__exchange(struct soap *soap,
 		if (soap->body && soap_element_end_in(soap, tag))
 			return NULL;
 	}
-	if ((soap->mode & SOAP_XML_STRICT) && (soap_flag_param1 > 0))
+	if ((soap->mode & SOAP_XML_STRICT) && (soap_flag_param1 > 0 || soap_flag_platformId1 > 0 || soap_flag_RFID_USCOREUID1 > 0))
 	{	soap->error = SOAP_OCCURS;
 		return NULL;
 	}
