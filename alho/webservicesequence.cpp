@@ -242,7 +242,7 @@ void SocketHelper::exechange()
 
     error = timeout = got_result = false;
 
-    socket_->connectToHost("192.168.0.66", 80);
+    socket_->connectToHost("192.168.0.17", 80);
     timeout_timer->start(5000);
 
     if ( socket_->state() != QTcpSocket::ConnectedState ) {
@@ -405,17 +405,22 @@ public:
 
         AutoDestroybossnSoapBindingProxy proxy(coro_);
 
+        proxy.soap->userid = "www";
+        proxy.soap->passwd = "www";
+
         cur_fake_source = &proxy.source();
 
-        _ns1__exchange arg;
-        _ns1__exchangeResponse resp;
+        _ns1__Exchange arg;
+        _ns1__ExchangeResponse resp;
 
 
         arg.param = s.toStdString();
         arg.platformId = platform_id.toStdString();
         arg.RFID_USCOREUID = uid.toStdString();
 
-        int ret = proxy.exchange( &arg, &resp );
+        //qDebug() << "platform_id: " << platform_id;
+
+        int ret = proxy.Exchange( &arg, &resp );
 
         if ( cur_fake_source->isTerminating() ) {
             return QString();
@@ -427,6 +432,8 @@ public:
             throw MainSequenceException( gsoap_data_exchange_request_error, "Error in request data: " +
                                          QString::number(ret), "");
         }
+
+        //qDebug() << QString::fromStdString( resp.return_ );
 
         return QString::fromStdString(resp.return_);
     }
@@ -443,15 +450,18 @@ public:
 
         AutoDestroybossnSoapBindingProxy proxy(coro_);
 
+        proxy.soap->userid = "www";
+        proxy.soap->passwd = "www";
+
         cur_fake_source = &proxy.source();
 
-        _ns1__accept arg;
-        _ns1__acceptResponse resp;
+        _ns1__Accept arg;
+        _ns1__AcceptResponse resp;
 
         arg.flag = res;
         arg.platformId = platform_id.toStdString();
 
-        int ret = proxy.accept( &arg, &resp );
+        int ret = proxy.Accept( &arg, &resp );
 
         if ( cur_fake_source->isTerminating() ) {
             return ;
@@ -501,7 +511,7 @@ void WebServiceSequence::setSettings(const QVariantMap & s)
 {
     alho_settings.init(s);
 
-    seq_id                              = get_setting<int>("id", s);
+    seq_id                              = get_setting<int>("id", s);  
 
     setObjectName( "MainSequence num: " + QString::number(seq_id) );
 

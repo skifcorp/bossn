@@ -64,64 +64,64 @@ class SOAP_CMAC bossnSoapBindingProxy
 	virtual	char *soap_sprint_fault(char *buf, size_t len);
 #endif
 
-	/// Web service one-way send operation 'send_exchangeResponse' (returns error code or SOAP_OK)
-	virtual	int send_exchangeResponse(_ns1__exchangeResponse *ns1__exchangeResponse) { return this->send_exchangeResponse(NULL, NULL, ns1__exchangeResponse); }
-	virtual	int send_exchangeResponse(const char *endpoint, const char *soap_action, _ns1__exchangeResponse *ns1__exchangeResponse);
-	/// Web service one-way receive operation 'recv_exchangeResponse' (returns error code or SOAP_OK);
-	virtual	int recv_exchangeResponse(struct __ns1__exchangeResponse&);
-	/// Web service receive of HTTP Accept acknowledgment for one-way send operation 'send_exchangeResponse' (returns error code or SOAP_OK)
-	virtual	int recv_exchangeResponse_empty_response() { return soap_recv_empty_response(this->soap); }
-	/// Web service one-way synchronous send operation 'exchangeResponse' with HTTP Accept/OK response receive (returns error code or SOAP_OK)
-	virtual	int exchangeResponse(_ns1__exchangeResponse *ns1__exchangeResponse) { return this->exchangeResponse(NULL, NULL, ns1__exchangeResponse); }
-	virtual	int exchangeResponse(const char *endpoint, const char *soap_action, _ns1__exchangeResponse *ns1__exchangeResponse) { if (this->send_exchangeResponse(endpoint, soap_action, ns1__exchangeResponse) || soap_recv_empty_response(this->soap)) return this->soap->error; return SOAP_OK; }
+	/// Web service one-way send operation 'send_ExchangeResponse' (returns error code or SOAP_OK)
+	virtual	int send_ExchangeResponse(_ns1__ExchangeResponse *ns1__ExchangeResponse) { return this->send_ExchangeResponse(NULL, NULL, ns1__ExchangeResponse); }
+	virtual	int send_ExchangeResponse(const char *endpoint, const char *soap_action, _ns1__ExchangeResponse *ns1__ExchangeResponse);
+	/// Web service one-way receive operation 'recv_ExchangeResponse' (returns error code or SOAP_OK);
+	virtual	int recv_ExchangeResponse(struct __ns1__ExchangeResponse&);
+	/// Web service receive of HTTP Accept acknowledgment for one-way send operation 'send_ExchangeResponse' (returns error code or SOAP_OK)
+	virtual	int recv_ExchangeResponse_empty_response() { return soap_recv_empty_response(this->soap); }
+	/// Web service one-way synchronous send operation 'ExchangeResponse' with HTTP Accept/OK response receive (returns error code or SOAP_OK)
+	virtual	int ExchangeResponse(_ns1__ExchangeResponse *ns1__ExchangeResponse) { return this->ExchangeResponse(NULL, NULL, ns1__ExchangeResponse); }
+	virtual	int ExchangeResponse(const char *endpoint, const char *soap_action, _ns1__ExchangeResponse *ns1__ExchangeResponse) { if (this->send_ExchangeResponse(endpoint, soap_action, ns1__ExchangeResponse) || soap_recv_empty_response(this->soap)) return this->soap->error; return SOAP_OK; }
 
-	/// Web service operation 'exchange' (returns error code or SOAP_OK)
-	virtual	int exchange(_ns1__exchange *ns1__exchange, _ns1__exchangeResponse *ns1__exchangeResponse) { return this->exchange(NULL, NULL, ns1__exchange, ns1__exchangeResponse); }
-	virtual	int exchange(const char *endpoint, const char *soap_action, _ns1__exchange *ns1__exchange, _ns1__exchangeResponse *ns1__exchangeResponse);
+	/// Web service operation 'Exchange' (returns error code or SOAP_OK)
+	virtual	int Exchange(_ns1__Exchange *ns1__Exchange, _ns1__ExchangeResponse *ns1__ExchangeResponse) { return this->Exchange(NULL, NULL, ns1__Exchange, ns1__ExchangeResponse); }
+	virtual	int Exchange(const char *endpoint, const char *soap_action, _ns1__Exchange *ns1__Exchange, _ns1__ExchangeResponse *ns1__ExchangeResponse);
 
-	/// Web service one-way send operation 'send_acceptResponse' (returns error code or SOAP_OK)
-	virtual	int send_acceptResponse(_ns1__acceptResponse *ns1__acceptResponse) { return this->send_acceptResponse(NULL, NULL, ns1__acceptResponse); }
-	virtual	int send_acceptResponse(const char *endpoint, const char *soap_action, _ns1__acceptResponse *ns1__acceptResponse);
-	/// Web service one-way receive operation 'recv_acceptResponse' (returns error code or SOAP_OK);
-	virtual	int recv_acceptResponse(struct __ns1__acceptResponse&);
-	/// Web service receive of HTTP Accept acknowledgment for one-way send operation 'send_acceptResponse' (returns error code or SOAP_OK)
-	virtual	int recv_acceptResponse_empty_response() { return soap_recv_empty_response(this->soap); }
-	/// Web service one-way synchronous send operation 'acceptResponse' with HTTP Accept/OK response receive (returns error code or SOAP_OK)
-	virtual	int acceptResponse(_ns1__acceptResponse *ns1__acceptResponse) { return this->acceptResponse(NULL, NULL, ns1__acceptResponse); }
-	virtual	int acceptResponse(const char *endpoint, const char *soap_action, _ns1__acceptResponse *ns1__acceptResponse) { if (this->send_acceptResponse(endpoint, soap_action, ns1__acceptResponse) || soap_recv_empty_response(this->soap)) return this->soap->error; return SOAP_OK; }
+	/// Web service one-way send operation 'send_AcceptResponse' (returns error code or SOAP_OK)
+	virtual	int send_AcceptResponse(_ns1__AcceptResponse *ns1__AcceptResponse) { return this->send_AcceptResponse(NULL, NULL, ns1__AcceptResponse); }
+	virtual	int send_AcceptResponse(const char *endpoint, const char *soap_action, _ns1__AcceptResponse *ns1__AcceptResponse);
+	/// Web service one-way receive operation 'recv_AcceptResponse' (returns error code or SOAP_OK);
+	virtual	int recv_AcceptResponse(struct __ns1__AcceptResponse&);
+	/// Web service receive of HTTP Accept acknowledgment for one-way send operation 'send_AcceptResponse' (returns error code or SOAP_OK)
+	virtual	int recv_AcceptResponse_empty_response() { return soap_recv_empty_response(this->soap); }
+	/// Web service one-way synchronous send operation 'AcceptResponse' with HTTP Accept/OK response receive (returns error code or SOAP_OK)
+	virtual	int AcceptResponse(_ns1__AcceptResponse *ns1__AcceptResponse) { return this->AcceptResponse(NULL, NULL, ns1__AcceptResponse); }
+	virtual	int AcceptResponse(const char *endpoint, const char *soap_action, _ns1__AcceptResponse *ns1__AcceptResponse) { if (this->send_AcceptResponse(endpoint, soap_action, ns1__AcceptResponse) || soap_recv_empty_response(this->soap)) return this->soap->error; return SOAP_OK; }
 
-	/// Web service operation 'accept' (returns error code or SOAP_OK)
-	virtual	int accept(_ns1__accept *ns1__accept, _ns1__acceptResponse *ns1__acceptResponse) { return this->accept(NULL, NULL, ns1__accept, ns1__acceptResponse); }
-	virtual	int accept(const char *endpoint, const char *soap_action, _ns1__accept *ns1__accept, _ns1__acceptResponse *ns1__acceptResponse);
+	/// Web service operation 'Accept' (returns error code or SOAP_OK)
+	virtual	int Accept(_ns1__Accept *ns1__Accept, _ns1__AcceptResponse *ns1__AcceptResponse) { return this->Accept(NULL, NULL, ns1__Accept, ns1__AcceptResponse); }
+	virtual	int Accept(const char *endpoint, const char *soap_action, _ns1__Accept *ns1__Accept, _ns1__AcceptResponse *ns1__AcceptResponse);
 
-	/// Web service one-way send operation 'send_exchangeResponse' (returns error code or SOAP_OK)
-	virtual	int send_exchangeResponse_(_ns1__exchangeResponse *ns1__exchangeResponse) { return this->send_exchangeResponse_(NULL, NULL, ns1__exchangeResponse); }
-	virtual	int send_exchangeResponse_(const char *endpoint, const char *soap_action, _ns1__exchangeResponse *ns1__exchangeResponse);
-	/// Web service one-way receive operation 'recv_exchangeResponse' (returns error code or SOAP_OK);
-	virtual	int recv_exchangeResponse_(struct __ns1__exchangeResponse_&);
-	/// Web service receive of HTTP Accept acknowledgment for one-way send operation 'send_exchangeResponse' (returns error code or SOAP_OK)
-	virtual	int recv_exchangeResponse__empty_response() { return soap_recv_empty_response(this->soap); }
-	/// Web service one-way synchronous send operation 'exchangeResponse' with HTTP Accept/OK response receive (returns error code or SOAP_OK)
-	virtual	int exchangeResponse_(_ns1__exchangeResponse *ns1__exchangeResponse) { return this->exchangeResponse_(NULL, NULL, ns1__exchangeResponse); }
-	virtual	int exchangeResponse_(const char *endpoint, const char *soap_action, _ns1__exchangeResponse *ns1__exchangeResponse) { if (this->send_exchangeResponse_(endpoint, soap_action, ns1__exchangeResponse) || soap_recv_empty_response(this->soap)) return this->soap->error; return SOAP_OK; }
+	/// Web service one-way send operation 'send_ExchangeResponse' (returns error code or SOAP_OK)
+	virtual	int send_ExchangeResponse_(_ns1__ExchangeResponse *ns1__ExchangeResponse) { return this->send_ExchangeResponse_(NULL, NULL, ns1__ExchangeResponse); }
+	virtual	int send_ExchangeResponse_(const char *endpoint, const char *soap_action, _ns1__ExchangeResponse *ns1__ExchangeResponse);
+	/// Web service one-way receive operation 'recv_ExchangeResponse' (returns error code or SOAP_OK);
+	virtual	int recv_ExchangeResponse_(struct __ns1__ExchangeResponse_&);
+	/// Web service receive of HTTP Accept acknowledgment for one-way send operation 'send_ExchangeResponse' (returns error code or SOAP_OK)
+	virtual	int recv_ExchangeResponse__empty_response() { return soap_recv_empty_response(this->soap); }
+	/// Web service one-way synchronous send operation 'ExchangeResponse' with HTTP Accept/OK response receive (returns error code or SOAP_OK)
+	virtual	int ExchangeResponse_(_ns1__ExchangeResponse *ns1__ExchangeResponse) { return this->ExchangeResponse_(NULL, NULL, ns1__ExchangeResponse); }
+	virtual	int ExchangeResponse_(const char *endpoint, const char *soap_action, _ns1__ExchangeResponse *ns1__ExchangeResponse) { if (this->send_ExchangeResponse_(endpoint, soap_action, ns1__ExchangeResponse) || soap_recv_empty_response(this->soap)) return this->soap->error; return SOAP_OK; }
 
-	/// Web service operation 'exchange' (returns error code or SOAP_OK)
-	virtual	int exchange_(_ns1__exchange *ns1__exchange, _ns1__exchangeResponse *ns1__exchangeResponse) { return this->exchange_(NULL, NULL, ns1__exchange, ns1__exchangeResponse); }
-	virtual	int exchange_(const char *endpoint, const char *soap_action, _ns1__exchange *ns1__exchange, _ns1__exchangeResponse *ns1__exchangeResponse);
+	/// Web service operation 'Exchange' (returns error code or SOAP_OK)
+	virtual	int Exchange_(_ns1__Exchange *ns1__Exchange, _ns1__ExchangeResponse *ns1__ExchangeResponse) { return this->Exchange_(NULL, NULL, ns1__Exchange, ns1__ExchangeResponse); }
+	virtual	int Exchange_(const char *endpoint, const char *soap_action, _ns1__Exchange *ns1__Exchange, _ns1__ExchangeResponse *ns1__ExchangeResponse);
 
-	/// Web service one-way send operation 'send_acceptResponse' (returns error code or SOAP_OK)
-	virtual	int send_acceptResponse_(_ns1__acceptResponse *ns1__acceptResponse) { return this->send_acceptResponse_(NULL, NULL, ns1__acceptResponse); }
-	virtual	int send_acceptResponse_(const char *endpoint, const char *soap_action, _ns1__acceptResponse *ns1__acceptResponse);
-	/// Web service one-way receive operation 'recv_acceptResponse' (returns error code or SOAP_OK);
-	virtual	int recv_acceptResponse_(struct __ns1__acceptResponse_&);
-	/// Web service receive of HTTP Accept acknowledgment for one-way send operation 'send_acceptResponse' (returns error code or SOAP_OK)
-	virtual	int recv_acceptResponse__empty_response() { return soap_recv_empty_response(this->soap); }
-	/// Web service one-way synchronous send operation 'acceptResponse' with HTTP Accept/OK response receive (returns error code or SOAP_OK)
-	virtual	int acceptResponse_(_ns1__acceptResponse *ns1__acceptResponse) { return this->acceptResponse_(NULL, NULL, ns1__acceptResponse); }
-	virtual	int acceptResponse_(const char *endpoint, const char *soap_action, _ns1__acceptResponse *ns1__acceptResponse) { if (this->send_acceptResponse_(endpoint, soap_action, ns1__acceptResponse) || soap_recv_empty_response(this->soap)) return this->soap->error; return SOAP_OK; }
+	/// Web service one-way send operation 'send_AcceptResponse' (returns error code or SOAP_OK)
+	virtual	int send_AcceptResponse_(_ns1__AcceptResponse *ns1__AcceptResponse) { return this->send_AcceptResponse_(NULL, NULL, ns1__AcceptResponse); }
+	virtual	int send_AcceptResponse_(const char *endpoint, const char *soap_action, _ns1__AcceptResponse *ns1__AcceptResponse);
+	/// Web service one-way receive operation 'recv_AcceptResponse' (returns error code or SOAP_OK);
+	virtual	int recv_AcceptResponse_(struct __ns1__AcceptResponse_&);
+	/// Web service receive of HTTP Accept acknowledgment for one-way send operation 'send_AcceptResponse' (returns error code or SOAP_OK)
+	virtual	int recv_AcceptResponse__empty_response() { return soap_recv_empty_response(this->soap); }
+	/// Web service one-way synchronous send operation 'AcceptResponse' with HTTP Accept/OK response receive (returns error code or SOAP_OK)
+	virtual	int AcceptResponse_(_ns1__AcceptResponse *ns1__AcceptResponse) { return this->AcceptResponse_(NULL, NULL, ns1__AcceptResponse); }
+	virtual	int AcceptResponse_(const char *endpoint, const char *soap_action, _ns1__AcceptResponse *ns1__AcceptResponse) { if (this->send_AcceptResponse_(endpoint, soap_action, ns1__AcceptResponse) || soap_recv_empty_response(this->soap)) return this->soap->error; return SOAP_OK; }
 
-	/// Web service operation 'accept' (returns error code or SOAP_OK)
-	virtual	int accept_(_ns1__accept *ns1__accept, _ns1__acceptResponse *ns1__acceptResponse) { return this->accept_(NULL, NULL, ns1__accept, ns1__acceptResponse); }
-	virtual	int accept_(const char *endpoint, const char *soap_action, _ns1__accept *ns1__accept, _ns1__acceptResponse *ns1__acceptResponse);
+	/// Web service operation 'Accept' (returns error code or SOAP_OK)
+	virtual	int Accept_(_ns1__Accept *ns1__Accept, _ns1__AcceptResponse *ns1__AcceptResponse) { return this->Accept_(NULL, NULL, ns1__Accept, ns1__AcceptResponse); }
+	virtual	int Accept_(const char *endpoint, const char *soap_action, _ns1__Accept *ns1__Accept, _ns1__AcceptResponse *ns1__AcceptResponse);
 };
 #endif

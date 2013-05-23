@@ -11,7 +11,7 @@ compiling, linking, and/or using OpenSSL is allowed.
 #ifndef soapStub_H
 #define soapStub_H
 #include <vector>
-#define SOAP_NAMESPACE_OF_ns1	"http://localhost"
+#define SOAP_NAMESPACE_OF_ns1	"http://localhost/bossn"
 #include "stdsoap2.h"
 #if GSOAP_VERSION != 20814
 # error "GSOAP VERSION MISMATCH IN GENERATED CODE: PLEASE REINSTALL PACKAGE"
@@ -47,10 +47,10 @@ compiling, linking, and/or using OpenSSL is allowed.
 
 #endif
 
-#ifndef SOAP_TYPE__ns1__exchange
-#define SOAP_TYPE__ns1__exchange (8)
-/* ns1:exchange */
-class SOAP_CMAC _ns1__exchange
+#ifndef SOAP_TYPE__ns1__Exchange
+#define SOAP_TYPE__ns1__Exchange (8)
+/* ns1:Exchange */
+class SOAP_CMAC _ns1__Exchange
 {
 public:
 	std::string param;	/* required element of type xsd:string */
@@ -58,175 +58,175 @@ public:
 	std::string RFID_USCOREUID;	/* required element of type xsd:string */
 	struct soap *soap;	/* transient */
 public:
-	virtual int soap_type() const { return 8; } /* = unique id SOAP_TYPE__ns1__exchange */
+	virtual int soap_type() const { return 8; } /* = unique id SOAP_TYPE__ns1__Exchange */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns1__exchange() { _ns1__exchange::soap_default(NULL); }
-	virtual ~_ns1__exchange() { }
+	         _ns1__Exchange() { _ns1__Exchange::soap_default(NULL); }
+	virtual ~_ns1__Exchange() { }
 };
 #endif
 
-#ifndef SOAP_TYPE__ns1__exchangeResponse
-#define SOAP_TYPE__ns1__exchangeResponse (9)
-/* ns1:exchangeResponse */
-class SOAP_CMAC _ns1__exchangeResponse
+#ifndef SOAP_TYPE__ns1__ExchangeResponse
+#define SOAP_TYPE__ns1__ExchangeResponse (9)
+/* ns1:ExchangeResponse */
+class SOAP_CMAC _ns1__ExchangeResponse
 {
 public:
 	std::string return_;	/* SOAP 1.2 RPC return element (when namespace qualified) */	/* required element of type xsd:string */
 	struct soap *soap;	/* transient */
 public:
-	virtual int soap_type() const { return 9; } /* = unique id SOAP_TYPE__ns1__exchangeResponse */
+	virtual int soap_type() const { return 9; } /* = unique id SOAP_TYPE__ns1__ExchangeResponse */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns1__exchangeResponse() { _ns1__exchangeResponse::soap_default(NULL); }
-	virtual ~_ns1__exchangeResponse() { }
+	         _ns1__ExchangeResponse() { _ns1__ExchangeResponse::soap_default(NULL); }
+	virtual ~_ns1__ExchangeResponse() { }
 };
 #endif
 
-#ifndef SOAP_TYPE__ns1__accept
-#define SOAP_TYPE__ns1__accept (10)
-/* ns1:accept */
-class SOAP_CMAC _ns1__accept
+#ifndef SOAP_TYPE__ns1__Accept
+#define SOAP_TYPE__ns1__Accept (10)
+/* ns1:Accept */
+class SOAP_CMAC _ns1__Accept
 {
 public:
 	bool flag;	/* required element of type xsd:boolean */
 	std::string platformId;	/* required element of type xsd:string */
 	struct soap *soap;	/* transient */
 public:
-	virtual int soap_type() const { return 10; } /* = unique id SOAP_TYPE__ns1__accept */
+	virtual int soap_type() const { return 10; } /* = unique id SOAP_TYPE__ns1__Accept */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns1__accept() { _ns1__accept::soap_default(NULL); }
-	virtual ~_ns1__accept() { }
+	         _ns1__Accept() { _ns1__Accept::soap_default(NULL); }
+	virtual ~_ns1__Accept() { }
 };
 #endif
 
-#ifndef SOAP_TYPE__ns1__acceptResponse
-#define SOAP_TYPE__ns1__acceptResponse (11)
-/* ns1:acceptResponse */
-class SOAP_CMAC _ns1__acceptResponse
+#ifndef SOAP_TYPE__ns1__AcceptResponse
+#define SOAP_TYPE__ns1__AcceptResponse (11)
+/* ns1:AcceptResponse */
+class SOAP_CMAC _ns1__AcceptResponse
 {
 public:
 	std::string return_;	/* SOAP 1.2 RPC return element (when namespace qualified) */	/* required element of type xsd:string */
 	struct soap *soap;	/* transient */
 public:
-	virtual int soap_type() const { return 11; } /* = unique id SOAP_TYPE__ns1__acceptResponse */
+	virtual int soap_type() const { return 11; } /* = unique id SOAP_TYPE__ns1__AcceptResponse */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns1__acceptResponse() { _ns1__acceptResponse::soap_default(NULL); }
-	virtual ~_ns1__acceptResponse() { }
+	         _ns1__AcceptResponse() { _ns1__AcceptResponse::soap_default(NULL); }
+	virtual ~_ns1__AcceptResponse() { }
 };
 #endif
 
-#ifndef SOAP_TYPE___ns1__exchangeResponse
-#define SOAP_TYPE___ns1__exchangeResponse (18)
+#ifndef SOAP_TYPE___ns1__ExchangeResponse
+#define SOAP_TYPE___ns1__ExchangeResponse (18)
 /* Operation wrapper: */
-struct __ns1__exchangeResponse
+struct __ns1__ExchangeResponse
 {
 public:
-	_ns1__exchangeResponse *ns1__exchangeResponse;	/* optional element of type ns1:exchangeResponse */
+	_ns1__ExchangeResponse *ns1__ExchangeResponse;	/* optional element of type ns1:ExchangeResponse */
 public:
-	int soap_type() const { return 18; } /* = unique id SOAP_TYPE___ns1__exchangeResponse */
+	int soap_type() const { return 18; } /* = unique id SOAP_TYPE___ns1__ExchangeResponse */
 };
 #endif
 
-#ifndef SOAP_TYPE___ns1__exchange
-#define SOAP_TYPE___ns1__exchange (21)
+#ifndef SOAP_TYPE___ns1__Exchange
+#define SOAP_TYPE___ns1__Exchange (21)
 /* Operation wrapper: */
-struct __ns1__exchange
+struct __ns1__Exchange
 {
 public:
-	_ns1__exchange *ns1__exchange;	/* optional element of type ns1:exchange */
+	_ns1__Exchange *ns1__Exchange;	/* optional element of type ns1:Exchange */
 public:
-	int soap_type() const { return 21; } /* = unique id SOAP_TYPE___ns1__exchange */
+	int soap_type() const { return 21; } /* = unique id SOAP_TYPE___ns1__Exchange */
 };
 #endif
 
-#ifndef SOAP_TYPE___ns1__acceptResponse
-#define SOAP_TYPE___ns1__acceptResponse (24)
+#ifndef SOAP_TYPE___ns1__AcceptResponse
+#define SOAP_TYPE___ns1__AcceptResponse (24)
 /* Operation wrapper: */
-struct __ns1__acceptResponse
+struct __ns1__AcceptResponse
 {
 public:
-	_ns1__acceptResponse *ns1__acceptResponse;	/* optional element of type ns1:acceptResponse */
+	_ns1__AcceptResponse *ns1__AcceptResponse;	/* optional element of type ns1:AcceptResponse */
 public:
-	int soap_type() const { return 24; } /* = unique id SOAP_TYPE___ns1__acceptResponse */
+	int soap_type() const { return 24; } /* = unique id SOAP_TYPE___ns1__AcceptResponse */
 };
 #endif
 
-#ifndef SOAP_TYPE___ns1__accept
-#define SOAP_TYPE___ns1__accept (27)
+#ifndef SOAP_TYPE___ns1__Accept
+#define SOAP_TYPE___ns1__Accept (27)
 /* Operation wrapper: */
-struct __ns1__accept
+struct __ns1__Accept
 {
 public:
-	_ns1__accept *ns1__accept;	/* optional element of type ns1:accept */
+	_ns1__Accept *ns1__Accept;	/* optional element of type ns1:Accept */
 public:
-	int soap_type() const { return 27; } /* = unique id SOAP_TYPE___ns1__accept */
+	int soap_type() const { return 27; } /* = unique id SOAP_TYPE___ns1__Accept */
 };
 #endif
 
-#ifndef SOAP_TYPE___ns1__exchangeResponse_
-#define SOAP_TYPE___ns1__exchangeResponse_ (29)
+#ifndef SOAP_TYPE___ns1__ExchangeResponse_
+#define SOAP_TYPE___ns1__ExchangeResponse_ (29)
 /* Operation wrapper: */
-struct __ns1__exchangeResponse_
+struct __ns1__ExchangeResponse_
 {
 public:
-	_ns1__exchangeResponse *ns1__exchangeResponse;	/* optional element of type ns1:exchangeResponse */
+	_ns1__ExchangeResponse *ns1__ExchangeResponse;	/* optional element of type ns1:ExchangeResponse */
 public:
-	int soap_type() const { return 29; } /* = unique id SOAP_TYPE___ns1__exchangeResponse_ */
+	int soap_type() const { return 29; } /* = unique id SOAP_TYPE___ns1__ExchangeResponse_ */
 };
 #endif
 
-#ifndef SOAP_TYPE___ns1__exchange_
-#define SOAP_TYPE___ns1__exchange_ (31)
+#ifndef SOAP_TYPE___ns1__Exchange_
+#define SOAP_TYPE___ns1__Exchange_ (31)
 /* Operation wrapper: */
-struct __ns1__exchange_
+struct __ns1__Exchange_
 {
 public:
-	_ns1__exchange *ns1__exchange;	/* optional element of type ns1:exchange */
+	_ns1__Exchange *ns1__Exchange;	/* optional element of type ns1:Exchange */
 public:
-	int soap_type() const { return 31; } /* = unique id SOAP_TYPE___ns1__exchange_ */
+	int soap_type() const { return 31; } /* = unique id SOAP_TYPE___ns1__Exchange_ */
 };
 #endif
 
-#ifndef SOAP_TYPE___ns1__acceptResponse_
-#define SOAP_TYPE___ns1__acceptResponse_ (33)
+#ifndef SOAP_TYPE___ns1__AcceptResponse_
+#define SOAP_TYPE___ns1__AcceptResponse_ (33)
 /* Operation wrapper: */
-struct __ns1__acceptResponse_
+struct __ns1__AcceptResponse_
 {
 public:
-	_ns1__acceptResponse *ns1__acceptResponse;	/* optional element of type ns1:acceptResponse */
+	_ns1__AcceptResponse *ns1__AcceptResponse;	/* optional element of type ns1:AcceptResponse */
 public:
-	int soap_type() const { return 33; } /* = unique id SOAP_TYPE___ns1__acceptResponse_ */
+	int soap_type() const { return 33; } /* = unique id SOAP_TYPE___ns1__AcceptResponse_ */
 };
 #endif
 
-#ifndef SOAP_TYPE___ns1__accept_
-#define SOAP_TYPE___ns1__accept_ (35)
+#ifndef SOAP_TYPE___ns1__Accept_
+#define SOAP_TYPE___ns1__Accept_ (35)
 /* Operation wrapper: */
-struct __ns1__accept_
+struct __ns1__Accept_
 {
 public:
-	_ns1__accept *ns1__accept;	/* optional element of type ns1:accept */
+	_ns1__Accept *ns1__Accept;	/* optional element of type ns1:Accept */
 public:
-	int soap_type() const { return 35; } /* = unique id SOAP_TYPE___ns1__accept_ */
+	int soap_type() const { return 35; } /* = unique id SOAP_TYPE___ns1__Accept_ */
 };
 #endif
 

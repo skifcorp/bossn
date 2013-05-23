@@ -4,12 +4,12 @@
  xmlns:SOAP-ENC="http://www.w3.org/2003/05/soap-encoding"
  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
- xmlns:ns1="http://localhost">
+ xmlns:ns1="http://localhost/bossn">
  <SOAP-ENV:Body>
-   <ns1:accept>
+   <ns1:Accept>
     <ns1:flag>false</ns1:flag>
     <ns1:platformId></ns1:platformId>
-   </ns1:accept>
+   </ns1:Accept>
 
  </SOAP-ENV:Body>
 </SOAP-ENV:Envelope>

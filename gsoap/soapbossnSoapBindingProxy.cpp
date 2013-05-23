@@ -63,7 +63,7 @@ void bossnSoapBindingProxy::bossnSoapBindingProxy_init(soap_mode imode, soap_mod
 	{"SOAP-ENC", "http://www.w3.org/2003/05/soap-encoding", "http://schemas.xmlsoap.org/soap/encoding/", NULL},
 	{"xsi", "http://www.w3.org/2001/XMLSchema-instance", "http://www.w3.org/*/XMLSchema-instance", NULL},
 	{"xsd", "http://www.w3.org/2001/XMLSchema", "http://www.w3.org/*/XMLSchema", NULL},
-	{"ns1", "http://localhost", NULL, NULL},
+	{"ns1", "http://localhost/bossn", NULL, NULL},
 	{NULL, NULL, NULL, NULL}
 };
 	soap_set_namespaces(this->soap, namespaces);
@@ -125,27 +125,27 @@ char *bossnSoapBindingProxy::soap_sprint_fault(char *buf, size_t len)
 }
 #endif
 
-int bossnSoapBindingProxy::send_exchangeResponse(const char *endpoint, const char *soap_action, _ns1__exchangeResponse *ns1__exchangeResponse)
+int bossnSoapBindingProxy::send_ExchangeResponse(const char *endpoint, const char *soap_action, _ns1__ExchangeResponse *ns1__ExchangeResponse)
 {	struct soap *soap = this->soap;
-	struct __ns1__exchangeResponse soap_tmp___ns1__exchangeResponse;
+	struct __ns1__ExchangeResponse soap_tmp___ns1__ExchangeResponse;
 	if (endpoint)
 		soap_endpoint = endpoint;
 	if (soap_endpoint == NULL)
-		soap_endpoint = "http://localhost/bossn/ws/bossn.1cws";
+		soap_endpoint = "http://192.168.0.17/bossn/ws/bossn.1cws";
 	if (soap_action == NULL)
-		soap_action = "http://localhost#bossn:exchangeResponse";
+		soap_action = "http://localhost/bossn#bossn:ExchangeResponse";
 	soap->encodingStyle = NULL;
-	soap_tmp___ns1__exchangeResponse.ns1__exchangeResponse = ns1__exchangeResponse;
+	soap_tmp___ns1__ExchangeResponse.ns1__ExchangeResponse = ns1__ExchangeResponse;
 	soap_begin(soap);
 	soap_serializeheader(soap);
-	soap_serialize___ns1__exchangeResponse(soap, &soap_tmp___ns1__exchangeResponse);
+	soap_serialize___ns1__ExchangeResponse(soap, &soap_tmp___ns1__ExchangeResponse);
 	if (soap_begin_count(soap))
 		return soap->error;
 	if (soap->mode & SOAP_IO_LENGTH)
 	{	if (soap_envelope_begin_out(soap)
 		 || soap_putheader(soap)
 		 || soap_body_begin_out(soap)
-		 || soap_put___ns1__exchangeResponse(soap, &soap_tmp___ns1__exchangeResponse, "-ns1:exchangeResponse", NULL)
+		 || soap_put___ns1__ExchangeResponse(soap, &soap_tmp___ns1__ExchangeResponse, "-ns1:ExchangeResponse", NULL)
 		 || soap_body_end_out(soap)
 		 || soap_envelope_end_out(soap))
 			 return soap->error;
@@ -156,7 +156,7 @@ int bossnSoapBindingProxy::send_exchangeResponse(const char *endpoint, const cha
 	 || soap_envelope_begin_out(soap)
 	 || soap_putheader(soap)
 	 || soap_body_begin_out(soap)
-	 || soap_put___ns1__exchangeResponse(soap, &soap_tmp___ns1__exchangeResponse, "-ns1:exchangeResponse", NULL)
+	 || soap_put___ns1__ExchangeResponse(soap, &soap_tmp___ns1__ExchangeResponse, "-ns1:ExchangeResponse", NULL)
 	 || soap_body_end_out(soap)
 	 || soap_envelope_end_out(soap)
 	 || soap_end_send(soap))
@@ -164,18 +164,18 @@ int bossnSoapBindingProxy::send_exchangeResponse(const char *endpoint, const cha
 	return SOAP_OK;
 }
 
-int bossnSoapBindingProxy::recv_exchangeResponse(struct __ns1__exchangeResponse& tmp)
+int bossnSoapBindingProxy::recv_ExchangeResponse(struct __ns1__ExchangeResponse& tmp)
 {	struct soap *soap = this->soap;
 
-	struct __ns1__exchangeResponse *_param_1 = &tmp;
-	soap_default___ns1__exchangeResponse(soap, _param_1);
+	struct __ns1__ExchangeResponse *_param_1 = &tmp;
+	soap_default___ns1__ExchangeResponse(soap, _param_1);
 	soap_begin(soap);
 	if (soap_begin_recv(soap)
 	 || soap_envelope_begin_in(soap)
 	 || soap_recv_header(soap)
 	 || soap_body_begin_in(soap))
 		return soap_closesock(soap);
-	soap_get___ns1__exchangeResponse(soap, _param_1, "-ns1:exchangeResponse", NULL);
+	soap_get___ns1__ExchangeResponse(soap, _param_1, "-ns1:ExchangeResponse", NULL);
 	if (soap->error == SOAP_TAG_MISMATCH && soap->level == 2)
 		soap->error = SOAP_NO_METHOD;
 	if (soap->error
@@ -186,27 +186,27 @@ int bossnSoapBindingProxy::recv_exchangeResponse(struct __ns1__exchangeResponse&
 	return soap_closesock(soap);
 }
 
-int bossnSoapBindingProxy::exchange(const char *endpoint, const char *soap_action, _ns1__exchange *ns1__exchange, _ns1__exchangeResponse *ns1__exchangeResponse)
+int bossnSoapBindingProxy::Exchange(const char *endpoint, const char *soap_action, _ns1__Exchange *ns1__Exchange, _ns1__ExchangeResponse *ns1__ExchangeResponse)
 {	struct soap *soap = this->soap;
-	struct __ns1__exchange soap_tmp___ns1__exchange;
+	struct __ns1__Exchange soap_tmp___ns1__Exchange;
 	if (endpoint)
 		soap_endpoint = endpoint;
 	if (soap_endpoint == NULL)
-		soap_endpoint = "http://localhost/bossn/ws/bossn.1cws";
+		soap_endpoint = "http://192.168.0.17/bossn/ws/bossn.1cws";
 	if (soap_action == NULL)
-		soap_action = "http://localhost#bossn:exchange";
+		soap_action = "http://localhost/bossn#bossn:Exchange";
 	soap->encodingStyle = NULL;
-	soap_tmp___ns1__exchange.ns1__exchange = ns1__exchange;
+	soap_tmp___ns1__Exchange.ns1__Exchange = ns1__Exchange;
 	soap_begin(soap);
 	soap_serializeheader(soap);
-	soap_serialize___ns1__exchange(soap, &soap_tmp___ns1__exchange);
+	soap_serialize___ns1__Exchange(soap, &soap_tmp___ns1__Exchange);
 	if (soap_begin_count(soap))
 		return soap->error;
 	if (soap->mode & SOAP_IO_LENGTH)
 	{	if (soap_envelope_begin_out(soap)
 		 || soap_putheader(soap)
 		 || soap_body_begin_out(soap)
-		 || soap_put___ns1__exchange(soap, &soap_tmp___ns1__exchange, "-ns1:exchange", NULL)
+		 || soap_put___ns1__Exchange(soap, &soap_tmp___ns1__Exchange, "-ns1:Exchange", NULL)
 		 || soap_body_end_out(soap)
 		 || soap_envelope_end_out(soap))
 			 return soap->error;
@@ -217,20 +217,20 @@ int bossnSoapBindingProxy::exchange(const char *endpoint, const char *soap_actio
 	 || soap_envelope_begin_out(soap)
 	 || soap_putheader(soap)
 	 || soap_body_begin_out(soap)
-	 || soap_put___ns1__exchange(soap, &soap_tmp___ns1__exchange, "-ns1:exchange", NULL)
+	 || soap_put___ns1__Exchange(soap, &soap_tmp___ns1__Exchange, "-ns1:Exchange", NULL)
 	 || soap_body_end_out(soap)
 	 || soap_envelope_end_out(soap)
 	 || soap_end_send(soap))
 		return soap_closesock(soap);
-	if (!ns1__exchangeResponse)
+	if (!ns1__ExchangeResponse)
 		return soap_closesock(soap);
-	ns1__exchangeResponse->soap_default(soap);
+	ns1__ExchangeResponse->soap_default(soap);
 	if (soap_begin_recv(soap)
 	 || soap_envelope_begin_in(soap)
 	 || soap_recv_header(soap)
 	 || soap_body_begin_in(soap))
 		return soap_closesock(soap);
-	ns1__exchangeResponse->soap_get(soap, "ns1:exchangeResponse", "");
+	ns1__ExchangeResponse->soap_get(soap, "ns1:ExchangeResponse", "");
 	if (soap->error)
 		return soap_recv_fault(soap, 0);
 	if (soap_body_end_in(soap)
@@ -240,27 +240,27 @@ int bossnSoapBindingProxy::exchange(const char *endpoint, const char *soap_actio
 	return soap_closesock(soap);
 }
 
-int bossnSoapBindingProxy::send_acceptResponse(const char *endpoint, const char *soap_action, _ns1__acceptResponse *ns1__acceptResponse)
+int bossnSoapBindingProxy::send_AcceptResponse(const char *endpoint, const char *soap_action, _ns1__AcceptResponse *ns1__AcceptResponse)
 {	struct soap *soap = this->soap;
-	struct __ns1__acceptResponse soap_tmp___ns1__acceptResponse;
+	struct __ns1__AcceptResponse soap_tmp___ns1__AcceptResponse;
 	if (endpoint)
 		soap_endpoint = endpoint;
 	if (soap_endpoint == NULL)
-		soap_endpoint = "http://localhost/bossn/ws/bossn.1cws";
+		soap_endpoint = "http://192.168.0.17/bossn/ws/bossn.1cws";
 	if (soap_action == NULL)
-		soap_action = "http://localhost#bossn:acceptResponse";
+		soap_action = "http://localhost/bossn#bossn:AcceptResponse";
 	soap->encodingStyle = NULL;
-	soap_tmp___ns1__acceptResponse.ns1__acceptResponse = ns1__acceptResponse;
+	soap_tmp___ns1__AcceptResponse.ns1__AcceptResponse = ns1__AcceptResponse;
 	soap_begin(soap);
 	soap_serializeheader(soap);
-	soap_serialize___ns1__acceptResponse(soap, &soap_tmp___ns1__acceptResponse);
+	soap_serialize___ns1__AcceptResponse(soap, &soap_tmp___ns1__AcceptResponse);
 	if (soap_begin_count(soap))
 		return soap->error;
 	if (soap->mode & SOAP_IO_LENGTH)
 	{	if (soap_envelope_begin_out(soap)
 		 || soap_putheader(soap)
 		 || soap_body_begin_out(soap)
-		 || soap_put___ns1__acceptResponse(soap, &soap_tmp___ns1__acceptResponse, "-ns1:acceptResponse", NULL)
+		 || soap_put___ns1__AcceptResponse(soap, &soap_tmp___ns1__AcceptResponse, "-ns1:AcceptResponse", NULL)
 		 || soap_body_end_out(soap)
 		 || soap_envelope_end_out(soap))
 			 return soap->error;
@@ -271,7 +271,7 @@ int bossnSoapBindingProxy::send_acceptResponse(const char *endpoint, const char 
 	 || soap_envelope_begin_out(soap)
 	 || soap_putheader(soap)
 	 || soap_body_begin_out(soap)
-	 || soap_put___ns1__acceptResponse(soap, &soap_tmp___ns1__acceptResponse, "-ns1:acceptResponse", NULL)
+	 || soap_put___ns1__AcceptResponse(soap, &soap_tmp___ns1__AcceptResponse, "-ns1:AcceptResponse", NULL)
 	 || soap_body_end_out(soap)
 	 || soap_envelope_end_out(soap)
 	 || soap_end_send(soap))
@@ -279,18 +279,18 @@ int bossnSoapBindingProxy::send_acceptResponse(const char *endpoint, const char 
 	return SOAP_OK;
 }
 
-int bossnSoapBindingProxy::recv_acceptResponse(struct __ns1__acceptResponse& tmp)
+int bossnSoapBindingProxy::recv_AcceptResponse(struct __ns1__AcceptResponse& tmp)
 {	struct soap *soap = this->soap;
 
-	struct __ns1__acceptResponse *_param_2 = &tmp;
-	soap_default___ns1__acceptResponse(soap, _param_2);
+	struct __ns1__AcceptResponse *_param_2 = &tmp;
+	soap_default___ns1__AcceptResponse(soap, _param_2);
 	soap_begin(soap);
 	if (soap_begin_recv(soap)
 	 || soap_envelope_begin_in(soap)
 	 || soap_recv_header(soap)
 	 || soap_body_begin_in(soap))
 		return soap_closesock(soap);
-	soap_get___ns1__acceptResponse(soap, _param_2, "-ns1:acceptResponse", NULL);
+	soap_get___ns1__AcceptResponse(soap, _param_2, "-ns1:AcceptResponse", NULL);
 	if (soap->error == SOAP_TAG_MISMATCH && soap->level == 2)
 		soap->error = SOAP_NO_METHOD;
 	if (soap->error
@@ -301,27 +301,27 @@ int bossnSoapBindingProxy::recv_acceptResponse(struct __ns1__acceptResponse& tmp
 	return soap_closesock(soap);
 }
 
-int bossnSoapBindingProxy::accept(const char *endpoint, const char *soap_action, _ns1__accept *ns1__accept, _ns1__acceptResponse *ns1__acceptResponse)
+int bossnSoapBindingProxy::Accept(const char *endpoint, const char *soap_action, _ns1__Accept *ns1__Accept, _ns1__AcceptResponse *ns1__AcceptResponse)
 {	struct soap *soap = this->soap;
-	struct __ns1__accept soap_tmp___ns1__accept;
+	struct __ns1__Accept soap_tmp___ns1__Accept;
 	if (endpoint)
 		soap_endpoint = endpoint;
 	if (soap_endpoint == NULL)
-		soap_endpoint = "http://localhost/bossn/ws/bossn.1cws";
+		soap_endpoint = "http://192.168.0.17/bossn/ws/bossn.1cws";
 	if (soap_action == NULL)
-		soap_action = "http://localhost#bossn:accept";
+		soap_action = "http://localhost/bossn#bossn:Accept";
 	soap->encodingStyle = NULL;
-	soap_tmp___ns1__accept.ns1__accept = ns1__accept;
+	soap_tmp___ns1__Accept.ns1__Accept = ns1__Accept;
 	soap_begin(soap);
 	soap_serializeheader(soap);
-	soap_serialize___ns1__accept(soap, &soap_tmp___ns1__accept);
+	soap_serialize___ns1__Accept(soap, &soap_tmp___ns1__Accept);
 	if (soap_begin_count(soap))
 		return soap->error;
 	if (soap->mode & SOAP_IO_LENGTH)
 	{	if (soap_envelope_begin_out(soap)
 		 || soap_putheader(soap)
 		 || soap_body_begin_out(soap)
-		 || soap_put___ns1__accept(soap, &soap_tmp___ns1__accept, "-ns1:accept", NULL)
+		 || soap_put___ns1__Accept(soap, &soap_tmp___ns1__Accept, "-ns1:Accept", NULL)
 		 || soap_body_end_out(soap)
 		 || soap_envelope_end_out(soap))
 			 return soap->error;
@@ -332,20 +332,20 @@ int bossnSoapBindingProxy::accept(const char *endpoint, const char *soap_action,
 	 || soap_envelope_begin_out(soap)
 	 || soap_putheader(soap)
 	 || soap_body_begin_out(soap)
-	 || soap_put___ns1__accept(soap, &soap_tmp___ns1__accept, "-ns1:accept", NULL)
+	 || soap_put___ns1__Accept(soap, &soap_tmp___ns1__Accept, "-ns1:Accept", NULL)
 	 || soap_body_end_out(soap)
 	 || soap_envelope_end_out(soap)
 	 || soap_end_send(soap))
 		return soap_closesock(soap);
-	if (!ns1__acceptResponse)
+	if (!ns1__AcceptResponse)
 		return soap_closesock(soap);
-	ns1__acceptResponse->soap_default(soap);
+	ns1__AcceptResponse->soap_default(soap);
 	if (soap_begin_recv(soap)
 	 || soap_envelope_begin_in(soap)
 	 || soap_recv_header(soap)
 	 || soap_body_begin_in(soap))
 		return soap_closesock(soap);
-	ns1__acceptResponse->soap_get(soap, "ns1:acceptResponse", "");
+	ns1__AcceptResponse->soap_get(soap, "ns1:AcceptResponse", "");
 	if (soap->error)
 		return soap_recv_fault(soap, 0);
 	if (soap_body_end_in(soap)
@@ -355,27 +355,27 @@ int bossnSoapBindingProxy::accept(const char *endpoint, const char *soap_action,
 	return soap_closesock(soap);
 }
 
-int bossnSoapBindingProxy::send_exchangeResponse_(const char *endpoint, const char *soap_action, _ns1__exchangeResponse *ns1__exchangeResponse)
+int bossnSoapBindingProxy::send_ExchangeResponse_(const char *endpoint, const char *soap_action, _ns1__ExchangeResponse *ns1__ExchangeResponse)
 {	struct soap *soap = this->soap;
-	struct __ns1__exchangeResponse_ soap_tmp___ns1__exchangeResponse_;
+	struct __ns1__ExchangeResponse_ soap_tmp___ns1__ExchangeResponse_;
 	if (endpoint)
 		soap_endpoint = endpoint;
 	if (soap_endpoint == NULL)
-		soap_endpoint = "http://localhost/bossn/ws/bossn.1cws";
+		soap_endpoint = "http://192.168.0.17/bossn/ws/bossn.1cws";
 	if (soap_action == NULL)
-		soap_action = "http://localhost#bossn:exchangeResponse";
+		soap_action = "http://localhost/bossn#bossn:ExchangeResponse";
 	soap->encodingStyle = NULL;
-	soap_tmp___ns1__exchangeResponse_.ns1__exchangeResponse = ns1__exchangeResponse;
+	soap_tmp___ns1__ExchangeResponse_.ns1__ExchangeResponse = ns1__ExchangeResponse;
 	soap_begin(soap);
 	soap_serializeheader(soap);
-	soap_serialize___ns1__exchangeResponse_(soap, &soap_tmp___ns1__exchangeResponse_);
+	soap_serialize___ns1__ExchangeResponse_(soap, &soap_tmp___ns1__ExchangeResponse_);
 	if (soap_begin_count(soap))
 		return soap->error;
 	if (soap->mode & SOAP_IO_LENGTH)
 	{	if (soap_envelope_begin_out(soap)
 		 || soap_putheader(soap)
 		 || soap_body_begin_out(soap)
-		 || soap_put___ns1__exchangeResponse_(soap, &soap_tmp___ns1__exchangeResponse_, "-ns1:exchangeResponse", NULL)
+		 || soap_put___ns1__ExchangeResponse_(soap, &soap_tmp___ns1__ExchangeResponse_, "-ns1:ExchangeResponse", NULL)
 		 || soap_body_end_out(soap)
 		 || soap_envelope_end_out(soap))
 			 return soap->error;
@@ -386,7 +386,7 @@ int bossnSoapBindingProxy::send_exchangeResponse_(const char *endpoint, const ch
 	 || soap_envelope_begin_out(soap)
 	 || soap_putheader(soap)
 	 || soap_body_begin_out(soap)
-	 || soap_put___ns1__exchangeResponse_(soap, &soap_tmp___ns1__exchangeResponse_, "-ns1:exchangeResponse", NULL)
+	 || soap_put___ns1__ExchangeResponse_(soap, &soap_tmp___ns1__ExchangeResponse_, "-ns1:ExchangeResponse", NULL)
 	 || soap_body_end_out(soap)
 	 || soap_envelope_end_out(soap)
 	 || soap_end_send(soap))
@@ -394,18 +394,18 @@ int bossnSoapBindingProxy::send_exchangeResponse_(const char *endpoint, const ch
 	return SOAP_OK;
 }
 
-int bossnSoapBindingProxy::recv_exchangeResponse_(struct __ns1__exchangeResponse_& tmp)
+int bossnSoapBindingProxy::recv_ExchangeResponse_(struct __ns1__ExchangeResponse_& tmp)
 {	struct soap *soap = this->soap;
 
-	struct __ns1__exchangeResponse_ *_param_3 = &tmp;
-	soap_default___ns1__exchangeResponse_(soap, _param_3);
+	struct __ns1__ExchangeResponse_ *_param_3 = &tmp;
+	soap_default___ns1__ExchangeResponse_(soap, _param_3);
 	soap_begin(soap);
 	if (soap_begin_recv(soap)
 	 || soap_envelope_begin_in(soap)
 	 || soap_recv_header(soap)
 	 || soap_body_begin_in(soap))
 		return soap_closesock(soap);
-	soap_get___ns1__exchangeResponse_(soap, _param_3, "-ns1:exchangeResponse", NULL);
+	soap_get___ns1__ExchangeResponse_(soap, _param_3, "-ns1:ExchangeResponse", NULL);
 	if (soap->error == SOAP_TAG_MISMATCH && soap->level == 2)
 		soap->error = SOAP_NO_METHOD;
 	if (soap->error
@@ -416,27 +416,27 @@ int bossnSoapBindingProxy::recv_exchangeResponse_(struct __ns1__exchangeResponse
 	return soap_closesock(soap);
 }
 
-int bossnSoapBindingProxy::exchange_(const char *endpoint, const char *soap_action, _ns1__exchange *ns1__exchange, _ns1__exchangeResponse *ns1__exchangeResponse)
+int bossnSoapBindingProxy::Exchange_(const char *endpoint, const char *soap_action, _ns1__Exchange *ns1__Exchange, _ns1__ExchangeResponse *ns1__ExchangeResponse)
 {	struct soap *soap = this->soap;
-	struct __ns1__exchange_ soap_tmp___ns1__exchange_;
+	struct __ns1__Exchange_ soap_tmp___ns1__Exchange_;
 	if (endpoint)
 		soap_endpoint = endpoint;
 	if (soap_endpoint == NULL)
-		soap_endpoint = "http://localhost/bossn/ws/bossn.1cws";
+		soap_endpoint = "http://192.168.0.17/bossn/ws/bossn.1cws";
 	if (soap_action == NULL)
-		soap_action = "http://localhost#bossn:exchange";
+		soap_action = "http://localhost/bossn#bossn:Exchange";
 	soap->encodingStyle = NULL;
-	soap_tmp___ns1__exchange_.ns1__exchange = ns1__exchange;
+	soap_tmp___ns1__Exchange_.ns1__Exchange = ns1__Exchange;
 	soap_begin(soap);
 	soap_serializeheader(soap);
-	soap_serialize___ns1__exchange_(soap, &soap_tmp___ns1__exchange_);
+	soap_serialize___ns1__Exchange_(soap, &soap_tmp___ns1__Exchange_);
 	if (soap_begin_count(soap))
 		return soap->error;
 	if (soap->mode & SOAP_IO_LENGTH)
 	{	if (soap_envelope_begin_out(soap)
 		 || soap_putheader(soap)
 		 || soap_body_begin_out(soap)
-		 || soap_put___ns1__exchange_(soap, &soap_tmp___ns1__exchange_, "-ns1:exchange", NULL)
+		 || soap_put___ns1__Exchange_(soap, &soap_tmp___ns1__Exchange_, "-ns1:Exchange", NULL)
 		 || soap_body_end_out(soap)
 		 || soap_envelope_end_out(soap))
 			 return soap->error;
@@ -447,20 +447,20 @@ int bossnSoapBindingProxy::exchange_(const char *endpoint, const char *soap_acti
 	 || soap_envelope_begin_out(soap)
 	 || soap_putheader(soap)
 	 || soap_body_begin_out(soap)
-	 || soap_put___ns1__exchange_(soap, &soap_tmp___ns1__exchange_, "-ns1:exchange", NULL)
+	 || soap_put___ns1__Exchange_(soap, &soap_tmp___ns1__Exchange_, "-ns1:Exchange", NULL)
 	 || soap_body_end_out(soap)
 	 || soap_envelope_end_out(soap)
 	 || soap_end_send(soap))
 		return soap_closesock(soap);
-	if (!ns1__exchangeResponse)
+	if (!ns1__ExchangeResponse)
 		return soap_closesock(soap);
-	ns1__exchangeResponse->soap_default(soap);
+	ns1__ExchangeResponse->soap_default(soap);
 	if (soap_begin_recv(soap)
 	 || soap_envelope_begin_in(soap)
 	 || soap_recv_header(soap)
 	 || soap_body_begin_in(soap))
 		return soap_closesock(soap);
-	ns1__exchangeResponse->soap_get(soap, "ns1:exchangeResponse", "");
+	ns1__ExchangeResponse->soap_get(soap, "ns1:ExchangeResponse", "");
 	if (soap->error)
 		return soap_recv_fault(soap, 0);
 	if (soap_body_end_in(soap)
@@ -470,27 +470,27 @@ int bossnSoapBindingProxy::exchange_(const char *endpoint, const char *soap_acti
 	return soap_closesock(soap);
 }
 
-int bossnSoapBindingProxy::send_acceptResponse_(const char *endpoint, const char *soap_action, _ns1__acceptResponse *ns1__acceptResponse)
+int bossnSoapBindingProxy::send_AcceptResponse_(const char *endpoint, const char *soap_action, _ns1__AcceptResponse *ns1__AcceptResponse)
 {	struct soap *soap = this->soap;
-	struct __ns1__acceptResponse_ soap_tmp___ns1__acceptResponse_;
+	struct __ns1__AcceptResponse_ soap_tmp___ns1__AcceptResponse_;
 	if (endpoint)
 		soap_endpoint = endpoint;
 	if (soap_endpoint == NULL)
-		soap_endpoint = "http://localhost/bossn/ws/bossn.1cws";
+		soap_endpoint = "http://192.168.0.17/bossn/ws/bossn.1cws";
 	if (soap_action == NULL)
-		soap_action = "http://localhost#bossn:acceptResponse";
+		soap_action = "http://localhost/bossn#bossn:AcceptResponse";
 	soap->encodingStyle = NULL;
-	soap_tmp___ns1__acceptResponse_.ns1__acceptResponse = ns1__acceptResponse;
+	soap_tmp___ns1__AcceptResponse_.ns1__AcceptResponse = ns1__AcceptResponse;
 	soap_begin(soap);
 	soap_serializeheader(soap);
-	soap_serialize___ns1__acceptResponse_(soap, &soap_tmp___ns1__acceptResponse_);
+	soap_serialize___ns1__AcceptResponse_(soap, &soap_tmp___ns1__AcceptResponse_);
 	if (soap_begin_count(soap))
 		return soap->error;
 	if (soap->mode & SOAP_IO_LENGTH)
 	{	if (soap_envelope_begin_out(soap)
 		 || soap_putheader(soap)
 		 || soap_body_begin_out(soap)
-		 || soap_put___ns1__acceptResponse_(soap, &soap_tmp___ns1__acceptResponse_, "-ns1:acceptResponse", NULL)
+		 || soap_put___ns1__AcceptResponse_(soap, &soap_tmp___ns1__AcceptResponse_, "-ns1:AcceptResponse", NULL)
 		 || soap_body_end_out(soap)
 		 || soap_envelope_end_out(soap))
 			 return soap->error;
@@ -501,7 +501,7 @@ int bossnSoapBindingProxy::send_acceptResponse_(const char *endpoint, const char
 	 || soap_envelope_begin_out(soap)
 	 || soap_putheader(soap)
 	 || soap_body_begin_out(soap)
-	 || soap_put___ns1__acceptResponse_(soap, &soap_tmp___ns1__acceptResponse_, "-ns1:acceptResponse", NULL)
+	 || soap_put___ns1__AcceptResponse_(soap, &soap_tmp___ns1__AcceptResponse_, "-ns1:AcceptResponse", NULL)
 	 || soap_body_end_out(soap)
 	 || soap_envelope_end_out(soap)
 	 || soap_end_send(soap))
@@ -509,18 +509,18 @@ int bossnSoapBindingProxy::send_acceptResponse_(const char *endpoint, const char
 	return SOAP_OK;
 }
 
-int bossnSoapBindingProxy::recv_acceptResponse_(struct __ns1__acceptResponse_& tmp)
+int bossnSoapBindingProxy::recv_AcceptResponse_(struct __ns1__AcceptResponse_& tmp)
 {	struct soap *soap = this->soap;
 
-	struct __ns1__acceptResponse_ *_param_4 = &tmp;
-	soap_default___ns1__acceptResponse_(soap, _param_4);
+	struct __ns1__AcceptResponse_ *_param_4 = &tmp;
+	soap_default___ns1__AcceptResponse_(soap, _param_4);
 	soap_begin(soap);
 	if (soap_begin_recv(soap)
 	 || soap_envelope_begin_in(soap)
 	 || soap_recv_header(soap)
 	 || soap_body_begin_in(soap))
 		return soap_closesock(soap);
-	soap_get___ns1__acceptResponse_(soap, _param_4, "-ns1:acceptResponse", NULL);
+	soap_get___ns1__AcceptResponse_(soap, _param_4, "-ns1:AcceptResponse", NULL);
 	if (soap->error == SOAP_TAG_MISMATCH && soap->level == 2)
 		soap->error = SOAP_NO_METHOD;
 	if (soap->error
@@ -531,27 +531,27 @@ int bossnSoapBindingProxy::recv_acceptResponse_(struct __ns1__acceptResponse_& t
 	return soap_closesock(soap);
 }
 
-int bossnSoapBindingProxy::accept_(const char *endpoint, const char *soap_action, _ns1__accept *ns1__accept, _ns1__acceptResponse *ns1__acceptResponse)
+int bossnSoapBindingProxy::Accept_(const char *endpoint, const char *soap_action, _ns1__Accept *ns1__Accept, _ns1__AcceptResponse *ns1__AcceptResponse)
 {	struct soap *soap = this->soap;
-	struct __ns1__accept_ soap_tmp___ns1__accept_;
+	struct __ns1__Accept_ soap_tmp___ns1__Accept_;
 	if (endpoint)
 		soap_endpoint = endpoint;
 	if (soap_endpoint == NULL)
-		soap_endpoint = "http://localhost/bossn/ws/bossn.1cws";
+		soap_endpoint = "http://192.168.0.17/bossn/ws/bossn.1cws";
 	if (soap_action == NULL)
-		soap_action = "http://localhost#bossn:accept";
+		soap_action = "http://localhost/bossn#bossn:Accept";
 	soap->encodingStyle = NULL;
-	soap_tmp___ns1__accept_.ns1__accept = ns1__accept;
+	soap_tmp___ns1__Accept_.ns1__Accept = ns1__Accept;
 	soap_begin(soap);
 	soap_serializeheader(soap);
-	soap_serialize___ns1__accept_(soap, &soap_tmp___ns1__accept_);
+	soap_serialize___ns1__Accept_(soap, &soap_tmp___ns1__Accept_);
 	if (soap_begin_count(soap))
 		return soap->error;
 	if (soap->mode & SOAP_IO_LENGTH)
 	{	if (soap_envelope_begin_out(soap)
 		 || soap_putheader(soap)
 		 || soap_body_begin_out(soap)
-		 || soap_put___ns1__accept_(soap, &soap_tmp___ns1__accept_, "-ns1:accept", NULL)
+		 || soap_put___ns1__Accept_(soap, &soap_tmp___ns1__Accept_, "-ns1:Accept", NULL)
 		 || soap_body_end_out(soap)
 		 || soap_envelope_end_out(soap))
 			 return soap->error;
@@ -562,20 +562,20 @@ int bossnSoapBindingProxy::accept_(const char *endpoint, const char *soap_action
 	 || soap_envelope_begin_out(soap)
 	 || soap_putheader(soap)
 	 || soap_body_begin_out(soap)
-	 || soap_put___ns1__accept_(soap, &soap_tmp___ns1__accept_, "-ns1:accept", NULL)
+	 || soap_put___ns1__Accept_(soap, &soap_tmp___ns1__Accept_, "-ns1:Accept", NULL)
 	 || soap_body_end_out(soap)
 	 || soap_envelope_end_out(soap)
 	 || soap_end_send(soap))
 		return soap_closesock(soap);
-	if (!ns1__acceptResponse)
+	if (!ns1__AcceptResponse)
 		return soap_closesock(soap);
-	ns1__acceptResponse->soap_default(soap);
+	ns1__AcceptResponse->soap_default(soap);
 	if (soap_begin_recv(soap)
 	 || soap_envelope_begin_in(soap)
 	 || soap_recv_header(soap)
 	 || soap_body_begin_in(soap))
 		return soap_closesock(soap);
-	ns1__acceptResponse->soap_get(soap, "ns1:acceptResponse", "");
+	ns1__AcceptResponse->soap_get(soap, "ns1:AcceptResponse", "");
 	if (soap->error)
 		return soap_recv_fault(soap, 0);
 	if (soap_body_end_in(soap)

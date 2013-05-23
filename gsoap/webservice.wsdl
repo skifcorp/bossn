@@ -2,17 +2,17 @@
 <definitions xmlns="http://schemas.xmlsoap.org/wsdl/"
 		xmlns:soap12bind="http://schemas.xmlsoap.org/wsdl/soap12/"
 		xmlns:soapbind="http://schemas.xmlsoap.org/wsdl/soap/"
-		xmlns:tns="http://localhost"
+		xmlns:tns="http://localhost/bossn"
 		xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-		xmlns:xsd1="http://localhost"
+		xmlns:xsd1="http://localhost/bossn"
 		name="bossn"
-		targetNamespace="http://localhost">
+		targetNamespace="http://localhost/bossn">
 	<types>
 		<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
-				xmlns:xs1="http://localhost"
-				targetNamespace="http://localhost"
+				xmlns:xs1="http://localhost/bossn"
+				targetNamespace="http://localhost/bossn"
 				elementFormDefault="qualified">
-			<xs:element name="exchange">
+			<xs:element name="Exchange">
 				<xs:complexType>
 					<xs:sequence>
 						<xs:element name="param"
@@ -24,7 +24,7 @@
 					</xs:sequence>
 				</xs:complexType>
 			</xs:element>
-			<xs:element name="exchangeResponse">
+			<xs:element name="ExchangeResponse">
 				<xs:complexType>
 					<xs:sequence>
 						<xs:element name="return"
@@ -32,7 +32,7 @@
 					</xs:sequence>
 				</xs:complexType>
 			</xs:element>
-			<xs:element name="accept">
+			<xs:element name="Accept">
 				<xs:complexType>
 					<xs:sequence>
 						<xs:element name="flag"
@@ -42,7 +42,7 @@
 					</xs:sequence>
 				</xs:complexType>
 			</xs:element>
-			<xs:element name="acceptResponse">
+			<xs:element name="AcceptResponse">
 				<xs:complexType>
 					<xs:sequence>
 						<xs:element name="return"
@@ -52,39 +52,39 @@
 			</xs:element>
 		</xs:schema>
 	</types>
-	<message name="exchangeRequestMessage">
+	<message name="ExchangeRequestMessage">
 		<part name="parameters"
-				element="tns:exchange"/>
+				element="tns:Exchange"/>
 	</message>
-	<message name="exchangeResponseMessage">
+	<message name="ExchangeResponseMessage">
 		<part name="parameters"
-				element="tns:exchangeResponse"/>
+				element="tns:ExchangeResponse"/>
 	</message>
-	<message name="acceptRequestMessage">
+	<message name="AcceptRequestMessage">
 		<part name="parameters"
-				element="tns:accept"/>
+				element="tns:Accept"/>
 	</message>
-	<message name="acceptResponseMessage">
+	<message name="AcceptResponseMessage">
 		<part name="parameters"
-				element="tns:acceptResponse"/>
+				element="tns:AcceptResponse"/>
 	</message>
 	<portType name="bossnPortType">
-		<operation name="exchange">
-			<input message="tns:exchangeRequestMessage"/>
-			<output message="tns:exchangeResponseMessage"/>
+		<operation name="Exchange">
+			<input message="tns:ExchangeRequestMessage"/>
+			<output message="tns:ExchangeResponseMessage"/>
 		</operation>
-		<operation name="accept">
-			<input message="tns:acceptRequestMessage"/>
-			<output message="tns:acceptResponseMessage"/>
+		<operation name="Accept">
+			<input message="tns:AcceptRequestMessage"/>
+			<output message="tns:AcceptResponseMessage"/>
 		</operation>
 	</portType>
 	<binding name="bossnSoapBinding"
 			type="tns:bossnPortType">
 		<soapbind:binding style="document"
 				transport="http://schemas.xmlsoap.org/soap/http"/>
-		<operation name="exchange">
+		<operation name="Exchange">
 			<soapbind:operation style="document"
-					soapAction="http://localhost#bossn:exchange"/>
+					soapAction="http://localhost/bossn#bossn:Exchange"/>
 			<input>
 				<soapbind:body use="literal"/>
 			</input>
@@ -92,9 +92,9 @@
 				<soapbind:body use="literal"/>
 			</output>
 		</operation>
-		<operation name="accept">
+		<operation name="Accept">
 			<soapbind:operation style="document"
-					soapAction="http://localhost#bossn:accept"/>
+					soapAction="http://localhost/bossn#bossn:Accept"/>
 			<input>
 				<soapbind:body use="literal"/>
 			</input>
@@ -107,9 +107,9 @@
 			type="tns:bossnPortType">
 		<soap12bind:binding style="document"
 				transport="http://schemas.xmlsoap.org/soap/http"/>
-		<operation name="exchange">
+		<operation name="Exchange">
 			<soap12bind:operation style="document"
-					soapAction="http://localhost#bossn:exchange"/>
+					soapAction="http://localhost/bossn#bossn:Exchange"/>
 			<input>
 				<soap12bind:body use="literal"/>
 			</input>
@@ -117,9 +117,9 @@
 				<soap12bind:body use="literal"/>
 			</output>
 		</operation>
-		<operation name="accept">
+		<operation name="Accept">
 			<soap12bind:operation style="document"
-					soapAction="http://localhost#bossn:accept"/>
+					soapAction="http://localhost/bossn#bossn:Accept"/>
 			<input>
 				<soap12bind:body use="literal"/>
 			</input>
@@ -135,11 +135,11 @@
 				<wsi:Claim xmlns:wsi="http://ws-i.org/schemas/conformanceClaim/"
 						conformsTo="http://ws-i.org/profiles/basic/1.1"/>
 			</documentation>
-			<soapbind:address location="http://localhost/bossn/ws/bossn.1cws"/>
+			<soapbind:address location="http://192.168.0.17/bossn/ws/bossn.1cws"/>
 		</port>
 		<port name="bossnSoap12"
 				binding="tns:bossnSoap12Binding">
-			<soap12bind:address location="http://localhost/bossn/ws/bossn.1cws"/>
+			<soap12bind:address location="http://192.168.0.17/bossn/ws/bossn.1cws"/>
 		</port>
 	</service>
 </definitions>

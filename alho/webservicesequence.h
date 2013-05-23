@@ -97,7 +97,7 @@ protected slots:
 private:
     bool on_weight  = false;
     bool init       = true;
-    int seq_id      = 0;
+    //int seq_id      = 0;
 
     QMap<QString, QString> getSimpleTagsValues() ;
     QString getReaderBytes( MifareCardSector&  );
