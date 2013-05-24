@@ -523,7 +523,8 @@ void WebServiceSequence::setSettings(const QVariantMap & s)
 void WebServiceSequence::run()
 {
     if ( init ) {
-        printOnTablo(tr(greeting_message));
+        //printOnTablo(tr(greeting_message));
+        printOnTablo(QCoreApplication::translate("MainSequence", greeting_message));
         setLightsToGreen();
         init = false;
         return;
@@ -533,7 +534,7 @@ void WebServiceSequence::run()
 
     on_weight = true;
 
-    printOnTablo(tr(apply_card_message));
+    printOnTablo(QCoreApplication::translate("MainSequence",apply_card_message));
 
     setLightsToRed();
 
@@ -577,7 +578,8 @@ void WebServiceSequence::run()
                         ",\n" + getReaderBytes(card), QString::number(seqId()),
                         byteArrayToString(act.uid, 16, "") );
 
-            qDebug( )  << ret_data;
+            //qDebug( )  << ret_data;
+            printOnDisplay( ret_data );
 
             if (was.isTerminating()) {
                 continue;
