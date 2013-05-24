@@ -736,10 +736,16 @@ void WebServiceSequence::writeTagsValues( const QMap<QString, QString>& m, Mifar
     if ( reader_bytes != m.end() ) {
         writeReaderBytes( *reader_bytes, card );
     }
+    else {
+        qWarning() << "reader tag not found!!!!!! for "<< alho_settings.reader.name ;
+    }
 
     auto tablo_text = m.find( alho_settings.tablo_tag.tag_name );
     if ( tablo_text != m.end() ) {
         alho_settings.tablo_tag.func( Q_ARG(QVariant, QVariant::fromValue(*tablo_text) ) );
+    }
+    else {
+        qWarning() << "tablo tag not found!!!!!! for "<< alho_settings.tablo_tag.tag_name ;
     }
 
 }

@@ -19,7 +19,7 @@ DisplayFutaba::DisplayFutaba(const QVariantMap& )//:address(0)
 }
 
 QVariant DisplayFutaba::printText(const QVariant & txt)
-{
+{ 
     QString text = txt.toString().toUpper();
     int kvo;
     int kvoSymb;
