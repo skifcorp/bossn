@@ -21,6 +21,11 @@ DisplayFutaba::DisplayFutaba(const QVariantMap& )//:address(0)
 QVariant DisplayFutaba::printText(const QVariant & txt)
 { 
     QString text = txt.toString().toUpper();
+
+    //qDebug() << "DisplayFutaba!!!";
+
+    //printOnDisplay( text );
+
     int kvo;
     int kvoSymb;
     //screen mode

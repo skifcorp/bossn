@@ -242,7 +242,7 @@ void SocketHelper::exechange()
 
     error = timeout = got_result = false;
 
-    socket_->connectToHost("192.168.0.17", 80);
+    socket_->connectToHost("192.168.0.66", 80);
     timeout_timer->start(5000);
 
     if ( socket_->state() != QTcpSocket::ConnectedState ) {
@@ -349,7 +349,7 @@ void SocketHelper::onTimeout()
 class AutoDestroybossnSoapBindingProxy : public bossnSoapBindingProxy
 {
 public:
-    AutoDestroybossnSoapBindingProxy(Coroutine2 & c) : bossnSoapBindingProxy(), source_(c)
+    AutoDestroybossnSoapBindingProxy(Coroutine2 & c) : bossnSoapBindingProxy(SOAP_C_UTFSTRING), source_(c)
     {
         soap->fconnect    = fake_connect;
         soap->fopen       = nullptr;
@@ -434,8 +434,16 @@ public:
         }
 
         //qDebug() << QString::fromStdString( resp.return_ );
+/*        std::cout << std::oct;
 
-        return QString::fromStdString(resp.return_);
+        for ( auto i = 0u ; i < qstrlen( resp.return_.c_str() ); ++i ) {
+            std::cout << "(" << (int) resp.return_.c_str()[i] << " " << resp.return_.c_str()[i] << ") " ;
+        }
+
+        std::cout << std::endl; */
+
+        return //QString::fromStdString(resp.return_);
+                QString::fromUtf8( resp.return_.c_str() );
     }
 
     void acceptedCardResult( bool res, const QString& platform_id )
@@ -711,14 +719,16 @@ void WebServiceSequence::writeReaderBytes( const QString& s, MifareCardSector&  
 {
     QByteArray arr;
 
-    QStringList bytes = s.split( " " );
+    QStringList bytes = s.split( " ", QString::SkipEmptyParts );
 
-    if ( static_cast<uint>(bytes.count()) != CardStructs::blocks_conf().memorySize() ) {
+    //qDebug() << s << " bbbbbbbb: " << bytes << " count: " << bytes.count();
+
+    if ( bytes.count() > 0 && static_cast<uint>(bytes.count()) != CardStructs::blocks_conf().memorySize() ) {
         throw MainSequenceException(web_service_wrong_reader_bytes_count, "web service returned " +
                                     QString::number(bytes.count()) +  " bytes for reader!");
     }
 
-    for( QString byte : bytes ) {
+    for(const QString& byte : bytes ) {
         bool ok = false;
         auto ret = byte.toInt(&ok, 16);
         if ( !ok ) {
@@ -729,11 +739,13 @@ void WebServiceSequence::writeReaderBytes( const QString& s, MifareCardSector&  
 
     }
 
-    card.writeByteArray( arr, CardStructs::blocks_conf() );
+    if ( bytes.count() > 0 )
+        card.writeByteArray( arr, CardStructs::blocks_conf() );
 }
 
 void WebServiceSequence::writeTagsValues( const QMap<QString, QString>& m, MifareCardSector&  card )
 {
+    //qDebug() << m;
     auto reader_bytes = m.find( alho_settings.reader.name );
     if ( reader_bytes != m.end() ) {
         writeReaderBytes( *reader_bytes, card );

@@ -115,11 +115,11 @@ private:
     {
         QMap<QString, QString> ret;
 
-        QStringList l1 = m.split(",\n");
+        QStringList l1 = m.split("\n");
 
-        for ( QString v : l1  ) {
+        for ( const QString& v : l1  ) {
             QStringList l2 = v.split(":");
-            ret[ l2.first() ] = l2.last();
+            ret[ l2.first().trimmed() ] = l2.last().trimmed();
         }
 
         return ret;
