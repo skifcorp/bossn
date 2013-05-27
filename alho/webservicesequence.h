@@ -10,6 +10,7 @@
 #include <QTcpSocket>
 #include <QTimer>
 #include <QStringList>
+#include <QCoreApplication>
 
 #include <memory>
 
@@ -24,7 +25,7 @@ class SocketHelper : public QObject
 public:
     SocketHelper(GsoapSource & );
     ~SocketHelper();
-    void exechange();
+    void exechange(const QString& ip);
 private:
     GsoapSource & source_;
     //QTcpSocket socket_;
@@ -97,7 +98,10 @@ protected slots:
 private:
     bool on_weight  = false;
     bool init       = true;
-    //int seq_id      = 0;
+
+    QString ip_;
+    QString userid_;
+    QString passwd_;
 
     QMap<QString, QString> getSimpleTagsValues() ;
     QString getReaderBytes( MifareCardSector&  );
@@ -128,6 +132,11 @@ private:
     void writeReaderBytes( const QString&, MifareCardSector&  card );
 
     WebServiceAsync * cur_webservice_async = nullptr;
+
+    static QString tr2(const char * s)
+    {
+        return QCoreApplication::translate("MainSequence", s);
+    }
 };
 
 

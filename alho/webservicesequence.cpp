@@ -45,7 +45,7 @@ class GsoapSource
 public:
 
 
-    GsoapSource( Coroutine2& c):coro_(c){}
+    GsoapSource( Coroutine2& c, const QString& ip):coro_(c), ip_(ip){}
 
     ~GsoapSource()
     {
@@ -60,7 +60,7 @@ public:
             terminate_          = false;
             try {
                 SocketHelper sh(*this);
-                sh.exechange();
+                sh.exechange(ip_);
                 if ( terminate_ ) {
                     return -1;
                 }
@@ -133,6 +133,7 @@ private:
     MainSequenceException current_exception;
     bool has_exception = false;
     bool terminate_ = false;
+    QString ip_;
 };
 
 
@@ -143,7 +144,7 @@ public:
     using char_type = char;
     using category  = io::bidirectional_device_tag;
 
-    FakeSource( Coroutine2 & c ):source_(new GsoapSource(c))
+    FakeSource( Coroutine2 & c, const QString& ip ):source_(new GsoapSource(c, ip))
     {
 
     }
@@ -232,7 +233,7 @@ unique_ptr<QTimer> SocketHelper::getTimer() const
 #endif
 
 
-void SocketHelper::exechange()
+void SocketHelper::exechange(const QString& ip)
 {
     //unique_ptr<QTcpSocket> socket_   = getSocket();
     //unique_ptr<QTimer> timeout_timer = getTimer();
@@ -242,7 +243,7 @@ void SocketHelper::exechange()
 
     error = timeout = got_result = false;
 
-    socket_->connectToHost("192.168.0.66", 80);
+    socket_->connectToHost(ip, 80);
     timeout_timer->start(5000);
 
     if ( socket_->state() != QTcpSocket::ConnectedState ) {
@@ -256,12 +257,12 @@ void SocketHelper::exechange()
 
     if (  error ) {
         throw MainSequenceException( connect_to_service_server_error, "connection to host " + socket_->peerAddress().toString() +
-                                     " error!", socket_->errorString() );
+                                     " error! ", socket_->errorString() );
     }
 
     if (  timeout )
         throw MainSequenceException( connect_to_service_server_timeout, "connection to host " + socket_->peerAddress().toString() +
-                                     " timeout!", "" );
+                                     " timeout! " + ip , "" );
 
 
 
@@ -349,12 +350,16 @@ void SocketHelper::onTimeout()
 class AutoDestroybossnSoapBindingProxy : public bossnSoapBindingProxy
 {
 public:
-    AutoDestroybossnSoapBindingProxy(Coroutine2 & c) : bossnSoapBindingProxy(SOAP_C_UTFSTRING), source_(c)
+    AutoDestroybossnSoapBindingProxy(Coroutine2 & c, const QString& ip,
+                    const char * userid, const char * passwd) : bossnSoapBindingProxy(SOAP_C_UTFSTRING), source_(c, ip)
     {
         soap->fconnect    = fake_connect;
         soap->fopen       = nullptr;
         soap->fdisconnect = fake_disconnect;
         soap->fclose      = nullptr;
+
+        soap->userid = userid;
+        soap->passwd = passwd;
 
         soap->os = &is;
         soap->is = &is;
@@ -383,7 +388,8 @@ private:
 class WebServiceAsync
 {
 public:
-    WebServiceAsync(Coroutine2& c):coro_(c)
+    WebServiceAsync(Coroutine2& c, const QString& ip):coro_(c),
+        ip_(ip)
     {
 
     }
@@ -393,7 +399,7 @@ public:
 
     }
 
-    QString exchangeData(const QString& s, const QString& platform_id, const QString& uid)
+    QString exchangeData(const QString& s, const QString& platform_id, const QString& uid, const char * userid, const char * passwd)
     {
         std::shared_ptr<WebServiceAsync> cur_fake_source_guard( this , [&](WebServiceAsync * wsa){
             wsa->cur_fake_source = nullptr;
@@ -403,10 +409,12 @@ public:
 
         Q_ASSERT( !cur_fake_source );
 
-        AutoDestroybossnSoapBindingProxy proxy(coro_);
+        //qDebug() << "ipppp: " << ip_;
 
-        proxy.soap->userid = "www";
-        proxy.soap->passwd = "www";
+        AutoDestroybossnSoapBindingProxy proxy(coro_, ip_, userid, passwd );
+
+        //proxy.soap->userid = "www";
+        //proxy.soap->passwd = "www";
 
         cur_fake_source = &proxy.source();
 
@@ -446,7 +454,7 @@ public:
                 QString::fromUtf8( resp.return_.c_str() );
     }
 
-    void acceptedCardResult( bool res, const QString& platform_id )
+    void acceptedCardResult( bool res, const QString& platform_id, const char * userid, const char * passwd )
     {
         std::shared_ptr<WebServiceAsync> cur_fake_source_guard( this , [&](WebServiceAsync * wsa){
             wsa->cur_fake_source = nullptr;
@@ -456,10 +464,10 @@ public:
 
         Q_ASSERT( !cur_fake_source );
 
-        AutoDestroybossnSoapBindingProxy proxy(coro_);
+        AutoDestroybossnSoapBindingProxy proxy(coro_, ip_, userid, passwd);
 
-        proxy.soap->userid = "www";
-        proxy.soap->passwd = "www";
+        //proxy.soap->userid = "www";
+        //proxy.soap->passwd = "www";
 
         cur_fake_source = &proxy.source();
 
@@ -500,6 +508,7 @@ private:
     Coroutine2 & coro_;
     FakeSource * cur_fake_source = nullptr;
     bool terminating_ = false;
+    QString ip_;
 };
 
 
@@ -519,7 +528,11 @@ void WebServiceSequence::setSettings(const QVariantMap & s)
 {
     alho_settings.init(s);
 
-    seq_id                              = get_setting<int>("id", s);  
+    seq_id                  = get_setting<int>("id", s);
+
+    ip_                     = get_setting<QString>("ip", s);
+    userid_                 = get_setting<QString>("userid", s);
+    passwd_                 = get_setting<QString>("passwd", s);
 
     setObjectName( "MainSequence num: " + QString::number(seq_id) );
 
@@ -532,7 +545,7 @@ void WebServiceSequence::run()
 {
     if ( init ) {
         //printOnTablo(tr(greeting_message));
-        printOnTablo(QCoreApplication::translate("MainSequence", greeting_message));
+        printOnTablo(tr2(greeting_message));
         setLightsToGreen();
         init = false;
         return;
@@ -542,7 +555,7 @@ void WebServiceSequence::run()
 
     on_weight = true;
 
-    printOnTablo(QCoreApplication::translate("MainSequence",apply_card_message));
+    printOnTablo(tr2(apply_card_message));
 
     setLightsToRed();
 
@@ -573,18 +586,21 @@ void WebServiceSequence::run()
 
             Q_ASSERT(!cur_webservice_async);
 
-            printOnTablo(tr(processing_message));
+            printOnTablo(tr2(processing_message));
 
             card.autorize();            
 
             checkForStealedCard( act );
 
-            WebServiceAsync was(*this);
+            WebServiceAsync was(*this, ip_);
             cur_webservice_async = &was;
+
+            QByteArray userid = userid_.toAscii();
+            QByteArray passwd = passwd_.toAscii();
 
             QString ret_data = was.exchangeData( mapToString( getSimpleTagsValues(  ) ) +
                         ",\n" + getReaderBytes(card), QString::number(seqId()),
-                        byteArrayToString(act.uid, 16, "") );
+                        byteArrayToString(act.uid, 16, ""), userid.data(), passwd.data() );
 
             //qDebug( )  << ret_data;
             printOnDisplay( ret_data );
@@ -598,48 +614,48 @@ void WebServiceSequence::run()
                 writeTagsValues( ret, card );
             }
             catch ( ... ) {
-                was.acceptedCardResult(false, QString::number(seqId()));
+                was.acceptedCardResult(false, QString::number(seqId()), userid.data(), passwd.data());
                 throw;
             }
 
-            was.acceptedCardResult(true, QString::number(seqId()));
+            was.acceptedCardResult(true, QString::number(seqId()), userid.data(), passwd.data());
 
             sleepnb( get_setting<int>("brutto_finish_pause", app_settings) );
-            printOnTablo( tr(apply_card_message) );                                  
+            printOnTablo( tr2(apply_card_message) );
 
             continue;
         }
         catch (MifareCardAuthException& ex) {
             seqWarning() << "auth_exeption! "<<ex.message();
 
-            sleepnbtmerr(tr(card_autorize_error_message), tr(apply_card_message));
+            sleepnbtmerr(tr2(card_autorize_error_message), tr2(apply_card_message));
             continue;
         }
         catch (MifareCardReadException& ex) {
             seqWarning() << "read_card_exception! "<<ex.message();
-            sleepnbtmerr(ex.message(), tr(apply_card_message));
+            sleepnbtmerr(ex.message(), tr2(apply_card_message));
             continue;
         }
         catch (MifareCardWriteException& ex) {
             seqWarning() << "write_card_exception! "<<ex.message();
-            sleepnbtmerr(ex.message(), tr(apply_card_message));
+            sleepnbtmerr(ex.message(), tr2(apply_card_message));
             continue;
         }
         catch (MainSequenceException& ex) {
             seqWarning()<<"sequence_exception: " << ex.adminMessage() << " sys: " + ex.systemMessage();
-            sleepnbtmerr(ex.userMessage(), tr(apply_card_message));
+            sleepnbtmerr(ex.userMessage(), tr2(apply_card_message));
             continue;
         }
         catch (MifareCardException& ex) {
             seqWarning()<<"mifare_card_exception: " << ex.message();
-            sleepnbtmerr(ex.message(), tr(apply_card_message));
+            sleepnbtmerr(ex.message(), tr2(apply_card_message));
             continue;
         }
 
     }
     seqDebug () << "\n\nexit from onAppearOnWeight!!!!!!!";
 
-    printOnTablo(tr(greeting_message));
+    printOnTablo(tr2(greeting_message));
     setLightsToGreen();
     //tags[current_card_tag]->setProperty(current_card_prop,
     //                                   QVariant::fromValue<ActivateCardISO14443A>(ActivateCardISO14443A()));
