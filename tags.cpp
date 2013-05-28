@@ -171,11 +171,16 @@ void Tag::call_as_proc(FuncContext& func, AlhoSequence * caller, const QList<QGe
 QVariant Tag::execObject(FuncContext& func, AlhoSequence * caller, const QList<QGenericArgument>& external_args)
 {
     QList<QGenericArgument> args;
+    QVector<QVariant> args_storage;
 
     for (QVariantList::size_type i = 0 ; i < func.args.count(); ++i ) {
         if ( func.args[i].userType() == __id_bindable ) {
             TagBindable tg = func.args[i].value<TagBindable>();
-            args.append( Q_ARG(QVariant, tg.tag.data()->func(tg.method, caller, external_args) ) );
+//            args.append( Q_ARG(QVariant, tg.tag.data()->func(tg.method, caller, external_args) ) );
+            QVariant res = tg.tag.data()->func(tg.method, caller, external_args);
+            args_storage.push_back( res );
+
+            args.append( Q_ARG(QVariant, args_storage.last() ) );
         }
         else if ( func.args[i].userType() == __id_placeholder ){
             args.append(external_args[func.args[i].value<TagPlaceholder>().arg_num] );
@@ -223,7 +228,7 @@ QVariant Tag::func (const QString& func_name, AlhoSequence* caller,
     passed_args.append(val4);
     passed_args.append(val5);
     //passed_args.append(val6);
-    \
+
 
     return execObject(*iter, caller, passed_args);
 }
