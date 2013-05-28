@@ -602,7 +602,11 @@ void WebServiceSequence::run()
                         ",\n" + getReaderBytes(card), QString::number(seqId()),
                         byteArrayToString(act.uid, 16, ""), userid.data(), passwd.data() );
 
-            //qDebug( )  << ret_data;
+
+            if ( ret_data == "-1" ) {
+                throw MainSequenceException( tr2(internal_webservice_error), "internal webservice error" );
+            }
+
             printOnDisplay( ret_data );
 
             if (was.isTerminating()) {
