@@ -119,7 +119,7 @@ private:
     {
         QMap<QString, QString> ret;
 
-        QStringList l1 = m.split("\n");
+        QStringList l1 = m.split(",\n");
 
         for ( const QString& v : l1  ) {
             QStringList l2 = v.split(":");
