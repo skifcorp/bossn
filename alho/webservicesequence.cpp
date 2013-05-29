@@ -615,13 +615,14 @@ void WebServiceSequence::run()
 
             try {
                 QMap<QString, QString> ret =  stringToMap(ret_data);
-                writeTagsValues( ret, card );
+                writeTagsValues( ret, card );                
             }
             catch ( ... ) {
                 was.acceptedCardResult(false, QString::number(seqId()), userid.data(), passwd.data());
                 throw;
             }
 
+            alho_settings.reader.do_sound.func(Q_ARG(QVariant, appSetting<int>("beep_length")));
             was.acceptedCardResult(true, QString::number(seqId()), userid.data(), passwd.data());
 
             sleepnb( get_setting<int>("brutto_finish_pause", app_settings) );
