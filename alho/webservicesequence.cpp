@@ -602,16 +602,15 @@ void WebServiceSequence::run()
                         ",\n" + getReaderBytes(card), QString::number(seqId()),
                         byteArrayToString(act.uid, 16, ""), userid.data(), passwd.data() );
 
-
-            if ( ret_data == "-1" ) {
-                throw MainSequenceException( tr2(internal_webservice_error), "internal webservice error" );
+            if (was.isTerminating()) {
+                continue;
             }
 
             printOnDisplay( ret_data );
 
-            if (was.isTerminating()) {
-                continue;
-            }
+            if ( ret_data == "-1" ) {
+                throw MainSequenceException( tr2(internal_webservice_error), "internal webservice error" );
+            }             
 
             try {
                 QMap<QString, QString> ret =  stringToMap(ret_data);
@@ -766,21 +765,20 @@ void WebServiceSequence::writeReaderBytes( const QString& s, MifareCardSector&  
 
 void WebServiceSequence::writeTagsValues( const QMap<QString, QString>& m, MifareCardSector&  card )
 {
-    //qDebug() << m;
-    auto reader_bytes = m.find( alho_settings.reader.name );
-    if ( reader_bytes != m.end() ) {
-        writeReaderBytes( *reader_bytes, card );
-    }
-    else {
-        qWarning() << "reader tag not found!!!!!! for "<< alho_settings.reader.name ;
-    }
-
     auto tablo_text = m.find( alho_settings.tablo_tag.tag_name );
-    if ( tablo_text != m.end() ) {
-        alho_settings.tablo_tag.func( Q_ARG(QVariant, QVariant::fromValue(*tablo_text) ) );
-    }
-    else {
-        qWarning() << "tablo tag not found!!!!!! for "<< alho_settings.tablo_tag.tag_name ;
+    if ( tablo_text == m.end() ) {
+        throw MainSequenceException("Tablo tag error!" ,"Tablo tag not found!!!!!! for " + alho_settings.tablo_tag.tag_name );
     }
 
+
+    auto reader_bytes = m.find( alho_settings.reader.name );
+    if ( reader_bytes == m.end() ) {
+        throw MainSequenceException("Reader tag error", "reader tag not found!!!!!! for " + alho_settings.reader.name);
+    }
+
+    if ( reader_bytes->isEmpty() )
+        throw  MainSequenceException(*tablo_text, "Hi level alho error!");
+
+    alho_settings.tablo_tag.func( Q_ARG(QVariant, QVariant::fromValue(*tablo_text) ) );
+    writeReaderBytes( *reader_bytes, card );
 }
