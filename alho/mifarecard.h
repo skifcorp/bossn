@@ -20,21 +20,24 @@ using std::function;
 class MifareCardException
 {
 public:
-    MifareCardException(const QString& msg):message_(msg){}
+    MifareCardException(const QString& user_msg, const QString& adm_msg):
+        user_message_(user_msg), admin_message_(adm_msg){}
 
     virtual ~MifareCardException() {}
 
-    QString message() const {return message_;}
+    QString userMessage() const {return user_message_;}
+    QString adminMessage() const {return admin_message_;}
 
 private:
-    QString message_;
+    QString user_message_;
+    QString admin_message_;
 
 };
 
 class MifareCardReadException : public MifareCardException
 {
 public:
-    MifareCardReadException(const QString& msg):MifareCardException(msg){}
+    MifareCardReadException(const QString& user_msg, const QString& adm_msg):MifareCardException(user_msg, adm_msg){}
 
     virtual ~MifareCardReadException() {}
 };
@@ -42,7 +45,7 @@ public:
 class MifareCardWriteException : public MifareCardException
 {
 public:
-    MifareCardWriteException(const QString& msg):MifareCardException(msg){}
+    MifareCardWriteException(const QString& user_msg, const QString& adm_msg):MifareCardException(user_msg, adm_msg){}
 
     virtual ~MifareCardWriteException() {}
 };
@@ -51,7 +54,7 @@ public:
 class MifareCardAuthException : public MifareCardException
 {
 public:
-    MifareCardAuthException(const QString& msg) : MifareCardException(msg) {}
+    MifareCardAuthException(const QString& user_msg, const QString& adm_msg) : MifareCardException(user_msg, adm_msg) {}
     ~MifareCardAuthException () {}
 private:
 };

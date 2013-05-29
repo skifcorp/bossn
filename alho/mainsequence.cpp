@@ -274,23 +274,23 @@ void MainSequence::run()
 
         }
         catch (MifareCardAuthException& ex) {
-            seqWarning() << "auth_exeption! "<<ex.message() << " curNumNakl: " << cur_num_nakl;
+            seqWarning() << "auth_exeption! "<<ex.adminMessage() << " curNumNakl: " << cur_num_nakl;
 
             sleepnbtmerr(tr(card_autorize_error_message), tr(apply_card_message));
             continue;
         }
         catch (MifareCardReadException& ex) {
-            seqWarning() << "read_card_exception! "<<ex.message() << " curNumNakl: "<< cur_num_nakl;
-            sleepnbtmerr(ex.message(), tr(apply_card_message));
+            seqWarning() << "read_card_exception! "<<ex.adminMessage() << " curNumNakl: "<< cur_num_nakl;
+            sleepnbtmerr(ex.userMessage(), tr(apply_card_message));
             continue;
         }
         catch (MifareCardWriteException& ex) {
-            seqWarning() << "write_card_exception! "<<ex.message() << " curNumNakl: "<< cur_num_nakl;
+            seqWarning() << "write_card_exception! "<<ex.adminMessage() << " curNumNakl: "<< cur_num_nakl;
 
             weighter->setCardBanned( byteArrayToString (card.uid()) );
             //seqWarning() << "after bannneddddd! ";
 
-            sleepnbtmerr(ex.message(), tr(apply_card_message));
+            sleepnbtmerr(ex.userMessage(), tr(apply_card_message));
             continue;
         }
         catch (MainSequenceException& ex) {
@@ -299,8 +299,8 @@ void MainSequence::run()
             continue;
         }
         catch (MifareCardException& ex) {
-            seqWarning()<<"mifare_card_exception: " << ex.message();
-            sleepnbtmerr(ex.message(), tr(apply_card_message));
+            seqWarning()<<"mifare_card_exception: " << ex.adminMessage();
+            sleepnbtmerr(ex.userMessage(), tr(apply_card_message));
             continue;
         }
     }

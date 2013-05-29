@@ -631,19 +631,19 @@ void WebServiceSequence::run()
             continue;
         }
         catch (MifareCardAuthException& ex) {
-            seqWarning() << "auth_exeption! "<<ex.message();
+            seqWarning() << "auth_exeption! "<<ex.adminMessage();
 
             sleepnbtmerr(tr2(card_autorize_error_message), tr2(apply_card_message));
             continue;
         }
         catch (MifareCardReadException& ex) {
-            seqWarning() << "read_card_exception! "<<ex.message();
-            sleepnbtmerr(ex.message(), tr2(apply_card_message));
+            seqWarning() << "read_card_exception! "<<ex.adminMessage();
+            sleepnbtmerr(ex.userMessage(), tr2(apply_card_message));
             continue;
         }
         catch (MifareCardWriteException& ex) {
-            seqWarning() << "write_card_exception! "<<ex.message();
-            sleepnbtmerr(ex.message(), tr2(apply_card_message));
+            seqWarning() << "write_card_exception! "<<ex.adminMessage();
+            sleepnbtmerr(ex.userMessage(), tr2(apply_card_message));
             continue;
         }
         catch (MainSequenceException& ex) {
@@ -652,8 +652,8 @@ void WebServiceSequence::run()
             continue;
         }
         catch (MifareCardException& ex) {
-            seqWarning()<<"mifare_card_exception: " << ex.message();
-            sleepnbtmerr(ex.message(), tr2(apply_card_message));
+            seqWarning()<<"mifare_card_exception: " << ex.adminMessage();
+            sleepnbtmerr(ex.userMessage(), tr2(apply_card_message));
             continue;
         }
 
