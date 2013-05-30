@@ -256,13 +256,19 @@ void SocketHelper::exechange(const QString& ip)
     }
 
     if (  error ) {
-        throw MainSequenceException( connect_to_service_server_error, "connection to host " + socket_->peerAddress().toString() +
+        throw MainSequenceException( connect_to_service_server_error, "connection to host " + socket_->peerAddress().toString()
+                                     + " port: " +
+                                     QString::number(socket_->peerPort())
+                                     +
                                      " error! ", socket_->errorString() );
     }
 
     if (  timeout )
         throw MainSequenceException( connect_to_service_server_timeout, "connection to host " + socket_->peerAddress().toString() +
-                                     " timeout! " + ip , "" );
+                                     + " port: " +
+                                     QString::number(socket_->peerPort())
+                                     +
+                                     " timeout! ", "" );
 
 
 
