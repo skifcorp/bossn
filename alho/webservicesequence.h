@@ -25,7 +25,7 @@ class SocketHelper : public QObject
 public:
     SocketHelper(GsoapSource & );
     ~SocketHelper();
-    void exechange(const QString& ip);
+    void exechange(const QString& ip, int);
 private:
     GsoapSource & source_;
     //QTcpSocket socket_;
@@ -100,6 +100,7 @@ private:
     bool init       = true;
 
     QString ip_;
+    int port_ = 0;
     QString userid_;
     QString passwd_;
 

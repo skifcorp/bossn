@@ -37,7 +37,17 @@ int fake_disconnect(struct soap*)
     return 0;
 }
 
+class MainSequenceHiddenException
+{
+public:
+    MainSequenceHiddenException() = default;
+    MainSequenceHiddenException( int erc ) : error_code(erc){}
 
+    int errorCode() const {return error_code;}
+
+private:
+    int error_code = 0;
+};
 
 
 class GsoapSource
@@ -45,7 +55,7 @@ class GsoapSource
 public:
 
 
-    GsoapSource( Coroutine2& c, const QString& ip):coro_(c), ip_(ip){}
+    GsoapSource( Coroutine2& c, const QString& ip, int port):coro_(c), ip_(ip), port_(port){}
 
     ~GsoapSource()
     {
@@ -60,7 +70,7 @@ public:
             terminate_          = false;
             try {
                 SocketHelper sh(*this);
-                sh.exechange(ip_);
+                sh.exechange(ip_, port_);
                 if ( terminate_ ) {
                     return -1;
                 }
@@ -134,6 +144,7 @@ private:
     bool has_exception = false;
     bool terminate_ = false;
     QString ip_;
+    int port_ = 0;
 };
 
 
@@ -144,7 +155,7 @@ public:
     using char_type = char;
     using category  = io::bidirectional_device_tag;
 
-    FakeSource( Coroutine2 & c, const QString& ip ):source_(new GsoapSource(c, ip))
+    FakeSource( Coroutine2 & c, const QString& ip, int port ):source_(new GsoapSource(c, ip, port))
     {
 
     }
@@ -233,7 +244,7 @@ unique_ptr<QTimer> SocketHelper::getTimer() const
 #endif
 
 
-void SocketHelper::exechange(const QString& ip)
+void SocketHelper::exechange(const QString& ip, int port)
 {
     //unique_ptr<QTcpSocket> socket_   = getSocket();
     //unique_ptr<QTimer> timeout_timer = getTimer();
@@ -243,7 +254,7 @@ void SocketHelper::exechange(const QString& ip)
 
     error = timeout = got_result = false;
 
-    socket_->connectToHost(ip, 80);
+    socket_->connectToHost(ip, port);
     timeout_timer->start(5000);
 
     if ( socket_->state() != QTcpSocket::ConnectedState ) {
@@ -256,19 +267,17 @@ void SocketHelper::exechange(const QString& ip)
     }
 
     if (  error ) {
-        throw MainSequenceException( connect_to_service_server_error, "connection to host " + socket_->peerAddress().toString()
-                                     + " port: " +
-                                     QString::number(socket_->peerPort())
-                                     +
-                                     " error! ", socket_->errorString() );
+        throw MainSequenceException( connect_to_service_server_error, "connection to ip " + ip
+                                     + " port: "
+                                     + QString::number(port)
+                                     + " error! ", socket_->errorString() );
     }
 
     if (  timeout )
-        throw MainSequenceException( connect_to_service_server_timeout, "connection to host " + socket_->peerAddress().toString() +
-                                     + " port: " +
-                                     QString::number(socket_->peerPort())
-                                     +
-                                     " timeout! ", "" );
+        throw MainSequenceException( connect_to_service_server_timeout, "connection to host " + ip
+                                     + " port: "
+                                     + QString::number( port )
+                                     + " timeout! ", "" );
 
 
 
@@ -356,8 +365,8 @@ void SocketHelper::onTimeout()
 class AutoDestroybossnSoapBindingProxy : public bossnSoapBindingProxy
 {
 public:
-    AutoDestroybossnSoapBindingProxy(Coroutine2 & c, const QString& ip,
-                    const char * userid, const char * passwd) : bossnSoapBindingProxy(SOAP_C_UTFSTRING), source_(c, ip)
+    AutoDestroybossnSoapBindingProxy(Coroutine2 & c, const QString& ip, int port,
+                    const char * userid, const char * passwd) : bossnSoapBindingProxy(SOAP_C_UTFSTRING), source_(c, ip, port)
     {
         soap->fconnect    = fake_connect;
         soap->fopen       = nullptr;
@@ -394,8 +403,8 @@ private:
 class WebServiceAsync
 {
 public:
-    WebServiceAsync(Coroutine2& c, const QString& ip):coro_(c),
-        ip_(ip)
+    WebServiceAsync(Coroutine2& c, const QString& ip, int port):coro_(c),
+        ip_(ip), port_(port)
     {
 
     }
@@ -407,7 +416,7 @@ public:
 
     QString exchangeData(const QString& s, const QString& platform_id, const QString& uid, const char * userid, const char * passwd)
     {
-        std::shared_ptr<WebServiceAsync> cur_fake_source_guard( this , [&](WebServiceAsync * wsa){
+/*        std::shared_ptr<WebServiceAsync> cur_fake_source_guard( this , [&](WebServiceAsync * wsa){
             wsa->cur_fake_source = nullptr;
         } ); Q_UNUSED(cur_fake_source_guard);
 
@@ -415,12 +424,7 @@ public:
 
         Q_ASSERT( !cur_fake_source );
 
-        //qDebug() << "ipppp: " << ip_;
-
         AutoDestroybossnSoapBindingProxy proxy(coro_, ip_, userid, passwd );
-
-        //proxy.soap->userid = "www";
-        //proxy.soap->passwd = "www";
 
         cur_fake_source = &proxy.source();
 
@@ -431,8 +435,6 @@ public:
         arg.param = s.toStdString();
         arg.platformId = platform_id.toStdString();
         arg.RFID_USCOREUID = uid.toStdString();
-
-        //qDebug() << "platform_id: " << platform_id;
 
         int ret = proxy.Exchange( &arg, &resp );
 
@@ -447,22 +449,29 @@ public:
                                          QString::number(ret), "");
         }
 
-        //qDebug() << QString::fromStdString( resp.return_ );
-/*        std::cout << std::oct;
+        return QString::fromUtf8( resp.return_.c_str() );*/
+        _ns1__ExchangeResponse resp;
+        try {
+            makeCall( [&](AutoDestroybossnSoapBindingProxy& proxy){
+                _ns1__Exchange arg;
 
-        for ( auto i = 0u ; i < qstrlen( resp.return_.c_str() ); ++i ) {
-            std::cout << "(" << (int) resp.return_.c_str()[i] << " " << resp.return_.c_str()[i] << ") " ;
+                arg.param = s.toStdString();
+                arg.platformId = platform_id.toStdString();
+                arg.RFID_USCOREUID = uid.toStdString();
+
+                return proxy.Exchange( &arg, &resp );
+            }, userid, passwd );
         }
-
-        std::cout << std::endl; */
-
-        return //QString::fromStdString(resp.return_);
-                QString::fromUtf8( resp.return_.c_str() );
+        catch(const MainSequenceHiddenException& ex ) {
+            throw MainSequenceException( gsoap_data_exchange_request_error, "Error in request data: " +
+                                         QString::number(ex.errorCode()), "");
+        }
+        return QString::fromUtf8( resp.return_.c_str() );
     }
 
     void acceptedCardResult( bool res, const QString& platform_id, const char * userid, const char * passwd )
     {
-        std::shared_ptr<WebServiceAsync> cur_fake_source_guard( this , [&](WebServiceAsync * wsa){
+/*        std::shared_ptr<WebServiceAsync> cur_fake_source_guard( this , [&](WebServiceAsync * wsa){
             wsa->cur_fake_source = nullptr;
         } ); Q_UNUSED(cur_fake_source_guard);
 
@@ -471,9 +480,6 @@ public:
         Q_ASSERT( !cur_fake_source );
 
         AutoDestroybossnSoapBindingProxy proxy(coro_, ip_, userid, passwd);
-
-        //proxy.soap->userid = "www";
-        //proxy.soap->passwd = "www";
 
         cur_fake_source = &proxy.source();
 
@@ -493,6 +499,59 @@ public:
             cur_fake_source->exception();
 
             throw MainSequenceException( gsoap_accept_card_result_request_error, "Error in accept card!!!");
+        }*/
+
+
+        try {
+            makeCall( [&](AutoDestroybossnSoapBindingProxy& proxy){
+                _ns1__Accept arg;
+                _ns1__AcceptResponse resp;
+
+                arg.flag = res;
+                arg.platformId = platform_id.toStdString();
+
+                return proxy.Accept( &arg, &resp );
+            }, userid, passwd );
+        }
+        catch(const MainSequenceHiddenException& ex ) {
+            throw MainSequenceException( gsoap_accept_card_result_request_error,
+                                         "Error in accept card!!! errc: " + QString::number(ex.errorCode()));
+        }
+    }
+
+    void appeared( const QString& platform_id, const char * userid, const char * passwd )
+    {
+        try {
+            makeCall( [&](AutoDestroybossnSoapBindingProxy& proxy){
+                _ns1__Appeared arg;
+                _ns1__AppearedResponse resp;
+
+                arg.platformId = platform_id.toStdString();
+
+                return proxy.Appeared( &arg, &resp );
+            }, userid, passwd );
+        }
+        catch(const MainSequenceHiddenException& ex ) {
+            throw MainSequenceException( gsoap_appear_request_error,
+                                         "Error in appear errc: " + QString::number(ex.errorCode()));
+        }
+    }
+
+    void disappear( const QString& platform_id, const char * userid, const char * passwd )
+    {
+        try {
+            makeCall( [&](AutoDestroybossnSoapBindingProxy& proxy){
+                _ns1__Disappeared arg;
+                _ns1__DisappearedResponse resp;
+
+                arg.platformId = platform_id.toStdString();
+
+                return proxy.Disappeared( &arg, &resp );
+            }, userid, passwd );
+        }
+        catch(const MainSequenceHiddenException& ex ) {
+            throw MainSequenceException( gsoap_disappear_request_error,
+                                         "Error in appear errc: " + QString::number(ex.errorCode()));
         }
     }
 
@@ -515,6 +574,35 @@ private:
     FakeSource * cur_fake_source = nullptr;
     bool terminating_ = false;
     QString ip_;
+    int port_;
+
+    template <class F>
+    void makeCall(F && f, const char * userid, const char * passwd)
+    {
+        std::shared_ptr<WebServiceAsync> cur_fake_source_guard( this , [&](WebServiceAsync * wsa){
+            wsa->cur_fake_source = nullptr;
+        } ); Q_UNUSED(cur_fake_source_guard);
+
+        terminating_ = false;
+
+        Q_ASSERT( !cur_fake_source );
+
+        AutoDestroybossnSoapBindingProxy proxy(coro_, ip_, port_, userid, passwd);
+
+        cur_fake_source = &proxy.source();
+
+        int ret = f( proxy );
+
+        if ( cur_fake_source->isTerminating() ) {
+            return ;
+        }
+
+        if ( ret != SOAP_OK ) {
+            cur_fake_source->exception();
+
+            throw MainSequenceHiddenException(ret);  //MainSequenceException( gsoap_accept_card_result_request_error, "Error in accept card!!!");
+        }
+    }
 };
 
 
@@ -537,6 +625,7 @@ void WebServiceSequence::setSettings(const QVariantMap & s)
     seq_id                  = get_setting<int>("id", s);
 
     ip_                     = get_setting<QString>("ip", s);
+    port_                   = get_setting<int>("port", s);
     userid_                 = get_setting<QString>("userid", s);
     passwd_                 = get_setting<QString>("passwd", s);
 
@@ -561,11 +650,42 @@ void WebServiceSequence::run()
 
     on_weight = true;
 
-    printOnTablo(tr2(apply_card_message));
-
     setLightsToRed();
 
-    alho_settings.reader.do_on.func();
+    while (on_weight)    {
+        std::shared_ptr<WebServiceSequence> cur_fake_source_guard( this ,[&]
+        (WebServiceSequence * wss){
+            wss->cur_webservice_async = nullptr;
+        } ); Q_UNUSED(cur_fake_source_guard);
+
+        Q_ASSERT(!cur_webservice_async);
+
+        WebServiceAsync was(*this, ip_, port_);
+
+        cur_webservice_async = &was;
+
+        try {
+            QByteArray userid = userid_.toAscii();
+            QByteArray passwd = passwd_.toAscii();
+            //qDebug() << "before";
+            was.appeared( QString::number(seqId()), userid.data(), passwd.data() );
+            if ( was.isTerminating() )
+                continue;
+
+            break;
+        }
+        catch( const MainSequenceException& ex ) {
+            seqWarning()<<"sequence_exception in appeared: " << ex.adminMessage() << " sys: " + ex.systemMessage();
+            sleepnbtmerr(ex.userMessage(), tr2(apply_card_message));
+            continue;
+        }
+    }
+
+
+    if ( on_weight ) {
+        printOnTablo(tr2(apply_card_message));
+        alho_settings.reader.do_on.func();
+    }
 
     QByteArray card_code = get_setting<QByteArray>("card_code" , app_settings);
     uint data_block      = get_setting<uint>      ("data_block", app_settings);
@@ -598,7 +718,7 @@ void WebServiceSequence::run()
 
             checkForStealedCard( act );
 
-            WebServiceAsync was(*this, ip_);
+            WebServiceAsync was(*this, ip_, port_);
             cur_webservice_async = &was;
 
             QByteArray userid = userid_.toAscii();

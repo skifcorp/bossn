@@ -64,6 +64,21 @@ class SOAP_CMAC bossnSoapBindingProxy
 	virtual	char *soap_sprint_fault(char *buf, size_t len);
 #endif
 
+	/// Web service one-way send operation 'send_AppearedResponse' (returns error code or SOAP_OK)
+	virtual	int send_AppearedResponse(_ns1__AppearedResponse *ns1__AppearedResponse) { return this->send_AppearedResponse(NULL, NULL, ns1__AppearedResponse); }
+	virtual	int send_AppearedResponse(const char *endpoint, const char *soap_action, _ns1__AppearedResponse *ns1__AppearedResponse);
+	/// Web service one-way receive operation 'recv_AppearedResponse' (returns error code or SOAP_OK);
+	virtual	int recv_AppearedResponse(struct __ns1__AppearedResponse&);
+	/// Web service receive of HTTP Accept acknowledgment for one-way send operation 'send_AppearedResponse' (returns error code or SOAP_OK)
+	virtual	int recv_AppearedResponse_empty_response() { return soap_recv_empty_response(this->soap); }
+	/// Web service one-way synchronous send operation 'AppearedResponse' with HTTP Accept/OK response receive (returns error code or SOAP_OK)
+	virtual	int AppearedResponse(_ns1__AppearedResponse *ns1__AppearedResponse) { return this->AppearedResponse(NULL, NULL, ns1__AppearedResponse); }
+	virtual	int AppearedResponse(const char *endpoint, const char *soap_action, _ns1__AppearedResponse *ns1__AppearedResponse) { if (this->send_AppearedResponse(endpoint, soap_action, ns1__AppearedResponse) || soap_recv_empty_response(this->soap)) return this->soap->error; return SOAP_OK; }
+
+	/// Web service operation 'Appeared' (returns error code or SOAP_OK)
+	virtual	int Appeared(_ns1__Appeared *ns1__Appeared, _ns1__AppearedResponse *ns1__AppearedResponse) { return this->Appeared(NULL, NULL, ns1__Appeared, ns1__AppearedResponse); }
+	virtual	int Appeared(const char *endpoint, const char *soap_action, _ns1__Appeared *ns1__Appeared, _ns1__AppearedResponse *ns1__AppearedResponse);
+
 	/// Web service one-way send operation 'send_ExchangeResponse' (returns error code or SOAP_OK)
 	virtual	int send_ExchangeResponse(_ns1__ExchangeResponse *ns1__ExchangeResponse) { return this->send_ExchangeResponse(NULL, NULL, ns1__ExchangeResponse); }
 	virtual	int send_ExchangeResponse(const char *endpoint, const char *soap_action, _ns1__ExchangeResponse *ns1__ExchangeResponse);
@@ -94,6 +109,36 @@ class SOAP_CMAC bossnSoapBindingProxy
 	virtual	int Accept(_ns1__Accept *ns1__Accept, _ns1__AcceptResponse *ns1__AcceptResponse) { return this->Accept(NULL, NULL, ns1__Accept, ns1__AcceptResponse); }
 	virtual	int Accept(const char *endpoint, const char *soap_action, _ns1__Accept *ns1__Accept, _ns1__AcceptResponse *ns1__AcceptResponse);
 
+	/// Web service one-way send operation 'send_DisappearedResponse' (returns error code or SOAP_OK)
+	virtual	int send_DisappearedResponse(_ns1__DisappearedResponse *ns1__DisappearedResponse) { return this->send_DisappearedResponse(NULL, NULL, ns1__DisappearedResponse); }
+	virtual	int send_DisappearedResponse(const char *endpoint, const char *soap_action, _ns1__DisappearedResponse *ns1__DisappearedResponse);
+	/// Web service one-way receive operation 'recv_DisappearedResponse' (returns error code or SOAP_OK);
+	virtual	int recv_DisappearedResponse(struct __ns1__DisappearedResponse&);
+	/// Web service receive of HTTP Accept acknowledgment for one-way send operation 'send_DisappearedResponse' (returns error code or SOAP_OK)
+	virtual	int recv_DisappearedResponse_empty_response() { return soap_recv_empty_response(this->soap); }
+	/// Web service one-way synchronous send operation 'DisappearedResponse' with HTTP Accept/OK response receive (returns error code or SOAP_OK)
+	virtual	int DisappearedResponse(_ns1__DisappearedResponse *ns1__DisappearedResponse) { return this->DisappearedResponse(NULL, NULL, ns1__DisappearedResponse); }
+	virtual	int DisappearedResponse(const char *endpoint, const char *soap_action, _ns1__DisappearedResponse *ns1__DisappearedResponse) { if (this->send_DisappearedResponse(endpoint, soap_action, ns1__DisappearedResponse) || soap_recv_empty_response(this->soap)) return this->soap->error; return SOAP_OK; }
+
+	/// Web service operation 'Disappeared' (returns error code or SOAP_OK)
+	virtual	int Disappeared(_ns1__Disappeared *ns1__Disappeared, _ns1__DisappearedResponse *ns1__DisappearedResponse) { return this->Disappeared(NULL, NULL, ns1__Disappeared, ns1__DisappearedResponse); }
+	virtual	int Disappeared(const char *endpoint, const char *soap_action, _ns1__Disappeared *ns1__Disappeared, _ns1__DisappearedResponse *ns1__DisappearedResponse);
+
+	/// Web service one-way send operation 'send_AppearedResponse' (returns error code or SOAP_OK)
+	virtual	int send_AppearedResponse_(_ns1__AppearedResponse *ns1__AppearedResponse) { return this->send_AppearedResponse_(NULL, NULL, ns1__AppearedResponse); }
+	virtual	int send_AppearedResponse_(const char *endpoint, const char *soap_action, _ns1__AppearedResponse *ns1__AppearedResponse);
+	/// Web service one-way receive operation 'recv_AppearedResponse' (returns error code or SOAP_OK);
+	virtual	int recv_AppearedResponse_(struct __ns1__AppearedResponse_&);
+	/// Web service receive of HTTP Accept acknowledgment for one-way send operation 'send_AppearedResponse' (returns error code or SOAP_OK)
+	virtual	int recv_AppearedResponse__empty_response() { return soap_recv_empty_response(this->soap); }
+	/// Web service one-way synchronous send operation 'AppearedResponse' with HTTP Accept/OK response receive (returns error code or SOAP_OK)
+	virtual	int AppearedResponse_(_ns1__AppearedResponse *ns1__AppearedResponse) { return this->AppearedResponse_(NULL, NULL, ns1__AppearedResponse); }
+	virtual	int AppearedResponse_(const char *endpoint, const char *soap_action, _ns1__AppearedResponse *ns1__AppearedResponse) { if (this->send_AppearedResponse_(endpoint, soap_action, ns1__AppearedResponse) || soap_recv_empty_response(this->soap)) return this->soap->error; return SOAP_OK; }
+
+	/// Web service operation 'Appeared' (returns error code or SOAP_OK)
+	virtual	int Appeared_(_ns1__Appeared *ns1__Appeared, _ns1__AppearedResponse *ns1__AppearedResponse) { return this->Appeared_(NULL, NULL, ns1__Appeared, ns1__AppearedResponse); }
+	virtual	int Appeared_(const char *endpoint, const char *soap_action, _ns1__Appeared *ns1__Appeared, _ns1__AppearedResponse *ns1__AppearedResponse);
+
 	/// Web service one-way send operation 'send_ExchangeResponse' (returns error code or SOAP_OK)
 	virtual	int send_ExchangeResponse_(_ns1__ExchangeResponse *ns1__ExchangeResponse) { return this->send_ExchangeResponse_(NULL, NULL, ns1__ExchangeResponse); }
 	virtual	int send_ExchangeResponse_(const char *endpoint, const char *soap_action, _ns1__ExchangeResponse *ns1__ExchangeResponse);
@@ -123,5 +168,20 @@ class SOAP_CMAC bossnSoapBindingProxy
 	/// Web service operation 'Accept' (returns error code or SOAP_OK)
 	virtual	int Accept_(_ns1__Accept *ns1__Accept, _ns1__AcceptResponse *ns1__AcceptResponse) { return this->Accept_(NULL, NULL, ns1__Accept, ns1__AcceptResponse); }
 	virtual	int Accept_(const char *endpoint, const char *soap_action, _ns1__Accept *ns1__Accept, _ns1__AcceptResponse *ns1__AcceptResponse);
+
+	/// Web service one-way send operation 'send_DisappearedResponse' (returns error code or SOAP_OK)
+	virtual	int send_DisappearedResponse_(_ns1__DisappearedResponse *ns1__DisappearedResponse) { return this->send_DisappearedResponse_(NULL, NULL, ns1__DisappearedResponse); }
+	virtual	int send_DisappearedResponse_(const char *endpoint, const char *soap_action, _ns1__DisappearedResponse *ns1__DisappearedResponse);
+	/// Web service one-way receive operation 'recv_DisappearedResponse' (returns error code or SOAP_OK);
+	virtual	int recv_DisappearedResponse_(struct __ns1__DisappearedResponse_&);
+	/// Web service receive of HTTP Accept acknowledgment for one-way send operation 'send_DisappearedResponse' (returns error code or SOAP_OK)
+	virtual	int recv_DisappearedResponse__empty_response() { return soap_recv_empty_response(this->soap); }
+	/// Web service one-way synchronous send operation 'DisappearedResponse' with HTTP Accept/OK response receive (returns error code or SOAP_OK)
+	virtual	int DisappearedResponse_(_ns1__DisappearedResponse *ns1__DisappearedResponse) { return this->DisappearedResponse_(NULL, NULL, ns1__DisappearedResponse); }
+	virtual	int DisappearedResponse_(const char *endpoint, const char *soap_action, _ns1__DisappearedResponse *ns1__DisappearedResponse) { if (this->send_DisappearedResponse_(endpoint, soap_action, ns1__DisappearedResponse) || soap_recv_empty_response(this->soap)) return this->soap->error; return SOAP_OK; }
+
+	/// Web service operation 'Disappeared' (returns error code or SOAP_OK)
+	virtual	int Disappeared_(_ns1__Disappeared *ns1__Disappeared, _ns1__DisappearedResponse *ns1__DisappearedResponse) { return this->Disappeared_(NULL, NULL, ns1__Disappeared, ns1__DisappearedResponse); }
+	virtual	int Disappeared_(const char *endpoint, const char *soap_action, _ns1__Disappeared *ns1__Disappeared, _ns1__DisappearedResponse *ns1__DisappearedResponse);
 };
 #endif

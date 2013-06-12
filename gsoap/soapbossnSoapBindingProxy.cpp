@@ -125,13 +125,128 @@ char *bossnSoapBindingProxy::soap_sprint_fault(char *buf, size_t len)
 }
 #endif
 
+int bossnSoapBindingProxy::send_AppearedResponse(const char *endpoint, const char *soap_action, _ns1__AppearedResponse *ns1__AppearedResponse)
+{	struct soap *soap = this->soap;
+	struct __ns1__AppearedResponse soap_tmp___ns1__AppearedResponse;
+	if (endpoint)
+		soap_endpoint = endpoint;
+	if (soap_endpoint == NULL)
+		soap_endpoint = "http://localhost/bossn/ws/bossn.1cws";
+	if (soap_action == NULL)
+		soap_action = "http://localhost/bossn#bossn:AppearedResponse";
+	soap->encodingStyle = NULL;
+	soap_tmp___ns1__AppearedResponse.ns1__AppearedResponse = ns1__AppearedResponse;
+	soap_begin(soap);
+	soap_serializeheader(soap);
+	soap_serialize___ns1__AppearedResponse(soap, &soap_tmp___ns1__AppearedResponse);
+	if (soap_begin_count(soap))
+		return soap->error;
+	if (soap->mode & SOAP_IO_LENGTH)
+	{	if (soap_envelope_begin_out(soap)
+		 || soap_putheader(soap)
+		 || soap_body_begin_out(soap)
+		 || soap_put___ns1__AppearedResponse(soap, &soap_tmp___ns1__AppearedResponse, "-ns1:AppearedResponse", NULL)
+		 || soap_body_end_out(soap)
+		 || soap_envelope_end_out(soap))
+			 return soap->error;
+	}
+	if (soap_end_count(soap))
+		return soap->error;
+	if (soap_connect(soap, soap_endpoint, soap_action)
+	 || soap_envelope_begin_out(soap)
+	 || soap_putheader(soap)
+	 || soap_body_begin_out(soap)
+	 || soap_put___ns1__AppearedResponse(soap, &soap_tmp___ns1__AppearedResponse, "-ns1:AppearedResponse", NULL)
+	 || soap_body_end_out(soap)
+	 || soap_envelope_end_out(soap)
+	 || soap_end_send(soap))
+		return soap_closesock(soap);
+	return SOAP_OK;
+}
+
+int bossnSoapBindingProxy::recv_AppearedResponse(struct __ns1__AppearedResponse& tmp)
+{	struct soap *soap = this->soap;
+
+	struct __ns1__AppearedResponse *_param_1 = &tmp;
+	soap_default___ns1__AppearedResponse(soap, _param_1);
+	soap_begin(soap);
+	if (soap_begin_recv(soap)
+	 || soap_envelope_begin_in(soap)
+	 || soap_recv_header(soap)
+	 || soap_body_begin_in(soap))
+		return soap_closesock(soap);
+	soap_get___ns1__AppearedResponse(soap, _param_1, "-ns1:AppearedResponse", NULL);
+	if (soap->error == SOAP_TAG_MISMATCH && soap->level == 2)
+		soap->error = SOAP_NO_METHOD;
+	if (soap->error
+	 || soap_body_end_in(soap)
+	 || soap_envelope_end_in(soap)
+	 || soap_end_recv(soap))
+		return soap_closesock(soap);
+	return soap_closesock(soap);
+}
+
+int bossnSoapBindingProxy::Appeared(const char *endpoint, const char *soap_action, _ns1__Appeared *ns1__Appeared, _ns1__AppearedResponse *ns1__AppearedResponse)
+{	struct soap *soap = this->soap;
+	struct __ns1__Appeared soap_tmp___ns1__Appeared;
+	if (endpoint)
+		soap_endpoint = endpoint;
+	if (soap_endpoint == NULL)
+		soap_endpoint = "http://localhost/bossn/ws/bossn.1cws";
+	if (soap_action == NULL)
+		soap_action = "http://localhost/bossn#bossn:Appeared";
+	soap->encodingStyle = NULL;
+	soap_tmp___ns1__Appeared.ns1__Appeared = ns1__Appeared;
+	soap_begin(soap);
+	soap_serializeheader(soap);
+	soap_serialize___ns1__Appeared(soap, &soap_tmp___ns1__Appeared);
+	if (soap_begin_count(soap))
+		return soap->error;
+	if (soap->mode & SOAP_IO_LENGTH)
+	{	if (soap_envelope_begin_out(soap)
+		 || soap_putheader(soap)
+		 || soap_body_begin_out(soap)
+		 || soap_put___ns1__Appeared(soap, &soap_tmp___ns1__Appeared, "-ns1:Appeared", NULL)
+		 || soap_body_end_out(soap)
+		 || soap_envelope_end_out(soap))
+			 return soap->error;
+	}
+	if (soap_end_count(soap))
+		return soap->error;
+	if (soap_connect(soap, soap_endpoint, soap_action)
+	 || soap_envelope_begin_out(soap)
+	 || soap_putheader(soap)
+	 || soap_body_begin_out(soap)
+	 || soap_put___ns1__Appeared(soap, &soap_tmp___ns1__Appeared, "-ns1:Appeared", NULL)
+	 || soap_body_end_out(soap)
+	 || soap_envelope_end_out(soap)
+	 || soap_end_send(soap))
+		return soap_closesock(soap);
+	if (!ns1__AppearedResponse)
+		return soap_closesock(soap);
+	ns1__AppearedResponse->soap_default(soap);
+	if (soap_begin_recv(soap)
+	 || soap_envelope_begin_in(soap)
+	 || soap_recv_header(soap)
+	 || soap_body_begin_in(soap))
+		return soap_closesock(soap);
+	ns1__AppearedResponse->soap_get(soap, "ns1:AppearedResponse", "");
+	if (soap->error)
+		return soap_recv_fault(soap, 0);
+	if (soap_body_end_in(soap)
+	 || soap_envelope_end_in(soap)
+	 || soap_end_recv(soap))
+		return soap_closesock(soap);
+	return soap_closesock(soap);
+}
+
 int bossnSoapBindingProxy::send_ExchangeResponse(const char *endpoint, const char *soap_action, _ns1__ExchangeResponse *ns1__ExchangeResponse)
 {	struct soap *soap = this->soap;
 	struct __ns1__ExchangeResponse soap_tmp___ns1__ExchangeResponse;
 	if (endpoint)
 		soap_endpoint = endpoint;
 	if (soap_endpoint == NULL)
-		soap_endpoint = "http://192.168.0.17/bossn/ws/bossn.1cws";
+		soap_endpoint = "http://localhost/bossn/ws/bossn.1cws";
 	if (soap_action == NULL)
 		soap_action = "http://localhost/bossn#bossn:ExchangeResponse";
 	soap->encodingStyle = NULL;
@@ -167,15 +282,15 @@ int bossnSoapBindingProxy::send_ExchangeResponse(const char *endpoint, const cha
 int bossnSoapBindingProxy::recv_ExchangeResponse(struct __ns1__ExchangeResponse& tmp)
 {	struct soap *soap = this->soap;
 
-	struct __ns1__ExchangeResponse *_param_1 = &tmp;
-	soap_default___ns1__ExchangeResponse(soap, _param_1);
+	struct __ns1__ExchangeResponse *_param_2 = &tmp;
+	soap_default___ns1__ExchangeResponse(soap, _param_2);
 	soap_begin(soap);
 	if (soap_begin_recv(soap)
 	 || soap_envelope_begin_in(soap)
 	 || soap_recv_header(soap)
 	 || soap_body_begin_in(soap))
 		return soap_closesock(soap);
-	soap_get___ns1__ExchangeResponse(soap, _param_1, "-ns1:ExchangeResponse", NULL);
+	soap_get___ns1__ExchangeResponse(soap, _param_2, "-ns1:ExchangeResponse", NULL);
 	if (soap->error == SOAP_TAG_MISMATCH && soap->level == 2)
 		soap->error = SOAP_NO_METHOD;
 	if (soap->error
@@ -192,7 +307,7 @@ int bossnSoapBindingProxy::Exchange(const char *endpoint, const char *soap_actio
 	if (endpoint)
 		soap_endpoint = endpoint;
 	if (soap_endpoint == NULL)
-		soap_endpoint = "http://192.168.0.17/bossn/ws/bossn.1cws";
+		soap_endpoint = "http://localhost/bossn/ws/bossn.1cws";
 	if (soap_action == NULL)
 		soap_action = "http://localhost/bossn#bossn:Exchange";
 	soap->encodingStyle = NULL;
@@ -246,7 +361,7 @@ int bossnSoapBindingProxy::send_AcceptResponse(const char *endpoint, const char 
 	if (endpoint)
 		soap_endpoint = endpoint;
 	if (soap_endpoint == NULL)
-		soap_endpoint = "http://192.168.0.17/bossn/ws/bossn.1cws";
+		soap_endpoint = "http://localhost/bossn/ws/bossn.1cws";
 	if (soap_action == NULL)
 		soap_action = "http://localhost/bossn#bossn:AcceptResponse";
 	soap->encodingStyle = NULL;
@@ -282,15 +397,15 @@ int bossnSoapBindingProxy::send_AcceptResponse(const char *endpoint, const char 
 int bossnSoapBindingProxy::recv_AcceptResponse(struct __ns1__AcceptResponse& tmp)
 {	struct soap *soap = this->soap;
 
-	struct __ns1__AcceptResponse *_param_2 = &tmp;
-	soap_default___ns1__AcceptResponse(soap, _param_2);
+	struct __ns1__AcceptResponse *_param_3 = &tmp;
+	soap_default___ns1__AcceptResponse(soap, _param_3);
 	soap_begin(soap);
 	if (soap_begin_recv(soap)
 	 || soap_envelope_begin_in(soap)
 	 || soap_recv_header(soap)
 	 || soap_body_begin_in(soap))
 		return soap_closesock(soap);
-	soap_get___ns1__AcceptResponse(soap, _param_2, "-ns1:AcceptResponse", NULL);
+	soap_get___ns1__AcceptResponse(soap, _param_3, "-ns1:AcceptResponse", NULL);
 	if (soap->error == SOAP_TAG_MISMATCH && soap->level == 2)
 		soap->error = SOAP_NO_METHOD;
 	if (soap->error
@@ -307,7 +422,7 @@ int bossnSoapBindingProxy::Accept(const char *endpoint, const char *soap_action,
 	if (endpoint)
 		soap_endpoint = endpoint;
 	if (soap_endpoint == NULL)
-		soap_endpoint = "http://192.168.0.17/bossn/ws/bossn.1cws";
+		soap_endpoint = "http://localhost/bossn/ws/bossn.1cws";
 	if (soap_action == NULL)
 		soap_action = "http://localhost/bossn#bossn:Accept";
 	soap->encodingStyle = NULL;
@@ -355,13 +470,243 @@ int bossnSoapBindingProxy::Accept(const char *endpoint, const char *soap_action,
 	return soap_closesock(soap);
 }
 
+int bossnSoapBindingProxy::send_DisappearedResponse(const char *endpoint, const char *soap_action, _ns1__DisappearedResponse *ns1__DisappearedResponse)
+{	struct soap *soap = this->soap;
+	struct __ns1__DisappearedResponse soap_tmp___ns1__DisappearedResponse;
+	if (endpoint)
+		soap_endpoint = endpoint;
+	if (soap_endpoint == NULL)
+		soap_endpoint = "http://localhost/bossn/ws/bossn.1cws";
+	if (soap_action == NULL)
+		soap_action = "http://localhost/bossn#bossn:DisappearedResponse";
+	soap->encodingStyle = NULL;
+	soap_tmp___ns1__DisappearedResponse.ns1__DisappearedResponse = ns1__DisappearedResponse;
+	soap_begin(soap);
+	soap_serializeheader(soap);
+	soap_serialize___ns1__DisappearedResponse(soap, &soap_tmp___ns1__DisappearedResponse);
+	if (soap_begin_count(soap))
+		return soap->error;
+	if (soap->mode & SOAP_IO_LENGTH)
+	{	if (soap_envelope_begin_out(soap)
+		 || soap_putheader(soap)
+		 || soap_body_begin_out(soap)
+		 || soap_put___ns1__DisappearedResponse(soap, &soap_tmp___ns1__DisappearedResponse, "-ns1:DisappearedResponse", NULL)
+		 || soap_body_end_out(soap)
+		 || soap_envelope_end_out(soap))
+			 return soap->error;
+	}
+	if (soap_end_count(soap))
+		return soap->error;
+	if (soap_connect(soap, soap_endpoint, soap_action)
+	 || soap_envelope_begin_out(soap)
+	 || soap_putheader(soap)
+	 || soap_body_begin_out(soap)
+	 || soap_put___ns1__DisappearedResponse(soap, &soap_tmp___ns1__DisappearedResponse, "-ns1:DisappearedResponse", NULL)
+	 || soap_body_end_out(soap)
+	 || soap_envelope_end_out(soap)
+	 || soap_end_send(soap))
+		return soap_closesock(soap);
+	return SOAP_OK;
+}
+
+int bossnSoapBindingProxy::recv_DisappearedResponse(struct __ns1__DisappearedResponse& tmp)
+{	struct soap *soap = this->soap;
+
+	struct __ns1__DisappearedResponse *_param_4 = &tmp;
+	soap_default___ns1__DisappearedResponse(soap, _param_4);
+	soap_begin(soap);
+	if (soap_begin_recv(soap)
+	 || soap_envelope_begin_in(soap)
+	 || soap_recv_header(soap)
+	 || soap_body_begin_in(soap))
+		return soap_closesock(soap);
+	soap_get___ns1__DisappearedResponse(soap, _param_4, "-ns1:DisappearedResponse", NULL);
+	if (soap->error == SOAP_TAG_MISMATCH && soap->level == 2)
+		soap->error = SOAP_NO_METHOD;
+	if (soap->error
+	 || soap_body_end_in(soap)
+	 || soap_envelope_end_in(soap)
+	 || soap_end_recv(soap))
+		return soap_closesock(soap);
+	return soap_closesock(soap);
+}
+
+int bossnSoapBindingProxy::Disappeared(const char *endpoint, const char *soap_action, _ns1__Disappeared *ns1__Disappeared, _ns1__DisappearedResponse *ns1__DisappearedResponse)
+{	struct soap *soap = this->soap;
+	struct __ns1__Disappeared soap_tmp___ns1__Disappeared;
+	if (endpoint)
+		soap_endpoint = endpoint;
+	if (soap_endpoint == NULL)
+		soap_endpoint = "http://localhost/bossn/ws/bossn.1cws";
+	if (soap_action == NULL)
+		soap_action = "http://localhost/bossn#bossn:Disappeared";
+	soap->encodingStyle = NULL;
+	soap_tmp___ns1__Disappeared.ns1__Disappeared = ns1__Disappeared;
+	soap_begin(soap);
+	soap_serializeheader(soap);
+	soap_serialize___ns1__Disappeared(soap, &soap_tmp___ns1__Disappeared);
+	if (soap_begin_count(soap))
+		return soap->error;
+	if (soap->mode & SOAP_IO_LENGTH)
+	{	if (soap_envelope_begin_out(soap)
+		 || soap_putheader(soap)
+		 || soap_body_begin_out(soap)
+		 || soap_put___ns1__Disappeared(soap, &soap_tmp___ns1__Disappeared, "-ns1:Disappeared", NULL)
+		 || soap_body_end_out(soap)
+		 || soap_envelope_end_out(soap))
+			 return soap->error;
+	}
+	if (soap_end_count(soap))
+		return soap->error;
+	if (soap_connect(soap, soap_endpoint, soap_action)
+	 || soap_envelope_begin_out(soap)
+	 || soap_putheader(soap)
+	 || soap_body_begin_out(soap)
+	 || soap_put___ns1__Disappeared(soap, &soap_tmp___ns1__Disappeared, "-ns1:Disappeared", NULL)
+	 || soap_body_end_out(soap)
+	 || soap_envelope_end_out(soap)
+	 || soap_end_send(soap))
+		return soap_closesock(soap);
+	if (!ns1__DisappearedResponse)
+		return soap_closesock(soap);
+	ns1__DisappearedResponse->soap_default(soap);
+	if (soap_begin_recv(soap)
+	 || soap_envelope_begin_in(soap)
+	 || soap_recv_header(soap)
+	 || soap_body_begin_in(soap))
+		return soap_closesock(soap);
+	ns1__DisappearedResponse->soap_get(soap, "ns1:DisappearedResponse", "");
+	if (soap->error)
+		return soap_recv_fault(soap, 0);
+	if (soap_body_end_in(soap)
+	 || soap_envelope_end_in(soap)
+	 || soap_end_recv(soap))
+		return soap_closesock(soap);
+	return soap_closesock(soap);
+}
+
+int bossnSoapBindingProxy::send_AppearedResponse_(const char *endpoint, const char *soap_action, _ns1__AppearedResponse *ns1__AppearedResponse)
+{	struct soap *soap = this->soap;
+	struct __ns1__AppearedResponse_ soap_tmp___ns1__AppearedResponse_;
+	if (endpoint)
+		soap_endpoint = endpoint;
+	if (soap_endpoint == NULL)
+		soap_endpoint = "http://localhost/bossn/ws/bossn.1cws";
+	if (soap_action == NULL)
+		soap_action = "http://localhost/bossn#bossn:AppearedResponse";
+	soap->encodingStyle = NULL;
+	soap_tmp___ns1__AppearedResponse_.ns1__AppearedResponse = ns1__AppearedResponse;
+	soap_begin(soap);
+	soap_serializeheader(soap);
+	soap_serialize___ns1__AppearedResponse_(soap, &soap_tmp___ns1__AppearedResponse_);
+	if (soap_begin_count(soap))
+		return soap->error;
+	if (soap->mode & SOAP_IO_LENGTH)
+	{	if (soap_envelope_begin_out(soap)
+		 || soap_putheader(soap)
+		 || soap_body_begin_out(soap)
+		 || soap_put___ns1__AppearedResponse_(soap, &soap_tmp___ns1__AppearedResponse_, "-ns1:AppearedResponse", NULL)
+		 || soap_body_end_out(soap)
+		 || soap_envelope_end_out(soap))
+			 return soap->error;
+	}
+	if (soap_end_count(soap))
+		return soap->error;
+	if (soap_connect(soap, soap_endpoint, soap_action)
+	 || soap_envelope_begin_out(soap)
+	 || soap_putheader(soap)
+	 || soap_body_begin_out(soap)
+	 || soap_put___ns1__AppearedResponse_(soap, &soap_tmp___ns1__AppearedResponse_, "-ns1:AppearedResponse", NULL)
+	 || soap_body_end_out(soap)
+	 || soap_envelope_end_out(soap)
+	 || soap_end_send(soap))
+		return soap_closesock(soap);
+	return SOAP_OK;
+}
+
+int bossnSoapBindingProxy::recv_AppearedResponse_(struct __ns1__AppearedResponse_& tmp)
+{	struct soap *soap = this->soap;
+
+	struct __ns1__AppearedResponse_ *_param_5 = &tmp;
+	soap_default___ns1__AppearedResponse_(soap, _param_5);
+	soap_begin(soap);
+	if (soap_begin_recv(soap)
+	 || soap_envelope_begin_in(soap)
+	 || soap_recv_header(soap)
+	 || soap_body_begin_in(soap))
+		return soap_closesock(soap);
+	soap_get___ns1__AppearedResponse_(soap, _param_5, "-ns1:AppearedResponse", NULL);
+	if (soap->error == SOAP_TAG_MISMATCH && soap->level == 2)
+		soap->error = SOAP_NO_METHOD;
+	if (soap->error
+	 || soap_body_end_in(soap)
+	 || soap_envelope_end_in(soap)
+	 || soap_end_recv(soap))
+		return soap_closesock(soap);
+	return soap_closesock(soap);
+}
+
+int bossnSoapBindingProxy::Appeared_(const char *endpoint, const char *soap_action, _ns1__Appeared *ns1__Appeared, _ns1__AppearedResponse *ns1__AppearedResponse)
+{	struct soap *soap = this->soap;
+	struct __ns1__Appeared_ soap_tmp___ns1__Appeared_;
+	if (endpoint)
+		soap_endpoint = endpoint;
+	if (soap_endpoint == NULL)
+		soap_endpoint = "http://localhost/bossn/ws/bossn.1cws";
+	if (soap_action == NULL)
+		soap_action = "http://localhost/bossn#bossn:Appeared";
+	soap->encodingStyle = NULL;
+	soap_tmp___ns1__Appeared_.ns1__Appeared = ns1__Appeared;
+	soap_begin(soap);
+	soap_serializeheader(soap);
+	soap_serialize___ns1__Appeared_(soap, &soap_tmp___ns1__Appeared_);
+	if (soap_begin_count(soap))
+		return soap->error;
+	if (soap->mode & SOAP_IO_LENGTH)
+	{	if (soap_envelope_begin_out(soap)
+		 || soap_putheader(soap)
+		 || soap_body_begin_out(soap)
+		 || soap_put___ns1__Appeared_(soap, &soap_tmp___ns1__Appeared_, "-ns1:Appeared", NULL)
+		 || soap_body_end_out(soap)
+		 || soap_envelope_end_out(soap))
+			 return soap->error;
+	}
+	if (soap_end_count(soap))
+		return soap->error;
+	if (soap_connect(soap, soap_endpoint, soap_action)
+	 || soap_envelope_begin_out(soap)
+	 || soap_putheader(soap)
+	 || soap_body_begin_out(soap)
+	 || soap_put___ns1__Appeared_(soap, &soap_tmp___ns1__Appeared_, "-ns1:Appeared", NULL)
+	 || soap_body_end_out(soap)
+	 || soap_envelope_end_out(soap)
+	 || soap_end_send(soap))
+		return soap_closesock(soap);
+	if (!ns1__AppearedResponse)
+		return soap_closesock(soap);
+	ns1__AppearedResponse->soap_default(soap);
+	if (soap_begin_recv(soap)
+	 || soap_envelope_begin_in(soap)
+	 || soap_recv_header(soap)
+	 || soap_body_begin_in(soap))
+		return soap_closesock(soap);
+	ns1__AppearedResponse->soap_get(soap, "ns1:AppearedResponse", "");
+	if (soap->error)
+		return soap_recv_fault(soap, 0);
+	if (soap_body_end_in(soap)
+	 || soap_envelope_end_in(soap)
+	 || soap_end_recv(soap))
+		return soap_closesock(soap);
+	return soap_closesock(soap);
+}
+
 int bossnSoapBindingProxy::send_ExchangeResponse_(const char *endpoint, const char *soap_action, _ns1__ExchangeResponse *ns1__ExchangeResponse)
 {	struct soap *soap = this->soap;
 	struct __ns1__ExchangeResponse_ soap_tmp___ns1__ExchangeResponse_;
 	if (endpoint)
 		soap_endpoint = endpoint;
 	if (soap_endpoint == NULL)
-		soap_endpoint = "http://192.168.0.17/bossn/ws/bossn.1cws";
+		soap_endpoint = "http://localhost/bossn/ws/bossn.1cws";
 	if (soap_action == NULL)
 		soap_action = "http://localhost/bossn#bossn:ExchangeResponse";
 	soap->encodingStyle = NULL;
@@ -397,15 +742,15 @@ int bossnSoapBindingProxy::send_ExchangeResponse_(const char *endpoint, const ch
 int bossnSoapBindingProxy::recv_ExchangeResponse_(struct __ns1__ExchangeResponse_& tmp)
 {	struct soap *soap = this->soap;
 
-	struct __ns1__ExchangeResponse_ *_param_3 = &tmp;
-	soap_default___ns1__ExchangeResponse_(soap, _param_3);
+	struct __ns1__ExchangeResponse_ *_param_6 = &tmp;
+	soap_default___ns1__ExchangeResponse_(soap, _param_6);
 	soap_begin(soap);
 	if (soap_begin_recv(soap)
 	 || soap_envelope_begin_in(soap)
 	 || soap_recv_header(soap)
 	 || soap_body_begin_in(soap))
 		return soap_closesock(soap);
-	soap_get___ns1__ExchangeResponse_(soap, _param_3, "-ns1:ExchangeResponse", NULL);
+	soap_get___ns1__ExchangeResponse_(soap, _param_6, "-ns1:ExchangeResponse", NULL);
 	if (soap->error == SOAP_TAG_MISMATCH && soap->level == 2)
 		soap->error = SOAP_NO_METHOD;
 	if (soap->error
@@ -422,7 +767,7 @@ int bossnSoapBindingProxy::Exchange_(const char *endpoint, const char *soap_acti
 	if (endpoint)
 		soap_endpoint = endpoint;
 	if (soap_endpoint == NULL)
-		soap_endpoint = "http://192.168.0.17/bossn/ws/bossn.1cws";
+		soap_endpoint = "http://localhost/bossn/ws/bossn.1cws";
 	if (soap_action == NULL)
 		soap_action = "http://localhost/bossn#bossn:Exchange";
 	soap->encodingStyle = NULL;
@@ -476,7 +821,7 @@ int bossnSoapBindingProxy::send_AcceptResponse_(const char *endpoint, const char
 	if (endpoint)
 		soap_endpoint = endpoint;
 	if (soap_endpoint == NULL)
-		soap_endpoint = "http://192.168.0.17/bossn/ws/bossn.1cws";
+		soap_endpoint = "http://localhost/bossn/ws/bossn.1cws";
 	if (soap_action == NULL)
 		soap_action = "http://localhost/bossn#bossn:AcceptResponse";
 	soap->encodingStyle = NULL;
@@ -512,15 +857,15 @@ int bossnSoapBindingProxy::send_AcceptResponse_(const char *endpoint, const char
 int bossnSoapBindingProxy::recv_AcceptResponse_(struct __ns1__AcceptResponse_& tmp)
 {	struct soap *soap = this->soap;
 
-	struct __ns1__AcceptResponse_ *_param_4 = &tmp;
-	soap_default___ns1__AcceptResponse_(soap, _param_4);
+	struct __ns1__AcceptResponse_ *_param_7 = &tmp;
+	soap_default___ns1__AcceptResponse_(soap, _param_7);
 	soap_begin(soap);
 	if (soap_begin_recv(soap)
 	 || soap_envelope_begin_in(soap)
 	 || soap_recv_header(soap)
 	 || soap_body_begin_in(soap))
 		return soap_closesock(soap);
-	soap_get___ns1__AcceptResponse_(soap, _param_4, "-ns1:AcceptResponse", NULL);
+	soap_get___ns1__AcceptResponse_(soap, _param_7, "-ns1:AcceptResponse", NULL);
 	if (soap->error == SOAP_TAG_MISMATCH && soap->level == 2)
 		soap->error = SOAP_NO_METHOD;
 	if (soap->error
@@ -537,7 +882,7 @@ int bossnSoapBindingProxy::Accept_(const char *endpoint, const char *soap_action
 	if (endpoint)
 		soap_endpoint = endpoint;
 	if (soap_endpoint == NULL)
-		soap_endpoint = "http://192.168.0.17/bossn/ws/bossn.1cws";
+		soap_endpoint = "http://localhost/bossn/ws/bossn.1cws";
 	if (soap_action == NULL)
 		soap_action = "http://localhost/bossn#bossn:Accept";
 	soap->encodingStyle = NULL;
@@ -576,6 +921,121 @@ int bossnSoapBindingProxy::Accept_(const char *endpoint, const char *soap_action
 	 || soap_body_begin_in(soap))
 		return soap_closesock(soap);
 	ns1__AcceptResponse->soap_get(soap, "ns1:AcceptResponse", "");
+	if (soap->error)
+		return soap_recv_fault(soap, 0);
+	if (soap_body_end_in(soap)
+	 || soap_envelope_end_in(soap)
+	 || soap_end_recv(soap))
+		return soap_closesock(soap);
+	return soap_closesock(soap);
+}
+
+int bossnSoapBindingProxy::send_DisappearedResponse_(const char *endpoint, const char *soap_action, _ns1__DisappearedResponse *ns1__DisappearedResponse)
+{	struct soap *soap = this->soap;
+	struct __ns1__DisappearedResponse_ soap_tmp___ns1__DisappearedResponse_;
+	if (endpoint)
+		soap_endpoint = endpoint;
+	if (soap_endpoint == NULL)
+		soap_endpoint = "http://localhost/bossn/ws/bossn.1cws";
+	if (soap_action == NULL)
+		soap_action = "http://localhost/bossn#bossn:DisappearedResponse";
+	soap->encodingStyle = NULL;
+	soap_tmp___ns1__DisappearedResponse_.ns1__DisappearedResponse = ns1__DisappearedResponse;
+	soap_begin(soap);
+	soap_serializeheader(soap);
+	soap_serialize___ns1__DisappearedResponse_(soap, &soap_tmp___ns1__DisappearedResponse_);
+	if (soap_begin_count(soap))
+		return soap->error;
+	if (soap->mode & SOAP_IO_LENGTH)
+	{	if (soap_envelope_begin_out(soap)
+		 || soap_putheader(soap)
+		 || soap_body_begin_out(soap)
+		 || soap_put___ns1__DisappearedResponse_(soap, &soap_tmp___ns1__DisappearedResponse_, "-ns1:DisappearedResponse", NULL)
+		 || soap_body_end_out(soap)
+		 || soap_envelope_end_out(soap))
+			 return soap->error;
+	}
+	if (soap_end_count(soap))
+		return soap->error;
+	if (soap_connect(soap, soap_endpoint, soap_action)
+	 || soap_envelope_begin_out(soap)
+	 || soap_putheader(soap)
+	 || soap_body_begin_out(soap)
+	 || soap_put___ns1__DisappearedResponse_(soap, &soap_tmp___ns1__DisappearedResponse_, "-ns1:DisappearedResponse", NULL)
+	 || soap_body_end_out(soap)
+	 || soap_envelope_end_out(soap)
+	 || soap_end_send(soap))
+		return soap_closesock(soap);
+	return SOAP_OK;
+}
+
+int bossnSoapBindingProxy::recv_DisappearedResponse_(struct __ns1__DisappearedResponse_& tmp)
+{	struct soap *soap = this->soap;
+
+	struct __ns1__DisappearedResponse_ *_param_8 = &tmp;
+	soap_default___ns1__DisappearedResponse_(soap, _param_8);
+	soap_begin(soap);
+	if (soap_begin_recv(soap)
+	 || soap_envelope_begin_in(soap)
+	 || soap_recv_header(soap)
+	 || soap_body_begin_in(soap))
+		return soap_closesock(soap);
+	soap_get___ns1__DisappearedResponse_(soap, _param_8, "-ns1:DisappearedResponse", NULL);
+	if (soap->error == SOAP_TAG_MISMATCH && soap->level == 2)
+		soap->error = SOAP_NO_METHOD;
+	if (soap->error
+	 || soap_body_end_in(soap)
+	 || soap_envelope_end_in(soap)
+	 || soap_end_recv(soap))
+		return soap_closesock(soap);
+	return soap_closesock(soap);
+}
+
+int bossnSoapBindingProxy::Disappeared_(const char *endpoint, const char *soap_action, _ns1__Disappeared *ns1__Disappeared, _ns1__DisappearedResponse *ns1__DisappearedResponse)
+{	struct soap *soap = this->soap;
+	struct __ns1__Disappeared_ soap_tmp___ns1__Disappeared_;
+	if (endpoint)
+		soap_endpoint = endpoint;
+	if (soap_endpoint == NULL)
+		soap_endpoint = "http://localhost/bossn/ws/bossn.1cws";
+	if (soap_action == NULL)
+		soap_action = "http://localhost/bossn#bossn:Disappeared";
+	soap->encodingStyle = NULL;
+	soap_tmp___ns1__Disappeared_.ns1__Disappeared = ns1__Disappeared;
+	soap_begin(soap);
+	soap_serializeheader(soap);
+	soap_serialize___ns1__Disappeared_(soap, &soap_tmp___ns1__Disappeared_);
+	if (soap_begin_count(soap))
+		return soap->error;
+	if (soap->mode & SOAP_IO_LENGTH)
+	{	if (soap_envelope_begin_out(soap)
+		 || soap_putheader(soap)
+		 || soap_body_begin_out(soap)
+		 || soap_put___ns1__Disappeared_(soap, &soap_tmp___ns1__Disappeared_, "-ns1:Disappeared", NULL)
+		 || soap_body_end_out(soap)
+		 || soap_envelope_end_out(soap))
+			 return soap->error;
+	}
+	if (soap_end_count(soap))
+		return soap->error;
+	if (soap_connect(soap, soap_endpoint, soap_action)
+	 || soap_envelope_begin_out(soap)
+	 || soap_putheader(soap)
+	 || soap_body_begin_out(soap)
+	 || soap_put___ns1__Disappeared_(soap, &soap_tmp___ns1__Disappeared_, "-ns1:Disappeared", NULL)
+	 || soap_body_end_out(soap)
+	 || soap_envelope_end_out(soap)
+	 || soap_end_send(soap))
+		return soap_closesock(soap);
+	if (!ns1__DisappearedResponse)
+		return soap_closesock(soap);
+	ns1__DisappearedResponse->soap_default(soap);
+	if (soap_begin_recv(soap)
+	 || soap_envelope_begin_in(soap)
+	 || soap_recv_header(soap)
+	 || soap_body_begin_in(soap))
+		return soap_closesock(soap);
+	ns1__DisappearedResponse->soap_get(soap, "ns1:DisappearedResponse", "");
 	if (soap->error)
 		return soap_recv_fault(soap, 0);
 	if (soap_body_end_in(soap)
