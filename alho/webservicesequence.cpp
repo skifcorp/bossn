@@ -742,7 +742,7 @@ void WebServiceSequence::run()
                 QMap<QString, QString> ret =  stringToMap(ret_data);
                 writeTagsValues( ret, card );                
             }
-            catch ( ... ) {
+            catch ( const MifareCardWriteException& ) {
                 was.acceptedCardResult(false, QString::number(seqId()), userid.data(), passwd.data());
                 throw;
             }
@@ -791,7 +791,27 @@ void WebServiceSequence::run()
     //                                   QVariant::fromValue<ActivateCardISO14443A>(ActivateCardISO14443A()));
     alho_settings.reader.do_off.func();
 
+    try {
+        std::shared_ptr<WebServiceSequence> cur_fake_source_guard( this ,[&]
+        (WebServiceSequence * wss){
+            wss->cur_webservice_async = nullptr;
+        } ); Q_UNUSED(cur_fake_source_guard);
 
+        Q_ASSERT(!cur_webservice_async);
+
+        WebServiceAsync was(*this, ip_, port_);
+
+        cur_webservice_async = &was;
+        QByteArray userid = userid_.toAscii();
+        QByteArray passwd = passwd_.toAscii();
+        was.disappear( QString::number(seqId()), userid.data(), passwd.data() );
+
+        if ( was.isTerminating() ) {
+        }
+    }
+    catch (const MainSequenceException& ex) {
+        seqWarning()<<"sequence_exception: " << ex.adminMessage() << " sys: " + ex.systemMessage();
+    }
 }
 
 
