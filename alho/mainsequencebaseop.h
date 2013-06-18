@@ -45,7 +45,8 @@ public:
 
     void printOnTablo(const QString & s)
     {
-        tags[alho_settings.tablo_tag.tag_name]->func(alho_settings.tablo_tag.method_name, this, Q_ARG(const QVariant&, QVariant(s)));
+        //tags[alho_settings.tablo_tag.tag_name]->func(alho_settings.tablo_tag.method_name, this, Q_ARG(const QVariant&, QVariant(s)));
+        alho_settings.tablo_tag.func( Q_ARG(const QVariant&, QVariant(s))  );
     }
 protected:
     void setLightsToRed()

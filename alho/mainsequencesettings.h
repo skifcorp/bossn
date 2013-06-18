@@ -9,6 +9,7 @@
 #include "alhosequence.h"
 #include "tags.h"
 
+
 #include <boost/mpl/if.hpp>
 #include <boost/mpl/equal_to.hpp>
 #include <boost/mpl/or.hpp>
@@ -17,6 +18,11 @@
 #include <type_traits>
 
 #include <name_of/name_of.h>
+
+#include <vector>
+#include <algorithm>
+
+using std::vector;
 
 namespace mpl = boost::mpl;
 
@@ -64,8 +70,30 @@ struct CallableTagMethod : public TagMethod<Typ>,
 
 
     CallableTagMethod(const CallableTagMethod&) = delete;
-};
 
+
+    template <TagMethodType Typ2 = Typ>
+    CallableTagMethod( CallableTagMethod&& other,
+                       typename std::enable_if<IsTagWithFunc<Typ2>::value>::type * v = 0 ) :
+                            TagMethod<Typ>( std::move(other) ),
+                            TagFuncHelper<true>( std::move(other), TagMethod<Typ>::tag_name, TagMethod<Typ>::method_name )
+    {
+        Q_UNUSED(v)
+        //qDebug() << "move 1";
+    }
+
+    template <TagMethodType Typ2 = Typ >
+    CallableTagMethod( CallableTagMethod&& other,
+                       typename std::enable_if<!IsTagWithFunc<Typ2>::value>::type * v = 0) :
+                            TagMethod<Typ>( std::move(other) ),
+                            TagPropHelper<false>( std::move(other), TagMethod<Typ>::tag_name )
+    {
+        Q_UNUSED(v)
+        //qDebug() << "move 2";
+    }
+
+
+};
 
 
 struct ReaderTagMethods
@@ -87,11 +115,71 @@ struct ReaderTagMethods
     }
 };
 
+template <class T>
+class CollectionOfDublicateCallableTags
+{
+public:
+    CollectionOfDublicateCallableTags( AlhoSequence& as, Tags & t ): alho_sequence_(as), tags_(t)
+    {
+
+    }
+
+    template <class ... Args>
+    void func( Args && ... args )
+    {
+        for ( auto& t : tags )  {
+            t.func( std::forward<Args>(args)... );
+        }
+    }
+
+
+    auto find( const QString& tag_name )
+    {
+        return std::find_if( tags.begin(), tags.end(), [&]( const T& t ){
+            return t.tag_name == tag_name;
+        } );
+    }
+
+
+    void createTag( const QString& tag_name, const QString& method_name )
+    {
+        T t(alho_sequence_, tags_);
+        t.tag_name = tag_name;
+        t.method_name = method_name;
+
+        tags.push_back( std::move( t ) );
+    }
+
+    bool containsTag ( const QString& tag_name )
+    {
+        return std::any_of( tags.begin(), tags.end(), [&]( const T& t ){
+            return t.tag_name == tag_name;
+        } );
+    }
+
+    auto begin()
+    {
+        return tags.begin();
+    }
+    auto end()
+    {
+        return tags.end();
+    }
+private:
+    vector<T> tags;
+    AlhoSequence& alho_sequence_;
+    Tags & tags_;
+};
+
 template <template <TagMethodType Typ> class TagMethodTyp, class ReaderMethodsType>
 struct BaseMainSequenceSettings
 {
     TagMethodTyp<TagMethodType::Simple> weight_tag;
-    TagMethodTyp<TagMethodType::Simple> tablo_tag;
+
+    using TabloTagType = TagMethodTyp<TagMethodType::Simple>;
+
+    CollectionOfDublicateCallableTags<TabloTagType> tablo_tag;
+
     TagMethodTyp<TagMethodType::Simple> weight_stable;
     TagMethodTyp<TagMethodType::CompareValue> red_light;
     TagMethodTyp<TagMethodType::CompareValue> green_light;
@@ -120,8 +208,17 @@ struct BaseMainSequenceSettings
         red_light.method_name = get_setting<QString>("red_light_method", s);
         red_light.value = get_setting<QVariant>("red_light_on_value", s);
 
-        tablo_tag.tag_name = get_setting<QString>("tablo_tag", s);
-        tablo_tag.method_name = get_setting<QString>("tablo_method", s);
+        //tablo_tag.tag_name = get_setting<QString>("tablo_tag", s);
+        //tablo_tag.method_name = get_setting<QString>("tablo_method", s);
+
+        QVariantList tablo_tags = get_setting<QVariantList>("tablo_tags", s);
+
+        for ( const auto& v : tablo_tags ) {
+            const auto& m = v.toMap();
+
+            tablo_tag.createTag( get_setting<QString>( "tablo_tag", m ),
+                                  get_setting<QString>( "tablo_method", m ) );
+        }
 
         perim_in.tag_name = get_setting<QString>("perim_in_tag", s);
         perim_in.method_name = get_setting<QString>("perim_in_method", s);

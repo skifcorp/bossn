@@ -13,6 +13,7 @@
 #include <QString>
 #include <QTcpSocket>
 #include <QHostAddress>
+#include <QTextStream>
 
 #include <sstream>
 #include <iosfwd>
@@ -640,7 +641,9 @@ void WebServiceSequence::run()
 {
     if ( init ) {
         //printOnTablo(tr(greeting_message));
+        //qDebug() << "before";
         printOnTablo(tr2(greeting_message));
+        //qDebug() << "After";
         setLightsToGreen();
         init = false;
         return;
@@ -732,7 +735,7 @@ void WebServiceSequence::run()
                 continue;
             }
 
-            printOnDisplay( ret_data );
+            //printOnDisplay( ret_data );
 
             if ( ret_data == "-1" ) {
                 throw MainSequenceException( tr2(internal_webservice_error), "internal webservice error" );
@@ -773,6 +776,7 @@ void WebServiceSequence::run()
         }
         catch (MainSequenceException& ex) {
             seqWarning()<<"sequence_exception: " << ex.adminMessage() << " sys: " + ex.systemMessage();
+            printOnDisplay( "user_message: " + ex.userMessage() );
             sleepnbtmerr(ex.userMessage(), tr2(apply_card_message));
             continue;
         }
@@ -911,11 +915,26 @@ void WebServiceSequence::writeReaderBytes( const QString& s, MifareCardSector&  
 
 void WebServiceSequence::writeTagsValues( const QMap<QString, QString>& m, MifareCardSector&  card )
 {
+#if 0
     auto tablo_text = m.find( alho_settings.tablo_tag.tag_name );
+
     if ( tablo_text == m.end() ) {
         throw MainSequenceException("Tablo tag error!" ,"Tablo tag not found!!!!!! for " + alho_settings.tablo_tag.tag_name );
     }
+#endif
+    QString tablo_text;
+    bool found = false;
+    for ( QMap<QString, QString>::const_iterator iter = m.begin(); iter != m.end(); ++iter ) {
+        if ( alho_settings.tablo_tag.containsTag( iter.key() ) ) {
+            tablo_text = *iter;
+            found = true;
+            break;
+        }
+    }
 
+    if ( !found ) {
+        throw MainSequenceException("Tablo tag error!" ,"Tablo tag not found!!!!!!");
+    }
 
     auto reader_bytes = m.find( alho_settings.reader.name );
     if ( reader_bytes == m.end() ) {
@@ -923,8 +942,18 @@ void WebServiceSequence::writeTagsValues( const QMap<QString, QString>& m, Mifar
     }
 
     if ( reader_bytes->isEmpty() )
-        throw  MainSequenceException(*tablo_text, "Hi level alho error!");
+        throw  MainSequenceException(tablo_text, "Hi level alho error! ");
 
-    alho_settings.tablo_tag.func( Q_ARG(QVariant, QVariant::fromValue(*tablo_text) ) );
+    //alho_settings.tablo_tag.func( Q_ARG(QVariant, QVariant::fromValue(tablo_text) ) );
+
+    for ( QMap<QString, QString>::const_iterator iter = m.begin(); iter != m.end(); ++iter ) {
+        auto tablo_tag_iter = alho_settings.tablo_tag.find( iter.key() );
+
+        if ( tablo_tag_iter != alho_settings.tablo_tag.end() ) {
+            tablo_tag_iter->func( Q_ARG(QVariant, QVariant::fromValue( *iter ) )  );
+        }
+    }
+
+
     writeReaderBytes( *reader_bytes, card );
 }
