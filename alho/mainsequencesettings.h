@@ -2,13 +2,14 @@
 #define MAINSEQUENCESETTINGS_H
 
 #include <QString>
+#include <QVariant>
 
 #include "tagmethod.h"
 #include "tagfunchelper.h"
 #include "tagprophelper.h"
 #include "alhosequence.h"
 #include "tags.h"
-
+#include "mifarereader.h"
 
 #include <boost/mpl/if.hpp>
 #include <boost/mpl/equal_to.hpp>
@@ -18,6 +19,7 @@
 #include <type_traits>
 
 #include <name_of/name_of.h>
+#include <tools/numeric_tools.h>
 
 #include <vector>
 #include <algorithm>
@@ -107,12 +109,170 @@ struct ReaderTagMethods
     TagFuncHelper<false> write_block;
     TagFuncHelper<false> read_block;
     TagFuncHelper<false> do_sound;
+
     ReaderTagMethods(AlhoSequence& s, Tags & t) : do_on(name, s, t),
         do_off(name,s,t), activate_idle(name,s, t), host_coded_key(name,s, t),
         do_auth(name,s, t), write_block(name,s, t), read_block(name,s, t), do_sound(name,s,t)
     {
 
     }
+};
+
+struct CollectionOfReaderTagMethods
+{
+public:
+    CollectionOfReaderTagMethods( AlhoSequence& s, Tags & t ) :
+        alho_sequence_(s), tags_(t)
+    {
+
+    }
+
+    template <class ... Args>
+    auto all_readers_do_on( Args && ... args )
+    {
+        assertNotEmpty();
+
+        bool ret = true;
+        for ( auto & r : reader_tags ) {
+            auto res = r.do_on.func( std::forward<Args>(args)...  );
+            if ( !res.toBool()  ) {
+                qWarning() << "failed to_on reader: " << r.name;
+                ret = false;
+            }
+        }
+        return ret;
+    }
+
+    template <class ... Args>
+    auto all_readers_do_off( Args && ... args )
+    {
+        assertNotEmpty();
+
+        bool ret = true;
+        for ( auto & r : reader_tags ) {
+            auto res = r.do_off.func( std::forward<Args>(args)...  );
+            if ( !res.toBool() ) {
+                qWarning() << "failed to_off reader: " << r.name;
+                ret = false;
+            }
+        }
+        return ret;
+    }
+
+    template <class ... Args>
+    auto all_readers_activate_idle( Args && ... args )
+    {
+        assertNotEmpty();
+
+        auto num = int{0};
+
+        for ( auto & r : reader_tags ) {
+            QVariant ret = r.activate_idle.func( std::forward<Args>(args)... );
+            ActivateCardISO14443A act = ret.value<ActivateCardISO14443A>();
+
+
+            if ( act.active() ) {
+                return std::make_pair( act, num );
+            }
+
+            ++num;
+        }
+
+        return std::make_pair( ActivateCardISO14443A{}, -1 );
+    }
+
+
+    template <class ... Args>
+    auto host_coded_key( int num, Args && ... args )
+    {
+        assertNotEmptyAndCheckNum(num);
+        return reader_tags[num].host_coded_key.func( std::forward<Args>(args)... );
+    }
+
+    template <class ... Args>
+    auto do_auth( int num, Args && ... args )
+    {
+        assertNotEmptyAndCheckNum(num);
+        return reader_tags[num].do_auth.func( std::forward<Args>(args)... );
+    }
+
+    template <class ... Args>
+    auto write_block ( int num , Args && ... args )
+    {
+        assertNotEmptyAndCheckNum(num);
+        return reader_tags[num].write_block.func( std::forward<Args>(args)... );
+    }
+
+    template <class ... Args>
+    auto read_block( int num , Args && ... args )
+    {
+        assertNotEmptyAndCheckNum(num);
+        return reader_tags[num].read_block.func( std::forward<Args>(args)... );
+    }
+
+    template <class ... Args>
+    auto do_sound( int num, Args && ... args )
+    {
+        assertNotEmptyAndCheckNum(num);
+        return reader_tags[num].do_sound.func( std::forward<Args>(args)... );
+    }
+
+
+    void createTag( const QString& tag_name, const QString& do_on,
+                                             const QString& do_off,
+                                             const QString& activate_idle,
+                                             const QString& host_coded_key,
+                                             const QString& do_auth,
+                                             const QString& write_block,
+                                             const QString& read_block,
+                                             const QString& do_sound )
+    {
+        ReaderTagMethods reader(alho_sequence_, tags_);
+
+
+
+        reader.name                     = tag_name;
+        reader.do_on.func_name          = do_on;
+        reader.do_off.func_name         = do_off;
+        reader.activate_idle.func_name  = activate_idle;
+        reader.host_coded_key.func_name = host_coded_key;
+        reader.do_auth.func_name        = do_auth;
+        reader.write_block.func_name    = write_block;
+        reader.read_block.func_name     = read_block;
+        reader.do_sound.func_name       = do_sound;
+
+        reader_tags.push_back( std::move( reader ) );
+    }
+
+    ReaderTagMethods& operator[]( int num )
+    {
+        assertNotEmptyAndCheckNum(num);
+        return reader_tags[num];
+    }
+
+private:
+    AlhoSequence& alho_sequence_;
+    Tags & tags_;
+
+    vector<ReaderTagMethods> reader_tags;
+    void assertNotEmpty() const
+    {
+        if ( reader_tags.empty() ) {
+            qWarning() << "reader tags is empty";
+            qFatal("Exiting");
+        }
+    }
+
+    void assertNotEmptyAndCheckNum( int num )
+    {
+        assertNotEmpty();
+
+        if ( num >= static_cast<int>(reader_tags.size()) || num < 0 ) {
+            qWarning() << "passed num is " << num << " and size of array is: "<< reader_tags.size();
+            qFatal("Exiting");
+        }
+    }
+
 };
 
 template <class T>
@@ -173,11 +333,10 @@ private:
 
 template <template <TagMethodType Typ> class TagMethodTyp, class ReaderMethodsType>
 struct BaseMainSequenceSettings
-{
-    TagMethodTyp<TagMethodType::Simple> weight_tag;
-
+{   
     using TabloTagType = TagMethodTyp<TagMethodType::Simple>;
 
+    TagMethodTyp<TagMethodType::Simple> weight_tag;
     CollectionOfDublicateCallableTags<TabloTagType> tablo_tag;
 
     TagMethodTyp<TagMethodType::Simple> weight_stable;
@@ -188,7 +347,7 @@ struct BaseMainSequenceSettings
     TagMethodTyp<TagMethodType::Simple> logging;
     TagMethodTyp<TagMethodType::Property> current_card;
 
-    ReaderMethodsType reader;
+    CollectionOfReaderTagMethods reader;
 
     BaseMainSequenceSettings(AlhoSequence& s, Tags & t):weight_tag(s, t),
         tablo_tag(s, t), weight_stable(s, t), red_light(s, t),
@@ -241,7 +400,7 @@ struct BaseMainSequenceSettings
         logging.method_name = get_setting<QString>("logging_method", s);
 
 
-
+/*
         reader.name                     = get_setting<QString>("reader_tag", s);
         reader.do_on.func_name          = get_setting<QString>("reader_do_on", s);
         reader.do_off.func_name         = get_setting<QString>("reader_do_off", s);
@@ -251,7 +410,21 @@ struct BaseMainSequenceSettings
         reader.write_block.func_name    = get_setting<QString>("reader_write_block", s);
         reader.read_block.func_name     = get_setting<QString>("reader_read_block", s);
         reader.do_sound.func_name       = get_setting<QString>("reader_sound", s);
+*/
+        QVariantList reader_tags = get_setting<QVariantList>("reader_tags", s);
+        for ( const auto& v : reader_tags ) {
+            const auto& m = v.toMap();
 
+            reader.createTag(get_setting<QString>("reader_tag", m),
+                             get_setting<QString>("reader_do_on", m),
+                             get_setting<QString>("reader_do_off", m),
+                             get_setting<QString>("reader_activate_idle", m),
+                             get_setting<QString>("reader_host_coded_key", m),
+                             get_setting<QString>("reader_do_auth", m),
+                             get_setting<QString>("reader_write_block", m),
+                             get_setting<QString>("reader_read_block", m),
+                             get_setting<QString>("reader_sound", m) );
+        }
 
     }
 };

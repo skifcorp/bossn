@@ -687,7 +687,7 @@ void WebServiceSequence::run()
 
     if ( on_weight ) {
         printOnTablo(tr2(apply_card_message));
-        alho_settings.reader.do_on.func();
+        alho_settings.reader.all_readers_do_on();
     }
 
     QByteArray card_code = get_setting<QByteArray>("card_code" , app_settings);
@@ -699,8 +699,8 @@ void WebServiceSequence::run()
 
 
     while(on_weight) {
-        ActivateCardISO14443A act = alho_settings.reader.activate_idle.func().value<ActivateCardISO14443A>();
-        MifareCardSector card(act, alho_settings.reader, card_code, data_block);
+        std::pair<ActivateCardISO14443A, int> act = alho_settings.reader.all_readers_activate_idle();
+        MifareCardSector card(act.first, alho_settings.reader[act.second], card_code, data_block);
 
         if ( !card.active() ) {
             sleepnbtm();
@@ -719,7 +719,7 @@ void WebServiceSequence::run()
 
             card.autorize();            
 
-            checkForStealedCard( act );
+            checkForStealedCard( act.first );
 
             WebServiceAsync was(*this, ip_, port_);
             cur_webservice_async = &was;
@@ -729,7 +729,7 @@ void WebServiceSequence::run()
 
             QString ret_data = was.exchangeData( mapToString( getSimpleTagsValues(  ) ) +
                         ",\n" + getReaderBytes(card), QString::number(seqId()),
-                        byteArrayToString(act.uid, 16, ""), userid.data(), passwd.data() );
+                        byteArrayToString(act.first.uid, 16, ""), userid.data(), passwd.data() );
 
             if (was.isTerminating()) {
                 continue;
@@ -750,7 +750,7 @@ void WebServiceSequence::run()
                 throw;
             }
 
-            alho_settings.reader.do_sound.func(Q_ARG(QVariant, appSetting<int>("beep_length")));
+            alho_settings.reader[act.second].do_sound.func(Q_ARG(QVariant, appSetting<int>("beep_length")));
             was.acceptedCardResult(true, QString::number(seqId()), userid.data(), passwd.data());
 
             sleepnb( get_setting<int>("brutto_finish_pause", app_settings) );
@@ -793,7 +793,7 @@ void WebServiceSequence::run()
     setLightsToGreen();
     //tags[current_card_tag]->setProperty(current_card_prop,
     //                                   QVariant::fromValue<ActivateCardISO14443A>(ActivateCardISO14443A()));
-    alho_settings.reader.do_off.func();
+    alho_settings.reader.all_readers_do_off();
 
     try {
         std::shared_ptr<WebServiceSequence> cur_fake_source_guard( this ,[&]
@@ -874,7 +874,7 @@ QString WebServiceSequence::getReaderBytes( MifareCardSector&  card)
 {
     QByteArray card_bytes = card.readByteArray( CardStructs::blocks_conf() );
     QString delim;
-    QString ret = alho_settings.reader.name + ":";
+    QString ret = card.readerTagMethods().name + ":";
 
     for ( int i = 0; i<card_bytes.count(); ++i ) {
         ret += delim + QString::number(static_cast<uchar>(card_bytes[i]), 16);
@@ -935,7 +935,7 @@ void WebServiceSequence::writeTagsValues( const QMap<QString, QString>& m, Mifar
     if ( !found ) {
         throw MainSequenceException("Tablo tag error!" ,"Tablo tag not found!!!!!!");
     }
-
+#if 0
     auto reader_bytes = m.find( alho_settings.reader.name );
     if ( reader_bytes == m.end() ) {
         throw MainSequenceException("Reader tag error", "reader tag not found!!!!!! for " + alho_settings.reader.name);
@@ -943,7 +943,7 @@ void WebServiceSequence::writeTagsValues( const QMap<QString, QString>& m, Mifar
 
     if ( reader_bytes->isEmpty() )
         throw  MainSequenceException(tablo_text, "Hi level alho error! ");
-
+#endif
     //alho_settings.tablo_tag.func( Q_ARG(QVariant, QVariant::fromValue(tablo_text) ) );
 
     for ( QMap<QString, QString>::const_iterator iter = m.begin(); iter != m.end(); ++iter ) {
@@ -954,6 +954,7 @@ void WebServiceSequence::writeTagsValues( const QMap<QString, QString>& m, Mifar
         }
     }
 
-
+#if 0
     writeReaderBytes( *reader_bytes, card );
+#endif
 }

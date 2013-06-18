@@ -200,7 +200,7 @@ void MainSequence::run()
 
     setLightsToRed();
 
-    alho_settings.reader.do_on.func();
+    alho_settings.reader.all_readers_do_on();
 
     QByteArray card_code = get_setting<QByteArray>("card_code" , app_settings);
     uint data_block      = get_setting<uint>      ("data_block", app_settings);
@@ -218,8 +218,8 @@ void MainSequence::run()
         long cur_num_nakl = 0;
 
         //ActivateCardISO14443A act = tags[alho_settings.reader.name]->func(alho_settings.reader.activate_idle, this).value<ActivateCardISO14443A>();
-        ActivateCardISO14443A act = alho_settings.reader.activate_idle.func().value<ActivateCardISO14443A>();
-        MifareCardSector card(act, alho_settings.reader, card_code, data_block);
+        std::pair<ActivateCardISO14443A, int> act = alho_settings.reader.all_readers_activate_idle();
+        MifareCardSector card(act.first, alho_settings.reader[act.second], card_code, data_block);
 
         if ( !card.active() ) {
             //seqDebug() << "card not active!!!";
@@ -244,7 +244,7 @@ void MainSequence::run()
             MifareCardData bill;
             WeighterConf& weighter_conf = readStruct(card, bill);
 
-            checkForStealedCard( act );
+            checkForStealedCard( act.first );
 
             //processPerimeter();
 
@@ -312,7 +312,7 @@ void MainSequence::run()
     //tags[current_card_tag]->setProperty(current_card_prop,
     //                                   QVariant::fromValue<ActivateCardISO14443A>(ActivateCardISO14443A()));
     //alho_settings.current_card.setProperty(QVariant::fromValue<ActivateCardISO14443A>(ActivateCardISO14443A()));
-    alho_settings.reader.do_off.func();
+    alho_settings.reader.all_readers_do_off();
 }
 
 void MainSequence::onDisappearOnWeight(const QString&, AlhoSequence * )

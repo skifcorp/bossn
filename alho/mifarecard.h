@@ -62,7 +62,7 @@ private:
 class MifareCardSector
 {
 public:
-    MifareCardSector( const ActivateCardISO14443A&, ReaderTagMethods&, const QByteArray& cd, uint db );
+    MifareCardSector( const  ActivateCardISO14443A&, ReaderTagMethods&, const QByteArray& cd, uint db );
 
     ~MifareCardSector(){}
 
@@ -99,9 +99,15 @@ public:
         return blocksIn1KSectors + (block - blocksIn1KSectors) / blocksIn4KSector * blocksIn4KSector + 15;
     }
 
+    ReaderTagMethods& readerTagMethods() const
+    {
+        return reader_settings;
+    }
+
 private:
     //Tag::WeakPointer reader;
     ActivateCardISO14443A activate_card;
+    //int reader_num = -1;
 
     QVariant readMember (const StructMemberConf& , const QByteArray& ) const ;
     void     writeMember(const StructMemberConf& , const QVariant&, QByteArray& ) const;

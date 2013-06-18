@@ -37,8 +37,11 @@ public:
 
             C::seq().printOnTablo( C::bruttoFinishMessage(bill) );
 
-            C::seq().alhoSettings().reader.do_sound.func(Q_ARG(QVariant,
-                        C::seq().template appSetting<int>("beep_length")));
+            //C::seq().alhoSettings().reader.do_sound.func(Q_ARG(QVariant,
+            //            C::seq().template appSetting<int>("beep_length")));
+            card.readerTagMethods().do_sound.func( Q_ARG(QVariant,
+                C::seq().template appSetting<int>("beep_length")) );
+
         }
         else if (platform_type == "tara" ) {
             bool pure_tara = processTara(bill);
@@ -54,8 +57,10 @@ public:
             card.writeStruct(CardStructs::bill_conf( weighter_conf.weighter_name ), bill,
                              CardStructs::blocks_conf());
             C::seq().printOnTablo( tara_message );
-            C::seq().alhoSettings().reader.do_sound.func(Q_ARG(QVariant,
-                              C::seq().template appSetting<int>("beep_length")));
+            //C::seq().alhoSettings().reader.do_sound.func(Q_ARG(QVariant,
+            //                  C::seq().template appSetting<int>("beep_length")));
+            card.readerTagMethods().do_sound.func( Q_ARG(QVariant,
+                C::seq().template appSetting<int>("beep_length")) );
 
             ReportsManager rp;
             rp.setPrinterName( C::seq().printerName() );

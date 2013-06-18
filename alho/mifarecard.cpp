@@ -10,7 +10,7 @@
 
 MifareCardSector::MifareCardSector(const ActivateCardISO14443A& ac,
                        ReaderTagMethods& rs, const QByteArray& cd, uint db):
-                       activate_card(ac), reader_settings(rs), card_key(cd),
+                        activate_card(ac) ,reader_settings(rs), card_key(cd),
                        data_block(db)
 {
 

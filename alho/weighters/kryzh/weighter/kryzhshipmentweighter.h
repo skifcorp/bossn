@@ -45,8 +45,11 @@ public:
 
             C::seq().printOnTablo( brutto_message );
 
-            C::seq().alhoSettings().reader.do_sound.func(Q_ARG(QVariant,
-                               C::seq().template appSetting<int>("beep_length")));
+            //C::seq().alhoSettings().reader.do_sound.func(Q_ARG(QVariant,
+            //                   C::seq().template appSetting<int>("beep_length")));
+
+            card.readerTagMethods().do_sound.func( Q_ARG(QVariant,
+                C::seq().template appSetting<int>("beep_length")) );
 
             ReportsManager rm;
             rm.printReport(finish_report_context, weighter_conf.member<QString>("finish_report_name") );
@@ -57,8 +60,10 @@ public:
 
             card.writeStruct(CardStructs::bill_conf( weighter_conf.weighter_name ), bill,
                              CardStructs::blocks_conf());
-            C::seq().alhoSettings().reader.do_sound.func(Q_ARG(QVariant,
-                              C::seq().template appSetting<int>("beep_length")));
+            //C::seq().alhoSettings().reader.do_sound.func(Q_ARG(QVariant,
+            //                  C::seq().template appSetting<int>("beep_length")));
+            card.readerTagMethods().do_sound.func( Q_ARG(QVariant,
+                C::seq().template appSetting<int>("beep_length")) );
 
 
             C::seq().printOnTablo( C::taraFinishMessage(bill) );

@@ -25,6 +25,8 @@ struct TagMethod<TagMethodType::Simple>
     TagMethod(const QString &tn) : tag_name(tn) {}
     TagMethod(){}
 
+    TagMethod( const TagMethod& ) = default;
+
     TagMethod( TagMethod&& other ) : tag_name( std::move( other.tag_name ) ), method_name( std::move( other.method_name ) )
     {
         //qDebug() << "tagmethod move1";
@@ -42,6 +44,7 @@ struct TagMethod<TagMethodType::CompareValue> : TagMethod<TagMethodType::Simple>
     {
         //qDebug() << "tagmethod move2";
     }
+    TagMethod( const TagMethod& ) = default;
 };
 
 
@@ -56,6 +59,7 @@ struct TagMethod<TagMethodType::Property>
     {
         //qDebug() << "tagmethod move3";
     }
+    TagMethod( const TagMethod& ) = default;
 };
 
 #endif // TAGMETHOD_H
