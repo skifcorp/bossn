@@ -150,12 +150,6 @@ void ProtTask::exec()
         QVariant val = impl_->tags[ tpc.tag_name ]->func( tpc.func_name, this );
 
         if ( !val.isValid() ) {
-#if 0
-            if ( last_value_iter->value == last_value_iter->value /*not nan*/ ) {
-                *last_value_iter = prot_values{ QDateTime::currentDateTime().toUTC(), std::numeric_limits<float>::quiet_NaN() };
-                iter->push_back( *last_value_iter );
-            }
-#endif
             if (  (*last_value_iter)[impl_->prot_values.value] == (*last_value_iter)[impl_->prot_values.value] /*not nan*/  ) {
                 (*last_value_iter)[impl_->prot_values.time] = qt_to_ptime(QDateTime::currentDateTime().toUTC());
                 (*last_value_iter)[impl_->prot_values.value] = std::numeric_limits<double>::quiet_NaN();
@@ -164,10 +158,12 @@ void ProtTask::exec()
         else {
             auto fval = val.toDouble();
 
-            if ( /* true || */
+            if ( /* true || */                 
                  ( (*last_value_iter)[impl_->prot_values.value] != (*last_value_iter)[impl_->prot_values.value] /*isnan*/) ||
                  ( tpc.dz_type == ProtTaskImpl::TagProtConf::DzType::DzNone && !qFuzzyCompare(fval, (*last_value_iter)[impl_->prot_values.value]) ) ||
                  ( tpc.dz_type == ProtTaskImpl::TagProtConf::DzType::DzAbs && qAbs(fval - (*last_value_iter)[impl_->prot_values.value]) > tpc.dz.toDouble() ) ) {
+
+                //std::cout << "gotValue: " << val.toDouble() << " tag: " <<  tpc.tag_name.toStdString() << std::endl;
 
                 (*last_value_iter)[impl_->prot_values.time] = qt_to_ptime(QDateTime::currentDateTime().toUTC());
                 (*last_value_iter)[impl_->prot_values.value] = val.toDouble();
@@ -219,7 +215,7 @@ void ProtTask::onSaveTimer()
 
     for ( auto & tv : impl_->tags_values ) {
         tags_vals.emplace_back();
-        tags_vals.front() = std::move(tv);
+        tags_vals.back() = std::move(tv);
     }
 
     decltype(impl_->message_logs) logs(std::move(impl_->message_logs));
@@ -253,11 +249,19 @@ void ProtTask::onSaveTimer()
             auto values = std::begin(tags_vals);
 
             for ( const ProtTaskImpl::TagProtConf & c : impl_->tag_prot_confs ) {
-                if ( values->empty() ) continue;
-
+                if ( values->empty() ) {
+                    //std::cout << "emptiness " <<c.tag_name.toStdString()<<endl;
+                    continue;
+                }
                 prot_values_table t{c.tag_name.toStdString()};
 
-                impl_->database.execute( mysql::insert_into(t)(t.time, t.value).values(*values++) );
+                auto q = mysql::insert_into(t)(t.time, t.value).values(*values);
+
+                ++values;
+
+                impl_->database.execute( q );
+
+                //std::cout << "query: " <<as_string(  q ) << endl;
             }
 
             if ( !logs.empty() )
