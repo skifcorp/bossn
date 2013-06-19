@@ -288,9 +288,9 @@ void SocketHelper::exechange(const QString& ip, int port)
 
     while ( !got_result ) {
         source_.coro().yield();
-        //qDebug() << "11111111111";
+
         if ( source_.isTerminating() ) {
-            //qDebug() << "terminating!!!";
+
             return;
         }
     }
@@ -641,9 +641,9 @@ void WebServiceSequence::run()
 {
     if ( init ) {
         //printOnTablo(tr(greeting_message));
-        //qDebug() << "before";
+
         printOnTablo(tr2(greeting_message));
-        //qDebug() << "After";
+
         setLightsToGreen();
         init = false;
         return;
@@ -670,7 +670,7 @@ void WebServiceSequence::run()
         try {
             QByteArray userid = userid_.toAscii();
             QByteArray passwd = passwd_.toAscii();
-            //qDebug() << "before";
+
             was.appeared( QString::number(seqId()), userid.data(), passwd.data() );
             if ( was.isTerminating() )
                 continue;
@@ -684,10 +684,12 @@ void WebServiceSequence::run()
         }
     }
 
-
+    bool main_part_started = false;
     if ( on_weight ) {
         printOnTablo(tr2(apply_card_message));
+
         alho_settings.reader.all_readers_do_on();
+        main_part_started = true;
     }
 
     QByteArray card_code = get_setting<QByteArray>("card_code" , app_settings);
@@ -700,6 +702,7 @@ void WebServiceSequence::run()
 
     while(on_weight) {
         std::pair<ActivateCardISO14443A, int> act = alho_settings.reader.all_readers_activate_idle();
+
         MifareCardSector card(act.first, alho_settings.reader[act.second], card_code, data_block);
 
         if ( !card.active() ) {
@@ -791,9 +794,9 @@ void WebServiceSequence::run()
 
     printOnTablo(tr2(greeting_message));
     setLightsToGreen();
-    //tags[current_card_tag]->setProperty(current_card_prop,
-    //                                   QVariant::fromValue<ActivateCardISO14443A>(ActivateCardISO14443A()));
-    alho_settings.reader.all_readers_do_off();
+
+    if ( main_part_started )
+        alho_settings.reader.all_readers_do_off();
 
     try {
         std::shared_ptr<WebServiceSequence> cur_fake_source_guard( this ,[&]
@@ -935,15 +938,15 @@ void WebServiceSequence::writeTagsValues( const QMap<QString, QString>& m, Mifar
     if ( !found ) {
         throw MainSequenceException("Tablo tag error!" ,"Tablo tag not found!!!!!!");
     }
-#if 0
-    auto reader_bytes = m.find( alho_settings.reader.name );
+
+    auto reader_bytes = m.find( card.readerTagMethods().name );
     if ( reader_bytes == m.end() ) {
-        throw MainSequenceException("Reader tag error", "reader tag not found!!!!!! for " + alho_settings.reader.name);
+        throw MainSequenceException("Reader tag error", "reader tag not found!!!!!! for " + card.readerTagMethods().name);
     }
 
     if ( reader_bytes->isEmpty() )
         throw  MainSequenceException(tablo_text, "Hi level alho error! ");
-#endif
+
     //alho_settings.tablo_tag.func( Q_ARG(QVariant, QVariant::fromValue(tablo_text) ) );
 
     for ( QMap<QString, QString>::const_iterator iter = m.begin(); iter != m.end(); ++iter ) {
@@ -954,7 +957,7 @@ void WebServiceSequence::writeTagsValues( const QMap<QString, QString>& m, Mifar
         }
     }
 
-#if 0
+
     writeReaderBytes( *reader_bytes, card );
-#endif
+
 }

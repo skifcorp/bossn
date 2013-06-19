@@ -116,6 +116,21 @@ struct ReaderTagMethods
     {
 
     }
+
+    ReaderTagMethods( ReaderTagMethods&& other ) :
+        name ( std::move( other.name ) ),
+        do_on( std::move( other.do_on ), name ),
+        do_off( std::move( other.do_off ), name ),
+        activate_idle( std::move( other.activate_idle ), name ),
+        host_coded_key( std::move( other.host_coded_key ), name ),
+        do_auth( std::move( other.do_auth ), name ),
+        write_block( std::move( other.write_block ), name ),
+        read_block( std::move( other.read_block ), name ),
+        do_sound( std::move( other.do_sound ), name )
+    {
+
+    }
+
 };
 
 struct CollectionOfReaderTagMethods

@@ -41,9 +41,16 @@ public:
         seq(other.seq),
         tags(other.tags)
     {
-        //qDebug() << "tag_func_helper move: " << func_name;
-        //static_name_of<decltype(func_name)> asas;
     }
+
+    TagFuncHelper( TagFuncHelper&& other, const QString& tag_name_ref_ ) :
+        func_name( std::move(other.func_name) ),
+        tag_name_ref( tag_name_ref_ ),
+        seq(other.seq),
+        tags(other.tags)
+    {
+    }
+
 
     QVariant func (QGenericArgument val0 = QGenericArgument(),
                    QGenericArgument val1 = QGenericArgument(),
