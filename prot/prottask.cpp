@@ -163,7 +163,7 @@ void ProtTask::exec()
                  ( tpc.dz_type == ProtTaskImpl::TagProtConf::DzType::DzNone && !qFuzzyCompare(fval, (*last_value_iter)[impl_->prot_values.value]) ) ||
                  ( tpc.dz_type == ProtTaskImpl::TagProtConf::DzType::DzAbs && qAbs(fval - (*last_value_iter)[impl_->prot_values.value]) > tpc.dz.toDouble() ) ) {
 
-                //std::cout << "gotValue: " << val.toDouble() << " tag: " <<  tpc.tag_name.toStdString() << std::endl;
+                 //std::cout << "gotValue: " << val.toDouble() << " tag: " <<  tpc.tag_name.toStdString() << std::endl;
 
                 (*last_value_iter)[impl_->prot_values.time] = qt_to_ptime(QDateTime::currentDateTime().toUTC());
                 (*last_value_iter)[impl_->prot_values.value] = val.toDouble();
@@ -251,6 +251,7 @@ void ProtTask::onSaveTimer()
             for ( const ProtTaskImpl::TagProtConf & c : impl_->tag_prot_confs ) {
                 if ( values->empty() ) {
                     //std::cout << "emptiness " <<c.tag_name.toStdString()<<endl;
+                    ++values;
                     continue;
                 }
                 prot_values_table t{c.tag_name.toStdString()};

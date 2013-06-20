@@ -24,13 +24,15 @@ QByteArray WeightFromFile::weightRequestFrame() const
 }
 int WeightFromFile::parseWeightFrameAnswer(const QByteArray& ba, uint & err) const
 {
-    bool ok = false;
-    int fret = ba.toInt(&ok);
+    bool ok = true;
+    static int fret = ba.toInt(&ok);
+
     if (!ok) {        
         err = PorterFrameCorrupted; return 0;
     }
+
     err = 0;
-    return fret;
+    return fret++;
 }
 /*
 float WeightFromFile::getWeight()
