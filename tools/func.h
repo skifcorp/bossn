@@ -18,6 +18,7 @@ using std::cout;
 
 #include <sstream>
 #include <boost/date_time/posix_time/posix_time_io.hpp>
+#include <boost/date_time/c_local_time_adjustor.hpp>
 
 #include <boost/rdb/core/datetime.hpp>
 
@@ -106,7 +107,10 @@ inline std::time_t toTime_t( const boost::posix_time::ptime & t )
 
 inline boost::posix_time::ptime qt_to_ptime( const QDateTime & dt )
 {
-    return boost::posix_time::from_time_t( dt.toTime_t() );
+    return //boost::posix_time::from_time_t( dt.toTime_t() );
+            boost::date_time::c_local_adjustor<boost::posix_time::ptime>::utc_to_local(
+                    boost::posix_time::from_time_t( dt.toTime_t() )
+                );
 }
 
 

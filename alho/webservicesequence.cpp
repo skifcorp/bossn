@@ -256,7 +256,7 @@ void SocketHelper::exechange(const QString& ip, int port)
     error = timeout = got_result = false;
 
     socket_->connectToHost(ip, port);
-    timeout_timer->start(5000);
+    timeout_timer->start(10000);
 
     if ( socket_->state() != QTcpSocket::ConnectedState ) {
         while ( !got_result ) {
@@ -284,7 +284,7 @@ void SocketHelper::exechange(const QString& ip, int port)
 
     socket_->write( source_.writeBuffer().c_str() );
 
-    timeout_timer->start(5000);
+    timeout_timer->start(10000);
 
     while ( !got_result ) {
         source_.coro().yield();

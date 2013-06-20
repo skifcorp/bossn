@@ -151,7 +151,7 @@ void ProtTask::exec()
 
         if ( !val.isValid() ) {
             if (  (*last_value_iter)[impl_->prot_values.value] == (*last_value_iter)[impl_->prot_values.value] /*not nan*/  ) {
-                (*last_value_iter)[impl_->prot_values.time] = qt_to_ptime(QDateTime::currentDateTime().toUTC());
+                (*last_value_iter)[impl_->prot_values.time] = qt_to_ptime(QDateTime::currentDateTime());
                 (*last_value_iter)[impl_->prot_values.value] = std::numeric_limits<double>::quiet_NaN();
             }
         }
@@ -163,9 +163,14 @@ void ProtTask::exec()
                  ( tpc.dz_type == ProtTaskImpl::TagProtConf::DzType::DzNone && !qFuzzyCompare(fval, (*last_value_iter)[impl_->prot_values.value]) ) ||
                  ( tpc.dz_type == ProtTaskImpl::TagProtConf::DzType::DzAbs && qAbs(fval - (*last_value_iter)[impl_->prot_values.value]) > tpc.dz.toDouble() ) ) {
 
-                 //std::cout << "gotValue: " << val.toDouble() << " tag: " <<  tpc.tag_name.toStdString() << std::endl;
+                 //std::cout << "gotValue: " << val.toDouble()
+                 //          << " tag: " <<  tpc.tag_name.toStdString()
+                 //          << " time: " << qt_to_ptime(QDateTime::currentDateTime())
+                 //          << std::endl;
 
-                (*last_value_iter)[impl_->prot_values.time] = qt_to_ptime(QDateTime::currentDateTime().toUTC());
+                 //qDebug() << "local: " << QDateTime::currentDateTime();
+
+                (*last_value_iter)[impl_->prot_values.time] = qt_to_ptime(QDateTime::currentDateTime());
                 (*last_value_iter)[impl_->prot_values.value] = val.toDouble();
 
                 (*iter).push_back( *last_value_iter );
@@ -182,7 +187,7 @@ void ProtTask::initTagsValues()
 {
     for (decltype(impl_->tag_prot_confs)::size_type i = 0; i<impl_->tag_prot_confs.size(); ++i) {
         impl_->tags_values.emplace_back();
-        impl_->last_values.emplace_back( qt_to_ptime( QDateTime::currentDateTimeUtc() ), std::numeric_limits<double>::quiet_NaN());
+        impl_->last_values.emplace_back( qt_to_ptime( QDateTime::currentDateTime() ), std::numeric_limits<double>::quiet_NaN());
     }
 
 }
@@ -235,7 +240,7 @@ void ProtTask::onSaveTimer()
 
                 impl_->database.execute( mysql::insert_into(impl_->prot_work)
                                   (impl_->prot_work.start_from, impl_->prot_work.work_till)
-                                  .values( when_started, boost::posix_time::second_clock::universal_time() ) );
+                                  .values( when_started, boost::posix_time::second_clock::local_time() ) );
 
                 for ( const ProtTaskImpl::TagProtConf & c : impl_->tag_prot_confs ) {
                     impl_->database.execute(  mysql::create_table( prot_values_table{c.tag_name.toStdString()} ) ) ;
@@ -349,5 +354,5 @@ QVariant ProtTask::addLogMessage(const QString&, AlhoSequence*, QGenericArgument
 void ProtTask::addLogMessageP( int sender_id, int type, const QString& text )
 {
     //message_logs.push_back( message_log{sender_id, type, text} );
-    impl_->message_logs.emplace_back( 0, sender_id, type, boost::posix_time::second_clock::universal_time(), text.toStdString()  );
+    impl_->message_logs.emplace_back( 0, sender_id, type, boost::posix_time::second_clock::local_time(), text.toStdString()  );
 }
