@@ -703,6 +703,11 @@ void WebServiceSequence::run()
     while(on_weight) {
         std::pair<ActivateCardISO14443A, int> act = alho_settings.reader.all_readers_activate_idle();
 
+        if ( act.second == -1 ) {
+            sleepnbtm();
+            continue;
+        }
+
         MifareCardSector card(act.first, alho_settings.reader[act.second], card_code, data_block);
 
         if ( !card.active() ) {
@@ -738,7 +743,7 @@ void WebServiceSequence::run()
                 continue;
             }
 
-            //printOnDisplay( ret_data );
+            printOnDisplay( ret_data );
 
             if ( ret_data == "-1" ) {
                 throw MainSequenceException( tr2(internal_webservice_error), "internal webservice error" );
