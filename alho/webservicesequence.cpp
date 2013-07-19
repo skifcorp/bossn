@@ -24,6 +24,29 @@
 #include <boost/iostreams/categories.hpp>
 
 
+
+
+QString BlockData::toString () const
+{
+
+}
+
+void BlockData::fromString (const QString& )
+{
+
+}
+
+QString BlocksData::toString() const
+{
+
+}
+
+void BlocksData::fromString( const QString& )
+{
+
+}
+
+
 namespace io = boost::iostreams;
 
 using std::unique_ptr;
@@ -630,6 +653,16 @@ void WebServiceSequence::setSettings(const QVariantMap & s)
     userid_                 = get_setting<QString>("userid", s);
     passwd_                 = get_setting<QString>("passwd", s);
 
+
+    QVariantList rbc = get_setting<QVariantList>("read_blocks_conf", s);
+
+    for ( const auto& bc : rbc ) {
+        const auto& m = bc.toMap();
+
+        read_blocks_conf.push_back( BlockConf( get_setting<int>("block_num", m),
+                                              get_setting<int>("block_size", m) ) );
+    }
+
     setObjectName( "MainSequence num: " + QString::number(seq_id) );
 
     restart();
@@ -880,7 +913,9 @@ QMap<QString, QString> WebServiceSequence::getSimpleTagsValues()
 
 QString WebServiceSequence::getReaderBytes( MifareCardSector&  card)
 {
-    QByteArray card_bytes = card.readByteArray( CardStructs::blocks_conf() );
+#if 0
+    //QByteArray card_bytes = card.readByteArray( CardStructs::blocks_conf() );
+    QByteArray card_bytes = card.readByteArray( read_blocks_conf );
     QString delim;
     QString ret = card.readerTagMethods().name + ":";
 
@@ -890,16 +925,22 @@ QString WebServiceSequence::getReaderBytes( MifareCardSector&  card)
     }
 
     return ret;
+#endif
+    BlocksData ret;
+    for ( const auto& bc : read_blocks_conf )     {
+        BlockData bd(bc.blockNum, card.readBlock(bc));
+        ret.append(bd);
+    }
+    return ret.toString();
 }
 
 
 void WebServiceSequence::writeReaderBytes( const QString& s, MifareCardSector&  card )
 {
+#if 0
     QByteArray arr;
 
     QStringList bytes = s.split( " ", QString::SkipEmptyParts );
-
-    //qDebug() << s << " bbbbbbbb: " << bytes << " count: " << bytes.count();
 
     if ( bytes.count() > 0 && static_cast<uint>(bytes.count()) != CardStructs::blocks_conf().memorySize() ) {
         throw MainSequenceException(web_service_wrong_reader_bytes_count, "web service returned " +
@@ -919,6 +960,13 @@ void WebServiceSequence::writeReaderBytes( const QString& s, MifareCardSector&  
 
     if ( bytes.count() > 0 )
         card.writeByteArray( arr, CardStructs::blocks_conf() );
+#endif
+    BlocksData bsd;
+    bsd.fromString( s );
+
+    for ( auto iter = bsd.begin(); iter != bsd.end(); ++iter ) {
+        card.writeBlock( iter->data(), BlockConf( iter->blockNum(), iter->blockSize() ) );
+    }
 }
 
 void WebServiceSequence::writeTagsValues( const QMap<QString, QString>& m, MifareCardSector&  card )

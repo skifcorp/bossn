@@ -19,6 +19,48 @@ class MifareCardSector;
 class GsoapSource;
 
 
+class BlockData
+{
+public:
+    BlockData(){}
+    BlockData(int n, const QByteArray& ar) : block_num(n), data_(ar)
+    {}
+
+    void setBlockNum( int bn ) { block_num = bn; }
+    int blockNum(  ) const { return block_num; }
+    int blockSize(  ) const { return data_.size(); }
+
+    void setData( const QByteArray& a ) { data_ = a; }
+    QByteArray data() const { return data_; }
+
+    QString toString () const;
+    void fromString (const QString& );
+private:
+    int block_num = -1;
+    QByteArray data_;
+
+    const int block_size = 16;
+};
+
+
+class BlocksData
+{
+public:
+    void append( const BlockData& bd ) { data_list.push_back(bd); }
+
+    QString toString( ) const;
+    void fromString(const QString& );
+
+    auto begin() {return data_list.begin();}
+    auto begin() const{return data_list.constBegin();}
+
+    auto end() {return data_list.end();}
+    auto end() const {return data_list.constEnd();}
+
+private:
+    QList<BlockData> data_list;
+};
+
 class SocketHelper : public QObject
 {
     Q_OBJECT
@@ -138,6 +180,8 @@ private:
     {
         return QCoreApplication::translate("MainSequence", s);
     }
+
+    BlocksConf read_blocks_conf;
 };
 
 

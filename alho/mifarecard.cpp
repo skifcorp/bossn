@@ -82,42 +82,47 @@ void MifareCardSector::writeByteArray( const QByteArray& arr, const BlocksConf& 
     for (int i = 0; i<bc.count(); ++i) {
         QByteArray block = arr.mid(offset_in_data, bc[i].blockSize);
 
-        auto write_func = [&]  {
-            return reader_settings.write_block.func(
-                        Q_ARG(const QVariant&, bc[i].blockNum),
-                        Q_ARG(const QVariant&, QVariant(block)) );
-         };
-
-         QVariant ret = write_func();
-
-         if (!ret.toBool()) {
-             for (int j = 0; j<10; ++j) {
-                 qDebug () << "try rewrite...";
-                 try {
-                    reader_settings.do_off.func();
-                    reader_settings.do_on.func();
-                    auto act = reader_settings.activate_idle.func().value<ActivateCardISO14443A>();
-                    if ( !act.active() )
-                        continue;
-                    autorize();
-                    ret = write_func();
-                    if (ret.toBool())
-                        break;
-                 }
-                 catch (...) {
-                     qDebug()<<"try rewrite FAILED";
-                 }
-             }
-         }
-
-
-        if ( !ret.toBool() ) {
-            throw MifareCardWriteException(
-                        QObject::tr("MifareCard::writeStruct: cant write struct!!"),
-                        "MifareCard::writeStruct: cant write struct!!" );
-        }
+        writeBlock( block, bc[i] );
 
         offset_in_data += bc[i].blockSize;
+    }
+}
+
+
+void MifareCardSector::writeBlock( const QByteArray& block, const BlockConf& bc)
+{
+    auto write_func = [&]  {
+        return reader_settings.write_block.func(
+                    Q_ARG(const QVariant&, bc.blockNum),
+                    Q_ARG(const QVariant&, QVariant(block)) );
+    };
+
+    QVariant ret = write_func();
+
+    if (!ret.toBool()) {
+        for (int j = 0; j<10; ++j) {
+            qDebug () << "try rewrite...";
+            try {
+               reader_settings.do_off.func();
+               reader_settings.do_on.func();
+               auto act = reader_settings.activate_idle.func().value<ActivateCardISO14443A>();
+               if ( !act.active() )
+                   continue;
+               autorize();
+               ret = write_func();
+               if (ret.toBool())
+                   break;
+            }
+            catch (...) {
+                qDebug()<<"try rewrite FAILED";
+            }
+        }
+    }
+
+    if ( !ret.toBool() ) {
+        throw MifareCardWriteException(
+                    QObject::tr("MifareCard::writeStruct: cant write struct!!"),
+                    "MifareCard::writeStruct: cant write struct!!" );
     }
 
 }
@@ -181,26 +186,27 @@ QString MifareCardSector::toBigString(const StructConf &conf, const MifareCardDa
     return ret;
 }
 
+QByteArray MifareCardSector::readBlock(const BlockConf& bl)
+{
+    MifareRead mr;
+    for (int j = 0; j<10; ++j) {
+        mr = reader_settings.read_block.func( Q_ARG(const QVariant&, QVariant(bl.blockNum))).value<MifareRead>();
+        if (mr.result) break;
+    }
+
+    if (!mr.result) {
+         throw MifareCardReadException(QObject::tr("readBlock seems failed!"),
+                                       "readBlock seems failed!");
+    }
+
+    return mr.data;
+}
 
 QByteArray MifareCardSector::readByteArray(const BlocksConf& conf)
 {
-    //MifareCardData ret;
-    //ret.setUid(uid());
-
     QByteArray arr;
     for (int i = 0; i<conf.count(); ++i) {
-        MifareRead mr;
-        for (int j = 0; j<10; ++j) {
-            mr = reader_settings.read_block.func( Q_ARG(const QVariant&, QVariant(conf[i].blockNum))).value<MifareRead>();
-            if (mr.result) break;
-        }
-
-        if (!mr.result) {
-             throw MifareCardReadException(QObject::tr("readBlock seems failed!"),
-                                           "readBlock seems failed!");
-        }
-
-        arr += mr.data;
+        arr += readBlock( conf[i] );
     }
     return arr;
 }

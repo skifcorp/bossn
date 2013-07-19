@@ -71,13 +71,15 @@ public:
     void autorize(  );
     //QByteArray readByteArray(const StructConf& conf) throw (MifareCardException);
     QByteArray readByteArray(const BlocksConf& ) ;
+    QByteArray readBlock(const BlockConf& ) ;
+
     MifareCardData readStruct(const QByteArray&, const StructConf& conf) ;
 
 
     void writeStruct(const StructConf& conf, const MifareCardData& s,
                      const BlocksConf& );
     void writeByteArray(const QByteArray&, const BlocksConf& );
-
+    void writeBlock( const QByteArray& , const BlockConf& );
 
     QString toString( const StructConf& conf, const MifareCardData& s )const ;
     QString toBigString(const StructConf& conf, const MifareCardData& s) const ;
@@ -114,7 +116,7 @@ private:
 
     ReaderTagMethods& reader_settings;
     QByteArray card_key;
-    uint data_block;
+    uint data_block;    
 };
 
 
