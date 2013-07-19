@@ -40,6 +40,9 @@ private:
     QByteArray data_;
 
     const int block_size = 16;
+    const int blocks_count = 8;
+
+    void checkData(int) const;
 };
 
 

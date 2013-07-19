@@ -24,26 +24,138 @@
 #include <boost/iostreams/categories.hpp>
 
 
-
-
-QString BlockData::toString () const
+template <class Stream , class Arg>
+void fatal_exit_imp( Stream && stream, Arg && arg )
 {
+    std::forward<Stream>(stream) << std::forward<Arg>(arg);
+}
+
+template <class Stream, class Arg, class ... Args>
+void fatal_exit_imp(Stream && stream, Arg && arg,  Args&& ... args )
+{
+    std::forward<Stream>(stream) << std::forward<Arg>(arg);
+
+    fatal_exit_imp(std::forward<Stream>(stream), std::forward<Args>(args)...);
+}
+
+
+template <class ... Args>
+void fatal_exit( Args&& ... args )
+{
+    fatal_exit_imp(qWarning(), std::forward<Args>(args) ... );
+
+    qFatal("exit");
+}
+
+
+
+
+
+void BlockData::checkData(int place) const
+{
+    if (  block_num < 0 ) {
+        fatal_exit("block_num not initialized!!!", "place", place);
+    }
+
+    if ( data_.size() != block_size) {
+        fatal_exit("bad block size", blockSize() , "place", place);
+    }
 
 }
 
-void BlockData::fromString (const QString& )
+QString BlockData::toString () const
 {
+    checkData(1);
 
+    QString string_data, delim;
+    for ( int i = 0; i<data_.size(); ++i ) {
+        string_data += delim + QString::number(static_cast<uchar>(data_[i]), 16);
+        delim = " ";
+    }
+
+
+    return QString::number( block_num ) + ":" + string_data;
+}
+
+void BlockData::fromString (const QString& s)
+{
+    data_.clear();
+    block_num = -1;
+
+    QStringList key_with_bytes = s.split(":");
+    if ( key_with_bytes.size() != 2 ) {
+        throw MainSequenceException( one_block_data_corrupted, "after splitting get count: "
+                                     + QString::number(key_with_bytes.size())  );
+    }
+
+    bool ok = false;
+    block_num = key_with_bytes.first().toInt(&ok);
+
+    if (!ok) {
+        throw MainSequenceException( one_block_data_corrupted, " cant get block num: " + key_with_bytes.first() );
+    }
+
+    if ( block_num < 0 || block_num > blocks_count - 1) {
+        throw MainSequenceException( one_block_data_corrupted, " bad block num: " + QString::number(block_num) );
+    }
+
+    QStringList bytes = key_with_bytes.last().split( " ", QString::SkipEmptyParts );
+
+    if ( bytes.count() > 0 && bytes.count() != block_size ) {
+        throw MainSequenceException(web_service_wrong_reader_bytes_count, "web service returned " +
+                                    QString::number(bytes.count()) +  " bytes for reader!");
+    }
+
+    for(const QString& byte : bytes ) {
+        bool ok = false;
+        auto ret = byte.toInt(&ok, 16);
+        if ( !ok ) {
+            throw MainSequenceException(web_service_corrupted_reader_byte, "web service returned corrupted byte (" +
+                                        byte + ") for reader!");
+        }
+        data_.push_back( ret );
+    }
 }
 
 QString BlocksData::toString() const
 {
+    QString ret = "{";
+    QString sep;
 
+    for ( const auto & bd : data_list ) {
+        ret += sep + bd.toString();
+        sep = ",";
+    }
+
+    ret += "}";
+
+    return ret;
 }
 
-void BlocksData::fromString( const QString& )
+void BlocksData::fromString( const QString& s )
 {
+    data_list.clear();
 
+    int left_sep = s.indexOf("{");
+    int right_sep = s.indexOf("}");
+
+    if ( left_sep == -1 ) {
+        throw MainSequenceException(web_service_corrupted_reader_byte, "cant find left separator {");
+    }
+
+    if ( right_sep == -1 ) {
+        throw MainSequenceException(web_service_corrupted_reader_byte, "cant find right separator }");
+    }
+
+    QString string_data = s.mid( left_sep, right_sep - left_sep + 1 );
+
+    QStringList string_blocks = string_data.split(",");
+
+    for ( const auto& d : string_blocks ) {
+       BlockData bd;
+       bd.fromString( d );
+       data_list.push_back( bd );
+    }
 }
 
 

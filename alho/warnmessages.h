@@ -74,6 +74,7 @@ static const char * gsoap_disappear_request_error          = QT_TRANSLATE_NOOP("
 
 static const char * web_service_wrong_reader_bytes_count   = QT_TRANSLATE_NOOP("MainSequence", "web service returned wrong number of bytes for reader");
 static const char * web_service_corrupted_reader_byte      = QT_TRANSLATE_NOOP("MainSequence", "web service returned corruped reader byte");
+static const char * one_block_data_corrupted               = QT_TRANSLATE_NOOP("MainSequence", "one block data corrupted");
 
 static const char * internal_webservice_error              = QT_TRANSLATE_NOOP("MainSequence", "Internal web service error");
 
@@ -167,6 +168,8 @@ inline void remove_unsued_warning()
 
     Q_UNUSED(gsoap_appear_request_error);
     Q_UNUSED(gsoap_disappear_request_error);
+
+    Q_UNUSED(one_block_data_corrupted);
 }
 
 #endif // WARNMESSAGES_H
