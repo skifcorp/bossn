@@ -18,51 +18,111 @@ class MifareCardSector;
 
 class GsoapSource;
 
+class BlockDataImp;
 
 class BlockData
 {
 public:
     BlockData(){}
-    BlockData(int n, const QByteArray& ar) : block_num(n), data_(ar)
+    BlockData(int bn, const QByteArray& ar) :data_(ar), block_num(bn)
     {}
-
-    void setBlockNum( int bn ) { block_num = bn; }
-    int blockNum(  ) const { return block_num; }
-    int blockSize(  ) const { return data_.size(); }
 
     void setData( const QByteArray& a ) { data_ = a; }
     QByteArray data() const { return data_; }
 
-    QString toString () const;
-    void fromString (const QString& );
-private:
-    int block_num = -1;
+    virtual QString toString () const = 0;
+    virtual void fromString (const QString& ) = 0;
+    int blockSize(  ) const { return data_.size(); }
+    void setBlockNum( int bn ) { block_num = bn; }
+    int blockNum(  ) const { return block_num; }
+
+    static const int block_size = 16;
+protected:
     QByteArray data_;
 
-    const int block_size = 16;
+
     const int blocks_count = 8;
 
     void checkData(int) const;
+private:    
+    int block_num = -1;
+};
+
+
+
+class DefaultedBlockData : public BlockData
+{
+public:
+    DefaultedBlockData() : BlockData(){}
+    DefaultedBlockData(int n, const QByteArray& arr) : BlockData(n, arr){}
+
+    virtual QString toString () const;
+    virtual void fromString (const QString& );
+};
+
+
+class NumberedBlockData : public BlockData
+{
+public:
+    NumberedBlockData() : BlockData(){}
+    NumberedBlockData(int n, const QByteArray& arr) : BlockData(n, arr){}
+
+    virtual QString toString () const;
+    virtual void fromString (const QString& );
+private:
+
 };
 
 
 class BlocksData
 {
 public:
-    void append( const BlockData& bd ) { data_list.push_back(bd); }
+    virtual ~BlocksData() {}
 
-    QString toString( ) const;
-    void fromString(const QString& );
+    virtual void append( int , const QByteArray& ) = 0;
+    virtual QString toString( ) const = 0;
+    virtual void fromString(const QString& ) = 0;
 
     auto begin() {return data_list.begin();}
-    auto begin() const{return data_list.constBegin();}
+    auto begin() const{return data_list.begin();}
 
     auto end() {return data_list.end();}
-    auto end() const {return data_list.constEnd();}
-
+    auto end() const {return data_list.end();}
+protected:
+    std::vector< std::unique_ptr<BlockData> > data_list;
 private:
-    QList<BlockData> data_list;
+
 };
+
+
+class DefaultedBlocksData : public BlocksData
+{
+public:
+    virtual QString toString( ) const override;
+    virtual void fromString(const QString& ) override;
+    virtual void append( int bn, const QByteArray& ) override;
+
+    static QVariantList blockConf();
+private:
+    const int bytes_num = 48;
+
+    static const int block_num1 = 128;
+    static const int block_num2 = 129;
+    static const int block_num3 = 130;
+
+    QString blockByteString(int block_num, const QString&) const;
+    int whitespacePos( int num, const QString& s ) const;
+};
+
+
+class NumberedBlocksData : public BlocksData
+{
+public:
+    virtual QString toString( ) const override;
+    virtual void fromString(const QString& ) override;
+    virtual void append( int , const QByteArray& ) override;
+};
+
 
 class SocketHelper : public QObject
 {
@@ -122,6 +182,8 @@ private:
 
 class WebServiceAcyncDeinitializer;
 class WebServiceAsync;
+
+enum class CardReaderWebProtocol{Defaulted, Numbered};
 
 class WebServiceSequence : public MainSequenceBaseOp
 {
@@ -185,6 +247,7 @@ private:
     }
 
     BlocksConf read_blocks_conf;
+    CardReaderWebProtocol cardreader_web_protocol = CardReaderWebProtocol::Defaulted;
 };
 
 

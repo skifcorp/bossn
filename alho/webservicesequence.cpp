@@ -63,7 +63,7 @@ void BlockData::checkData(int place) const
 
 }
 
-QString BlockData::toString () const
+QString NumberedBlockData::toString () const
 {
     checkData(1);
 
@@ -73,14 +73,13 @@ QString BlockData::toString () const
         delim = " ";
     }
 
-
-    return QString::number( block_num ) + ":" + string_data;
+    return QString::number( blockNum() ) + ":" + string_data;
 }
 
-void BlockData::fromString (const QString& s)
+void NumberedBlockData::fromString (const QString& s)
 {
     data_.clear();
-    block_num = -1;
+    setBlockNum(-1);
 
     QStringList key_with_bytes = s.split(":");
     if ( key_with_bytes.size() != 2 ) {
@@ -89,14 +88,16 @@ void BlockData::fromString (const QString& s)
     }
 
     bool ok = false;
-    block_num = key_with_bytes.first().toInt(&ok);
+    int bn = key_with_bytes.first().toInt(&ok);
 
     if (!ok) {
         throw MainSequenceException( one_block_data_corrupted, " cant get block num: " + key_with_bytes.first() );
     }
 
-    if ( block_num < 0 || block_num > blocks_count - 1) {
-        throw MainSequenceException( one_block_data_corrupted, " bad block num: " + QString::number(block_num) );
+    setBlockNum(bn);
+
+    if ( bn < 0 || bn > blocks_count - 1) {
+        throw MainSequenceException( one_block_data_corrupted, " bad block num: " + QString::number(bn) );
     }
 
     QStringList bytes = key_with_bytes.last().split( " ", QString::SkipEmptyParts );
@@ -117,13 +118,56 @@ void BlockData::fromString (const QString& s)
     }
 }
 
-QString BlocksData::toString() const
+
+
+
+
+
+QString DefaultedBlockData::toString () const
+{
+    QString string_data, delim;
+    for ( int i = 0; i<data_.size(); ++i ) {
+        string_data += delim + QString::number(static_cast<uchar>(data_[i]), 16);
+        delim = " ";
+    }
+
+    return string_data;
+}
+
+void DefaultedBlockData::fromString (const QString& s)
+{
+    data_.clear();
+
+    QStringList bytes = s.split( " ", QString::SkipEmptyParts );
+
+    if ( bytes.count() > 0 && bytes.count() != block_size ) {
+        throw MainSequenceException(web_service_wrong_reader_bytes_count, "web service returned " +
+                                    QString::number(bytes.count()) +  " bytes for reader!");
+    }
+
+    for(const QString& byte : bytes ) {
+        bool ok = false;
+        auto ret = byte.toInt(&ok, 16);
+        if ( !ok ) {
+            throw MainSequenceException(web_service_corrupted_reader_byte, "web service returned corrupted byte (" +
+                                        byte + ") for reader!");
+        }
+        data_.push_back( ret );
+    }
+}
+
+
+
+
+
+
+QString NumberedBlocksData::toString() const
 {
     QString ret = "{";
     QString sep;
 
     for ( const auto & bd : data_list ) {
-        ret += sep + bd.toString();
+        ret += sep + bd->toString();
         sep = ",";
     }
 
@@ -132,7 +176,7 @@ QString BlocksData::toString() const
     return ret;
 }
 
-void BlocksData::fromString( const QString& s )
+void NumberedBlocksData::fromString( const QString& s )
 {
     data_list.clear();
 
@@ -152,12 +196,120 @@ void BlocksData::fromString( const QString& s )
     QStringList string_blocks = string_data.split(",");
 
     for ( const auto& d : string_blocks ) {
-       BlockData bd;
-       bd.fromString( d );
-       data_list.push_back( bd );
+        std::unique_ptr<BlockData> bd = std::unique_ptr<NumberedBlockData>(new NumberedBlockData() );
+        bd->fromString( d );
+        data_list.push_back( std::move(bd) );
     }
 }
+void NumberedBlocksData::append(int bl, const QByteArray & d)
+{
+    data_list.push_back( std::unique_ptr<BlockData>(new NumberedBlockData(bl, d)) );
+}
 
+
+
+void DefaultedBlocksData::append(int bl, const QByteArray & d)
+{
+    data_list.push_back( std::unique_ptr<BlockData>(new DefaultedBlockData(bl, d)) );
+}
+
+
+QString DefaultedBlocksData::toString() const
+{
+    QString sep;
+    QString ret;
+
+    for ( const auto & bd : data_list ) {
+        ret += sep + bd->toString();
+        sep = " ";
+    }
+
+    return ret;
+}
+
+void DefaultedBlocksData::fromString( const QString& string_data )
+{
+    data_list.clear();
+
+    const int whitespace_num = bytes_num - 1;
+    if ( string_data.count(" ") != whitespace_num  ) {
+        throw MainSequenceException(web_service_wrong_reader_bytes_count,
+                                    "DefaultedBlocksData::fromString: bad number of whitespaces " +
+                                  QString::number(string_data.count(" ")) +  "in bytes for reader!");
+
+    }
+
+    QString b1 = blockByteString( block_num1, string_data );
+    QString b2 = blockByteString( block_num2, string_data );
+    QString b3 = blockByteString( block_num3, string_data );
+
+    std::unique_ptr<BlockData> bd1 = std::unique_ptr<BlockData>(new DefaultedBlockData() );
+    bd1->fromString( b1 );
+    data_list.push_back( std::move(bd1) );
+
+    std::unique_ptr<BlockData> bd2 = std::unique_ptr<BlockData>(new DefaultedBlockData() );
+    bd2->fromString( b2 );
+    data_list.push_back( std::move(bd2) );
+
+    std::unique_ptr<BlockData> bd3 = std::unique_ptr<BlockData>(new DefaultedBlockData() );
+    bd3->fromString( b3 );
+    data_list.push_back( std::move(bd3) );
+}
+
+int DefaultedBlocksData::whitespacePos( int num, const QString& s ) const
+{
+    int counter = 0;
+    int pos = 0;
+    while ( counter < num )  {
+        pos = s.indexOf(" ", pos);
+        if ( pos == -1 ) {
+            qWarning() << "something terrible because I must find all whitespaces in this string: " << s
+                       << " counter: " << counter <<  " pos " << pos << "num: " << num;
+            qFatal("exit");
+        }
+
+        ++pos;
+        ++counter;
+    }
+
+    return pos;
+}
+
+QString DefaultedBlocksData::blockByteString(int bn, const QString& s) const
+{
+    const int start_whitespace_num  = bn * BlockData::block_size - 1; //can be -1
+    const int finish_whitespace_num = (bn + 1) * BlockData::block_size - 1;
+
+    const int string_start_pos = whitespacePos( start_whitespace_num, s );
+    const int string_finish_pos = whitespacePos( finish_whitespace_num, s );
+    const int len = string_finish_pos - string_start_pos - 1;
+
+    return s.mid(string_start_pos,  len);
+}
+
+
+
+QVariantList DefaultedBlocksData::blockConf()
+{
+    QVariantList ret;
+
+    QVariantMap m1;
+    m1["block_num"] = block_num1;
+    m1["block_size"] = 16;
+    ret.push_back(m1);
+
+    QVariantMap m2;
+    m1["block_num"] = block_num2;
+    m1["block_size"] = 16;
+    ret.push_back(m2);
+
+    QVariantMap m3;
+    m1["block_num"] = block_num3;
+    m1["block_size"] = 16;
+    ret.push_back(m3);
+
+    return ret;
+}
 
 namespace io = boost::iostreams;
 
@@ -766,7 +918,7 @@ void WebServiceSequence::setSettings(const QVariantMap & s)
     passwd_                 = get_setting<QString>("passwd", s);
 
 
-    QVariantList rbc = get_setting<QVariantList>("read_blocks_conf", s);
+    QVariantList rbc = get_setting<QVariantList>("read_blocks_conf", s, DefaultedBlocksData::blockConf() );
 
     for ( const auto& bc : rbc ) {
         const auto& m = bc.toMap();
@@ -1038,12 +1190,27 @@ QString WebServiceSequence::getReaderBytes( MifareCardSector&  card)
 
     return ret;
 #endif
-    BlocksData ret;
-    for ( const auto& bc : read_blocks_conf )     {
-        BlockData bd(bc.blockNum, card.readBlock(bc));
-        ret.append(bd);
+    if ( cardreader_web_protocol == CardReaderWebProtocol::Defaulted ) {
+        DefaultedBlocksData ret;
+        for ( const auto& bc : read_blocks_conf )     {
+            //BlockData bd(bc.blockNum, card.readBlock(bc));
+            ret.append(bc.blockNum, card.readBlock(bc));
+        }
+        return ret.toString();
     }
-    return ret.toString();
+    else if ( cardreader_web_protocol == CardReaderWebProtocol::Numbered ) {
+        NumberedBlocksData ret;
+        for ( const auto& bc : read_blocks_conf )     {
+            //BlockData bd(bc.blockNum, card.readBlock(bc));
+            ret.append(bc.blockNum, card.readBlock(bc));
+        }
+        return ret.toString();
+    }
+    else {
+        qWarning()<< "1: unknown card reader web protocol: " << static_cast<int>(cardreader_web_protocol);
+        qFatal("exit");
+    }
+    return QString();
 }
 
 
@@ -1073,11 +1240,22 @@ void WebServiceSequence::writeReaderBytes( const QString& s, MifareCardSector&  
     if ( bytes.count() > 0 )
         card.writeByteArray( arr, CardStructs::blocks_conf() );
 #endif
-    BlocksData bsd;
-    bsd.fromString( s );
+    if ( cardreader_web_protocol == CardReaderWebProtocol::Defaulted  ) {
+        DefaultedBlocksData bsd;
+        bsd.fromString( s );
 
-    for ( auto iter = bsd.begin(); iter != bsd.end(); ++iter ) {
-        card.writeBlock( iter->data(), BlockConf( iter->blockNum(), iter->blockSize() ) );
+        for ( auto iter = bsd.begin(); iter != bsd.end(); ++iter ) {
+            card.writeBlock( (*iter)->data(), BlockConf( (*iter)->blockNum(), (*iter)->blockSize() ) );
+        }
+    }
+    else if (cardreader_web_protocol == CardReaderWebProtocol::Numbered ){
+        NumberedBlocksData bsd;
+        bsd.fromString( s );
+
+        for ( auto iter = bsd.begin(); iter != bsd.end(); ++iter ) {
+            card.writeBlock( (*iter)->data(), BlockConf( (*iter)->blockNum(), (*iter)->blockSize() ) );
+        }
+
     }
 }
 
