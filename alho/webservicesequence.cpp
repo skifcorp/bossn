@@ -141,7 +141,7 @@ void DefaultedBlockData::fromString (const QString& s)
     QStringList bytes = s.split( " ", QString::SkipEmptyParts );
 
     if ( bytes.count() > 0 && bytes.count() != block_size ) {
-        throw MainSequenceException(web_service_wrong_reader_bytes_count, "web service returned " +
+        throw MainSequenceException(web_service_wrong_reader_bytes_count, "2: web service returned " +
                                     QString::number(bytes.count()) +  " bytes for reader!");
     }
 
@@ -239,9 +239,12 @@ void DefaultedBlocksData::fromString( const QString& string_data )
 
     }
 
-    QString b1 = blockByteString( block_num1, string_data );
-    QString b2 = blockByteString( block_num2, string_data );
-    QString b3 = blockByteString( block_num3, string_data );
+    QString b1 = blockByteString( 0, string_data );
+    //qDebug() << "b1: " << b1;
+    QString b2 = blockByteString( 1, string_data );
+    //qDebug() << "b2: " << b2;
+    QString b3 = blockByteString( 2, string_data );
+    //qDebug() << " b3: " << b3;
 
     std::unique_ptr<BlockData> bd1 = std::unique_ptr<BlockData>(new DefaultedBlockData() );
     bd1->fromString( b1 );
@@ -258,9 +261,14 @@ void DefaultedBlocksData::fromString( const QString& string_data )
 
 int DefaultedBlocksData::whitespacePos( int num, const QString& s ) const
 {
+    if ( num < 0 )
+        return 0;
+    if (  num > s.count(" ") )
+        return s.length();
+
     int counter = 0;
     int pos = 0;
-    while ( counter < num )  {
+    while ( counter < num  && pos < s.length() - 1 )  {
         pos = s.indexOf(" ", pos);
         if ( pos == -1 ) {
             qWarning() << "something terrible because I must find all whitespaces in this string: " << s
@@ -277,14 +285,20 @@ int DefaultedBlocksData::whitespacePos( int num, const QString& s ) const
 
 QString DefaultedBlocksData::blockByteString(int bn, const QString& s) const
 {
-    const int start_whitespace_num  = bn * BlockData::block_size - 1; //can be -1
-    const int finish_whitespace_num = (bn + 1) * BlockData::block_size - 1;
+    const int start_whitespace_num  = bn * BlockData::block_size + ( bn == 0? -1  : 0 );
+    const int finish_whitespace_num = (bn + 1) * BlockData::block_size;
+
+
+    //qDebug () << "start_white_space: " << start_whitespace_num << " finish_whitespace_num " << finish_whitespace_num;
 
     const int string_start_pos = whitespacePos( start_whitespace_num, s );
     const int string_finish_pos = whitespacePos( finish_whitespace_num, s );
-    const int len = string_finish_pos - string_start_pos - 1;
 
-    return s.mid(string_start_pos,  len);
+    //qDebug () << "start_white_space_pos: " << string_start_pos << " finish_whitespace_num_pos " << string_finish_pos;
+
+    const int len = string_finish_pos - string_start_pos;
+
+    return s.mid(string_start_pos, len).simplified();
 }
 
 
