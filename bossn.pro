@@ -149,7 +149,8 @@ SOURCES +=  \
     alho/mainsequencesettings.cpp \
     gsoap/soapbossnSoapBindingProxy.cpp \
     weight/SysTecIT3000.cpp \
-    weight/VP05.cpp
+    weight/VP05.cpp \
+    display/displayposua.cpp
 
 HEADERS +=   reader/mifarereaderemulator.h \
     tools/func.h \
@@ -250,7 +251,8 @@ HEADERS +=   reader/mifarereaderemulator.h \
     alho/tagprophelper.h \
     gsoap/soapbossnSoapBindingProxy.h \
     weight/SysTecIT3000.h \
-    weight/VP05.h
+    weight/VP05.h \
+    display/displayposua.h
 
 
 RESOURCES += bossn.qrc
