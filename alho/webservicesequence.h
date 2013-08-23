@@ -5,7 +5,7 @@
 #include "mainsequencesettings.h"
 #include "tags.h"
 #include "mainsequencebaseop.h"
-
+#include "photomaker.h"
 
 #include <QTcpSocket>
 #include <QTimer>
@@ -248,6 +248,13 @@ private:
 
     BlocksConf read_blocks_conf;
     CardReaderWebProtocol cardreader_web_protocol = CardReaderWebProtocol::Defaulted;
+
+    bool uses_photo = false;
+    QVariantMap exit_photo;
+    QVariantMap enter_photo;
+    CapturePhoto capture;
+
+    void makePhotoIfNeeded(const QString& photo_rel_path);
 };
 
 

@@ -751,7 +751,7 @@ public:
             }, userid, passwd );
         }
         catch(const MainSequenceHiddenException& ex ) {
-            throw MainSequenceException( gsoap_data_exchange_request_error, "Error in request data: " +
+            throw MainSequenceException( gsoap_data_exchange_request_error, "1: Error in request data: " +
                                          QString::number(ex.errorCode()), "");
         }
         return QString::fromUtf8( resp.return_.c_str() );
@@ -803,7 +803,7 @@ public:
         }
         catch(const MainSequenceHiddenException& ex ) {
             throw MainSequenceException( gsoap_accept_card_result_request_error,
-                                         "Error in accept card!!! errc: " + QString::number(ex.errorCode()));
+                                         "2: Error in accept card!!! errc: " + QString::number(ex.errorCode()));
         }
     }
 
@@ -821,7 +821,7 @@ public:
         }
         catch(const MainSequenceHiddenException& ex ) {
             throw MainSequenceException( gsoap_appear_request_error,
-                                         "Error in appear errc: " + QString::number(ex.errorCode()));
+                                         "3: Error in appear errc: " + QString::number(ex.errorCode()));
         }
     }
 
@@ -839,7 +839,7 @@ public:
         }
         catch(const MainSequenceHiddenException& ex ) {
             throw MainSequenceException( gsoap_disappear_request_error,
-                                         "Error in appear errc: " + QString::number(ex.errorCode()));
+                                         "4: Error in appear errc: " + QString::number(ex.errorCode()));
         }
     }
 
@@ -925,6 +925,13 @@ void WebServiceSequence::setSettings(const QVariantMap & s)
 
         read_blocks_conf.push_back( BlockConf( get_setting<int>("block_num", m),
                                               get_setting<int>("block_size", m) ) );
+    }
+
+    uses_photo                              = get_setting<bool>("uses_photo", s, false);
+
+    if (uses_photo) {
+        exit_photo                          = get_setting<QVariantMap>("exit_photo", s);
+        enter_photo                         = get_setting<QVariantMap>("enter_photo", s);
     }
 
     setObjectName( "MainSequence num: " + QString::number(seq_id) );
@@ -1040,7 +1047,14 @@ void WebServiceSequence::run()
                 continue;
             }
 
+
+            if ( ret_data.isEmpty() ) {
+                throw MainSequenceException( tr2(internal_webservice_error), "returned data is empty" );
+            }
+
             printOnDisplay( ret_data );
+
+
 
             if ( ret_data == "-1" ) {
                 throw MainSequenceException( tr2(internal_webservice_error), "internal webservice error" );
@@ -1303,4 +1317,19 @@ void WebServiceSequence::writeTagsValues( const QMap<QString, QString>& m, Mifar
 
     writeReaderBytes( *reader_bytes, card );
 
+}
+
+
+
+void WebServiceSequence::makePhotoIfNeeded(const QString& photo_rel_path)
+{
+    if (!uses_photo) return;
+
+//    QString str_exit  = get_setting<QString>("photo_dir", wc) + "\\" + QString::number(num_nakl) + "_"
+//            + platform_type + "_" + get_setting<QString>("channel_alias", exit_photo);
+//    QString str_input = get_setting<QString>("photo_dir", wc) + "\\" + QString::number(num_nakl) + "_"
+//            + platform_type + "_" + get_setting<QString>("channel_alias", enter_photo);
+
+//    capture.grabPhoto(str_exit.toStdWString().c_str()  , get_setting<QString>("channel_num", exit_photo ).toInt());
+//    capture.grabPhoto(str_input.toStdWString().c_str() , get_setting<QString>("channel_num", enter_photo).toInt());
 }
