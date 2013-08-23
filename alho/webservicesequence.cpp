@@ -1210,7 +1210,7 @@ QString WebServiceSequence::getReaderBytes( MifareCardSector&  card)
             //BlockData bd(bc.blockNum, card.readBlock(bc));
             ret.append(bc.blockNum, card.readBlock(bc));
         }
-        return ret.toString();
+        return card.readerTagMethods().name + ":" + ret.toString();
     }
     else if ( cardreader_web_protocol == CardReaderWebProtocol::Numbered ) {
         NumberedBlocksData ret;
@@ -1218,7 +1218,7 @@ QString WebServiceSequence::getReaderBytes( MifareCardSector&  card)
             //BlockData bd(bc.blockNum, card.readBlock(bc));
             ret.append(bc.blockNum, card.readBlock(bc));
         }
-        return ret.toString();
+        return  card.readerTagMethods().name + ":" + ret.toString();
     }
     else {
         qWarning()<< "1: unknown card reader web protocol: " << static_cast<int>(cardreader_web_protocol);
