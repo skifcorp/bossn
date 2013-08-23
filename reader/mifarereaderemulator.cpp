@@ -156,7 +156,7 @@ QVariant MifareReaderEmulator::readBlock(const QVariant& n)
         MifareCardData bill = defaultDataForBlock( num );
 
         if ( num == 0 ) { //must refactor this
-            bill.setMemberValue("driver", 2190);
+            bill.setMemberValue("driver", 390);
             bill.setMemberValue("billNumber", 1);
             bill.setMemberValue("numField", 105);
         }
@@ -167,6 +167,7 @@ QVariant MifareReaderEmulator::readBlock(const QVariant& n)
         else if ( num == 2 ) {
             bill.setMemberValue("bumFact", 1);
             bill.setMemberValue("kagat", 1);
+            bill.setMemberValue("material", 21);
         }
 
         ret.data = cardDataToByteArray( bill, num );
