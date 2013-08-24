@@ -63,6 +63,7 @@ void bossnSoapBindingProxy::bossnSoapBindingProxy_init(soap_mode imode, soap_mod
 	{"SOAP-ENC", "http://www.w3.org/2003/05/soap-encoding", "http://schemas.xmlsoap.org/soap/encoding/", NULL},
 	{"xsi", "http://www.w3.org/2001/XMLSchema-instance", "http://www.w3.org/*/XMLSchema-instance", NULL},
 	{"xsd", "http://www.w3.org/2001/XMLSchema", "http://www.w3.org/*/XMLSchema", NULL},
+	{"ns2", "http://www.skifcorp.com.ua", NULL, NULL},
 	{"ns1", "http://localhost/bossn", NULL, NULL},
 	{NULL, NULL, NULL, NULL}
 };
@@ -131,7 +132,7 @@ int bossnSoapBindingProxy::send_AppearedResponse(const char *endpoint, const cha
 	if (endpoint)
 		soap_endpoint = endpoint;
 	if (soap_endpoint == NULL)
-		soap_endpoint = "http://localhost/bossn/ws/bossn.1cws";
+		soap_endpoint = "http://192.168.0.17/bossn/ws/bossn.1cws";
 	if (soap_action == NULL)
 		soap_action = "http://localhost/bossn#bossn:AppearedResponse";
 	soap->encodingStyle = NULL;
@@ -192,7 +193,7 @@ int bossnSoapBindingProxy::Appeared(const char *endpoint, const char *soap_actio
 	if (endpoint)
 		soap_endpoint = endpoint;
 	if (soap_endpoint == NULL)
-		soap_endpoint = "http://localhost/bossn/ws/bossn.1cws";
+		soap_endpoint = "http://192.168.0.17/bossn/ws/bossn.1cws";
 	if (soap_action == NULL)
 		soap_action = "http://localhost/bossn#bossn:Appeared";
 	soap->encodingStyle = NULL;
@@ -246,7 +247,7 @@ int bossnSoapBindingProxy::send_ExchangeResponse(const char *endpoint, const cha
 	if (endpoint)
 		soap_endpoint = endpoint;
 	if (soap_endpoint == NULL)
-		soap_endpoint = "http://localhost/bossn/ws/bossn.1cws";
+		soap_endpoint = "http://192.168.0.17/bossn/ws/bossn.1cws";
 	if (soap_action == NULL)
 		soap_action = "http://localhost/bossn#bossn:ExchangeResponse";
 	soap->encodingStyle = NULL;
@@ -307,7 +308,7 @@ int bossnSoapBindingProxy::Exchange(const char *endpoint, const char *soap_actio
 	if (endpoint)
 		soap_endpoint = endpoint;
 	if (soap_endpoint == NULL)
-		soap_endpoint = "http://localhost/bossn/ws/bossn.1cws";
+		soap_endpoint = "http://192.168.0.17/bossn/ws/bossn.1cws";
 	if (soap_action == NULL)
 		soap_action = "http://localhost/bossn#bossn:Exchange";
 	soap->encodingStyle = NULL;
@@ -361,7 +362,7 @@ int bossnSoapBindingProxy::send_AcceptResponse(const char *endpoint, const char 
 	if (endpoint)
 		soap_endpoint = endpoint;
 	if (soap_endpoint == NULL)
-		soap_endpoint = "http://localhost/bossn/ws/bossn.1cws";
+		soap_endpoint = "http://192.168.0.17/bossn/ws/bossn.1cws";
 	if (soap_action == NULL)
 		soap_action = "http://localhost/bossn#bossn:AcceptResponse";
 	soap->encodingStyle = NULL;
@@ -422,7 +423,7 @@ int bossnSoapBindingProxy::Accept(const char *endpoint, const char *soap_action,
 	if (endpoint)
 		soap_endpoint = endpoint;
 	if (soap_endpoint == NULL)
-		soap_endpoint = "http://localhost/bossn/ws/bossn.1cws";
+		soap_endpoint = "http://192.168.0.17/bossn/ws/bossn.1cws";
 	if (soap_action == NULL)
 		soap_action = "http://localhost/bossn#bossn:Accept";
 	soap->encodingStyle = NULL;
@@ -476,7 +477,7 @@ int bossnSoapBindingProxy::send_DisappearedResponse(const char *endpoint, const 
 	if (endpoint)
 		soap_endpoint = endpoint;
 	if (soap_endpoint == NULL)
-		soap_endpoint = "http://localhost/bossn/ws/bossn.1cws";
+		soap_endpoint = "http://192.168.0.17/bossn/ws/bossn.1cws";
 	if (soap_action == NULL)
 		soap_action = "http://localhost/bossn#bossn:DisappearedResponse";
 	soap->encodingStyle = NULL;
@@ -537,7 +538,7 @@ int bossnSoapBindingProxy::Disappeared(const char *endpoint, const char *soap_ac
 	if (endpoint)
 		soap_endpoint = endpoint;
 	if (soap_endpoint == NULL)
-		soap_endpoint = "http://localhost/bossn/ws/bossn.1cws";
+		soap_endpoint = "http://192.168.0.17/bossn/ws/bossn.1cws";
 	if (soap_action == NULL)
 		soap_action = "http://localhost/bossn#bossn:Disappeared";
 	soap->encodingStyle = NULL;
@@ -591,7 +592,7 @@ int bossnSoapBindingProxy::send_AppearedResponse_(const char *endpoint, const ch
 	if (endpoint)
 		soap_endpoint = endpoint;
 	if (soap_endpoint == NULL)
-		soap_endpoint = "http://localhost/bossn/ws/bossn.1cws";
+		soap_endpoint = "http://192.168.0.17/bossn/ws/bossn.1cws";
 	if (soap_action == NULL)
 		soap_action = "http://localhost/bossn#bossn:AppearedResponse";
 	soap->encodingStyle = NULL;
@@ -652,7 +653,7 @@ int bossnSoapBindingProxy::Appeared_(const char *endpoint, const char *soap_acti
 	if (endpoint)
 		soap_endpoint = endpoint;
 	if (soap_endpoint == NULL)
-		soap_endpoint = "http://localhost/bossn/ws/bossn.1cws";
+		soap_endpoint = "http://192.168.0.17/bossn/ws/bossn.1cws";
 	if (soap_action == NULL)
 		soap_action = "http://localhost/bossn#bossn:Appeared";
 	soap->encodingStyle = NULL;
@@ -706,7 +707,7 @@ int bossnSoapBindingProxy::send_ExchangeResponse_(const char *endpoint, const ch
 	if (endpoint)
 		soap_endpoint = endpoint;
 	if (soap_endpoint == NULL)
-		soap_endpoint = "http://localhost/bossn/ws/bossn.1cws";
+		soap_endpoint = "http://192.168.0.17/bossn/ws/bossn.1cws";
 	if (soap_action == NULL)
 		soap_action = "http://localhost/bossn#bossn:ExchangeResponse";
 	soap->encodingStyle = NULL;
@@ -767,7 +768,7 @@ int bossnSoapBindingProxy::Exchange_(const char *endpoint, const char *soap_acti
 	if (endpoint)
 		soap_endpoint = endpoint;
 	if (soap_endpoint == NULL)
-		soap_endpoint = "http://localhost/bossn/ws/bossn.1cws";
+		soap_endpoint = "http://192.168.0.17/bossn/ws/bossn.1cws";
 	if (soap_action == NULL)
 		soap_action = "http://localhost/bossn#bossn:Exchange";
 	soap->encodingStyle = NULL;
@@ -821,7 +822,7 @@ int bossnSoapBindingProxy::send_AcceptResponse_(const char *endpoint, const char
 	if (endpoint)
 		soap_endpoint = endpoint;
 	if (soap_endpoint == NULL)
-		soap_endpoint = "http://localhost/bossn/ws/bossn.1cws";
+		soap_endpoint = "http://192.168.0.17/bossn/ws/bossn.1cws";
 	if (soap_action == NULL)
 		soap_action = "http://localhost/bossn#bossn:AcceptResponse";
 	soap->encodingStyle = NULL;
@@ -882,7 +883,7 @@ int bossnSoapBindingProxy::Accept_(const char *endpoint, const char *soap_action
 	if (endpoint)
 		soap_endpoint = endpoint;
 	if (soap_endpoint == NULL)
-		soap_endpoint = "http://localhost/bossn/ws/bossn.1cws";
+		soap_endpoint = "http://192.168.0.17/bossn/ws/bossn.1cws";
 	if (soap_action == NULL)
 		soap_action = "http://localhost/bossn#bossn:Accept";
 	soap->encodingStyle = NULL;
@@ -936,7 +937,7 @@ int bossnSoapBindingProxy::send_DisappearedResponse_(const char *endpoint, const
 	if (endpoint)
 		soap_endpoint = endpoint;
 	if (soap_endpoint == NULL)
-		soap_endpoint = "http://localhost/bossn/ws/bossn.1cws";
+		soap_endpoint = "http://192.168.0.17/bossn/ws/bossn.1cws";
 	if (soap_action == NULL)
 		soap_action = "http://localhost/bossn#bossn:DisappearedResponse";
 	soap->encodingStyle = NULL;
@@ -997,7 +998,7 @@ int bossnSoapBindingProxy::Disappeared_(const char *endpoint, const char *soap_a
 	if (endpoint)
 		soap_endpoint = endpoint;
 	if (soap_endpoint == NULL)
-		soap_endpoint = "http://localhost/bossn/ws/bossn.1cws";
+		soap_endpoint = "http://192.168.0.17/bossn/ws/bossn.1cws";
 	if (soap_action == NULL)
 		soap_action = "http://localhost/bossn#bossn:Disappeared";
 	soap->encodingStyle = NULL;

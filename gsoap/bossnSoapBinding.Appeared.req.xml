@@ -4,6 +4,7 @@
  xmlns:SOAP-ENC="http://www.w3.org/2003/05/soap-encoding"
  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+ xmlns:ns2="http://www.skifcorp.com.ua"
  xmlns:ns1="http://localhost/bossn">
  <SOAP-ENV:Body>
    <ns1:Appeared>

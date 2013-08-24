@@ -1,241 +1,205 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<definitions xmlns="http://schemas.xmlsoap.org/wsdl/"
-		xmlns:soap12bind="http://schemas.xmlsoap.org/wsdl/soap12/"
-		xmlns:soapbind="http://schemas.xmlsoap.org/wsdl/soap/"
-		xmlns:tns="http://localhost/bossn"
-		xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-		xmlns:xsd1="http://localhost/bossn"
-		name="bossn"
-		targetNamespace="http://localhost/bossn">
-	<types>
-		<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
-				xmlns:xs1="http://localhost/bossn"
-				targetNamespace="http://localhost/bossn"
-				elementFormDefault="qualified">
-			<xs:element name="Appeared">
-				<xs:complexType>
-					<xs:sequence>
-						<xs:element name="platformId"
-								type="xs:string"/>
-					</xs:sequence>
-				</xs:complexType>
-			</xs:element>
-			<xs:element name="AppearedResponse">
-				<xs:complexType>
-					<xs:sequence>
-						<xs:element name="return"
-								type="xs:boolean"/>
-					</xs:sequence>
-				</xs:complexType>
-			</xs:element>
-			<xs:element name="Exchange">
-				<xs:complexType>
-					<xs:sequence>
-						<xs:element name="param"
-								type="xs:string"/>
-						<xs:element name="platformId"
-								type="xs:string"/>
-						<xs:element name="RFID_UID"
-								type="xs:string"/>
-					</xs:sequence>
-				</xs:complexType>
-			</xs:element>
-			<xs:element name="ExchangeResponse">
-				<xs:complexType>
-					<xs:sequence>
-						<xs:element name="return"
-								type="xs:string"/>
-					</xs:sequence>
-				</xs:complexType>
-			</xs:element>
-			<xs:element name="Accept">
-				<xs:complexType>
-					<xs:sequence>
-						<xs:element name="flag"
-								type="xs:boolean"/>
-						<xs:element name="platformId"
-								type="xs:string"/>
-					</xs:sequence>
-				</xs:complexType>
-			</xs:element>
-			<xs:element name="AcceptResponse">
-				<xs:complexType>
-					<xs:sequence>
-						<xs:element name="return"
-								type="xs:string"/>
-					</xs:sequence>
-				</xs:complexType>
-			</xs:element>
-			<xs:element name="Disappeared">
-				<xs:complexType>
-					<xs:sequence>
-						<xs:element name="platformId"
-								type="xs:string"/>
-					</xs:sequence>
-				</xs:complexType>
-			</xs:element>
-			<xs:element name="DisappearedResponse">
-				<xs:complexType>
-					<xs:sequence>
-						<xs:element name="return"
-								type="xs:boolean"/>
-					</xs:sequence>
-				</xs:complexType>
-			</xs:element>
-		</xs:schema>
-	</types>
-	<message name="AppearedRequestMessage">
-		<part name="parameters"
-				element="tns:Appeared"/>
-	</message>
-	<message name="AppearedResponseMessage">
-		<part name="parameters"
-				element="tns:AppearedResponse"/>
-	</message>
-	<message name="ExchangeRequestMessage">
-		<part name="parameters"
-				element="tns:Exchange"/>
-	</message>
-	<message name="ExchangeResponseMessage">
-		<part name="parameters"
-				element="tns:ExchangeResponse"/>
-	</message>
-	<message name="AcceptRequestMessage">
-		<part name="parameters"
-				element="tns:Accept"/>
-	</message>
-	<message name="AcceptResponseMessage">
-		<part name="parameters"
-				element="tns:AcceptResponse"/>
-	</message>
-	<message name="DisappearedRequestMessage">
-		<part name="parameters"
-				element="tns:Disappeared"/>
-	</message>
-	<message name="DisappearedResponseMessage">
-		<part name="parameters"
-				element="tns:DisappearedResponse"/>
-	</message>
-	<portType name="bossnPortType">
-		<operation name="Appeared">
-			<input message="tns:AppearedRequestMessage"/>
-			<output message="tns:AppearedResponseMessage"/>
-		</operation>
-		<operation name="Exchange">
-			<input message="tns:ExchangeRequestMessage"/>
-			<output message="tns:ExchangeResponseMessage"/>
-		</operation>
-		<operation name="Accept">
-			<input message="tns:AcceptRequestMessage"/>
-			<output message="tns:AcceptResponseMessage"/>
-		</operation>
-		<operation name="Disappeared">
-			<input message="tns:DisappearedRequestMessage"/>
-			<output message="tns:DisappearedResponseMessage"/>
-		</operation>
-	</portType>
-	<binding name="bossnSoapBinding"
-			type="tns:bossnPortType">
-		<soapbind:binding style="document"
-				transport="http://schemas.xmlsoap.org/soap/http"/>
-		<operation name="Appeared">
-			<soapbind:operation style="document"
-					soapAction="http://localhost/bossn#bossn:Appeared"/>
-			<input>
-				<soapbind:body use="literal"/>
-			</input>
-			<output>
-				<soapbind:body use="literal"/>
-			</output>
-		</operation>
-		<operation name="Exchange">
-			<soapbind:operation style="document"
-					soapAction="http://localhost/bossn#bossn:Exchange"/>
-			<input>
-				<soapbind:body use="literal"/>
-			</input>
-			<output>
-				<soapbind:body use="literal"/>
-			</output>
-		</operation>
-		<operation name="Accept">
-			<soapbind:operation style="document"
-					soapAction="http://localhost/bossn#bossn:Accept"/>
-			<input>
-				<soapbind:body use="literal"/>
-			</input>
-			<output>
-				<soapbind:body use="literal"/>
-			</output>
-		</operation>
-		<operation name="Disappeared">
-			<soapbind:operation style="document"
-					soapAction="http://localhost/bossn#bossn:Disappeared"/>
-			<input>
-				<soapbind:body use="literal"/>
-			</input>
-			<output>
-				<soapbind:body use="literal"/>
-			</output>
-		</operation>
-	</binding>
-	<binding name="bossnSoap12Binding"
-			type="tns:bossnPortType">
-		<soap12bind:binding style="document"
-				transport="http://schemas.xmlsoap.org/soap/http"/>
-		<operation name="Appeared">
-			<soap12bind:operation style="document"
-					soapAction="http://localhost/bossn#bossn:Appeared"/>
-			<input>
-				<soap12bind:body use="literal"/>
-			</input>
-			<output>
-				<soap12bind:body use="literal"/>
-			</output>
-		</operation>
-		<operation name="Exchange">
-			<soap12bind:operation style="document"
-					soapAction="http://localhost/bossn#bossn:Exchange"/>
-			<input>
-				<soap12bind:body use="literal"/>
-			</input>
-			<output>
-				<soap12bind:body use="literal"/>
-			</output>
-		</operation>
-		<operation name="Accept">
-			<soap12bind:operation style="document"
-					soapAction="http://localhost/bossn#bossn:Accept"/>
-			<input>
-				<soap12bind:body use="literal"/>
-			</input>
-			<output>
-				<soap12bind:body use="literal"/>
-			</output>
-		</operation>
-		<operation name="Disappeared">
-			<soap12bind:operation style="document"
-					soapAction="http://localhost/bossn#bossn:Disappeared"/>
-			<input>
-				<soap12bind:body use="literal"/>
-			</input>
-			<output>
-				<soap12bind:body use="literal"/>
-			</output>
-		</operation>
-	</binding>
-	<service name="bossn">
-		<port name="bossnSoap"
-				binding="tns:bossnSoapBinding">
-			<documentation> 
-				<wsi:Claim xmlns:wsi="http://ws-i.org/schemas/conformanceClaim/"
-						conformsTo="http://ws-i.org/profiles/basic/1.1"/>
-			</documentation>
-			<soapbind:address location="http://localhost/bossn/ws/bossn.1cws"/>
-		</port>
-		<port name="bossnSoap12"
-				binding="tns:bossnSoap12Binding">
-			<soap12bind:address location="http://localhost/bossn/ws/bossn.1cws"/>
-		</port>
-	</service>
+<definitions xmlns="http://schemas.xmlsoap.org/wsdl/" xmlns:soap12bind="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:soapbind="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tns="http://localhost/bossn" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsd1="http://www.skifcorp.com.ua" xmlns:xsd2="http://localhost/bossn" name="bossn" targetNamespace="http://localhost/bossn">
+<types>
+<xs:schema xmlns:tns="http://www.skifcorp.com.ua" xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.skifcorp.com.ua" attributeFormDefault="unqualified" elementFormDefault="qualified">
+<xs:complexType name="TagsList">
+<xs:sequence>
+<xs:element name="tags" type="xs:string"/>
+<xs:element name="additional" type="xs:string"/>
+</xs:sequence>
+</xs:complexType>
+</xs:schema>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xs1="http://www.skifcorp.com.ua" xmlns:xs2="http://localhost/bossn" targetNamespace="http://localhost/bossn" elementFormDefault="qualified">
+<xs:import namespace="http://www.skifcorp.com.ua"/>
+<xs:element name="Appeared">
+<xs:complexType>
+<xs:sequence>
+<xs:element name="platformId" type="xs:string"/>
+</xs:sequence>
+</xs:complexType>
+</xs:element>
+<xs:element name="AppearedResponse">
+<xs:complexType>
+<xs:sequence>
+<xs:element name="return" type="xs:boolean"/>
+</xs:sequence>
+</xs:complexType>
+</xs:element>
+<xs:element name="Exchange">
+<xs:complexType>
+<xs:sequence>
+<xs:element name="param" type="xs:string"/>
+<xs:element name="platformId" type="xs:string"/>
+<xs:element name="RFID_UID" type="xs:string"/>
+</xs:sequence>
+</xs:complexType>
+</xs:element>
+<xs:element name="ExchangeResponse">
+<xs:complexType>
+<xs:sequence>
+<xs:element name="return" type="xs1:TagsList"/>
+</xs:sequence>
+</xs:complexType>
+</xs:element>
+<xs:element name="Accept">
+<xs:complexType>
+<xs:sequence>
+<xs:element name="flag" type="xs:boolean"/>
+<xs:element name="platformId" type="xs:string"/>
+</xs:sequence>
+</xs:complexType>
+</xs:element>
+<xs:element name="AcceptResponse">
+<xs:complexType>
+<xs:sequence>
+<xs:element name="return" type="xs:string"/>
+</xs:sequence>
+</xs:complexType>
+</xs:element>
+<xs:element name="Disappeared">
+<xs:complexType>
+<xs:sequence>
+<xs:element name="platformId" type="xs:string"/>
+</xs:sequence>
+</xs:complexType>
+</xs:element>
+<xs:element name="DisappearedResponse">
+<xs:complexType>
+<xs:sequence>
+<xs:element name="return" type="xs:boolean"/>
+</xs:sequence>
+</xs:complexType>
+</xs:element>
+</xs:schema>
+</types>
+<message name="AppearedRequestMessage">
+<part name="parameters" element="tns:Appeared"/>
+</message>
+<message name="AppearedResponseMessage">
+<part name="parameters" element="tns:AppearedResponse"/>
+</message>
+<message name="ExchangeRequestMessage">
+<part name="parameters" element="tns:Exchange"/>
+</message>
+<message name="ExchangeResponseMessage">
+<part name="parameters" element="tns:ExchangeResponse"/>
+</message>
+<message name="AcceptRequestMessage">
+<part name="parameters" element="tns:Accept"/>
+</message>
+<message name="AcceptResponseMessage">
+<part name="parameters" element="tns:AcceptResponse"/>
+</message>
+<message name="DisappearedRequestMessage">
+<part name="parameters" element="tns:Disappeared"/>
+</message>
+<message name="DisappearedResponseMessage">
+<part name="parameters" element="tns:DisappearedResponse"/>
+</message>
+<portType name="bossnPortType">
+<operation name="Appeared">
+<input message="tns:AppearedRequestMessage"/>
+<output message="tns:AppearedResponseMessage"/>
+</operation>
+<operation name="Exchange">
+<input message="tns:ExchangeRequestMessage"/>
+<output message="tns:ExchangeResponseMessage"/>
+</operation>
+<operation name="Accept">
+<input message="tns:AcceptRequestMessage"/>
+<output message="tns:AcceptResponseMessage"/>
+</operation>
+<operation name="Disappeared">
+<input message="tns:DisappearedRequestMessage"/>
+<output message="tns:DisappearedResponseMessage"/>
+</operation>
+</portType>
+<binding name="bossnSoapBinding" type="tns:bossnPortType">
+<soapbind:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+<operation name="Appeared">
+<soapbind:operation style="document" soapAction="http://localhost/bossn#bossn:Appeared"/>
+<input>
+<soapbind:body use="literal"/>
+</input>
+<output>
+<soapbind:body use="literal"/>
+</output>
+</operation>
+<operation name="Exchange">
+<soapbind:operation style="document" soapAction="http://localhost/bossn#bossn:Exchange"/>
+<input>
+<soapbind:body use="literal"/>
+</input>
+<output>
+<soapbind:body use="literal"/>
+</output>
+</operation>
+<operation name="Accept">
+<soapbind:operation style="document" soapAction="http://localhost/bossn#bossn:Accept"/>
+<input>
+<soapbind:body use="literal"/>
+</input>
+<output>
+<soapbind:body use="literal"/>
+</output>
+</operation>
+<operation name="Disappeared">
+<soapbind:operation style="document" soapAction="http://localhost/bossn#bossn:Disappeared"/>
+<input>
+<soapbind:body use="literal"/>
+</input>
+<output>
+<soapbind:body use="literal"/>
+</output>
+</operation>
+</binding>
+<binding name="bossnSoap12Binding" type="tns:bossnPortType">
+<soap12bind:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+<operation name="Appeared">
+<soap12bind:operation style="document" soapAction="http://localhost/bossn#bossn:Appeared"/>
+<input>
+<soap12bind:body use="literal"/>
+</input>
+<output>
+<soap12bind:body use="literal"/>
+</output>
+</operation>
+<operation name="Exchange">
+<soap12bind:operation style="document" soapAction="http://localhost/bossn#bossn:Exchange"/>
+<input>
+<soap12bind:body use="literal"/>
+</input>
+<output>
+<soap12bind:body use="literal"/>
+</output>
+</operation>
+<operation name="Accept">
+<soap12bind:operation style="document" soapAction="http://localhost/bossn#bossn:Accept"/>
+<input>
+<soap12bind:body use="literal"/>
+</input>
+<output>
+<soap12bind:body use="literal"/>
+</output>
+</operation>
+<operation name="Disappeared">
+<soap12bind:operation style="document" soapAction="http://localhost/bossn#bossn:Disappeared"/>
+<input>
+<soap12bind:body use="literal"/>
+</input>
+<output>
+<soap12bind:body use="literal"/>
+</output>
+</operation>
+</binding>
+<service name="bossn">
+<port name="bossnSoap" binding="tns:bossnSoapBinding">
+<documentation>
+<wsi:Claim xmlns:wsi="http://ws-i.org/schemas/conformanceClaim/" conformsTo="http://ws-i.org/profiles/basic/1.1"/>
+</documentation>
+<soapbind:address location="http://192.168.0.17/bossn/ws/bossn.1cws"/>
+</port>
+<port name="bossnSoap12" binding="tns:bossnSoap12Binding">
+<soap12bind:address location="http://192.168.0.17/bossn/ws/bossn.1cws"/>
+</port>
+</service>
 </definitions>

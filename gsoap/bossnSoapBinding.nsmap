@@ -6,6 +6,7 @@ SOAP_NMAC struct Namespace namespaces[] =
 	{"SOAP-ENC", "http://www.w3.org/2003/05/soap-encoding", "http://schemas.xmlsoap.org/soap/encoding/", NULL},
 	{"xsi", "http://www.w3.org/2001/XMLSchema-instance", "http://www.w3.org/*/XMLSchema-instance", NULL},
 	{"xsd", "http://www.w3.org/2001/XMLSchema", "http://www.w3.org/*/XMLSchema", NULL},
+	{"ns2", "http://www.skifcorp.com.ua", NULL, NULL},
 	{"ns1", "http://localhost/bossn", NULL, NULL},
 	{NULL, NULL, NULL, NULL}
 };
