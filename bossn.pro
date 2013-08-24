@@ -33,7 +33,7 @@ QMAKE_CXXFLAGS += -std=gnu++1y -Og #--param ggc-min-expand=10 --param ggc-min-he
 
 #QMAKE_CXXFLAGS -= -pipe
 
-DEFINES += FUSION_MAX_VECTOR_SIZE=40 DEBUG #SOAP_MEM_DEBUG
+DEFINES += FUSION_MAX_VECTOR_SIZE=40 #DEBUG #SOAP_MEM_DEBUG
 
 #\
 #           BOOST_FUSION_INVOKE_MAX_ARITY=30                   \

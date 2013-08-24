@@ -918,7 +918,7 @@ void WebServiceSequence::setSettings(const QVariantMap & s)
 
     photo_base_path_arg_name  = get_setting<QString>("photo_base_path_arg_name", s, "photo_dir");
     photo_rel_path_arg_name   = get_setting<QString>("photo_rel_path_arg_name", s, "jpeg_dir");
-    photo_file_base_name      = get_setting<QString>("photo_rel_path_arg_name", s, "jpeg_file");
+    photo_file_base_name      = get_setting<QString>("photo_file_base_name", s, "jpeg_file");
 
     setObjectName( "MainSequence num: " + QString::number(seq_id) );
 
@@ -1378,11 +1378,21 @@ void WebServiceSequence::makePhoto(const QString& photo_abs_path, const QString&
 //    QString str_input = get_setting<QString>("photo_dir", wc) + "\\" + QString::number(num_nakl) + "_"
 //            + platform_type + "_" + get_setting<QString>("channel_alias", enter_photo);
 
-    QFileInfo enter_file( photo_abs_path, "entr_" + photo_file_base_name + get_setting<QString>("channel_alias", enter_photo) );
-    QFileInfo exit_file ( photo_abs_path, "exit_" + photo_file_base_name + get_setting<QString>("channel_alias", exit_photo) );
+    QFileInfo enter_file( photo_abs_path, photo_file_base_name + get_setting<QString>("channel_alias", enter_photo) );
+    QFileInfo exit_file ( photo_abs_path,  photo_file_base_name + get_setting<QString>("channel_alias", exit_photo) );
 
-    capture.grabPhoto(enter_file.absoluteFilePath().toStdWString().c_str(),
+    QString entr_path = QDir::toNativeSeparators(  enter_file.absoluteFilePath() );
+    QString exit_path = QDir::toNativeSeparators(  exit_file.absoluteFilePath() );
+
+    //qDebug() << "enter_file name: " << entr_path;
+    //qDebug() << "enter_file name: " << exit_path;
+
+    auto pw1 = entr_path.toStdWString();
+    auto pw2 = exit_path.toStdWString();
+
+    capture.grabPhoto(pw1.c_str(),
                       get_setting<QString>("channel_num", enter_photo ).toInt());
-    capture.grabPhoto(exit_file.absoluteFilePath().toStdWString().c_str() ,
+
+    capture.grabPhoto(pw2.c_str() ,
                       get_setting<QString>("channel_num", exit_photo).toInt());
 }
