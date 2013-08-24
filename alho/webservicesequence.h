@@ -13,6 +13,7 @@
 #include <QCoreApplication>
 
 #include <memory>
+#include <tuple>
 
 class MifareCardSector;
 
@@ -254,7 +255,13 @@ private:
     QVariantMap enter_photo;
     CapturePhoto capture;
 
-    void makePhotoIfNeeded(const QString& photo_rel_path);
+    void makePhoto(const QString&, const QString& );
+    QString photo_base_path_arg_name;
+    QString photo_rel_path_arg_name;
+    QString photo_file_base_name;
+
+    std::tuple<QString, QString, QString> tryGetPhotoPathes( const QMap<QString, QString>&  ) const;
+    QString getPhotoFullPathCreatingSubdirs( const QString&, const QString&  );
 };
 
 

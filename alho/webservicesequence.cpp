@@ -14,6 +14,7 @@
 #include <QTcpSocket>
 #include <QHostAddress>
 #include <QTextStream>
+#include <QDir>
 
 #include <sstream>
 #include <iosfwd>
@@ -716,42 +717,8 @@ public:
 
     }
 
-    QString exchangeData(const QString& s, const QString& platform_id, const QString& uid, const char * userid, const char * passwd)
+    std::pair<QString, QString> exchangeData(const QString& s, const QString& platform_id, const QString& uid, const char * userid, const char * passwd)
     {
-/*        std::shared_ptr<WebServiceAsync> cur_fake_source_guard( this , [&](WebServiceAsync * wsa){
-            wsa->cur_fake_source = nullptr;
-        } ); Q_UNUSED(cur_fake_source_guard);
-
-        terminating_ = false;
-
-        Q_ASSERT( !cur_fake_source );
-
-        AutoDestroybossnSoapBindingProxy proxy(coro_, ip_, userid, passwd );
-
-        cur_fake_source = &proxy.source();
-
-        _ns1__Exchange arg;
-        _ns1__ExchangeResponse resp;
-
-
-        arg.param = s.toStdString();
-        arg.platformId = platform_id.toStdString();
-        arg.RFID_USCOREUID = uid.toStdString();
-
-        int ret = proxy.Exchange( &arg, &resp );
-
-        if ( cur_fake_source->isTerminating() ) {
-            return QString();
-        }
-
-        if ( ret != SOAP_OK ) {
-            cur_fake_source->exception();
-
-            throw MainSequenceException( gsoap_data_exchange_request_error, "Error in request data: " +
-                                         QString::number(ret), "");
-        }
-
-        return QString::fromUtf8( resp.return_.c_str() );*/
         _ns1__ExchangeResponse resp;
         try {
             makeCall( [&](AutoDestroybossnSoapBindingProxy& proxy){
@@ -768,7 +735,8 @@ public:
             throw MainSequenceException( gsoap_data_exchange_request_error, "1: Error in request data: " +
                                          QString::number(ex.errorCode()), "");
         }
-        return QString::fromUtf8( resp.return_.c_str() );
+        return  std::make_pair( QString::fromUtf8( resp.return_->tags.c_str() ),
+                                QString::fromUtf8( resp.return_->additional.c_str() ) );
     }
 
     void acceptedCardResult( bool res, const QString& platform_id, const char * userid, const char * passwd )
@@ -948,6 +916,10 @@ void WebServiceSequence::setSettings(const QVariantMap & s)
         enter_photo                         = get_setting<QVariantMap>("enter_photo", s);
     }
 
+    photo_base_path_arg_name  = get_setting<QString>("photo_base_path_arg_name", s, "photo_dir");
+    photo_rel_path_arg_name   = get_setting<QString>("photo_rel_path_arg_name", s, "jpeg_dir");
+    photo_file_base_name      = get_setting<QString>("photo_rel_path_arg_name", s, "jpeg_file");
+
     setObjectName( "MainSequence num: " + QString::number(seq_id) );
 
     restart();
@@ -1053,7 +1025,10 @@ void WebServiceSequence::run()
             QByteArray userid = userid_.toAscii();
             QByteArray passwd = passwd_.toAscii();
 
-            QString ret_data = was.exchangeData( mapToString( getSimpleTagsValues(  ) ) +
+            QString ret_data;
+            QString add_data;
+            std::tie(ret_data, add_data) =
+                    was.exchangeData( mapToString( getSimpleTagsValues(  ) ) +
                         ",\n" + getReaderBytes(card), QString::number(seqId()),
                         byteArrayToString(act.first.uid, 16, ""), userid.data(), passwd.data() );
 
@@ -1067,7 +1042,7 @@ void WebServiceSequence::run()
             }
 
             printOnDisplay( ret_data );
-
+            printOnDisplay( add_data );
 
 
             if ( ret_data == "-1" ) {
@@ -1076,7 +1051,18 @@ void WebServiceSequence::run()
 
             try {
                 QMap<QString, QString> ret =  stringToMap(ret_data);
-                writeTagsValues( ret, card );                
+                writeTagsValues( ret, card );
+
+                QMap<QString, QString> add_map = stringToMap(add_data);
+                QString photo_base_path, photo_rel_path, photo_file_path;
+
+                std::tie(photo_base_path, photo_rel_path, photo_file_path)= tryGetPhotoPathes( add_map );
+
+                if ( !photo_base_path.isEmpty() && !photo_rel_path.isEmpty() && !photo_file_path.isEmpty() ) {
+                    QString photo_abs_path = getPhotoFullPathCreatingSubdirs( photo_base_path, photo_rel_path );
+                    if ( !photo_abs_path.isEmpty() )
+                        makePhoto( photo_abs_path,  photo_file_path);
+                }
             }
             catch ( const MifareCardWriteException& ) {
                 was.acceptedCardResult(false, QString::number(seqId()), userid.data(), passwd.data());
@@ -1334,16 +1320,69 @@ void WebServiceSequence::writeTagsValues( const QMap<QString, QString>& m, Mifar
 }
 
 
-
-void WebServiceSequence::makePhotoIfNeeded(const QString& photo_rel_path)
+std::tuple<QString, QString, QString> WebServiceSequence::tryGetPhotoPathes( const QMap<QString, QString>& args ) const
 {
-    if (!uses_photo) return;
+    std::tuple<QString, QString, QString> ret;
 
+    {
+        auto iter = args.find(photo_base_path_arg_name);
+        if (  iter == args.end() ) return ret;
+        std::get<0>(ret) = *iter;
+    }
+
+    {
+        auto iter = args.find(photo_rel_path_arg_name);
+        if (  iter == args.end() ) return ret;
+        std::get<1>(ret) = *iter;
+    }
+
+    {
+        auto iter = args.find(photo_file_base_name);
+        if (  iter == args.end() ) return ret;
+        std::get<2>(ret) = *iter;
+    }
+
+
+    return ret;
+}
+
+
+QString WebServiceSequence::getPhotoFullPathCreatingSubdirs(const QString& photo_base_path, const QString& photo_rel_path )
+{
+    QDir base_dir(photo_base_path);
+
+    if ( !base_dir.exists()  ) {
+        seqWarning() << "photo_base_path " << photo_base_path << " doesnt exists";
+        return QString();
+    }
+
+    if ( !base_dir.mkpath( photo_rel_path ) ) {
+        seqWarning() << "cant create " << photo_rel_path << " in photo_base_path " << photo_base_path;
+        return QString();
+    }
+
+    base_dir.cd( photo_rel_path );
+
+    return base_dir.path();
+}
+
+
+void WebServiceSequence::makePhoto(const QString& photo_abs_path, const QString& photo_file_base_name)
+{
+    if (!uses_photo) {
+        seqWarning() << "whant photo: " << photo_abs_path << " but uses_photo is false!!!";
+        return;
+    }
 //    QString str_exit  = get_setting<QString>("photo_dir", wc) + "\\" + QString::number(num_nakl) + "_"
 //            + platform_type + "_" + get_setting<QString>("channel_alias", exit_photo);
 //    QString str_input = get_setting<QString>("photo_dir", wc) + "\\" + QString::number(num_nakl) + "_"
 //            + platform_type + "_" + get_setting<QString>("channel_alias", enter_photo);
 
-//    capture.grabPhoto(str_exit.toStdWString().c_str()  , get_setting<QString>("channel_num", exit_photo ).toInt());
-//    capture.grabPhoto(str_input.toStdWString().c_str() , get_setting<QString>("channel_num", enter_photo).toInt());
+    QFileInfo enter_file( photo_abs_path, "entr_" + photo_file_base_name + get_setting<QString>("channel_alias", enter_photo) );
+    QFileInfo exit_file ( photo_abs_path, "exit_" + photo_file_base_name + get_setting<QString>("channel_alias", exit_photo) );
+
+    capture.grabPhoto(enter_file.absoluteFilePath().toStdWString().c_str(),
+                      get_setting<QString>("channel_num", enter_photo ).toInt());
+    capture.grabPhoto(exit_file.absoluteFilePath().toStdWString().c_str() ,
+                      get_setting<QString>("channel_num", exit_photo).toInt());
 }
