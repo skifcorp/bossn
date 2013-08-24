@@ -151,7 +151,8 @@ SOURCES +=  \
     weight/SysTecIT3000.cpp \
     weight/VP05.cpp \
     display/displayposua.cpp \
-    weight/swedaSW320.cpp
+    weight/swedaSW320.cpp \
+    weight/elevatorpromservis.cpp
 
 HEADERS +=   reader/mifarereaderemulator.h \
     tools/func.h \
@@ -254,7 +255,8 @@ HEADERS +=   reader/mifarereaderemulator.h \
     weight/SysTecIT3000.h \
     weight/VP05.h \
     display/displayposua.h \
-    weight/swedaSW320.h
+    weight/swedaSW320.h \
+    weight/elevatorpromservis.h
 
 
 RESOURCES += bossn.qrc
