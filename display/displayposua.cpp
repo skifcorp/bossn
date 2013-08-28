@@ -24,11 +24,11 @@ QVariant DisplayPosua::printText(const QVariant & txt)
     int kvoSymb;
 
     QByteArray command;
-    //очистити 
+    
     command.append(0x0c);
-    //друкуємо текст
-    if (text.size() > 20){
-    kvoSymb = 20;
+    
+    if (text.size() > 40){
+    kvoSymb = 40;
     }
     else {
     kvoSymb = text.size();
@@ -54,10 +54,10 @@ int DisplayPosua::RusToDisplay(QChar s)
    //qDebug() << "ch:" << s << "cod:" << cod;
     //unicod to Shift-JIS
 	
-   //ураїнська I
+   
    if ( cod == 1030 || cod == 178) {
      return 124;
-   } //ураїнська Ї
+   } 
    else if (cod == 1031 || cod == 175) {
      return 255;
    }
