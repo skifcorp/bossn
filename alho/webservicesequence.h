@@ -18,6 +18,7 @@
 class MifareCardSector;
 
 class GsoapSource;
+class GsoapBlockingSource;
 
 class BlockDataImp;
 
@@ -134,8 +135,6 @@ public:
     void exechange(const QString& ip, int);
 private:
     GsoapSource & source_;
-    //QTcpSocket socket_;
-    //QTimer timeout_timer;
 private slots:
     void onConnected();
     //void onDisconnected();
@@ -181,10 +180,27 @@ private:
     }
 };
 
+
+
+class SocketHelperWithBlocking
+{
+public:
+    SocketHelperWithBlocking(GsoapBlockingSource & );
+    ~SocketHelperWithBlocking();
+    void exechange(const QString& ip, int);
+private:
+    GsoapBlockingSource & source_;
+private:
+};
+
+
 class WebServiceAcyncDeinitializer;
-class WebServiceAsync;
+//class WebServiceAsync;
 
 enum class CardReaderWebProtocol{Defaulted, Numbered};
+
+template <class RealSource>
+class WebServiceAsync;
 
 class WebServiceSequence : public MainSequenceBaseOp
 {
@@ -240,7 +256,7 @@ private:
     void writeTagsValues( const QMap<QString, QString>& , MifareCardSector&   );
     void writeReaderBytes( const QString&, MifareCardSector&  card );
 
-    WebServiceAsync * cur_webservice_async = nullptr;
+    WebServiceAsync<GsoapSource> * cur_webservice_async = nullptr;
 
     static QString tr2(const char * s)
     {

@@ -65,6 +65,7 @@ static const char * connect_to_service_server_error        = QT_TRANSLATE_NOOP("
 static const char * connect_to_service_server_timeout      = QT_TRANSLATE_NOOP("MainSequence", "Connect to service server timeout");
 static const char * read_from_service_server_error         = QT_TRANSLATE_NOOP("MainSequence", "Read from service server error");
 static const char * read_from_service_server_timeout       = QT_TRANSLATE_NOOP("MainSequence", "Read from service server timeout");
+static const char * write_to_service_server_error          = QT_TRANSLATE_NOOP("MainSequence", "Write to service server error");
 
 static const char * gsoap_data_exchange_request_error      = QT_TRANSLATE_NOOP("MainSequence", "Gsoap data exchange request error");
 static const char * gsoap_accept_card_result_request_error = QT_TRANSLATE_NOOP("MainSequence", "Gsoap accept card result request error request error");
@@ -154,6 +155,7 @@ inline void remove_unsued_warning()
     Q_UNUSED(connect_to_service_server_timeout);
     Q_UNUSED(read_from_service_server_error);
     Q_UNUSED(read_from_service_server_timeout);
+    Q_UNUSED(write_to_service_server_error);
 
     Q_UNUSED(gsoap_data_exchange_request_error);
     Q_UNUSED(gsoap_accept_card_result_request_error);
