@@ -249,14 +249,17 @@ void DefaultedBlocksData::fromString( const QString& string_data )
 
     std::unique_ptr<BlockData> bd1 = std::unique_ptr<BlockData>(new DefaultedBlockData() );
     bd1->fromString( b1 );
+    bd1->setBlockNum(block_num1);
     data_list.push_back( std::move(bd1) );
 
     std::unique_ptr<BlockData> bd2 = std::unique_ptr<BlockData>(new DefaultedBlockData() );
     bd2->fromString( b2 );
+    bd2->setBlockNum(block_num2);
     data_list.push_back( std::move(bd2) );
 
     std::unique_ptr<BlockData> bd3 = std::unique_ptr<BlockData>(new DefaultedBlockData() );
     bd3->fromString( b3 );
+    bd3->setBlockNum(block_num3);
     data_list.push_back( std::move(bd3) );
 }
 
