@@ -58,19 +58,19 @@ void Schedul::coro_deleter_for_external_coro(Coroutine2 *)
 
 void Schedul::onScheduleTimer()
 {
-    coro->cont();
+    external_coro->cont();
 }
 
 void Schedul::onSchedulerFinished()
 {
-    coro->cont();
+    external_coro->cont();
 }
 
 void Schedul::startScheduleTimer(const QString& func_name)
 {
     schedule_timer.start();
 
-    coro = TrickyCoroPointer (
+    external_coro = TrickyCoroPointer (
                 Coroutine2::build(
                     [this, func_name] {
                         scheduler.startNewCoro(*this, false, false, true,
@@ -86,7 +86,7 @@ void Schedul::startScheduleTimer(const QString& func_name)
 
 void Schedul::setExternalCoro(Coroutine2 * c)
 {
-    coro = TrickyCoroPointer(c, coro_deleter_for_external_coro);
+    external_coro = TrickyCoroPointer(c, coro_deleter_for_external_coro);
 }
 
 Scheduler::Scheduler ()

@@ -43,20 +43,20 @@ public:
     void setExternalCoro(Coroutine2 *);
     void yield()
     {
-        coro->yield();
+        external_coro->yield();
     }
     bool cont()
     {
-        return coro->cont();
+        return external_coro->cont();
     }
     bool running() const
     {
-        return coro->status() == Coroutine2::Stopped;
+        return external_coro->status() == Coroutine2::Stopped;
     }
 
     Coroutine2::Status status() const
     {
-        return coro->status();
+        return external_coro->status();
     }
 
 protected:
@@ -69,7 +69,7 @@ private:
 
 
     QTimer schedule_timer;
-    TrickyCoroPointer coro;
+    TrickyCoroPointer external_coro;
 
 public slots:
     void onScheduleTimer();    
