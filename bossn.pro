@@ -256,7 +256,8 @@ HEADERS +=   reader/mifarereaderemulator.h \
     weight/VP05.h \
     display/displayposua.h \
     weight/swedaSW320.h \
-    weight/elevatorpromservis.h
+    weight/elevatorpromservis.h \
+    tools/fatal_exit.h
 
 
 RESOURCES += bossn.qrc
