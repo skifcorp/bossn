@@ -2,6 +2,7 @@
 
 #include <boost/assert.hpp>
 #include <string>
+#include "fatal_exit.h"
 
 Coroutine2 * Coroutine2::current_coro = nullptr;
 
@@ -22,9 +23,9 @@ Coroutine2::Coroutine2(const string& n, bool root) : coro_name(n)
 Coroutine2::~Coroutine2()
 {
     if ( can_destruct_stopped )
-        BOOST_ASSERT_MSG(  coro_status != Running, currentStatusText().c_str() );
+        fatal_assert(  coro_status != Running, currentStatusText().c_str() );
     else
-        BOOST_ASSERT_MSG(  coro_status == NotStarted || coro_status == Terminated, currentStatusText().c_str() );
+        fatal_assert(  coro_status == NotStarted || coro_status == Terminated, currentStatusText().c_str() );
 
     alloc.deallocate(stack, stack_size);
 }
@@ -32,7 +33,7 @@ Coroutine2::~Coroutine2()
 
 void Coroutine2::coroEntry(intptr_t )
 {
-    BOOST_ASSERT_MSG(current_coro->coro_status == Running, current_coro->currentStatusText().c_str() );
+    fatal_assert(current_coro->coro_status == Running, current_coro->currentStatusText().c_str() );
 
     current_coro->run();
 
@@ -46,7 +47,7 @@ void Coroutine2::initializeContext()
 
 bool Coroutine2::cont()
 {    
-    BOOST_ASSERT_MSG(coro_status == NotStarted || coro_status == Stopped, currentStatusText().c_str() );
+    fatal_assert(coro_status == NotStarted || coro_status == Stopped, currentStatusText().c_str() );
 
     caller = current_coro;
     current_coro = this;
@@ -60,7 +61,7 @@ bool Coroutine2::cont()
 
 void Coroutine2::restart()
 {
-    BOOST_ASSERT_MSG(coro_status == Terminated || coro_status == NotStarted, currentStatusText().c_str() );
+    fatal_assert(coro_status == Terminated || coro_status == NotStarted, currentStatusText().c_str() );
 
     initializeContext();
 
@@ -79,7 +80,7 @@ void Coroutine2::yieldHelper( Status  s )
 
 void Coroutine2::yield()
 {
-    BOOST_ASSERT_MSG( current_coro->coro_status == Running, current_coro->currentStatusText().c_str() );
+    fatal_assert( current_coro->coro_status == Running, current_coro->currentStatusText().c_str() );
 
     yieldHelper( Stopped );
 }
