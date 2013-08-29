@@ -9,6 +9,19 @@
 #include "seqdebug.h"
 #include "mifarecard.h"
 
+
+class TurnableTimer : public QTimer
+{
+    Q_OBJECT
+public:
+    using QTimer::QTimer;
+
+    void setTurnedOn( bool t ) {turned_on = t;}
+    bool turnedOn() const {return turned_on;}
+private:
+    bool turned_on = true;
+};
+
 class MainSequenceBaseOp : public AlhoSequence
 {
     Q_OBJECT
@@ -62,6 +75,8 @@ protected:
     }
     void sleepnb(int msec)
     {
+        if ( !wake_timer.turnedOn() )
+            return;
         wake_timer.setInterval(msec);
         wake_timer.start();
         yield();
@@ -87,7 +102,8 @@ protected:
     const QVariantMap & app_settings;
     Tags & tags;
     MainSequenceSettings  alho_settings;
-    QTimer wake_timer;
+    TurnableTimer wake_timer;
+
     int seq_id = 0;
 protected slots:
     virtual void wakeUp( ) = 0;
