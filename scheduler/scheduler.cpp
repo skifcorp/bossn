@@ -157,12 +157,12 @@ void Scheduler::execFunction(AlhoSequence * caller, function<void ()>schf, funct
 
     startNewCoro(s, true, true, false, tag_name, func_name);
 
-//    qDebug() << "2: !!!!!!!!! exec function: afterStartNewCoro!!!!: " << caller->objectName()
-//             << " func_name: " << current_coro.func_name;
+    //qDebug() << "2: !!!!!!!!! exec function: afterStartNewCoro!!!!: " << QString::fromStdString(caller->coroName())
+    //         << " func_name: " << current_coro.func_name;
 
     while (current_coro.coro && current_coro.coro->status() == Coroutine2::Stopped ) {
-//        qDebug() << "before yeild scheduler "<< tag_name << " func: "<< func_name <<  " wants to sleep! because " << current_coro.tag_name << " "
-//                 << current_coro.func_name << " works" ;
+        //qDebug() << "before yeild scheduler "<< tag_name << " func: "<< func_name <<  " wants to sleep! because " << current_coro.tag_name << " "
+        //         << current_coro.func_name << " works" ;
         s.yield();
         //qDebug() << "scheduler wake up ... status: " <<
         if (current_coro.coro && current_coro.coro->status() == Coroutine2::Stopped) {
@@ -171,7 +171,7 @@ void Scheduler::execFunction(AlhoSequence * caller, function<void ()>schf, funct
         }
     }
 
-//    qDebug () << "3: !!!!!!!!!!! URAAA exec function! exit for : " << caller->objectName();
+    //qDebug () << "3: !!!!!!!!!!! URAAA exec function! exit for : " << QString::fromStdString( caller->coroName() );
 }
 
 
