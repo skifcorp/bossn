@@ -1114,7 +1114,7 @@ void WebServiceSequence::run()
 
             Q_ASSERT(!cur_webservice_async);
 
-            printOnTablo(tr2(processing_message));
+            //printOnTablo(tr2(processing_message));
 
             card.autorize();            
 
