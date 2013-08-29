@@ -25,28 +25,7 @@
 #include <boost/iostreams/categories.hpp>
 #include <boost/thread.hpp>
 
-template <class Stream , class Arg>
-void fatal_exit_imp( Stream && stream, Arg && arg )
-{
-    std::forward<Stream>(stream) << std::forward<Arg>(arg);
-}
-
-template <class Stream, class Arg, class ... Args>
-void fatal_exit_imp(Stream && stream, Arg && arg,  Args&& ... args )
-{
-    std::forward<Stream>(stream) << std::forward<Arg>(arg);
-
-    fatal_exit_imp(std::forward<Stream>(stream), std::forward<Args>(args)...);
-}
-
-
-template <class ... Args>
-void fatal_exit( Args&& ... args )
-{
-    fatal_exit_imp(qWarning(), std::forward<Args>(args) ... );
-
-    qFatal("exit");
-}
+#include "fatal_exit.h"
 
 
 
@@ -376,6 +355,7 @@ public:
                 SocketHelper sh(*this);
                 sh.exechange(ip_, port_);
                 if ( terminate_ ) {
+                    //qDebug() << "in gsoap with terminating flag!!!!!!!!!!";
                     return -1;
                 }
             }
@@ -429,6 +409,8 @@ public:
     void terminate()
     {
         terminate_ = true;  //need manual reset of terminate_
+        //if (coro_.status() != Coroutine2::Stopped)
+        //qDebug() << "before cont!!!";
         coro_.cont();
     }
 
@@ -502,6 +484,10 @@ public:
 
     void terminate()
     {
+        if (!source_) {
+            fatal_exit("big error in fakesource::terminate - source_ is null!!!");
+        }
+
         source_->terminate();
     }
 
@@ -561,12 +547,14 @@ void SocketHelper::exechange(const QString& ip, int port)
     socket_->write( source_.writeBuffer().c_str() );
 
     timeout_timer->start(10000);
-
+    //qDebug() << "socketHelper ->exchange-> after write - waiting for answer!!!!";
     while ( !got_result ) {
+        //qDebug() << "before yield";
         source_.coro().yield();
+        //qDebug() << "after yield";
 
         if ( source_.isTerminating() ) {
-
+            //qDebug() << "terminating flag present!!!!!!!!!";
             return;
         }
     }
@@ -862,6 +850,11 @@ public:
             throw MainSequenceException( gsoap_data_exchange_request_error, "1: Error in request data: " +
                                          QString::number(ex.errorCode()), "");
         }
+
+        if (!resp.return_) {
+            return std::make_pair(QString(), QString());
+        }
+
         return  std::make_pair( QString::fromUtf8( resp.return_->tags.c_str() ),
                                 QString::fromUtf8( resp.return_->additional.c_str() ) );
     }
@@ -929,6 +922,10 @@ public:
     void terminate()
     {
         terminating_ = true;
+        if (!cur_fake_source) {
+            fatal_exit("big error in webserviceasync::terminate - cur_fake_source is null!!!");
+        }
+        //qDebug() << "111111111111";
         cur_fake_source->terminate();
     }
 
@@ -939,7 +936,10 @@ public:
 
         return cur_fake_source->isTerminating(); //ugly hack
     }
-
+    bool isRunning() const
+    {
+        return cur_fake_source != nullptr;
+    }
 private:
     //Coroutine2 & coro_;
     FakeSource<RealSource> * cur_fake_source = nullptr;
@@ -963,8 +963,9 @@ private:
         cur_fake_source = &proxy.source();
 
         int ret = f( proxy );
-
+        //qDebug() << "inMakeCall -> checking terminate_flag!!!!!!!!";
         if ( cur_fake_source->isTerminating() ) {
+            //qDebug() << "inMakeCall -> GOT terminate flag!!!; returning";
             return ;
         }
 
@@ -1128,12 +1129,15 @@ void WebServiceSequence::run()
 
             QString ret_data;
             QString add_data;
+
             std::tie(ret_data, add_data) =
                     was.exchangeData( mapToString( getSimpleTagsValues(  ) ) +
                         ",\n" + getReaderBytes(card), QString::number(seqId()),
                         byteArrayToString(act.first.uid, 16, ""), userid.data(), passwd.data(), *this );
 
+
             if (was.isTerminating()) {
+                //qDebug() << "after excgange with terminate";
                 continue;
             }
 
@@ -1236,7 +1240,7 @@ void WebServiceSequence::run()
 
     disappear_thread.detach();
 
-    seqDebug () << "\n\nexit from onAppearOnWeight!!!!!!!";
+    seqDebug () << "exit from onAppearOnWeight!!!!!!!";
 }
 
 
@@ -1253,19 +1257,23 @@ void WebServiceSequence::onDisappearOnWeight(const QString&, AlhoSequence*)
     seqDebug() << "something disappeared on weight!!!!";
 
     on_weight = false;
-
+    wake_timer.setTurnedOn(false);
     if ( wake_timer.isActive() ) {
         wake_timer.stop();
-
-        if (  status() == Stopped  )
+        //qDebug() << "disap1 ";
+        if (  status() == Stopped  ) {
+            //qDebug() << "disap1.1 ";
             wakeUp();
+            //qDebug() << "disap1.2 ";
+        }
     }
-
-    if (cur_webservice_async) {
+    //qDebug() << "disap2 ";
+    if ( cur_webservice_async && cur_webservice_async->isRunning() ) {
+        //qDebug() << "disap2.1 ";
         cur_webservice_async->terminate();
+        //qDebug() << "disap2.2 ";
     }
-
-    //qDebug( )     << "3";
+    //qDebug() << "disap3 ";
 
     qDebug() << "disappear finished!!!";
 
