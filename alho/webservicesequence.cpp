@@ -1044,6 +1044,7 @@ void WebServiceSequence::run()
     seqDebug() << "something appeared on weight!!!! id" << seq_id;
 
     on_weight = true;
+    wake_timer.setTurnedOn(true);
 
     setLightsToRed();
 
