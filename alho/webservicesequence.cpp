@@ -1377,13 +1377,6 @@ void WebServiceSequence::writeReaderBytes( const QString& s, MifareCardSector&  
 
 void WebServiceSequence::writeTagsValues( const QMap<QString, QString>& m, MifareCardSector&  card )
 {
-#if 0
-    auto tablo_text = m.find( alho_settings.tablo_tag.tag_name );
-
-    if ( tablo_text == m.end() ) {
-        throw MainSequenceException("Tablo tag error!" ,"Tablo tag not found!!!!!! for " + alho_settings.tablo_tag.tag_name );
-    }
-#endif
     QString tablo_text;
     bool found = false;
     for ( QMap<QString, QString>::const_iterator iter = m.begin(); iter != m.end(); ++iter ) {
@@ -1408,6 +1401,8 @@ void WebServiceSequence::writeTagsValues( const QMap<QString, QString>& m, Mifar
 
     //alho_settings.tablo_tag.func( Q_ARG(QVariant, QVariant::fromValue(tablo_text) ) );
 
+    writeReaderBytes( *reader_bytes, card );
+
     for ( QMap<QString, QString>::const_iterator iter = m.begin(); iter != m.end(); ++iter ) {
         auto tablo_tag_iter = alho_settings.tablo_tag.find( iter.key() );
 
@@ -1415,9 +1410,6 @@ void WebServiceSequence::writeTagsValues( const QMap<QString, QString>& m, Mifar
             tablo_tag_iter->func( Q_ARG(QVariant, QVariant::fromValue( *iter ) )  );
         }
     }
-
-
-    writeReaderBytes( *reader_bytes, card );
 
 }
 
