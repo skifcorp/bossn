@@ -12,28 +12,32 @@ class SystemTrayIconEventsReceiver : public QObject
     Q_OBJECT
 public:
     SystemTrayIconEventsReceiver() : tray (new QSystemTrayIcon(QIcon(":/icons/picts/car.png"),this)),
-                                        menu(new QMenu()), something_on_weights(false)
+                                        menu(new QMenu())
     {
-        menu->addAction("WeightsOn", this, SLOT(onWeightOn()));
-        menu->addAction("WeightsOff", this, SLOT(onWeightOff()));
+        menu->addAction("SetOn" , this, SLOT(onOn()));
+        menu->addAction("SetOff", this, SLOT(onOff()));
 
         tray->setContextMenu(menu);
 
         tray->show();
     }
     ~SystemTrayIconEventsReceiver() {}
-    bool somethingOnWeights() const
+    bool isOn() const
     {
-        return something_on_weights;
+        return is_on;
     }
+signals:
+    void onPressed();
+    void offPressed();
 public slots:
-    void onWeightOn();
-    void onWeightOff();
+    void onOn();
+    void onOff();
 private:
     QSystemTrayIcon * tray;
     QMenu           * menu;
-    bool              something_on_weights;
+    bool              is_on = false;
 };
+
 
 
 #endif // SYSTEMTRAYICONRECEIVER_P_H

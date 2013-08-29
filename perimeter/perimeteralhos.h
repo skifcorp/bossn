@@ -67,4 +67,39 @@ private:
     bool was_on_weights;
 };
 
+
+#include <QObject>
+#include <QTimer>
+
+class PerimeterControlCyclicEmulator : public QObject,
+                                       public PerimeterControl
+{
+    Q_OBJECT
+public:
+    ~PerimeterControlCyclicEmulator(){}
+
+    virtual void setSettings( const QMap<QString, QVariant>& );
+    virtual bool appeared(AlhoSequence *);
+    virtual bool disappeared(AlhoSequence *);
+
+    static PerimeterControl * create(Tags & t)
+    {
+        return new PerimeterControlCyclicEmulator(t);
+    }
+protected:
+    PerimeterControlCyclicEmulator(Tags & t);
+private slots:
+    void onTimer();
+    void onOnPressed();
+    void onOffPressed();
+private:
+    static BossnFactoryRegistrator<PerimeterControlCyclicEmulator> registator;
+
+    unique_ptr<SystemTrayIconEventsReceiver, SystemTrayIconEventsReceiverDeleter> tray;
+    bool was_on_weights = false;
+    bool timer_processed = false;
+
+    QTimer timer_;
+};
+
 #endif // PERIMETERCONTROL_H

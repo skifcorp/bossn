@@ -46,14 +46,16 @@ bool PerimeterControlByWeight::disappeared(AlhoSequence * caller)
 
 #include "systemtrayiconreceiver_p.h"
 
-void SystemTrayIconEventsReceiver::onWeightOn()
+void SystemTrayIconEventsReceiver::onOn()
 {
-    something_on_weights = true;
+    is_on = true;
+    emit onPressed();
 }
 
-void SystemTrayIconEventsReceiver::onWeightOff()
+void SystemTrayIconEventsReceiver::onOff()
 {
-    something_on_weights = false;
+    is_on = false;
+    emit offPressed();
 }
 
 void SystemTrayIconEventsReceiverDeleter::operator ()(SystemTrayIconEventsReceiver * s)
@@ -79,7 +81,7 @@ void PerimeterControlManualEmulator::setSettings( const QMap<QString, QVariant>&
 
 bool PerimeterControlManualEmulator::appeared(AlhoSequence * )
 {
-    if (!was_on_weights && tray->somethingOnWeights()) {
+    if (!was_on_weights && tray->isOn()) {
         was_on_weights = true;
         return true;
     }
@@ -88,7 +90,7 @@ bool PerimeterControlManualEmulator::appeared(AlhoSequence * )
 
 bool PerimeterControlManualEmulator::disappeared(AlhoSequence * )
 {
-    if ( !tray->somethingOnWeights() && was_on_weights ) {
+    if ( !tray->isOn() && was_on_weights ) {
         was_on_weights = false;
         return true;
     }
@@ -97,3 +99,53 @@ bool PerimeterControlManualEmulator::disappeared(AlhoSequence * )
 }
 
 
+BossnFactoryRegistrator<PerimeterControlCyclicEmulator> PerimeterControlCyclicEmulator::registator("PerimeterControlCyclicEmulator");
+
+PerimeterControlCyclicEmulator::PerimeterControlCyclicEmulator(Tags & t) : PerimeterControl(t),
+    tray(new SystemTrayIconEventsReceiver, SystemTrayIconEventsReceiverDeleter()), was_on_weights(false)
+{
+    connect(&timer_, SIGNAL(timeout()), this, SLOT(onTimer()));
+    connect( tray.get(), SIGNAL(onPressed()), this, SLOT(onOnPressed()) );
+    connect( tray.get(), SIGNAL(offPressed()), this, SLOT(onOffPressed()) );
+}
+
+
+
+void PerimeterControlCyclicEmulator::setSettings( const QMap<QString, QVariant>& s)
+{
+    timer_.setInterval( get_setting<int>("period", s) );
+}
+
+bool PerimeterControlCyclicEmulator::appeared(AlhoSequence * )
+{
+    if ( !was_on_weights && timer_processed ) {
+        was_on_weights = true;
+        return true;
+    }
+    return false;
+}
+
+bool PerimeterControlCyclicEmulator::disappeared(AlhoSequence * )
+{
+    if ( was_on_weights && timer_processed ) {
+        was_on_weights = false;
+        return true;
+    }
+
+    return false;
+}
+
+void PerimeterControlCyclicEmulator::onTimer()
+{
+    timer_processed = true;
+}
+
+void PerimeterControlCyclicEmulator::onOnPressed()
+{
+    timer_.start();
+}
+
+void PerimeterControlCyclicEmulator::onOffPressed()
+{
+    timer_.stop();
+}
