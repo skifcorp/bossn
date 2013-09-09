@@ -61,7 +61,14 @@ int SwedaSW320::parseWeightFrameAnswer(const QByteArray& ba, uint & err) const
         err = PorterFrameCorrupted; return -1;
     }
 
-    QByteArray ret = ba.mid(4,4);
+    QByteArray ret;
+    ret.push_back( ba[6] );
+    ret.push_back( ba[5] );
+    ret.push_back( ba[4] );
+    ret.push_back( ba[3] );
+
+    err = 0;
+
     return *reinterpret_cast<int *>(ret.data());
     //bool ok = false;
     //int iret = ret.toDouble(&ok);
