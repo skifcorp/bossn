@@ -2,15 +2,28 @@
 #include <QByteArray>
 #include <QString>
 #include <QFile>
+#include <QTime>
 
 BossnFactoryRegistrator<WeightFromFile> WeightFromFile::registrator("WeightFromFile");
 
+int WeightFromFile::calls_counter = 0;
+
 void WeightFromFile::readWeight(QVariant & ret, uint & err)
 {
+    //qDebug() << "readWeight started!!! " << calls_counter++;
+    QTimer timer;
+    connect(&timer, SIGNAL(timeout()), io_device_.data(), SLOT(emulateReadyRead()) );
+    timer.start(900);
+    yield();
+
     QByteArray ba = io_device()->readAll();
+    //qDebug() << "readWeight before y";
+
+    //qDebug() << "readWeight after  y";
 
     ret = parseWeightFrameAnswer(ba, err);
 
+    //qDebug() << "readWeight exit!!!" << calls_counter--;
 }
 
 void WeightFromFile::zero(uint &)

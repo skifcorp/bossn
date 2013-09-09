@@ -2,7 +2,7 @@
 #define __WEIGHT_FROM_FILE_H__
 
 #include "porterdriver.h"
-
+#include <QTimer>
 class WeightFromFile : public PorterDriver
 {
     Q_OBJECT
@@ -29,6 +29,8 @@ protected:
 
     //static bool registered;
     static BossnFactoryRegistrator<WeightFromFile> registrator;
+private:
+    static int calls_counter;
 };
 
 #endif
