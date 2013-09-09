@@ -81,7 +81,8 @@ public:
         qWarning() << "IODeviceWrapper factory dont contains: " << n  << " class";
         return Pointer();
     }
-
+public slots:
+    void emulateReadyRead() {emit readyRead();}
 protected:
     IoDeviceWrapper():is_opened(false) {}
     bool is_opened;
