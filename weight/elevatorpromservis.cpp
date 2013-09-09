@@ -15,7 +15,7 @@ void EPS::readWeight(QVariant & ret, uint & err)
 
     io_device()->write(req);
 
-    const uchar frame_size = 16;
+    const uchar frame_size = 11;
 
     while ( io_device()->bytesAvailable() < frame_size ) {
         yield();
@@ -41,12 +41,12 @@ QByteArray EPS::weightRequestFrame() const
 
 int EPS::parseWeightFrameAnswer(const QByteArray& ba, uint & err) const
 {
-    const uchar frame_size = 16;
+    const uchar frame_size = 11;
     if (ba.size() != frame_size) {
         err = PorterFrameCorrupted; return -1;
     }
 
-    QByteArray ret = ba.mid(4,7);
+    QByteArray ret = ba.mid(2,7);
 
     bool ok = false;
     int iret = ret.toDouble(&ok);
