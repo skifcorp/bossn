@@ -78,7 +78,7 @@ void Porter::addTagToSchedule(Drivers::size_type driver_index, const QString& ta
                 mi.value  = 0; mi.error = PorterDriver::PorterFrameNotAnswer;
                 qDebug () << device->deviceName() << " dont answered!";
                 device->clear();
-            }, 550, 1000, tag_name + "::" + methods[tag_name].method );
+            }, 500, 450, tag_name + "::" + methods[tag_name].method );
 }
 
 template <class Ret>
