@@ -27,7 +27,7 @@ Coroutine2::~Coroutine2()
     else
         fatal_assert(  coro_status == NotStarted || coro_status == Terminated, currentStatusText().c_str() );
 
-    alloc.deallocate(stack, stack_size);
+    alloc.deallocate(ctx);
 }
 
 
