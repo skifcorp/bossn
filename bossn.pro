@@ -30,6 +30,8 @@ INCLUDEPATH    += db alho serial weight generic iodevicewrapper scheduler       
 
 QMAKE_CXXFLAGS += -std=gnu++1y -Og #--param ggc-min-expand=10 --param ggc-min-heapsize=65535 -O
 
+#QMAKE_CXXFLAGS += -fsanitize=address -fno-omit-frame-pointer
+#QMAKE_LFLAGS   += -fsanitize=address
 
 #QMAKE_CXXFLAGS -= -pipe
 
