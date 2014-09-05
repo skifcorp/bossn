@@ -9,7 +9,7 @@ class MettlerToledo310 : public PorterDriver
 {
     Q_OBJECT
 public:
-    void readWeight(float & ret, uint &);
+    Q_INVOKABLE void readWeight(QVariant & ret, uint &);
     void zero(uint &);
 
 

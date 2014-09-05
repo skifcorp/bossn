@@ -6,7 +6,7 @@
 //bool MettlerToledo310::registered = MettlerToledo310::registerInFact();
 BossnFactoryRegistrator<MettlerToledo310> MettlerToledo310::registraror("MettlerToledo310");
 
-void MettlerToledo310::readWeight(float & ret, uint & err)
+void MettlerToledo310::readWeight(QVariant & ret, uint & err)
 {
     QByteArray req = weightRequestFrame();
     io_device()->write(req);
@@ -18,7 +18,7 @@ void MettlerToledo310::readWeight(float & ret, uint & err)
 
     QByteArray answ = io_device()->read(frame_size);
 
-    ret = parseWeightFrameAnswer(answ, err);
+    ret = static_cast<int> (parseWeightFrameAnswer(answ, err));
 }
 
 void MettlerToledo310::zero( uint &)
@@ -35,7 +35,7 @@ QByteArray MettlerToledo310::weightRequestFrame() const
 
 float MettlerToledo310::parseWeightFrameAnswer(const QByteArray& ba, uint & err) const
 {
-    QByteArray ret(6, 0);
+    /*QByteArray ret(6, 0);
 
     QByteArray::Iterator iter = ret.begin();
     if (ba[1] == 'I' || ba[1] == ' ' ) { *iter = '+';  }
@@ -55,6 +55,21 @@ float MettlerToledo310::parseWeightFrameAnswer(const QByteArray& ba, uint & err)
     }
     err = 0;
     return fret;
+    */
+    const uchar frame_size = 8;
+    if (ba.size() != frame_size) {
+        err = PorterFrameCorrupted; return 0.0f;
+    }
+    bool ok = false;
+    float fret = ba.mid(2,5).toFloat(&ok);
+    if (!ok) {
+        //throw WeightFrameExceptionCorrupted();
+        err = PorterFrameCorrupted; return 0.0f;
+    }
+    err = 0;
+    //qDebug() << "weight: " <<fret;
+    return fret;
+
 }
 
 

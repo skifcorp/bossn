@@ -152,7 +152,8 @@ SOURCES +=  \
     weight/VP05.cpp \
     display/displayposua.cpp \
     weight/swedaSW320.cpp \
-    weight/elevatorpromservis.cpp
+    weight/elevatorpromservis.cpp \
+    display/displaywinstar.cpp
 
 HEADERS +=   reader/mifarereaderemulator.h \
     tools/func.h \
@@ -257,7 +258,8 @@ HEADERS +=   reader/mifarereaderemulator.h \
     display/displayposua.h \
     weight/swedaSW320.h \
     weight/elevatorpromservis.h \
-    tools/fatal_exit.h
+    tools/fatal_exit.h \
+    display/displaywinstar.h
 
 
 RESOURCES += bossn.qrc
