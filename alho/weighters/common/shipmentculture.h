@@ -1,8 +1,12 @@
 #ifndef KRYZH_CULTURE
 #define KRYZH_CULTURE
 
+#ifdef AAAA
+
 #include "culture.h"
 #include "mainsequence.h"
+
+
 
 namespace alho { namespace common {
 
@@ -69,5 +73,7 @@ public:
 
 } }
 
+
+#endif
 #endif
 

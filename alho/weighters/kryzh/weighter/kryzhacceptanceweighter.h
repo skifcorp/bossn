@@ -1,10 +1,15 @@
 #ifndef BASEACCEPTANCEWEIGHTER_H
 #define BASEACCEPTANCEWEIGHTER_H
 
+#ifdef AAAA
+
 #include "weighter.h"
 #include "mainsequence.h"
 #include "func.h"
 #include "reportsmanager.h"
+
+
+
 
 namespace alho { namespace kryzh {
 
@@ -113,5 +118,6 @@ private:
 
 } }
 
+#endif
 
 #endif // BASEACCEPTANCEWEIGHTER_H

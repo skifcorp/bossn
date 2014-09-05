@@ -1,4 +1,4 @@
-
+#ifdef AAAA
 
 
 
@@ -15,6 +15,8 @@
 #include "fusion_tools/make_vvector.h"
 
 #include <boost/fusion/include/vector_tie.hpp>
+
+
 
 namespace alho  { namespace kryzh {
 
@@ -474,3 +476,4 @@ void BeetAcceptanceCulture::fetchCar(const MifareCardData& bill)
 
 } }
 
+#endif

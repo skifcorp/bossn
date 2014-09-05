@@ -1,7 +1,11 @@
 #ifndef KRYZHBEETTABLES_H
 #define KRYZHBEETTABLES_H
 
+#ifdef AAAA
+
 #include <fusion_tools/as_vvector.h>
+
+
 
 namespace alho { namespace kryzh {
 
@@ -105,5 +109,7 @@ BOOST_RDB_BEGIN_TABLE(t_bum_state_log_beet_table)
 BOOST_RDB_END_TABLE(t_bum_state_log_beet_table)
 
 } }
+
+#endif
 
 #endif // KRYZHBEETTABLES_H

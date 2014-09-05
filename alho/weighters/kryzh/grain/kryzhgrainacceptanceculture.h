@@ -1,6 +1,8 @@
 #ifndef GRAINWEIGHTERS_H
 #define GRAINWEIGHTERS_H
 
+#ifdef AAAA
+
 #include <boost/mpl/bool.hpp>
 
 #include "kryzhgraindbstructs.h"
@@ -67,5 +69,7 @@ private:
 
 
 } }
+
+#endif
 
 #endif // GRAINWEIGHTERS_H

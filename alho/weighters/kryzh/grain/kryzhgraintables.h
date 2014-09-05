@@ -1,6 +1,8 @@
 #ifndef KRYZHGRAINTABLES_H
 #define KRYZHGRAINTABLES_H
 
+#ifdef AAAA
+
 namespace alho { namespace kryzh {
 
 BOOST_RDB_BEGIN_TABLE(t_ttn_grain_table)
@@ -154,5 +156,6 @@ BOOST_RDB_END_TABLE(t_ttno_grain_table)
 
 } }
 
+#endif
 
 #endif // KRYZHGRAINTABLES_H

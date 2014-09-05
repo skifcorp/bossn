@@ -1,3 +1,5 @@
+#ifdef AAAA
+
 #include "rdb_pch.h"
 #include "kryzhbeetacceptanceculture.h"
 #include "mainsequence.h"
@@ -8,6 +10,7 @@
 #include "fusion_tools/make_vvector.h"
 
 #include <boost/fusion/include/vector_tie.hpp>
+
 
 namespace alho  { namespace kryzh {
 
@@ -31,3 +34,4 @@ void BeetAcceptanceCulture::reBrutto(int w, MifareCardData& bill)
 
 
 } }
+#endif

@@ -1,6 +1,8 @@
 #ifndef ACCEPTANCE_CULTURE_H
 #define ACCEPTANCE_CULTURE_H
 
+#ifdef AAAA
+
 #include "culture.h"
 #include "mainsequence.h"
 #include "func.h"
@@ -86,6 +88,8 @@ public:
 
 
 } }
+
+#endif
 
 #endif
 

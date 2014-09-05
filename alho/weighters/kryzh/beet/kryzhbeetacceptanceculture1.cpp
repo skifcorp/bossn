@@ -1,3 +1,5 @@
+#ifdef AAAA
+
 #include "rdb_pch.h"
 #include "kryzhbeetacceptanceculture.h"
 #include "mainsequence.h"
@@ -70,3 +72,5 @@ void BeetAcceptanceCulture::brutto(int w, MifareCardData& bill)
 
 
 } }
+
+#endif

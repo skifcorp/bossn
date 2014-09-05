@@ -1,3 +1,5 @@
+#ifdef AAAA
+
 #include "rdb_pch.h"
 
 #include "kryzhgrainacceptanceculture.h"
@@ -9,6 +11,8 @@
 #include <fusion_tools/make_vvector.h>
 
 #include <boost/fusion/include/vector_tie.hpp>
+
+
 
 namespace alho { namespace kryzh {
 
@@ -35,3 +39,5 @@ void GrainAcceptanceCulture::reTara(int w, MifareCardData& bill)
 
 }}
 
+
+#endif

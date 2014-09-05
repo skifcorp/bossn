@@ -3,9 +3,12 @@
 #ifndef BASESHIPMENTWEIGHTER_H
 #define BASESHIPMENTWEIGHTER_H
 
+#ifdef AAAA
+
 #include "weighter.h"
 #include "mainsequence.h"
 #include "reportsmanager.h"
+
 
 namespace alho { namespace kryzh {
 
@@ -146,5 +149,7 @@ private:
 };
 
 } }
+
+#endif
 
 #endif // BASESHIPMENTWEIGHTER_H

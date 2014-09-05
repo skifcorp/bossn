@@ -1,3 +1,5 @@
+#ifdef AAAA
+
 #include "rdb_pch.h"
 
 #include "mriabeetacceptanceculture.h"
@@ -8,6 +10,9 @@
 #include <fusion_tools/make_vvector.h>
 
 #include <boost/fusion/include/vector_tie.hpp>
+
+
+
 
 namespace alho  { namespace mria {
 
@@ -46,3 +51,5 @@ void BeetAcceptanceCulture::brutto(int w, MifareCardData& bill)
 
 
 } }
+
+#endif

@@ -1,3 +1,5 @@
+#ifdef AAAA
+
 #include "rdb_pch.h"
 #include "kryzhgrainshipmentculture.h"
 #include "kryzhgraindbstructs.h"
@@ -11,6 +13,8 @@
 #include <mpllibs/metaparse/string.hpp>
 
 #define _S(X) MPLLIBS_STRING(X)
+
+
 
 namespace alho { namespace kryzh {
 
@@ -71,4 +75,7 @@ void GrainShipmentCulture::brutto(int w, MifareCardData& bill)
 
 } }
 
+#endif
+
 #undef _S
+

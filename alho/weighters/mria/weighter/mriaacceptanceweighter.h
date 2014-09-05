@@ -1,10 +1,14 @@
 #ifndef MRIAACCEPTANCEWEIGHTER_H
 #define MRIAACCEPTANCEWEIGHTER_H
 
+#ifdef AAAA
+
 #include "weighter.h"
 #include "mainsequence.h"
 #include "func.h"
 #include "reportsmanager.h"
+
+
 
 namespace alho { namespace mria {
 
@@ -95,5 +99,6 @@ private:
 
 } }
 
+#endif
 
 #endif // BASEACCEPTANCEWEIGHTER_H

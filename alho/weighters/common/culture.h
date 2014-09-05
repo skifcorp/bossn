@@ -1,3 +1,5 @@
+#ifdef AAAA
+
 #ifndef CULTURE_H
 #define CULTURE_H
 
@@ -13,6 +15,7 @@
 
 
 #include "bossnexception.h"
+
 #include "mifarecarddata.h"
 //#include "dbstructs.h"
 
@@ -26,6 +29,8 @@
 
 class MainSequence;
 class WeighterConf;
+
+
 
 namespace alho { namespace common {
 
@@ -155,5 +160,7 @@ private:
 };
 
 } }
+
+#endif
 
 #endif

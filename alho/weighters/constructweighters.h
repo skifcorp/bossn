@@ -1,6 +1,7 @@
 #ifndef CONSTRUCTWEIGHTERS_H
 #define CONSTRUCTWEIGHTERS_H
 
+#ifdef AAAA
 
 #include "kryzh/grain/kryzhgrainacceptanceculture.h"
 #include "kryzh/beet/kryzhbeetacceptanceculture.h"
@@ -16,6 +17,8 @@
 
 #include "mpllibs/metaparse/string.hpp"
 #define _S(X) MPLLIBS_STRING(X)
+
+
 
 namespace alho {
     //namespace kryzh = alho::kryzh;
@@ -35,6 +38,8 @@ namespace alho {
     }
 
 }
+
+#endif
 
 #undef _S
 

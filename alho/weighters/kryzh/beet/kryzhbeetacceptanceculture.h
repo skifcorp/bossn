@@ -3,7 +3,7 @@
 
 //#include "qxorm_pch.h"
 
-
+#ifdef AAAA
 
 #include "acceptanceculture.h"
 #include "kryzhbeetdbstructs.h"
@@ -101,6 +101,6 @@ private:
 
 } }
 
-
+#endif
 
 #endif

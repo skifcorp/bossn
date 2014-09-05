@@ -1,6 +1,8 @@
 #ifndef __MRIA_BEET_ACCEPTANCE_CULTURE_H_
 #define __MRIA_BEET_ACCEPTANCE_CULTURE_H_
 
+#ifdef AAAA
+
 #include "acceptanceculture.h"
 #include "mriabeetdbstructs.h"
 #include "reportsmanager.h"
@@ -10,6 +12,9 @@
 //#include "rdb_pch.h"
 
 #include <boost/mpl/bool.hpp>
+
+
+
 
 namespace alho  { namespace mria {
 
@@ -86,5 +91,7 @@ private:
 
 
 } }
+
+#endif
 
 #endif

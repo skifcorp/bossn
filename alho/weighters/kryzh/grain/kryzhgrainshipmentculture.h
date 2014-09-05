@@ -1,5 +1,8 @@
+
 #ifndef GRAINSHIPMENTWEIGHTER_H
 #define GRAINSHIPMENTWEIGHTER_H
+
+#ifdef AAAA
 
 #include "weighter.h"
 #include "kryzhgraindbstructs.h"
@@ -93,5 +96,7 @@ private:
 };
 
 } }
+
+#endif
 
 #endif // GRAINSHIPMENTWEIGHTER_H

@@ -1,3 +1,5 @@
+#ifdef AAAA
+
 #include "rdb_pch.h"
 #include "culture.h"
 #include "warnmessages.h"
@@ -12,6 +14,8 @@
 #include <boost/fusion/include/at_c.hpp>
 
 #include <QTextCodec>
+
+
 
 namespace alho { namespace common {
 
@@ -88,3 +92,4 @@ void Culture::fillConstants()
 }
 
 } }
+#endif
