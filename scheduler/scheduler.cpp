@@ -211,7 +211,8 @@ void Scheduler::onReadyRead()
 }
 
 void Scheduler::execute()
-{
+{   if (current_coro.func_name == "")
+        return;
     if (!current_coro.schedul) {
         qWarning() << "\n\n\nsomething terrible! GOT EVENT ON PORT WHILE NOTHING WRITED!! "<<device.data()->deviceName()<<"bytes num:"
                    << device.data()->bytesAvailable() << "\n\n\n";

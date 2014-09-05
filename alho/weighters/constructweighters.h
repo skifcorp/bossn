@@ -16,7 +16,7 @@
 
 #include "mpllibs/metaparse/string.hpp"
 #define _S(X) MPLLIBS_STRING(X)
-
+#ifdef AAAA
 namespace alho {
     //namespace kryzh = alho::kryzh;
 
@@ -37,6 +37,6 @@ namespace alho {
 }
 
 #undef _S
-
+#endif
 
 #endif // CONSTRUCTWEIGHTERS_H

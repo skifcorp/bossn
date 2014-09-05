@@ -98,11 +98,13 @@ private:
     boost::context::fcontext_t * coro_context;
     boost::context::fcontext_t ret_context;
 
-    boost::coroutines::detail::stack_allocator alloc;
+    boost::coroutines::stack_allocator alloc;
 
     std::size_t stack_size =
-            boost::coroutines::detail::stack_allocator::default_stacksize();
-    void * stack = alloc.allocate( stack_size );
+            boost::coroutines::stack_traits::default_size();
+    boost::coroutines::stack_context ctx;
+
+    void * stack = ( alloc.allocate( ctx, stack_size ), ctx.sp);
 
     void initializeContext();
 

@@ -9,6 +9,8 @@
 
 //#include <boost/fusion/include/vector_tie.hpp>
 
+#ifdef AAAA
+
 namespace alho  { namespace kryzh {
 
 
@@ -40,3 +42,5 @@ void BeetAcceptanceCulture::reTara(int w, MifareCardData& bill)
 
 
 } }
+
+#endif

@@ -10,6 +10,8 @@
 
 #include <boost/fusion/include/vector_tie.hpp>
 
+#ifdef AAAA
+
 namespace alho { namespace kryzh {
 
 
@@ -320,3 +322,5 @@ void GrainAcceptanceCulture::fetchCar(const MifareCardData& bill)
 }
 
 } }
+
+#endif

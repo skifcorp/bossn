@@ -6,6 +6,8 @@
 #include "func.h"
 #include "reportsmanager.h"
 
+#ifdef AAAA
+
 namespace alho { namespace kryzh {
 
 using namespace alho::common;
@@ -113,5 +115,6 @@ private:
 
 } }
 
+#endif
 
 #endif // BASEACCEPTANCEWEIGHTER_H

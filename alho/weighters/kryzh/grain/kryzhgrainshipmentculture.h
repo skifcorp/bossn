@@ -10,7 +10,7 @@
 
 #include "kryzhgraintables.h"
 
-
+#ifdef AAAA
 
 namespace alho { namespace kryzh {
 
@@ -93,5 +93,7 @@ private:
 };
 
 } }
+
+#endif
 
 #endif // GRAINSHIPMENTWEIGHTER_H

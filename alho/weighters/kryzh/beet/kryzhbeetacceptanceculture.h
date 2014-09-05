@@ -12,6 +12,7 @@
 
 #include <boost/mpl/bool.hpp>
 
+#ifdef AAAA
 
 namespace alho  { namespace kryzh {
 
@@ -99,8 +100,9 @@ private:
 };
 
 
-} }
 
+} }
+#endif
 
 
 #endif

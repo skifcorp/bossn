@@ -10,6 +10,8 @@
 #include "kryzhgraintables.h"
 //#include "rdb_pch.h"
 
+#ifdef AAAA
+
 namespace alho { namespace kryzh {
 
 using alho::common::AcceptanceCulture;
@@ -67,5 +69,7 @@ private:
 
 
 } }
+
+#endif
 
 #endif // GRAINWEIGHTERS_H

@@ -11,6 +11,8 @@
 
 #include <boost/fusion/include/vector_tie.hpp>
 
+#ifdef AAAA
+
 namespace alho { namespace kryzh {
 
 void GrainAcceptanceCulture::tara(int w, MifareCardData& bill)
@@ -36,3 +38,4 @@ void GrainAcceptanceCulture::tara(int w, MifareCardData& bill)
 }
 
 }}
+#endif

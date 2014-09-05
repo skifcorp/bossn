@@ -27,6 +27,8 @@
 class MainSequence;
 class WeighterConf;
 
+#ifdef AAAA
+
 namespace alho { namespace common {
 
 //namespace sql = ::boost::rdb::mysql;
@@ -155,5 +157,7 @@ private:
 };
 
 } }
+
+#endif
 
 #endif

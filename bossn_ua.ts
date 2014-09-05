@@ -4,30 +4,28 @@
 <context>
     <name>GrainShipmentWeighter</name>
     <message>
-        <location filename="alho/weighters/grainshipmentweighter.cpp" line="26"/>
         <source>tara: </source>
-        <translation>Тара:</translation>
+        <translation type="obsolete">Тара:</translation>
     </message>
     <message>
-        <location filename="alho/weighters/grainshipmentweighter.cpp" line="26"/>
         <source> rest: </source>
-        <translation>Залишок:</translation>
+        <translation type="obsolete">Залишок:</translation>
     </message>
 </context>
 <context>
     <name>MainSequence</name>
     <message>
-        <location filename="alho/warnmessages.h" line="64"/>
+        <location filename="alho/warnmessages.h" line="82"/>
         <source>%1 kg</source>
         <translation>%1 кг</translation>
     </message>
     <message>
-        <location filename="alho/warnmessages.h" line="65"/>
+        <location filename="alho/warnmessages.h" line="83"/>
         <source>Lab(%1)</source>
         <translation>Лаб(%1)</translation>
     </message>
     <message>
-        <location filename="alho/warnmessages.h" line="66"/>
+        <location filename="alho/warnmessages.h" line="84"/>
         <source>BUM %1</source>
         <translation>БУМ %1</translation>
     </message>
@@ -316,18 +314,111 @@
         <source>Cant get virtual netto</source>
         <translation>Помилка отримання віртуального нетто</translation>
     </message>
+    <message>
+        <location filename="alho/warnmessages.h" line="63"/>
+        <source>Requested constant not exists</source>
+        <translation>Запрошені константи відсутні</translation>
+    </message>
+    <message>
+        <location filename="alho/warnmessages.h" line="64"/>
+        <source>Connect to service server error</source>
+        <translation>Помилка підключення до сервісу</translation>
+    </message>
+    <message>
+        <location filename="alho/warnmessages.h" line="65"/>
+        <source>Connect to service server timeout</source>
+        <translation>Таймаут підключення до веб</translation>
+    </message>
+    <message>
+        <location filename="alho/warnmessages.h" line="66"/>
+        <source>Read from service server error</source>
+        <translation>Помилка читання даних з серверу</translation>
+    </message>
+    <message>
+        <location filename="alho/warnmessages.h" line="67"/>
+        <source>Read from service server timeout</source>
+        <translation>Таймаут читання сервісу</translation>
+    </message>
+    <message>
+        <location filename="alho/warnmessages.h" line="68"/>
+        <source>Write to service server error</source>
+        <translation>Помилка запису в сервер</translation>
+    </message>
+    <message>
+        <location filename="alho/warnmessages.h" line="70"/>
+        <source>Gsoap data exchange request error</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="alho/warnmessages.h" line="71"/>
+        <source>Gsoap accept card result request error request error</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="alho/warnmessages.h" line="72"/>
+        <source>Gsoap appear request error request error</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="alho/warnmessages.h" line="73"/>
+        <source>Gsoap disappear request error</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="alho/warnmessages.h" line="76"/>
+        <source>web service returned wrong number of bytes for reader</source>
+        <translation>Веб сервіс повернув неправильну к-ть байт</translation>
+    </message>
+    <message>
+        <location filename="alho/warnmessages.h" line="77"/>
+        <source>web service returned corruped reader byte</source>
+        <translation>Веб сервіс повернув пошкоджені дані</translation>
+    </message>
+    <message>
+        <location filename="alho/warnmessages.h" line="78"/>
+        <source>one block data corrupted</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="alho/warnmessages.h" line="80"/>
+        <source>Internal web service error</source>
+        <translation>Внутрішня помилка сервісу</translation>
+    </message>
 </context>
 <context>
     <name>QObject</name>
     <message>
-        <location filename="alho/mifarecard.cpp" line="113"/>
+        <location filename="alho/mifarecard.cpp" line="26"/>
+        <source>host coded key not valid!</source>
+        <translation>ключ невірний</translation>
+    </message>
+    <message>
+        <location filename="alho/mifarecard.cpp" line="38"/>
+        <source>auth failed</source>
+        <translation>помилка авторизації</translation>
+    </message>
+    <message>
+        <location filename="alho/mifarecard.cpp" line="124"/>
         <source>MifareCard::writeStruct: cant write struct!!</source>
         <translation>Помилка запису картки</translation>
     </message>
     <message>
-        <location filename="alho/mifarecard.cpp" line="179"/>
+        <location filename="alho/mifarecard.cpp" line="198"/>
         <source>readBlock seems failed!</source>
         <translation>Помилка читання картки</translation>
+    </message>
+</context>
+<context>
+    <name>alho::kryzh::GrainShipmentCulture</name>
+    <message>
+        <location filename="alho/weighters/kryzh/grain/kryzhgrainshipmentculture5.cpp" line="24"/>
+        <source>tara:</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="alho/weighters/kryzh/grain/kryzhgrainshipmentculture5.cpp" line="24"/>
+        <source>rest:</source>
+        <translation></translation>
     </message>
 </context>
 </TS>

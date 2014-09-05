@@ -4,7 +4,7 @@
 #include <fusion_tools/as_vvector.h>
 
 namespace alho { namespace kryzh {
-
+#ifdef AAAA
 BOOST_RDB_BEGIN_TABLE(t_ttn_beet_table)
     BOOST_RDB_COLUMN(num_nakl     ,integer     )  //not null
     BOOST_RDB_COLUMN(date_time    ,datetime    )  //not null
@@ -103,6 +103,7 @@ BOOST_RDB_BEGIN_TABLE(t_bum_state_log_beet_table)
     BOOST_RDB_COLUMN(bum, integer)
     BOOST_RDB_COLUMN(state, boolean)
 BOOST_RDB_END_TABLE(t_bum_state_log_beet_table)
+#endif
 
 } }
 

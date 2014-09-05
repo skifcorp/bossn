@@ -13,6 +13,8 @@
 
 #define _S(X) MPLLIBS_STRING(X)
 
+#ifdef AAAA
+
 namespace alho { namespace kryzh {
 
 void GrainShipmentCulture::reBrutto(int w, MifareCardData& bill)
@@ -76,3 +78,5 @@ void GrainShipmentCulture::reBrutto(int w, MifareCardData& bill)
 }
 
 }}
+
+#endif

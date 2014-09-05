@@ -1389,6 +1389,7 @@ void WebServiceSequence::writeTagsValues( const QMap<QString, QString>& m, Mifar
     QString tablo_text;
     bool found = false;
     for ( QMap<QString, QString>::const_iterator iter = m.begin(); iter != m.end(); ++iter ) {
+        qDebug() << "tags from web service: " << iter.key();
         if ( alho_settings.tablo_tag.containsTag( iter.key() ) ) {
             tablo_text = *iter;
             found = true;

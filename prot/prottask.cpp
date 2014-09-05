@@ -43,6 +43,23 @@ public:
     };
     using TagProtConfs = vector<TagProtConf> ;
 
+
+        using ttt =  typename  boost::result_of <
+                                    boost::rdb::sql::columns_type_extractor<prot_values_table_<0> >(
+                                            const boost::fusion::vector0<>&,
+                                            prot_values_table_<0>::time_member
+                                    )
+                                > ::type;
+
+
+    void func()
+    {
+    static_name_of<ttt> a;
+    }
+
+
+
+
     using prot_value_type = typename boost::rdb::mysql::table_result_set<prot_values_table>::type::value_type;
     using TagValues  = vector<prot_value_type>;
     using TagsValues = vector<TagValues>;

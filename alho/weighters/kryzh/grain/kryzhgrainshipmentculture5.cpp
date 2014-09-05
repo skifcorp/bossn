@@ -12,6 +12,8 @@
 
 #define _S(X) MPLLIBS_STRING(X)
 
+#ifdef AAAA
+
 namespace alho { namespace kryzh {
 
 QString GrainShipmentCulture::bruttoFinishMessage(const MifareCardData&  )const
@@ -398,3 +400,4 @@ void GrainShipmentCulture::checkVirtualNetto()
 } }
 
 #undef _S
+#endif

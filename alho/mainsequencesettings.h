@@ -346,7 +346,7 @@ private:
     Tags & tags_;
 };
 
-template <template <TagMethodType Typ> class TagMethodTyp, class ReaderMethodsType>
+template <template <TagMethodType> class TagMethodTyp, class ReaderMethodsType>
 struct BaseMainSequenceSettings
 {   
     using TabloTagType = TagMethodTyp<TagMethodType::Simple>;

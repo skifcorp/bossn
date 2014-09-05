@@ -6,6 +6,8 @@
 #include "func.h"
 #include "reportsmanager.h"
 
+#ifdef AAAA
+
 namespace alho { namespace mria {
 
 using namespace alho::common;
@@ -95,5 +97,7 @@ private:
 
 } }
 
+
+#endif
 
 #endif // BASEACCEPTANCEWEIGHTER_H

@@ -9,6 +9,8 @@
 
 #include <boost/fusion/include/vector_tie.hpp>
 
+#ifdef AAAA
+
 namespace alho  { namespace mria {
 
 
@@ -64,3 +66,5 @@ void BeetAcceptanceCulture::tara(int w, MifareCardData& bill)
 
 
 } }
+
+#endif

@@ -5,7 +5,7 @@
 #include "mainsequence.h"
 #include "func.h"
 
-
+#ifdef AAAA
 
 namespace alho { namespace common {
 
@@ -22,6 +22,7 @@ public:
     template <class TtnTable, class TtnData, class CarsTable, class CarsData>
     void processDrivingTime2(const TtnTable& tt, TtnData & ttn, const CarsTable& ct, const CarsData& car )const
     {
+
         ushort rup      = dateTimeToTimeShit( ptime_to_qt(ttn[tt.time_return]) ) -
                                 dateTimeToTimeShit( ptime_to_qt(ttn[tt.date_time]) ) / 60; /*to hours*/
 
@@ -30,6 +31,7 @@ public:
                                     timeShitToDateTime( dateTimeToTimeShit( ptime_to_qt(ttn[tt.date_time]) )
                                          + car[ct.vremja_na_hodku] * 60 ).toTime_t() );
         }
+
     }
 
 
@@ -86,6 +88,8 @@ public:
 
 
 } }
+
+#endif
 
 #endif
 

@@ -3,7 +3,7 @@
 
 #include "culture.h"
 #include "mainsequence.h"
-
+#ifdef AAAA
 namespace alho { namespace common {
 
 class ShipmentCulture : public Culture
@@ -68,6 +68,8 @@ public:
 
 
 } }
+
+#endif
 
 #endif
 

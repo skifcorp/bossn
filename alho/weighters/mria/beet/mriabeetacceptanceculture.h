@@ -11,6 +11,8 @@
 
 #include <boost/mpl/bool.hpp>
 
+#ifdef AAAA
+
 namespace alho  { namespace mria {
 
 using alho::common::AcceptanceCulture;
@@ -86,5 +88,7 @@ private:
 
 
 } }
+
+#endif
 
 #endif

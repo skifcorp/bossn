@@ -9,6 +9,8 @@
 
 #include <boost/fusion/include/vector_tie.hpp>
 
+#ifdef AAAA
+
 namespace alho  { namespace mria {
 
 QString BeetAcceptanceCulture::bruttoFinishMessage(const MifareCardData& bill )const
@@ -364,3 +366,6 @@ void BeetAcceptanceCulture::checkPerimetr()
 
 
 } }
+
+#endif
+

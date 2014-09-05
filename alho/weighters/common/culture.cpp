@@ -13,6 +13,8 @@
 
 #include <QTextCodec>
 
+#ifdef AAAA
+
 namespace alho { namespace common {
 
 Culture::Culture(MainSequence & as, QSqlDatabase& db, ::boost::rdb::mysql::mysql_database& db2) : seq_(as),
@@ -88,3 +90,5 @@ void Culture::fillConstants()
 }
 
 } }
+
+#endif

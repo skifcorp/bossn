@@ -28,12 +28,13 @@ INCLUDEPATH    += db alho serial weight generic iodevicewrapper scheduler       
                   alho/weighters/common coro gsoap
 
 
-QMAKE_CXXFLAGS += -std=gnu++1y -Og #--param ggc-min-expand=10 --param ggc-min-heapsize=65535 -O
+QMAKE_CXXFLAGS += -std=gnu++1y #-Og #--param ggc-min-expand=10 --param ggc-min-heapsize=65535 -O
 
+DEFINES += BOOST_RESULT_OF_USE_DECLTYPE
 
 #QMAKE_CXXFLAGS -= -pipe
 
-DEFINES += FUSION_MAX_VECTOR_SIZE=40 #DEBUG #SOAP_MEM_DEBUG
+#DEFINES += FUSION_MAX_VECTOR_SIZE=40 #DEBUG #SOAP_MEM_DEBUG
 
 #\
 #           BOOST_FUSION_INVOKE_MAX_ARITY=30                   \
@@ -152,7 +153,8 @@ SOURCES +=  \
     weight/VP05.cpp \
     display/displayposua.cpp \
     weight/swedaSW320.cpp \
-    weight/elevatorpromservis.cpp
+    weight/elevatorpromservis.cpp \
+    display/displaywinstar.cpp
 
 HEADERS +=   reader/mifarereaderemulator.h \
     tools/func.h \
@@ -257,7 +259,8 @@ HEADERS +=   reader/mifarereaderemulator.h \
     display/displayposua.h \
     weight/swedaSW320.h \
     weight/elevatorpromservis.h \
-    tools/fatal_exit.h
+    tools/fatal_exit.h \
+    display/displaywinstar.h
 
 
 RESOURCES += bossn.qrc

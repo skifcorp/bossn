@@ -12,6 +12,8 @@
 
 #define _S(X) MPLLIBS_STRING(X)
 
+#ifdef AAAA
+
 namespace alho { namespace kryzh {
 
 void GrainShipmentCulture::tara(int w, MifareCardData& bill)
@@ -62,3 +64,6 @@ void GrainShipmentCulture::tara(int w, MifareCardData& bill)
 }
 
 }}
+
+#endif
+
