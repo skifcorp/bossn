@@ -10,6 +10,8 @@ using std::string;
 #include <boost/context/all.hpp>
 #include <boost/coroutine/all.hpp>
 
+#include <boost/version.hpp>
+
 class Coroutine2;
 
 namespace {
@@ -97,15 +99,21 @@ private:
 
     boost::context::fcontext_t * coro_context;
     boost::context::fcontext_t ret_context;
+#if BOOST_VERSION == 105300
+    boost::coroutines::detail::stack_allocator alloc;
 
+    std::size_t stack_size =
+            boost::coroutines::detail::stack_allocator::default_stacksize();
+    void * stack = alloc.allocate( stack_size );
+#elif BOOST_VERSION == 105400
     boost::coroutines::stack_allocator alloc;
-
     std::size_t stack_size =
             boost::coroutines::stack_allocator::default_stacksize();
     boost::coroutines::stack_context ctx;
 
-    void * stack = ( alloc.allocate( ctx, stack_size ), ctx.sp);
 
+    void * stack = ( alloc.allocate( ctx, stack_size ), ctx.sp);
+#endif
     void initializeContext();
 
     bool can_destruct_stopped = false;

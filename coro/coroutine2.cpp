@@ -26,8 +26,12 @@ Coroutine2::~Coroutine2()
         fatal_assert(  coro_status != Running, currentStatusText().c_str() );
     else
         fatal_assert(  coro_status == NotStarted || coro_status == Terminated, currentStatusText().c_str() );
-
+#if BOOST_VERSION == 105300
+    alloc.deallocate(stack, stack_size);
+#elif BOOST_VERSION == 105400
     alloc.deallocate(ctx);
+#endif
+
 }
 
 
