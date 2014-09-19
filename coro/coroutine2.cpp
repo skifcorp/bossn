@@ -27,7 +27,12 @@ Coroutine2::~Coroutine2()
     else
         fatal_assert(  coro_status == NotStarted || coro_status == Terminated, currentStatusText().c_str() );
 
+#if BOOST_VERSION == 105300
     alloc.deallocate(stack, stack_size);
+#elif BOOST_VERSION >= 105400
+    alloc.deallocate(ctx);
+#endif
+
 }
 
 
@@ -42,7 +47,11 @@ void Coroutine2::coroEntry(intptr_t )
 
 void Coroutine2::initializeContext()
 {
+#if BOOST_VERSION < 105600
     coro_context = boost::context::make_fcontext( stack, stack_size, coroEntry );
+#else
+    coro_context = boost::context::make_fcontext( stack, stack_size, coroEntry );
+#endif
 }
 
 bool Coroutine2::cont()
@@ -74,8 +83,13 @@ void Coroutine2::yieldHelper( Status  s )
 
     Coroutine2 * c = current_coro;
     current_coro = c->caller;
+#if BOOST_VERSION < 105600
     boost::context::jump_fcontext(c->coro_context,
         &c->ret_context, 0 );
+#else
+    boost::context::jump_fcontext(&c->coro_context,
+        c->ret_context, 0 );
+#endif
 }
 
 void Coroutine2::yield()

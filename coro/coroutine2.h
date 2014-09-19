@@ -3,6 +3,7 @@
 
 #include <string>
 #include <memory>
+#include <boost/version.hpp>
 
 using std::string;
 
@@ -95,6 +96,16 @@ private:
     string coro_name;
     Status coro_status = NotStarted;
 
+#if BOOST_VERSION == 105300
+    boost::context::fcontext_t * coro_context;
+    boost::context::fcontext_t ret_context;
+
+    boost::coroutines::detail::stack_allocator alloc;
+
+    std::size_t stack_size =
+            boost::coroutines::detail::stack_allocator::default_stacksize();
+    void * stack = alloc.allocate( stack_size );
+#elif BOOST_VERSION == 105400
     boost::context::fcontext_t * coro_context;
     boost::context::fcontext_t ret_context;
 
@@ -105,6 +116,15 @@ private:
     boost::coroutines::stack_context ctx;
 
     void * stack = ( alloc.allocate( ctx, stack_size ), ctx.sp);
+#elif BOOST_VERSION == 105600
+    boost::context::fcontext_t coro_context;
+    boost::context::fcontext_t ret_context;
+
+    boost::coroutines::stack_allocator alloc;
+    std::size_t stack_size =  boost::coroutines::stack_traits::default_size();
+    boost::coroutines::stack_context ctx;
+    void * stack = ( alloc.allocate( ctx, stack_size ), ctx.sp);
+#endif
 
     void initializeContext();
 
